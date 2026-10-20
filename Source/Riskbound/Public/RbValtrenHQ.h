@@ -41,9 +41,10 @@ private:
 	UMaterialInterface* Mat(const TCHAR* Name);
 	UStaticMesh* Model(const TCHAR* Id);
 	UStaticMeshComponent* AddMesh(UStaticMesh* Mesh, const FVector& Location, float Yaw, const FVector& Scale, UMaterialInterface* Override = nullptr, bool bCollision = true);
+	bool AddInstance(UStaticMesh* Mesh, const FVector& Location, float Yaw, const FVector& Scale, UMaterialInterface* Override = nullptr, bool bCollision = true);
 	UStaticMeshComponent* AddBox(const FVector& Center, const FVector& Size, UMaterialInterface* Material, float Yaw = 0.0f, bool bCollision = true);
 	void AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color);
-	void AddPanelLight(const FVector& Location, float Lumens, bool bShadows, const FLinearColor& Tint = FLinearColor(1.0f, 0.96f, 0.9f));
+	void AddPanelLight(const FVector& Location, float Lumens, bool bShadows, const FLinearColor& Tint = FLinearColor(0.92f, 0.96f, 1.0f));
 
 	// Architecture
 	void BuildShell();
@@ -59,6 +60,12 @@ private:
 	void Monitor(const FVector& Base, float Yaw, UMaterialInterface* Screen);
 	void Chair(const FVector& Location, float Yaw, const TCHAR* ModelId = TEXT("modern_arm_chair_01"));
 	void Plant(const FVector& Location, bool bLarge);
+	void TaskChair(const FVector& Location, float Yaw);
+	void Workplace(const FVector& DeskCenter, float Yaw, UMaterialInterface* Screen, bool bLamp, int32 Seed);
+	void DeskLamp(const FVector& Base, float Yaw);
+	void Shelf(const FVector& Center, float Yaw, float Width, int32 Seed);
+	void ArtPrint(const FVector& WallPoint, float Yaw, const TCHAR* Print, const FVector2D& Size);
+	void SmallProps(const FVector& Location, float Yaw, int32 Kind); // 0 bin, 1 coat stand, 2 printer, 3 water cooler
 	void FurnishRooms();
 	void PlaceInteractables();
 	template <class T>
@@ -69,7 +76,9 @@ private:
 	UPROPERTY(Transient) TObjectPtr<UStaticMesh> Sphere;
 	UPROPERTY(Transient) TMap<FString, TObjectPtr<UMaterialInterface>> Materials;
 
+	UPROPERTY(Transient) TMap<FString, TObjectPtr<class UInstancedStaticMeshComponent>> Pools;
 	int32 ComponentCount = 0;
+	int32 InstanceCount = 0;
 	int32 LightCount = 0;
 	bool bBuilt = false;
 	bool bHasArt = false;

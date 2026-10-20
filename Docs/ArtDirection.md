@@ -37,5 +37,8 @@ Inter (SIL OFL) for all UI; Inter SemiBold for headings, Inter Regular for body,
 ## Fictional names
 All companies, suppliers, banks, insurers, regulators-by-brand, products, logos and visible text in the game are invented. Before adding a name, web-search it and pick another if a real business uses it (or something confusingly close). Downloaded assets are inspected for real-world logos or brand text (monitors, laptops, packaging, signage, vehicles); any that show one are retextured or excluded, and the decision is noted in Docs/AssetCredits.md. Renamed in save v4: Valtren Coldline Logistics, Orrinbrook Mutual Assurance, Quellard Grid Projects, Kelvarin Refrigeration Services.
 
+## Performance budget
+60 fps at 1920x1080 on the development PC (4 GB GPU) at the default High preset, measured in the packaged Development build with `-RbSelfTest=tour`. Repeated geometry is drawn as instanced static meshes (every master material must be flagged for instancing); only the sun casts shadows; Lumen traces reflections only below roughness 0.35.
+
 ## Assets wanted from Fab / Quixel / MetaHuman (need the user's Epic sign-in)
 Modern office desk and task-chair set, monitors/keyboards, acoustic ceiling and wall panels, carpet tiles, a business-dressed MetaHuman for Priya Okafor. Free Fab Standard License assets only; kept out of the public repo (see Docs/AssetCredits.md).

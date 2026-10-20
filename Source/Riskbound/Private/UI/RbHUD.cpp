@@ -1,10 +1,13 @@
 #include "RbHUD.h"
 
+#include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Misc/App.h"
 #include "RbCharacter.h"
 #include "RbGameSubsystem.h"
 #include "RbInteractionComponent.h"
@@ -31,6 +34,7 @@ void ARbHUD::BeginPlay()
 {
 	Super::BeginPlay();
 	Draft = MakeShared<FRbAssessmentDraft>();
+	SetTickableWhenPaused(true); // the menu camera keeps drifting while the menu pauses the world
 	Game()->OnNotice.AddDynamic(this, &ARbHUD::HandleNotice);
 	Game()->ApplySettings(false);
 	BuildOverlay();
@@ -118,8 +122,50 @@ void ARbHUD::CloseScreen()
 		if (Screen.IsValid()) Viewport->RemoveViewportWidgetContent(Screen.ToSharedRef());
 	}
 	Screen.Reset();
+	if (bMainMenuOpen) StopMenuCamera();
 	bMainMenuOpen = false;
 	SetGameInput();
+}
+
+void ARbHUD::StartMenuCamera()
+{
+	if (!MenuCamera)
+	{
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		MenuCamera = GetWorld()->SpawnActor<ACameraActor>(FVector(1200.0f, -60.0f, 165.0f), FRotator(-4.0f, 18.0f, 0.0f), Params);
+		if (MenuCamera)
+		{
+			MenuCamera->GetCameraComponent()->SetFieldOfView(70.0f);
+			MenuCamera->GetCameraComponent()->bConstrainAspectRatio = false;
+		}
+	}
+	if (APlayerController* PC = PlayerOwner.Get())
+	{
+		if (MenuCamera) PC->SetViewTarget(MenuCamera);
+	}
+}
+
+void ARbHUD::StopMenuCamera()
+{
+	if (APlayerController* PC = PlayerOwner.Get())
+	{
+		if (APawn* Pawn = PC->GetPawn()) PC->SetViewTarget(Pawn);
+	}
+}
+
+void ARbHUD::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (!bMainMenuOpen || !MenuCamera || RbUI::IsReducedMotion()) return;
+	// A slow dolly along the glass corridor, easing at both ends: 70 s per pass.
+	MenuCameraTime += FApp::GetDeltaTime();
+	const double Phase = FMath::Fmod(MenuCameraTime / 70.0, 2.0);
+	const double T = Phase < 1.0 ? Phase : 2.0 - Phase;
+	const double Eased = 0.5 - 0.5 * FMath::Cos(T * PI);
+	const float X = FMath::Lerp(500.0f, 3500.0f, static_cast<float>(Eased));
+	const float Yaw = FMath::Lerp(24.0f, 8.0f, static_cast<float>(Eased));
+	MenuCamera->SetActorLocationAndRotation(FVector(X, -60.0f, 165.0f), FRotator(-4.0f, Yaw, 0.0f));
 }
 
 void ARbHUD::SetGameInput()
@@ -155,15 +201,17 @@ void ARbHUD::OnSettingsChanged()
 
 void ARbHUD::ShowMainMenu()
 {
+	// The world keeps running behind the main menu so the backdrop camera can drift.
 	const FRbScreenParts Parts = RbScreens::MainMenu(this);
-	ShowScreen(Parts.Widget, Parts.Focus, nullptr, true);
+	ShowScreen(Parts.Widget, Parts.Focus, nullptr, false);
 	bMainMenuOpen = true;
+	StartMenuCamera();
 }
 
 void ARbHUD::ShowDifficultyPicker()
 {
 	const FRbScreenParts Parts = RbScreens::DifficultyPicker(this);
-	ShowScreen(Parts.Widget, Parts.Focus, [this]() { ShowMainMenu(); }, true);
+	ShowScreen(Parts.Widget, Parts.Focus, [this]() { ShowMainMenu(); }, false);
 	bMainMenuOpen = true;
 }
 

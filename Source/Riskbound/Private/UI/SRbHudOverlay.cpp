@@ -10,7 +10,9 @@
 
 #define LOCTEXT_NAMESPACE "Riskbound"
 
-static constexpr double NoticeSeconds = 5.0;
+static constexpr double NoticeSeconds = 4.5;
+static constexpr double NoticeFadeSeconds = 0.6;
+static constexpr int32 MaxNotices = 3;
 
 void SRbHudOverlay::Construct(const FArguments& InArgs)
 {
@@ -26,12 +28,12 @@ void SRbHudOverlay::Construct(const FArguments& InArgs)
 		+ SOverlay::Slot()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Top)
-		.Padding(24.0f)
+		.Padding(RbUI::Space6)
 		[
 			SNew(SBorder)
 			.Visibility_Lambda(GameplayVisibility)
 			.BorderImage(RbUI::PanelBrush())
-			.Padding(FMargin(14.0f, 10.0f))
+			.Padding(FMargin(RbUI::Space4, RbUI::Space3))
 			[
 				SNew(SBox)
 				.MaxDesiredWidth(520.0f)
@@ -39,32 +41,29 @@ void SRbHudOverlay::Construct(const FArguments& InArgs)
 					SNew(SVerticalBox)
 					+ SVerticalBox::Slot().AutoHeight()
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("ObjectiveHeader", "OBJECTIVE   (J: journal, Esc: pause)"))
-						.Font(RbUI::Font(11, true))
-						.ColorAndOpacity(RbUI::Accent)
+						RbUI::MakeEyebrow(LOCTEXT("ObjectiveHeader", "Objective   -   J journal   Esc pause"))
 					]
-					+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, 4.0f, 0.0f, 0.0f)
+					+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, RbUI::Space1, 0.0f, 0.0f)
 					[
 						SNew(STextBlock)
 						.Text(InArgs._Objective)
-						.Font(RbUI::Font(15))
+						.Font(RbUI::FontW(16, RbUI::EWeight::Medium))
 						.ColorAndOpacity(RbUI::TextPrimary)
 						.AutoWrapText(true)
 					]
 				]
 			]
 		]
-		// Crosshair.
+		// Crosshair: a small dot.
 		+ SOverlay::Slot()
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
 		[
 			SNew(STextBlock)
 			.Visibility_Lambda(GameplayVisibility)
-			.Text(FText::FromString(TEXT("+")))
-			.Font(RbUI::Font(18, true))
-			.ColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, 0.8f))
+			.Text(FText::FromString(TEXT("·")))
+			.Font(RbUI::FontW(28, RbUI::EWeight::Bold))
+			.ColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, 0.85f))
 		]
 		// Interaction prompt, below the crosshair.
 		+ SOverlay::Slot()
@@ -78,29 +77,56 @@ void SRbHudOverlay::Construct(const FArguments& InArgs)
 				return ShowGameplay.Get() && !Prompt.Get().IsEmpty() ? EVisibility::HitTestInvisible : EVisibility::Collapsed;
 			})
 			.BorderImage(RbUI::PanelBrush())
-			.Padding(FMargin(14.0f, 8.0f))
+			.Padding(FMargin(RbUI::Space4, RbUI::Space2))
 			[
-				SNew(STextBlock)
-				.Text_Lambda([Prompt]() { return FText::Format(LOCTEXT("PromptFmt", "[E]  {0}"), Prompt.Get()); })
-				.Font(RbUI::Font(15, true))
-				.ColorAndOpacity(RbUI::TextPrimary)
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0.0f, 0.0f, RbUI::Space2, 0.0f)
+				[
+					SNew(SBorder)
+					.BorderImage(RbUI::FocusBrush())
+					.Padding(FMargin(7.0f, 1.0f))
+					[
+						SNew(STextBlock).Text(LOCTEXT("KeyE", "E")).Font(RbUI::FontW(14, RbUI::EWeight::Bold)).ColorAndOpacity(RbUI::Accent)
+					]
+				]
+				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
+				[
+					SNew(STextBlock)
+					.Text_Lambda([Prompt]() { return Prompt.Get(); })
+					.Font(RbUI::FontW(15, RbUI::EWeight::Medium))
+					.ColorAndOpacity(RbUI::TextPrimary)
+				]
 			]
 		]
-		// Notices, bottom centre.
+		// Notices: one queue, top right, clear of every modal's content area.
 		+ SOverlay::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Bottom)
-		.Padding(0.0f, 0.0f, 0.0f, 48.0f)
+		.HAlign(HAlign_Right)
+		.VAlign(VAlign_Top)
+		.Padding(RbUI::Space6)
 		[
-			SAssignNew(NoticeBox, SVerticalBox)
+			SNew(SBox)
+			.WidthOverride(380.0f)
+			[
+				SAssignNew(NoticeBox, SVerticalBox)
+			]
 		]
 	];
 }
 
 void SRbHudOverlay::AddNotice(const FString& Message)
 {
-	Notices.Add({Message, FPlatformTime::Seconds() + NoticeSeconds});
-	while (Notices.Num() > 4)
+	const double Now = FPlatformTime::Seconds();
+	// Identical notices (e.g. repeated "Progress autosaved") refresh the existing one instead of stacking.
+	for (FNotice& N : Notices)
+	{
+		if (N.Text == Message)
+		{
+			N.ExpiresAt = Now + NoticeSeconds;
+			return;
+		}
+	}
+	Notices.Add({Message, Now + NoticeSeconds});
+	while (Notices.Num() > MaxNotices)
 	{
 		Notices.RemoveAt(0);
 	}
@@ -117,21 +143,44 @@ void SRbHudOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurre
 	}
 }
 
+float SRbHudOverlay::NoticeAlpha(const FString& Message) const
+{
+	if (RbUI::IsReducedMotion()) return 1.0f;
+	for (const FNotice& N : Notices)
+	{
+		if (N.Text == Message)
+		{
+			return static_cast<float>(FMath::Clamp((N.ExpiresAt - FPlatformTime::Seconds()) / NoticeFadeSeconds, 0.0, 1.0));
+		}
+	}
+	return 0.0f;
+}
+
 void SRbHudOverlay::RebuildNotices()
 {
 	NoticeBox->ClearChildren();
-	for (const FNotice& N : Notices)
+	for (int32 i = 0; i < Notices.Num(); ++i)
 	{
+		const FString Message = Notices[i].Text;
 		NoticeBox->AddSlot()
 		.AutoHeight()
-		.HAlign(HAlign_Center)
-		.Padding(0.0f, 3.0f)
+		.Padding(0.0f, 0.0f, 0.0f, RbUI::Space2)
 		[
 			SNew(SBorder)
 			.BorderImage(RbUI::PanelBrush())
-			.Padding(FMargin(14.0f, 7.0f))
+			.Padding(FMargin(RbUI::Space4, RbUI::Space2 + 2.0f))
+			.ColorAndOpacity_Lambda([this, Message]() { return FLinearColor(1.0f, 1.0f, 1.0f, NoticeAlpha(Message)); })
+			.BorderBackgroundColor_Lambda([this, Message]() { return FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, NoticeAlpha(Message))); })
 			[
-				SNew(STextBlock).Text(FText::FromString(N.Text)).Font(RbUI::Font(14)).ColorAndOpacity(RbUI::TextPrimary)
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, RbUI::Space3, 0.0f)
+				[
+					SNew(SBox).WidthOverride(3.0f).HeightOverride(18.0f)[SNew(SBorder).BorderImage(RbUI::FocusBrush())]
+				]
+				+ SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center)
+				[
+					SNew(STextBlock).Text(FText::FromString(Message)).Font(RbUI::FontW(14, RbUI::EWeight::Regular)).ColorAndOpacity(RbUI::TextPrimary).AutoWrapText(true)
+				]
 			]
 		];
 	}

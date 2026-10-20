@@ -17,11 +17,6 @@
 
 namespace
 {
-const FCheckBoxStyle& RadioStyle()
-{
-	return FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("RadioButton");
-}
-
 TSharedRef<SWidget> ChoiceLabel(const FRbOptionView& Option)
 {
 	TSharedRef<SVerticalBox> Box = SNew(SVerticalBox)
@@ -104,7 +99,19 @@ void SRbAssessmentForm::Construct(const FArguments& InArgs)
 	ChildSlot
 	[
 		SNew(SVerticalBox)
-		+ SVerticalBox::Slot().AutoHeight()[RbUI::MakeHeading(LOCTEXT("FormTitle", "Risk assessment: R-014 cold-store temperature excursion"))]
+		+ SVerticalBox::Slot().AutoHeight()[RbUI::MakeEyebrow(LOCTEXT("FormEyebrow", "Mission 001  /  Assessment"))]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot().FillWidth(1.0f)[RbUI::MakeHeading(LOCTEXT("FormTitle", "Risk assessment: R-014 cold-store temperature excursion"))]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.Font(RbUI::FontW(15, RbUI::EWeight::SemiBold))
+				.Text_Lambda([this]() { return FText::Format(LOCTEXT("Progress", "{0} / {1} sections complete"), CompletedSections(), SectionCount); })
+				.ColorAndOpacity_Lambda([this]() { return FSlateColor(CompletedSections() == SectionCount ? RbUI::Good : RbUI::TextMuted); })
+			]
+		]
 		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, 4.0f, 0.0f, 12.0f)
 		[
 			RbUI::MakeBody(LOCTEXT("FormIntro", "Your answers are kept if you close the form. Submitting is final. Tab and the arrow keys move between fields; Space selects."), 13, RbUI::TextMuted)
@@ -120,7 +127,7 @@ void SRbAssessmentForm::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center)
 			[
 				SNew(STextBlock)
-				.Text_Lambda([this]() { return StatusText; })
+				.Text_Lambda([this]() { return StatusText.IsEmpty() ? MissingReason() : StatusText; })
 				.ColorAndOpacity_Lambda([this]() { return FSlateColor(bStatusIsError ? RbUI::Bad : RbUI::Good); })
 				.Font(RbUI::Font(14, true))
 				.AutoWrapText(true)
@@ -131,7 +138,8 @@ void SRbAssessmentForm::Construct(const FArguments& InArgs)
 			]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				RbUI::MakeButton(LOCTEXT("Submit", "Submit assessment"), FOnClicked::CreateSP(this, &SRbAssessmentForm::HandleSubmit), &SubmitButton, true, true)
+				RbUI::MakeButton(LOCTEXT("Submit", "Submit assessment"), FOnClicked::CreateSP(this, &SRbAssessmentForm::HandleSubmit), &SubmitButton,
+					TAttribute<bool>::CreateLambda([this]() { return CompletedSections() == SectionCount; }), true)
 			]
 		]
 	];
@@ -165,6 +173,7 @@ TSharedRef<SWidget> SRbAssessmentForm::MultiChoice(const TArray<FRbOptionView>& 
 		.Padding(0.0f, 2.0f)
 		[
 			SNew(SCheckBox)
+			.Style(&RbUI::CheckStyle())
 			.IsChecked_Lambda([Selected, Id]() { return Selected->Contains(Id) ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
 			.OnCheckStateChanged_Lambda([Selected, Id](ECheckBoxState NewState)
 			{
@@ -190,7 +199,7 @@ TSharedRef<SWidget> SRbAssessmentForm::SingleChoice(const TArray<FRbOptionView>&
 		.Padding(0.0f, 2.0f)
 		[
 			SNew(SCheckBox)
-			.Style(&RadioStyle())
+			.Style(&RbUI::RadioStyle())
 			.IsChecked_Lambda([Selected, Id]() { return *Selected == Id ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
 			.OnCheckStateChanged_Lambda([Selected, Id](ECheckBoxState) { *Selected = Id; })
 			[
@@ -211,7 +220,7 @@ TSharedRef<SWidget> SRbAssessmentForm::LevelPicker(const FText& Label, int32* Va
 	for (int32 Level = 1; Level <= MaxLevel; ++Level)
 	{
 		TSharedRef<SCheckBox> Choice = SNew(SCheckBox)
-			.Style(&RadioStyle())
+			.Style(&RbUI::RadioStyle())
 			.IsChecked_Lambda([Value, Level]() { return *Value == Level ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
 			.OnCheckStateChanged_Lambda([Value, Level](ECheckBoxState) { *Value = Level; })
 			[
@@ -251,7 +260,7 @@ TSharedRef<SWidget> SRbAssessmentForm::ControlRatings(const TArray<FString>& Con
 			Row->AddSlot().AutoWidth().Padding(0.0f, 0.0f, 16.0f, 0.0f)
 			[
 				SNew(SCheckBox)
-				.Style(&RadioStyle())
+				.Style(&RbUI::RadioStyle())
 				.IsChecked_Lambda([D, Index, Rating]() { return D->ControlChoice[Index] == Rating ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
 				.OnCheckStateChanged_Lambda([D, Index, Rating](ECheckBoxState) { D->ControlChoice[Index] = Rating; })
 				[
@@ -278,6 +287,37 @@ FRbSubmissionInput SRbAssessmentForm::BuildInput(const FRbAssessmentDraft& InDra
 		Out.ControlRatings.Add(static_cast<ERbControlRating>(Choice));
 	}
 	return Out;
+}
+
+int32 SRbAssessmentForm::CompletedSections() const
+{
+	// Completeness only (every section answered); correctness stays hidden until the debrief.
+	const FRbSubmissionInput& In = Draft->Input;
+	int32 Done = 0;
+	Done += In.MissingInfo.Num() > 0;
+	Done += In.InherentLikelihood > 0 && In.InherentImpact > 0;
+	Done += !Draft->ControlChoice.Contains(-1);
+	Done += In.ResidualLikelihood > 0 && In.ResidualImpact > 0;
+	Done += !In.TreatmentId.IsEmpty();
+	Done += !In.ActionOwnerId.IsEmpty();
+	Done += In.RationaleTagIds.Num() > 0 || !In.RationaleText.TrimStartAndEnd().IsEmpty();
+	return Done;
+}
+
+FText SRbAssessmentForm::MissingReason() const
+{
+	const FRbSubmissionInput& In = Draft->Input;
+	TArray<FString> Missing;
+	if (In.MissingInfo.Num() == 0) Missing.Add(TEXT("1"));
+	if (In.InherentLikelihood == 0 || In.InherentImpact == 0) Missing.Add(TEXT("2"));
+	if (Draft->ControlChoice.Contains(-1)) Missing.Add(TEXT("3"));
+	if (In.ResidualLikelihood == 0 || In.ResidualImpact == 0) Missing.Add(TEXT("4"));
+	if (In.TreatmentId.IsEmpty()) Missing.Add(TEXT("5"));
+	if (In.ActionOwnerId.IsEmpty()) Missing.Add(TEXT("6"));
+	if (In.RationaleTagIds.Num() == 0 && In.RationaleText.TrimStartAndEnd().IsEmpty()) Missing.Add(TEXT("7"));
+	bStatusIsError = false;
+	return Missing.IsEmpty() ? LOCTEXT("ReadyToSubmit", "All sections answered. Submitting is final.")
+		: FText::Format(LOCTEXT("StillMissing", "To submit, answer section {0}."), FText::FromString(FString::Join(Missing, TEXT(", "))));
 }
 
 FReply SRbAssessmentForm::HandleSubmit()

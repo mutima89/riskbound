@@ -29,6 +29,9 @@ Assets under the Fab Standard License or Epic template content are not stored in
 | [Canary Wharf](https://polyhaven.com/a/canary_wharf) | Business-district view through the windows, sky light | Poly Haven | Andreas Mischok | CC0 1.0 |
 | [Inter 4.1](https://rsms.me/inter/) | UI typeface | rsms/inter (Rasmus Andersson) | Rasmus Andersson | SIL Open Font License 1.1 |
 
+## Original Riskbound textures
+Screen UIs (dashboard, spreadsheet, inbox, alarm console), the training whiteboard sketch and the three abstract wall prints are drawn by `Scripts/GenerateTextures.py` for this project (all names invented; no Mission 001 figures). Office task chairs, desks, monitors, shelving, lamps and small props are built from engine shapes in `ARbValtrenHQ`.
+
 ## Logo and brand check
 Every model and texture above was inspected for real-world logos or brand text before use (contact sheet of all diffuse maps, then zoomed crops).
 - Wall Clock: dial printed "URBAN quartz" - painted out (Scripts/FetchAssets.py EDITS; the importer uses Data/Assets/edited/).

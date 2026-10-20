@@ -41,6 +41,9 @@ private:
 	TSharedRef<SWidget> LevelPicker(const FText& Label, int32* Value, int32 MaxLevel);
 	TSharedRef<SWidget> ControlRatings(const TArray<FString>& Controls);
 	FReply HandleSubmit();
+	int32 CompletedSections() const;
+	FText MissingReason() const;
+	static constexpr int32 SectionCount = 7;
 
 	TWeakObjectPtr<URbGameSubsystem> Game;
 	TSharedPtr<FRbAssessmentDraft> Draft;
@@ -48,5 +51,5 @@ private:
 	TFunction<void()> OnClose;
 	TSharedPtr<SWidget> FirstFocus;
 	FText StatusText;
-	bool bStatusIsError = false;
+	mutable bool bStatusIsError = false;
 };

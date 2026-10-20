@@ -119,6 +119,7 @@ TSharedRef<SWidget> SettingSlider(const FText& Label, float Min, float Max, floa
 TSharedRef<SWidget> SettingToggle(const FText& Label, TFunction<bool()> Get, TFunction<void(bool)> Set)
 {
 	return SNew(SCheckBox)
+		.Style(&RbUI::CheckStyle())
 		.IsChecked_Lambda([Get]() { return Get() ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
 		.OnCheckStateChanged_Lambda([Set](ECheckBoxState S) { Set(S == ECheckBoxState::Checked); })
 		[
@@ -230,7 +231,7 @@ FRbScreenParts Settings(ARbHUD* Hud, TFunction<void()> OnBack)
 			Row->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space4, 0.0f)
 			[
 				SNew(SCheckBox)
-				.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("RadioButton"))
+				.Style(&RbUI::RadioStyle())
 				.IsChecked_Lambda([Get, Q]() { return Get().GraphicsQuality == Q ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
 				.OnCheckStateChanged_Lambda([Update, Q](ECheckBoxState) { Update([Q](FRbSettingsView& S) { S.GraphicsQuality = Q; }, false); })
 				[
@@ -343,11 +344,35 @@ FRbScreenParts Debrief(const FRbDebriefView& D, const FRbCareerView& Career, con
 	}
 	else
 	{
-		AddRow(Box, SNew(STextBlock)
-			.Text(FText::Format(LOCTEXT("Outcome", "{0}   Decision quality {1}/100"),
-				D.bPassed ? LOCTEXT("Passed", "PASSED") : LOCTEXT("NotPassed", "NOT PASSED"), D.OverallScore))
-			.Font(Font(20, true))
-			.ColorAndOpacity(D.bPassed ? Good : Bad), 4.0f);
+		// Summary card first: verdict, score, strongest area and the first thing to improve.
+		const FRbCriterionView* Best = nullptr;
+		for (const FRbCriterionView& C : D.Criteria)
+		{
+			if (!Best || C.Score * C.Weight > Best->Score * Best->Weight) Best = &C;
+		}
+		const FText Improve = D.Improvements.IsEmpty() ? LOCTEXT("NothingMajor", "Nothing major: keep the same evidence discipline.")
+			: FText::FromString(D.Improvements[0]);
+		AddRow(Box, SNew(SBorder).BorderImage(CardBrush()).Padding(Space4)
+			[
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0.0f, 0.0f, Space6, 0.0f)
+				[
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(D.bPassed ? LOCTEXT("Passed", "PASSED") : LOCTEXT("NotPassed", "NOT PASSED"))
+						.Font(FontW(14, EWeight::Bold)).ColorAndOpacity(D.bPassed ? Good : Bad)]
+					+ SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(FText::Format(LOCTEXT("ScoreBig", "{0}"), D.OverallScore))
+						.Font(FontW(44, EWeight::Bold)).ColorAndOpacity(TextPrimary)]
+					+ SVerticalBox::Slot().AutoHeight()[MakeBody(LOCTEXT("ScoreLabel", "decision quality / 100"), 12, TextMuted)]
+				]
+				+ SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center)
+				[
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot().AutoHeight()[MakeEyebrow(LOCTEXT("Strongest", "Strongest"))]
+					+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, 2.0f, 0.0f, Space3)[MakeBody(Best ? FText::FromString(Best->Name) : FText::GetEmpty(), 15)]
+					+ SVerticalBox::Slot().AutoHeight()[MakeEyebrow(LOCTEXT("ImproveFirst", "Improve first"))]
+					+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, 2.0f, 0.0f, 0.0f)[MakeBody(Improve, 14)]
+				]
+			], Space2);
 		AddRow(Box, MakeBody(LOCTEXT("QualityNote", "Decision quality is judged on the evidence you had, separately from how events turn out."), 13, TextMuted), 14.0f);
 
 		AddRow(Box, MakeHeading(LOCTEXT("Criteria", "How your assessment was judged"), 16), 6.0f);
@@ -369,17 +394,19 @@ FRbScreenParts Debrief(const FRbDebriefView& D, const FRbCareerView& Career, con
 		AddRow(Box, MakeBody(FText::Format(LOCTEXT("WorstCase", "Worst single scenario (not the expected loss): {0}"), Money(D.BaselineWorstCase)), 14), 12.0f);
 
 		AddRow(Box, MakeHeading(LOCTEXT("AppraisalTitle", "Treatment appraisal"), 16), 4.0f);
+		TSharedRef<SVerticalBox> Table = Column();
 		const FRbAppraisalView& A = D.Chosen;
 		const FRbAppraisalView& R = D.Recommended;
-		AddRow(Box, TableRow(LOCTEXT("Metric", "Metric"), FText::Format(LOCTEXT("YourChoice", "Your choice: {0}"), FText::FromString(A.TreatmentLabel)), FText::FromString(R.TreatmentLabel), true), 4.0f);
-		AddRow(Box, TableRow(LOCTEXT("Reduction", "Annual risk reduction"), Money(A.AnnualRiskReduction), Money(R.AnnualRiskReduction)), 2.0f);
-		AddRow(Box, TableRow(LOCTEXT("PvBenefit", "PV of benefit"), Money(A.PvBenefit), Money(R.PvBenefit)), 2.0f);
-		AddRow(Box, TableRow(LOCTEXT("PvCost", "PV of cost"), Money(A.PvCost), Money(R.PvCost)), 2.0f);
-		AddRow(Box, TableRow(LOCTEXT("Npv", "NPV"), Money(A.Npv), Money(R.Npv)), 2.0f);
-		AddRow(Box, TableRow(LOCTEXT("Roi", "ROI"), Percent(A.Roi), Percent(R.Roi)), 2.0f);
-		AddRow(Box, TableRow(LOCTEXT("Bcr", "Benefit-cost ratio"), Ratio2(A.BenefitCostRatio), Ratio2(R.BenefitCostRatio)), 2.0f);
-		AddRow(Box, TableRow(LOCTEXT("CostEffective", "Cost-effective (NPV > 0)"),
+		AddRow(Table, TableRow(LOCTEXT("Metric", "Metric"), FText::Format(LOCTEXT("YourChoice", "Your choice: {0}"), FText::FromString(A.TreatmentLabel)), FText::FromString(R.TreatmentLabel), true), 4.0f);
+		AddRow(Table, TableRow(LOCTEXT("Reduction", "Annual risk reduction"), Money(A.AnnualRiskReduction), Money(R.AnnualRiskReduction)), 2.0f);
+		AddRow(Table, TableRow(LOCTEXT("PvBenefit", "PV of benefit"), Money(A.PvBenefit), Money(R.PvBenefit)), 2.0f);
+		AddRow(Table, TableRow(LOCTEXT("PvCost", "PV of cost"), Money(A.PvCost), Money(R.PvCost)), 2.0f);
+		AddRow(Table, TableRow(LOCTEXT("Npv", "NPV"), Money(A.Npv), Money(R.Npv)), 2.0f);
+		AddRow(Table, TableRow(LOCTEXT("Roi", "ROI"), Percent(A.Roi), Percent(R.Roi)), 2.0f);
+		AddRow(Table, TableRow(LOCTEXT("Bcr", "Benefit-cost ratio"), Ratio2(A.BenefitCostRatio), Ratio2(R.BenefitCostRatio)), 2.0f);
+		AddRow(Table, TableRow(LOCTEXT("CostEffective", "Cost-effective (NPV > 0)"),
 			A.bCostEffective ? LOCTEXT("Yes", "Yes") : LOCTEXT("No", "No"), R.bCostEffective ? LOCTEXT("Yes", "Yes") : LOCTEXT("No", "No")), 14.0f);
+		AddRow(Box, SNew(SBorder).BorderImage(CardBrush()).Padding(FMargin(Space4, Space3))[Table], 14.0f);
 
 		AddBullets(Box, LOCTEXT("Assumptions", "Assumptions"), D.Assumptions);
 		AddBullets(Box, LOCTEXT("TradeOffs", "Trade-offs"), D.TradeOffs);

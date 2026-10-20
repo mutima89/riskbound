@@ -88,18 +88,7 @@ ExecutiveReport BuildExecutiveReport(const GameState& State, int TopN)
 
 static std::string Money(double V)
 {
-	char Buf[64];
-	std::snprintf(Buf, sizeof(Buf), "%.0f", V);
-	std::string Digits = Buf;
-	const bool bNeg = !Digits.empty() && Digits[0] == '-';
-	if (bNeg) Digits.erase(0, 1);
-	std::string Out;
-	for (size_t i = 0; i < Digits.size(); ++i)
-	{
-		if (i > 0 && (Digits.size() - i) % 3 == 0) Out += ',';
-		Out += Digits[i];
-	}
-	return (bNeg ? "-" : "") + Out;
+	return FormatMoney(V);
 }
 
 static std::string Num1(double V)

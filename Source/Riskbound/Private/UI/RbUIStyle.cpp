@@ -6,6 +6,7 @@
 #include "HAL/FileManager.h"
 #include "Misc/Paths.h"
 #include "Styling/CoreStyle.h"
+#include "Styling/SlateTypes.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBorder.h"
@@ -92,6 +93,35 @@ const FSlateBrush* FocusBrush()
 {
 	static const FSlateRoundedBoxBrush Brush(FLinearColor::Transparent, 7.0f, Accent, 2.0f);
 	return &Brush;
+}
+
+static FCheckBoxStyle MakeToggleStyle(float Radius)
+{
+	const FVector2f Size(20.0f, 20.0f);
+	const FLinearColor Outline = TextMuted;
+	const FSlateRoundedBoxBrush Off(FLinearColor(0, 0, 0, 0.25f), Radius, Outline, 1.5f, Size);
+	const FSlateRoundedBoxBrush OffHover(FLinearColor(1, 1, 1, 0.06f), Radius, Accent, 1.5f, Size);
+	const FSlateRoundedBoxBrush On(Accent, Radius, FLinearColor::White * FLinearColor(1, 1, 1, 0.85f), 2.0f, Size);
+	const FSlateRoundedBoxBrush OnHover(Accent, Radius, FLinearColor::White, 2.0f, Size);
+	FCheckBoxStyle S;
+	S.SetCheckBoxType(ESlateCheckBoxType::CheckBox)
+		.SetUncheckedImage(Off).SetUncheckedHoveredImage(OffHover).SetUncheckedPressedImage(OffHover)
+		.SetCheckedImage(On).SetCheckedHoveredImage(OnHover).SetCheckedPressedImage(OnHover)
+		.SetUndeterminedImage(Off).SetUndeterminedHoveredImage(OffHover).SetUndeterminedPressedImage(OffHover)
+		.SetPadding(FMargin(Space2, 0.0f, 0.0f, 0.0f));
+	return S;
+}
+
+const FCheckBoxStyle& CheckStyle()
+{
+	static const FCheckBoxStyle S = MakeToggleStyle(4.0f);
+	return S;
+}
+
+const FCheckBoxStyle& RadioStyle()
+{
+	static const FCheckBoxStyle S = MakeToggleStyle(10.0f);
+	return S;
 }
 
 static const FButtonStyle& ButtonStyle(bool bPrimary)

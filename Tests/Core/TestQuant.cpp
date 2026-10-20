@@ -1,5 +1,6 @@
 #include "RbTest.h"
 
+#include "RbMission001.h"
 #include "RbQuant.h"
 #include "RbRng.h"
 
@@ -185,4 +186,43 @@ TEST(Quant_MonteCarloHistogramCountsEveryTrial)
 	CHECK_NEAR(R.BinWidth, R.P99 / 20.0, 1e-9);
 	CHECK_NEAR(R.Mean, Plain.Mean, 0.0); // the histogram never changes the statistics
 	CHECK(R.Histogram.back() >= 50);     // at least the 1% above P99 lands in the last bin
+}
+
+TEST(Quant_FormatMoneyGroupsThousands)
+{
+	CHECK(FormatMoney(0.0) == "0");
+	CHECK(FormatMoney(999.4) == "999");
+	CHECK(FormatMoney(1000.0) == "1,000");
+	CHECK(FormatMoney(192807.4) == "192,807");
+	CHECK(FormatMoney(117500.0) == "117,500");
+	CHECK(FormatMoney(1800000.0) == "1,800,000");
+	CHECK(FormatMoney(-1234567.6) == "-1,234,568");
+	CHECK(FormatMoney(-0.4) == "0");
+}
+
+TEST(Quant_DebriefTextUsesGroupedMoney)
+{
+	// The treatment feedback quotes an NPV; it must use the shared formatter, never a raw number.
+	rb::m001::Submission S; // Score() expects a complete form (Validate() guarantees it in play)
+	S.MissingInfo = {"compressor_failure_history"};
+	S.InherentLikelihood = 4;
+	S.InherentImpact = 4;
+	S.ControlRatings = {rb::EControlEffectiveness::Ineffective, rb::EControlEffectiveness::PartiallyEffective, rb::EControlEffectiveness::Ineffective};
+	S.ResidualLikelihood = 4;
+	S.ResidualImpact = 3;
+	S.TreatmentId = "repair_and_escalation";
+	S.ActionOwnerId = "ops_site_manager";
+	S.RationaleTagIds = {"alarm_ignored"};
+	const rb::m001::Debrief D = rb::m001::Score(S, {});
+	bool bFound = false;
+	for (const rb::m001::CriterionResult& C : D.Criteria)
+	{
+		if (C.Name == "Treatment recommendation")
+		{
+			bFound = true;
+			CHECK(C.Feedback.find(FormatMoney(D.RecommendedAppraisal.Npv)) != std::string::npos);
+			CHECK(C.Feedback.find(",") != std::string::npos);
+		}
+	}
+	CHECK(bFound);
 }

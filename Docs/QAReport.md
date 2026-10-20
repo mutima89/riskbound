@@ -41,3 +41,18 @@ Performance is measured in the editor's -game mode (uncooked), 1920x1080, on thi
 | Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded`, 0 warnings |
 | Automation tests | `Scripts\RunUnrealTests.bat` | 3/3 `Result={Success}` |
 | UI capture | `UnrealEditor.exe Riskbound.uproject -game -RbSelfTest=ui -ResX=1920 -ResY=1080` | 11 screens captured through the HUD calls (Docs/Screenshots/ui/); Inter loaded, focus outline visible on the focused control |
+
+## 2026-10-20 - Visual polish round 2 (density, lighting, UI fixes, performance)
+| Run | Command | Result |
+|---|---|---|
+| Core tests | `Scripts\RunCoreTests.bat` | `46 test cases, 0 failed, 0 failed checks` (adds FormatMoney and debrief money-format tests) |
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded`, 0 warnings |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 3/3 `Result={Success}` |
+| Asset import | `Scripts\ImportAssets.bat` | 13 meshes, 7 master materials, 0 errors |
+| Package Development | `Scripts\BuildWindows.bat <UE> Development` | `BUILD SUCCESSFUL` |
+| Packaged self-test | `-RbSelfTest=play`, `-RbSelfTest=resume` | both PASS |
+| Packaged tour x3, 1920x1080, default quality (High: 70% internal resolution, TSR) | `Riskbound.exe -RbSelfTest=tour -ResX=1920 -ResY=1080` | every room 62.9-75.7 fps (GPU 12.5-16.4 ms) in all three runs; first stop (corridor) 42.8-59.1 includes start-up warm-up; 0 material usage warnings in the game log |
+
+Defect found and fixed during this round: after switching repeated geometry to instanced static meshes, the cooked game replaced every material lacking the "used with instanced static meshes" flag by the default material (the editor hid it by compiling usages on demand). Earlier packaged FPS figures from that interval were measured on placeholder materials and are discarded. The import script now sets the flag on every master material, and the packaged log is checked for `missing usage flag`.
+
+Graphics quality presets: Low 50%, Medium 60%, High 70%, Epic 100% internal resolution (TSR upscale); Low also turns Lumen off via engine scalability.

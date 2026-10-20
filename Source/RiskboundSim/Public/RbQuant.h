@@ -21,6 +21,10 @@ struct LossScenario
 };
 
 // EL = sum(p_i * L_i). A probability-weighted AVERAGE, never the worst case.
+// Whole-unit money with thousands separators ("192,807", "-1,234,568"). The one formatter for
+// every currency figure in player-facing text, in the sim and the UI.
+RB_API std::string FormatMoney(double Amount);
+
 RB_API double ExpectedLoss(const std::vector<LossScenario>& Scenarios);
 // The worst single scenario loss, reported next to EL so the two are not confused.
 RB_API double WorstCaseLoss(const std::vector<LossScenario>& Scenarios);

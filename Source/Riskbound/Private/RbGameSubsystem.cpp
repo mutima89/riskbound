@@ -409,6 +409,12 @@ void URbGameSubsystem::ApplySettings(bool bApplyWindowMode) const
 	const rb::PlayerSettings& S = State.Settings;
 	RbUI::SetTextScale(static_cast<float>(S.TextScale));
 	RbUI::SetReducedMotion(S.bReducedMotion);
+	// Internal render resolution per quality preset; TSR upscales to the output resolution.
+	if (IConsoleVariable* ScreenPct = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ScreenPercentage")))
+	{
+		static const float Percent[] = {50.0f, 60.0f, 70.0f, 100.0f};
+		ScreenPct->Set(Percent[FMath::Clamp(S.GraphicsQuality, 0, 3)], ECVF_SetByGameSetting);
+	}
 	if (IConsoleVariable* MotionBlur = IConsoleManager::Get().FindConsoleVariable(TEXT("r.MotionBlurQuality")))
 	{
 		MotionBlur->Set(S.bReducedMotion ? 0 : 4, ECVF_SetByGameSetting);

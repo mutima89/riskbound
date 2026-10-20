@@ -298,9 +298,7 @@ static int ClosenessScore(int Given, int Truth)
 
 static std::string Money(double V)
 {
-	char Buf[48];
-	std::snprintf(Buf, sizeof(Buf), "%.0f", V);
-	return Buf;
+	return FormatMoney(V);
 }
 
 Debrief Score(const Submission& S, const std::vector<std::string>& ViewedEvidence)

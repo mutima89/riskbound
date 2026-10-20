@@ -148,6 +148,20 @@ const std::vector<StressShock>& StandardStressShocks()
 	return S;
 }
 
+std::string FormatMoney(double Amount)
+{
+	const long long Rounded = std::llround(Amount);
+	const bool bNegative = Rounded < 0;
+	std::string Digits = std::to_string(bNegative ? -Rounded : Rounded);
+	std::string Out;
+	for (size_t i = 0; i < Digits.size(); ++i)
+	{
+		if (i > 0 && (Digits.size() - i) % 3 == 0) Out += ',';
+		Out += Digits[i];
+	}
+	return bNegative ? "-" + Out : Out;
+}
+
 StressResult StressTest(const std::vector<LossScenario>& Scenarios, const StressShock& Shock, double LossCapacity)
 {
 	std::vector<LossScenario> Stressed = Scenarios;

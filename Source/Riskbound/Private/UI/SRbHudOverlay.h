@@ -22,6 +22,7 @@ public:
 
 private:
 	void RebuildNotices();
+	float NoticeAlpha(const FString& Message) const; // fades out during the last 0.6 s
 
 	struct FNotice
 	{

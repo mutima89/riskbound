@@ -101,8 +101,12 @@ def new_material(name):
         # Reuse the asset (other assets may reference it) and rebuild its graph from scratch.
         m = unreal.load_asset(path)
         MEL.delete_all_material_expressions(m)
-        return m
-    return TOOLS.create_asset(name, MAT, unreal.Material, unreal.MaterialFactoryNew())
+    else:
+        m = TOOLS.create_asset(name, MAT, unreal.Material, unreal.MaterialFactoryNew())
+    # The HQ draws repeated geometry as instanced static meshes; a cooked game silently falls
+    # back to the default material for any material without this usage flag.
+    m.set_editor_property("used_with_instanced_static_meshes", True)
+    return m
 
 
 def expr(m, cls, x, y, **props):
@@ -191,7 +195,7 @@ def build_world(defaults):
 def build_glass():
     m = new_material("M_RbGlass")
     m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
-    m.set_editor_property("translucency_lighting_mode", unreal.TranslucencyLightingMode.TLM_SURFACE)
+    m.set_editor_property("translucency_lighting_mode", unreal.TranslucencyLightingMode.TLM_VOLUMETRIC_NON_DIRECTIONAL)  # cheap: large facades
     m.set_editor_property("two_sided", True)
     tint = expr(m, unreal.MaterialExpressionVectorParameter, -600, -200, parameter_name="Tint", default_value=unreal.LinearColor(0.75, 0.85, 0.88, 1))
     prop(tint, "", unreal.MaterialProperty.MP_BASE_COLOR)
@@ -236,6 +240,23 @@ def build_sky(hdri):
     link(tex, "RGB", mul, "A")
     link(inten, "", mul, "B")
     prop(mul, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    return finish(m)
+
+
+def build_screen(defaults):
+    """Self-lit display: a texture shown as emissive light over a dark glossy base."""
+    m = new_material("M_RbScreen")
+    tex = expr(m, unreal.MaterialExpressionTextureSampleParameter2D, -700, 0, parameter_name="ScreenTexture", texture=defaults["color"],
+               sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_COLOR)
+    inten = expr(m, unreal.MaterialExpressionScalarParameter, -700, 250, parameter_name="Intensity", default_value=12.0)
+    mul = expr(m, unreal.MaterialExpressionMultiply, -400, 50)
+    link(tex, "RGB", mul, "A")
+    link(inten, "", mul, "B")
+    prop(mul, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    black = expr(m, unreal.MaterialExpressionConstant3Vector, -400, -150, constant=unreal.LinearColor(0.01, 0.01, 0.012, 1))
+    prop(black, "", unreal.MaterialProperty.MP_BASE_COLOR)
+    rough = expr(m, unreal.MaterialExpressionConstant, -400, 250, r=0.15)
+    prop(rough, "", unreal.MaterialProperty.MP_ROUGHNESS)
     return finish(m)
 
 
@@ -359,21 +380,26 @@ else:
 
 # Architecture surfaces (world-aligned). TileSize is the real-world size of one texture repeat in cm.
 for name, asset_id, tile, tint, rough in [
-        ("MI_FloorParquet", "herringbone_parquet", 160, (1, 1, 1), 1.0),
-        ("MI_FloorLaminate", "laminate_floor_02", 220, (1, 1, 1), 1.0),
-        ("MI_FloorConcrete", "smooth_concrete_floor", 300, (1, 1, 1), 0.9),
-        ("MI_FloorTerrazzo", "terrazzo_tiles", 180, (1, 1, 1), 0.8),
+        ("MI_FloorParquet", "herringbone_parquet", 160, (1, 1, 1), 2.6),
+        ("MI_FloorLaminate", "laminate_floor_02", 220, (1, 1, 1), 1.5),
+        ("MI_FloorConcrete", "smooth_concrete_floor", 300, (1, 1, 1), 1.3),
+        ("MI_FloorTerrazzo", "terrazzo_tiles", 180, (1, 1, 1), 2.0),
+        ("MI_Carpet", "poly_wool_herringbone", 45, (0.3, 0.32, 0.34), 2.0),
+        ("MI_FabricDark", "poly_wool_herringbone", 30, (0.12, 0.13, 0.15), 2.0),
+        ("MI_Rug", "poly_wool_herringbone", 35, (0.52, 0.48, 0.42), 2.0),
         ("MI_WallPlaster", "plastered_wall_04", 260, (0.93, 0.91, 0.88), 1.0),
         ("MI_WoodOak", "oak_veneer_01", 140, (1, 1, 1), 0.9),
         ("MI_WoodWalnut", "black_walnut_veneer_01", 140, (1, 1, 1), 0.85),
         ("MI_AcousticPanel", "poly_wool_herringbone", 60, (0.55, 0.78, 0.8), 1.0)]:
-    instance(name, WORLD, texture_set(asset_id), {"MetallicScale": 0.0}, {"Tint": tint + (1,), "TileSize": (tile, tile, tile, 0)})
+    instance(name, WORLD, texture_set(asset_id), {"MetallicScale": 0.0, "RoughnessScale": rough}, {"Tint": tint + (1,), "TileSize": (tile, tile, tile, 0)})
     log("surface " + name)
 # Untextured surfaces: defaults are white base, ARM = (AO 1, rough 0.55, metal 0) scaled below.
 for name, tint, rough, metal in [("MI_Graphite", (0.06, 0.065, 0.075), 0.75, 1.0), ("MI_Chrome", (0.8, 0.8, 0.82), 0.3, 1.0),
                                  ("MI_CeilingWhite", (0.86, 0.86, 0.85), 1.6, 0.0), ("MI_TealAccent", (0.1, 0.55, 0.58), 1.0, 0.0),
                                  ("MI_Skirting", (0.12, 0.12, 0.13), 1.2, 0.0), ("MI_DeviceBlack", (0.02, 0.02, 0.025), 0.6, 0.0),
-                                 ("MI_SkinTone", (0.45, 0.3, 0.22), 1.0, 0.0), ("MI_SuitNavy", (0.04, 0.06, 0.12), 1.4, 0.0)]:
+                                 ("MI_SkinTone", (0.45, 0.3, 0.22), 1.0, 0.0), ("MI_SuitNavy", (0.04, 0.06, 0.12), 1.4, 0.0),
+                                 ("MI_Paper", (0.9, 0.9, 0.88), 1.7, 0.0), ("MI_Ceramic", (0.92, 0.92, 0.9), 0.35, 0.0),
+                                 ("MI_PlasticGrey", (0.35, 0.36, 0.38), 0.8, 0.0), ("MI_Brass", (0.75, 0.55, 0.3), 0.35, 1.0)]:
     instance(name, SURFACE, {}, {"RoughnessScale": rough / 0.55, "MetallicScale": metal}, {"Tint": tint + (1,)})
 instance("MI_Glass", unreal.load_asset(MAT + "/M_RbGlass"))
 instance("MI_GlassFrosted", unreal.load_asset(MAT + "/M_RbGlass"), {}, {"Opacity": 0.55, "Roughness": 0.45}, {"Tint": (0.9, 0.93, 0.94, 1)})
@@ -382,7 +408,27 @@ instance("MI_ScreenTeal", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intens
 instance("MI_ScreenAlert", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 16.0}, {"Color": (0.75, 0.3, 0.12, 1)})
 instance("MI_Highlight", unreal.load_asset(MAT + "/M_RbHighlight"))
 # Ceiling: faintly self-lit so it reads as bounce-lit white rather than black between panels.
-instance("MI_CeilingSoft", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 4.5}, {"Color": (0.85, 0.85, 0.84, 1)})
+instance("MI_CeilingSoft", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 13.0}, {"Color": (0.9, 0.9, 0.89, 1)})
+instance("MI_LampWarm", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 45.0}, {"Color": (1.0, 0.78, 0.5, 1)})
+instance("MI_ReceptionGlow", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 30.0}, {"Color": (0.17, 0.64, 0.66, 1)})
+instance("MI_LedStrip", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 70.0}, {"Color": (0.95, 0.97, 1.0, 1)})
+
+# Our own textures (Scripts/GenerateTextures.py): fictional screen UIs, whiteboard, wall prints.
+GEN = os.path.join(ROOT, "Data", "Assets", "generated")
+gen = {}
+for f in sorted(os.listdir(GEN)) if os.path.isdir(GEN) else []:
+    if f.endswith(".png"):
+        name = os.path.splitext(f)[0]
+        import_file(os.path.join(GEN, f), GAME + "/Textures/Generated", name)
+        gen[name] = setup_texture(GAME + "/Textures/Generated/" + name, "color")
+screen = build_screen(defaults)
+for mi, tex, inten in [("MI_ScreenDashboard", "T_ScreenDashboard", 14.0), ("MI_ScreenSheet", "T_ScreenSheet", 7.0),
+                       ("MI_ScreenEmail", "T_ScreenEmail", 14.0), ("MI_ScreenAlarmUI", "T_ScreenAlarm", 14.0)]:
+    if tex in gen:
+        instance(mi, screen, {"ScreenTexture": gen[tex]}, {"Intensity": inten})
+for mi, tex in [("MI_Whiteboard", "T_Whiteboard"), ("MI_ArtPrintA", "T_ArtPrintA"), ("MI_ArtPrintB", "T_ArtPrintB"), ("MI_ArtPrintC", "T_ArtPrintC")]:
+    if tex in gen:
+        instance(mi, SURFACE, {"BaseColorMap": gen[tex]}, {"RoughnessScale": 1.5, "MetallicScale": 0.0})
 if EAL.does_asset_exist(MAT + "/M_RbSky"):
     instance("MI_Sky", unreal.load_asset(MAT + "/M_RbSky"), {}, {"Intensity": 14.0})
 

@@ -21,6 +21,7 @@ class RISKBOUND_API ARbHUD : public AHUD
 public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	// ---- Menus ----
 	void ShowMainMenu();
@@ -65,4 +66,11 @@ private:
 	TSharedPtr<SRbHudOverlay> Overlay;
 	TSharedPtr<FRbAssessmentDraft> Draft;
 	bool bMainMenuOpen = false;
+
+	// Main menu backdrop: a slow camera drift through the office (static under Reduced Motion).
+	void StartMenuCamera();
+	void StopMenuCamera();
+	UPROPERTY(Transient)
+	TObjectPtr<class ACameraActor> MenuCamera;
+	double MenuCameraTime = 0.0;
 };
