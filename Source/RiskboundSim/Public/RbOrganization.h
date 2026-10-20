@@ -3,6 +3,8 @@
 // OUTCOME (what chance produced). See Docs/GameDesign.md "Consequences".
 #pragma once
 
+#include "RbApi.h"
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -25,8 +27,8 @@ enum class EOrgMetric
 };
 
 constexpr int OrgMetricCount = static_cast<int>(EOrgMetric::Count);
-const char* ToString(EOrgMetric M);
-bool IsIndexMetric(EOrgMetric M); // clamped to 0..100
+RB_API const char* ToString(EOrgMetric M);
+RB_API bool IsIndexMetric(EOrgMetric M); // clamped to 0..100
 
 struct MetricEffect
 {
@@ -48,7 +50,7 @@ enum class EDepartment
 	Count
 };
 
-const char* ToString(EDepartment D);
+RB_API const char* ToString(EDepartment D);
 
 struct DecisionRecord
 {
@@ -96,9 +98,9 @@ struct OrganizationProfile
 	double Metrics[OrgMetricCount];
 };
 
-const std::vector<OrganizationProfile>& OrganizationProfiles();
+RB_API const std::vector<OrganizationProfile>& OrganizationProfiles();
 
-class OrganizationState
+class RB_API OrganizationState
 {
 public:
 	OrganizationState();

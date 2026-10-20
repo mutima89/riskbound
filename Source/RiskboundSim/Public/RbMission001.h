@@ -3,6 +3,8 @@
 // The rubric lives in the .cpp and is never exposed before Submit().
 #pragma once
 
+#include "RbApi.h"
+
 #include "RbCareer.h"
 #include "RbOrganization.h"
 #include "RbQuant.h"
@@ -20,12 +22,12 @@ enum class EDifficulty
 	Executive     // no hints, incidents more likely
 };
 
-const char* ToString(EDifficulty D);
-double IncidentProbabilityMultiplier(EDifficulty D);
+RB_API const char* ToString(EDifficulty D);
+RB_API double IncidentProbabilityMultiplier(EDifficulty D);
 
 namespace m001
 {
-extern const char* const MissionId; // "M001"
+extern RB_API const char* const MissionId; // "M001"
 
 enum class EObjective
 {
@@ -44,7 +46,7 @@ enum class EObjective
 };
 
 constexpr int ObjectiveCount = static_cast<int>(EObjective::Count);
-const char* ObjectiveText(EObjective O);
+RB_API const char* ObjectiveText(EObjective O);
 
 struct EvidenceItem
 {
@@ -63,16 +65,16 @@ struct Option
 };
 
 // Static mission content.
-const std::vector<EvidenceItem>& Evidence();
-const std::vector<Option>& MissingInfoCandidates();
-const std::vector<Option>& TreatmentOptions();
-const std::vector<Option>& ActionOwnerOptions();
-const std::vector<Option>& RationaleTags();
-const std::vector<Control>& ExistingControls(); // the controls under review (names only matter to the player)
-const std::vector<LossScenario>& BaselineScenarios();
-TreatmentAppraisalInput AppraisalInputFor(const std::string& TreatmentId);
+RB_API const std::vector<EvidenceItem>& Evidence();
+RB_API const std::vector<Option>& MissingInfoCandidates();
+RB_API const std::vector<Option>& TreatmentOptions();
+RB_API const std::vector<Option>& ActionOwnerOptions();
+RB_API const std::vector<Option>& RationaleTags();
+RB_API const std::vector<Control>& ExistingControls(); // the controls under review (names only matter to the player)
+RB_API const std::vector<LossScenario>& BaselineScenarios();
+RB_API TreatmentAppraisalInput AppraisalInputFor(const std::string& TreatmentId);
 // The pre-existing, out-of-date register entry the player inspects.
-RiskEntry LegacyRegisterEntry();
+RB_API RiskEntry LegacyRegisterEntry();
 
 struct Submission
 {
@@ -122,7 +124,7 @@ enum class ESubmitError
 	IncompleteSubmission
 };
 
-class MissionState
+class RB_API MissionState
 {
 public:
 	bool bObjectives[ObjectiveCount] = {};
@@ -143,6 +145,6 @@ public:
 };
 
 // Pure scoring, exposed for tests. Does not mutate anything.
-Debrief Score(const Submission& S, const std::vector<std::string>& ViewedEvidence);
+RB_API Debrief Score(const Submission& S, const std::vector<std::string>& ViewedEvidence);
 } // namespace m001
 } // namespace rb

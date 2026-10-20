@@ -2,6 +2,8 @@
 // is never an input to promotion. Canonical rules: Docs/CareerModel.md.
 #pragma once
 
+#include "RbApi.h"
+
 #include <array>
 #include <string>
 #include <vector>
@@ -24,7 +26,7 @@ enum class ECompetency
 };
 
 constexpr int CompetencyCount = static_cast<int>(ECompetency::Count);
-const char* ToString(ECompetency C);
+RB_API const char* ToString(ECompetency C);
 
 enum class ESpecialism
 {
@@ -40,7 +42,7 @@ enum class ESpecialism
 	Environmental
 };
 
-const char* ToString(ESpecialism S);
+RB_API const char* ToString(ESpecialism S);
 
 struct CompetencyRequirement
 {
@@ -62,11 +64,11 @@ struct CareerLevelDef
 };
 
 // The ten-level ladder. Index 0 = level 1.
-const std::vector<CareerLevelDef>& CareerLadder();
-const CareerLevelDef& LevelDef(int Level);
+RB_API const std::vector<CareerLevelDef>& CareerLadder();
+RB_API const CareerLevelDef& LevelDef(int Level);
 
 // Post-CRO optional roles.
-const std::vector<std::string>& AdvancedPathways();
+RB_API const std::vector<std::string>& AdvancedPathways();
 
 struct CompetencyRecord
 {
@@ -86,7 +88,7 @@ struct PromotionCheck
 	std::vector<std::string> UnmetGates; // human-readable reasons
 };
 
-class CareerState
+class RB_API CareerState
 {
 public:
 	static constexpr double BlendWeight = 0.4; // weight of newest assessment

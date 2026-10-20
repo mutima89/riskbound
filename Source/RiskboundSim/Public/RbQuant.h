@@ -3,6 +3,8 @@
 // Formulas, units and limitations: Docs/RiskMethodology.md.
 #pragma once
 
+#include "RbApi.h"
+
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -19,14 +21,14 @@ struct LossScenario
 };
 
 // EL = sum(p_i * L_i). A probability-weighted AVERAGE, never the worst case.
-double ExpectedLoss(const std::vector<LossScenario>& Scenarios);
+RB_API double ExpectedLoss(const std::vector<LossScenario>& Scenarios);
 // The worst single scenario loss, reported next to EL so the two are not confused.
-double WorstCaseLoss(const std::vector<LossScenario>& Scenarios);
+RB_API double WorstCaseLoss(const std::vector<LossScenario>& Scenarios);
 // True when all probabilities are in [0,1] and losses are >= 0. If bMutuallyExclusive, also sum(p) <= 1.
-bool ValidateScenarios(const std::vector<LossScenario>& Scenarios, bool bMutuallyExclusive);
+RB_API bool ValidateScenarios(const std::vector<LossScenario>& Scenarios, bool bMutuallyExclusive);
 
 // ALE = annual rate of occurrence * single loss expectancy.
-double AnnualisedLossExpectancy(double AnnualRateOfOccurrence, double SingleLossExpectancy);
+RB_API double AnnualisedLossExpectancy(double AnnualRateOfOccurrence, double SingleLossExpectancy);
 
 // ---------- Treatment cost-benefit ----------
 struct TreatmentAppraisalInput
@@ -50,7 +52,7 @@ struct TreatmentAppraisal
 	bool bCostEffective = false;       // Npv > 0
 };
 
-TreatmentAppraisal AppraiseTreatment(const TreatmentAppraisalInput& In);
+RB_API TreatmentAppraisal AppraiseTreatment(const TreatmentAppraisalInput& In);
 
 // ---------- Key risk indicators ----------
 enum class EKriStatus
@@ -60,7 +62,7 @@ enum class EKriStatus
 	Red
 };
 
-const char* ToString(EKriStatus S);
+RB_API const char* ToString(EKriStatus S);
 
 struct Kri
 {
@@ -71,9 +73,9 @@ struct Kri
 	bool bHigherIsWorse = true;
 };
 
-EKriStatus EvaluateKri(const Kri& K);
+RB_API EKriStatus EvaluateKri(const Kri& K);
 // Red always escalates. Amber escalates after this many consecutive amber periods.
-bool KriRequiresEscalation(EKriStatus Current, int ConsecutiveAmberPeriods, int AmberPeriodsBeforeEscalation = 3);
+RB_API bool KriRequiresEscalation(EKriStatus Current, int ConsecutiveAmberPeriods, int AmberPeriodsBeforeEscalation = 3);
 
 // ---------- Sensitivity (tornado) ----------
 struct SensitivityRow
@@ -108,7 +110,7 @@ struct StressResult
 	bool bBreachesCapacity = false; // stressed worst case > loss capacity
 };
 
-StressResult StressTest(const std::vector<LossScenario>& Scenarios, const StressShock& Shock, double LossCapacity);
+RB_API StressResult StressTest(const std::vector<LossScenario>& Scenarios, const StressShock& Shock, double LossCapacity);
 
 // ---------- Monte Carlo (frequency x severity) ----------
 struct MonteCarloInput
@@ -137,7 +139,7 @@ struct MonteCarloResult
 
 // Lognormal parameters from a median and a 90th-percentile single-loss estimate (how
 // subject-matter experts usually give ranges).
-void LogNormalFromMedianP90(double Median, double P90, double& OutMu, double& OutSigma);
+RB_API void LogNormalFromMedianP90(double Median, double P90, double& OutMu, double& OutSigma);
 
-MonteCarloResult RunMonteCarlo(const MonteCarloInput& In);
+RB_API MonteCarloResult RunMonteCarlo(const MonteCarloInput& In);
 } // namespace rb

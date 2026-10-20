@@ -2,6 +2,8 @@
 // Scores here are ORDINAL. They rank risks; they are not money. See Docs/RiskMethodology.md.
 #pragma once
 
+#include "RbApi.h"
+
 #include <string>
 #include <vector>
 
@@ -15,11 +17,11 @@ enum class ERating
 	Critical
 };
 
-const char* ToString(ERating Rating);
+RB_API const char* ToString(ERating Rating);
 
 // N x N likelihood/impact matrix. Score = L * I. Rating bands by score thresholds,
 // optionally overridden cell-by-cell (some organisations weight impact more heavily).
-struct RiskMatrix
+struct RB_API RiskMatrix
 {
 	int Size = 5;
 	int MediumFrom = 5;
@@ -48,7 +50,7 @@ enum class EControlEffectiveness
 	Effective = 2
 };
 
-const char* ToString(EControlEffectiveness E);
+RB_API const char* ToString(EControlEffectiveness E);
 
 struct Control
 {
@@ -60,7 +62,7 @@ struct Control
 
 // Effectiveness is limited by the weaker of design and operation (a well-designed
 // control that never runs is ineffective). 0-1 Ineffective, 2 Partial, 3 Effective.
-EControlEffectiveness AssessControl(const Control& C);
+RB_API EControlEffectiveness AssessControl(const Control& C);
 
 struct ResidualResult
 {
@@ -70,7 +72,7 @@ struct ResidualResult
 
 // Residual = inherent reduced by the single strongest control per dimension
 // (reductions do not stack), floored at 1.
-ResidualResult ComputeResidual(const RiskMatrix& M, int InherentL, int InherentI, const std::vector<Control>& Controls);
+RB_API ResidualResult ComputeResidual(const RiskMatrix& M, int InherentL, int InherentI, const std::vector<Control>& Controls);
 
 enum class EAppetiteStatus
 {
@@ -79,7 +81,7 @@ enum class EAppetiteStatus
 	Exceeds
 };
 
-const char* ToString(EAppetiteStatus S);
+RB_API const char* ToString(EAppetiteStatus S);
 
 struct AppetiteRule
 {
@@ -87,7 +89,7 @@ struct AppetiteRule
 	int MaxResidualScore = 9;
 };
 
-struct RiskAppetite
+struct RB_API RiskAppetite
 {
 	std::vector<AppetiteRule> Rules;
 	int DefaultMaxResidualScore = 9;
@@ -113,8 +115,8 @@ enum class ERiskStatus
 	Closed
 };
 
-const char* ToString(ETreatment T);
-const char* ToString(ERiskStatus S);
+RB_API const char* ToString(ETreatment T);
+RB_API const char* ToString(ERiskStatus S);
 
 struct RiskEntry
 {
@@ -149,7 +151,7 @@ struct RiskFilter
 	bool bOnlyOutsideAppetite = false;
 };
 
-class RiskRegister
+class RB_API RiskRegister
 {
 public:
 	RiskRegister() = default;

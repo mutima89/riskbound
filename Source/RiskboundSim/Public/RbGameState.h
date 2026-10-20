@@ -1,6 +1,8 @@
 // Everything that persists between sessions. Serialised by RbSave. Format: Docs/SaveFormat.md.
 #pragma once
 
+#include "RbApi.h"
+
 #include "RbCareer.h"
 #include "RbMission001.h"
 #include "RbOrganization.h"
@@ -40,10 +42,10 @@ struct GameState
 
 // Default operational-risk register for an organisation profile: 5x5 matrix,
 // appetite limits by category, seeded with the stale R-014 entry Mission 001 investigates.
-RiskRegister MakeDefaultRegister();
+RB_API RiskRegister MakeDefaultRegister();
 
 // New game for the given profile and difficulty, with event seed derived from Seed.
-GameState NewGame(const std::string& ProfileName, EDifficulty Difficulty, uint64_t Seed, const std::string& OrgProfileId = "meridian");
+RB_API GameState NewGame(const std::string& ProfileName, EDifficulty Difficulty, uint64_t Seed, const std::string& OrgProfileId = "meridian");
 
 // ---- Achievements (Docs/GameDesign.md) ----
 struct AchievementDef
@@ -53,7 +55,7 @@ struct AchievementDef
 	std::string Description;
 };
 
-const std::vector<AchievementDef>& AchievementDefs();
+RB_API const std::vector<AchievementDef>& AchievementDefs();
 // Unlocks achievements whose conditions now hold. Returns the ids newly unlocked.
-std::vector<std::string> EvaluateAchievements(GameState& State);
+RB_API std::vector<std::string> EvaluateAchievements(GameState& State);
 } // namespace rb
