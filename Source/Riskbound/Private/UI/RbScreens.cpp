@@ -334,6 +334,8 @@ FRbScreenParts Workstation(ARbHUD* Hud)
 		Click([Hud, BackHere]() { Hud->OpenEvidence(TEXT("risk_register_R014"), BackHere); })), 8.0f);
 	AddRow(Box, MakeButton(bSubmitted ? LOCTEXT("FormDone", "Assessment form (submitted)") : LOCTEXT("FormOpen", "Assessment form: R-014"),
 		Click([Hud]() { Hud->OpenAssessment(); }), nullptr, !bSubmitted), 8.0f);
+	AddRow(Box, MakeButton(LOCTEXT("RiskTools", "Risk tools: register, KRIs, quantification, actions, report"),
+		Click([Hud]() { Hud->OpenToolHub(0); }), nullptr, true, true), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("LogOff", "Log off"), Click([Hud]() { Hud->CloseScreen(); })), 0.0f);
 	return {MakeModalFrame(Box, 720.0f), First};
 }

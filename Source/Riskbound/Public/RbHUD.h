@@ -39,6 +39,8 @@ public:
 	void TalkToManager();
 	void OpenEvidence(const FString& EvidenceId, TFunction<void()> OnBack = nullptr);
 	void OpenWorkstation();
+	// Opens the risk tool hub on a tab (index of SRbToolHub::ETab).
+	void OpenToolHub(int32 Tab = 0);
 	void OpenAssessment();
 	ERbSubmitResult SubmitAssessment(const FRbSubmissionInput& Input);
 	void OpenDebrief();

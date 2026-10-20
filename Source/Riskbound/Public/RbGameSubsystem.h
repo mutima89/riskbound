@@ -118,6 +118,9 @@ public:
 
 	// ---- C++ access for save and tests ----
 	const rb::GameState& GetState() const { return State; }
+	// For URbToolsSubsystem: edit, then call StateEdited() so achievements and UI refresh.
+	rb::GameState& EditState() { return State; }
+	void StateEdited() { AfterAction(false); }
 	void SetLoadedState(rb::GameState&& Loaded);
 
 	static FString SubmitResultText(ERbSubmitResult Result);

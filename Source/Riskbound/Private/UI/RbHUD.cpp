@@ -17,6 +17,9 @@
 #include "SRbAssessmentForm.h"
 #include "SRbHudOverlay.h"
 #include "SRbScreen.h"
+#include "SRbToolHub.h"
+#include "Widgets/Layout/SBox.h"
+#include "RbToolsSubsystem.h"
 
 #define LOCTEXT_NAMESPACE "Riskbound"
 
@@ -339,6 +342,15 @@ void ARbHUD::OpenWorkstation()
 {
 	const FRbScreenParts Parts = RbScreens::Workstation(this);
 	ShowScreen(Parts.Widget, Parts.Focus, [this]() { CloseScreen(); }, false);
+}
+
+void ARbHUD::OpenToolHub(int32 Tab)
+{
+	TSharedRef<SRbToolHub> Hub = SNew(SRbToolHub)
+		.Tools(GetGameInstance()->GetSubsystem<URbToolsSubsystem>())
+		.OnClose([this]() { OpenWorkstation(); });
+	Hub->ShowTab(static_cast<SRbToolHub::ETab>(FMath::Clamp(Tab, 0, static_cast<int32>(SRbToolHub::ETab::Count) - 1)));
+	ShowScreen(RbUI::MakeModalFrame(SNew(SBox).MinDesiredWidth(1360.0f).MinDesiredHeight(780.0f)[Hub], 1500.0f), Hub->GetInitialFocus(), [this]() { OpenWorkstation(); }, false);
 }
 
 void ARbHUD::OpenAssessment()

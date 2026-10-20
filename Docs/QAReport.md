@@ -63,3 +63,11 @@ Graphics quality presets: Low 50%, Medium 60%, High 70%, Epic 100% internal reso
 | Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
 | Automation tests | `Scripts\RunUnrealTests.bat` | 4/4 `Result={Success}`, incl. Riskbound.Credits.IncludeCreatorContactAndAttribution (exact email and LinkedIn URL, Epic attribution, asset list, Claude Code) |
 | UI capture | `-game -RbSelfTest=ui` | Credits screen captured (Docs/Screenshots/ui/Ui_10_Credits.jpg) |
+
+## 2026-10-21 - Gate 2 workstation tool hub
+| Run | Command | Result |
+|---|---|---|
+| Core tests | `Scripts\RunCoreTests.bat` | `46 test cases, 0 failed, 0 failed checks` |
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 8/8 `Result={Success}`: adds Riskbound.Tools.RegisterAddFilterSearchMatrix, .QuantViewModels (EL 117,500 / worst 1,800,000, tornado swing 60,561.78, stressed EL 567,500, seeded Monte Carlo, histogram counts every trial), .KrisActionsAndTime, .ReportExport (file equals on-screen report) |
+| UI capture | `-game -RbSelfTest=ui` | all 9 tool tabs captured (Docs/Screenshots/ui/Ui_11..19_Tools_*.jpg) |

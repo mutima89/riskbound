@@ -287,6 +287,11 @@ static void RunUiTour(UWorld* World, ARbHUD* Hud)
 	Steps->Add({TEXT("Pause"), [](ARbHUD* H) { H->CloseScreen(); H->OpenPauseMenu(); }});
 	Steps->Add({TEXT("Settings"), [](ARbHUD* H) { H->OpenSettings([H]() { H->CloseScreen(); }); }});
 	Steps->Add({TEXT("Credits"), [](ARbHUD* H) { H->OpenCredits([H]() { H->CloseScreen(); }); }});
+	const TCHAR* TabNames[] = {TEXT("Register"), TEXT("Kri"), TEXT("Loss"), TEXT("CostBenefit"), TEXT("Sensitivity"), TEXT("Stress"), TEXT("MonteCarlo"), TEXT("Actions"), TEXT("Report")};
+	for (int32 Tab = 0; Tab < UE_ARRAY_COUNT(TabNames); ++Tab)
+	{
+		Steps->Add({FString(TEXT("Tools_")) + TabNames[Tab], [Tab](ARbHUD* H) { H->CloseScreen(); H->OpenToolHub(Tab); }});
+	}
 	Steps->Add({TEXT("Debrief"), [](ARbHUD* H)
 	{
 		H->CloseScreen();

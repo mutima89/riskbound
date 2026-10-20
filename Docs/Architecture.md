@@ -34,6 +34,7 @@ Every class is thin; anything rule-like calls RiskboundSim. UI is Slate built in
 | `ARbValtrenHQ` | Graybox HQ built at runtime: seven labelled rooms off a corridor, lights, furniture, Mission 001 interactables. |
 | `ARbGameMode` | Spawns the HQ and player start; starts `-RbSelfTest`. |
 | `ARbHUD` + `UI/` | Screen flow: HUD overlay, main menu (difficulty, Continue), pause, settings, journal, workstation, document viewer, dialogue, assessment form, debrief. One modal screen at a time; Esc goes back; keyboard focus set on open. |
+| `URbToolsSubsystem` + `UI/SRbToolHub` | Gate 2 workstation tool hub: register (filter, search, create/edit, residual heatmap, appetite), KRI dashboard (status, sparkline, escalation), loss scenarios (EL with worst case, save to register), cost-benefit, NPV tornado, stress presets/custom, Monte Carlo (median/P90 fit, seed, percentiles, histogram), action tracker (start/close with evidence, advance a week), executive report (view, export to `Saved/Reports/*.md`). Thin view models over RiskboundSim; quant tools use only the player's inputs. |
 | `RbSelfTest` | `-RbSelfTest=play` / `-RbSelfTest=resume` packaged-build check through the same HUD/interactable calls the UI uses (slot `selftest`). |
 | `Private/Tests` | Automation tests `Riskbound.*`. |
 
