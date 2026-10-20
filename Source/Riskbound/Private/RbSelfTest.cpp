@@ -277,6 +277,7 @@ static void RunUiTour(UWorld* World, ARbHUD* Hud)
 	Steps->Add({TEXT("Journal"), [](ARbHUD* H) { H->CloseScreen(); H->OpenJournal(); }});
 	Steps->Add({TEXT("Pause"), [](ARbHUD* H) { H->CloseScreen(); H->OpenPauseMenu(); }});
 	Steps->Add({TEXT("Settings"), [](ARbHUD* H) { H->OpenSettings([H]() { H->CloseScreen(); }); }});
+	Steps->Add({TEXT("Credits"), [](ARbHUD* H) { H->OpenCredits([H]() { H->CloseScreen(); }); }});
 	Steps->Add({TEXT("Debrief"), [](ARbHUD* H)
 	{
 		H->CloseScreen();

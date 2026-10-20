@@ -169,3 +169,20 @@ bool FRbSubmissionGatingTest::RunTest(const FString& Parameters)
 }
 
 #endif // WITH_DEV_AUTOMATION_TESTS
+
+#if WITH_DEV_AUTOMATION_TESTS
+#include "RbCredits.h"
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRbCreditsContactTest, "Riskbound.Credits.IncludeCreatorContactAndAttribution", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ClientContext | EAutomationTestFlags::ProductFilter)
+bool FRbCreditsContactTest::RunTest(const FString& Parameters)
+{
+	const FString Text = RbCredits::AsPlainText();
+	TestTrue(TEXT("creator name"), Text.Contains(TEXT("M A Almahlaki")));
+	TestTrue(TEXT("email, exact"), Text.Contains(TEXT("m.awwadh.k@gmail.com"), ESearchCase::CaseSensitive));
+	TestTrue(TEXT("LinkedIn URL, exact"), Text.Contains(TEXT("https://www.linkedin.com/in/mohammed-almahlaki001/"), ESearchCase::CaseSensitive));
+	TestTrue(TEXT("engine attribution"), Text.Contains(TEXT("Epic Games, Inc.")));
+	TestTrue(TEXT("development assistance"), Text.Contains(TEXT("Claude Code by Anthropic")));
+	TestTrue(TEXT("asset list from the manifest"), RbCredits::Assets().Num() >= 20 && Text.Contains(TEXT("CC0 1.0")) && Text.Contains(TEXT("SIL Open Font License")));
+	return true;
+}
+#endif

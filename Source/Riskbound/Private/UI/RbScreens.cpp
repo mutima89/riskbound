@@ -1,5 +1,7 @@
 #include "RbScreens.h"
 
+#include "HAL/PlatformProcess.h"
+#include "RbCredits.h"
 #include "RbGameSubsystem.h"
 #include "RbHUD.h"
 #include "RbSaveSubsystem.h"
@@ -149,6 +151,7 @@ FRbScreenParts MainMenu(ARbHUD* Hud)
 		}
 	}), nullptr, bHasSave), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("Settings", "Settings"), Click([Hud]() { Hud->OpenSettings([Hud]() { Hud->ShowMainMenu(); }); })), 8.0f);
+	AddRow(Box, MakeButton(LOCTEXT("MenuCredits", "Credits"), Click([Hud]() { Hud->OpenCredits([Hud]() { Hud->ShowMainMenu(); }); })), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("Quit", "Quit"), Click([Hud]() { Hud->QuitToDesktop(); })), 16.0f);
 	if (!Hud->MenuMessage.IsEmpty())
 	{
@@ -195,6 +198,7 @@ FRbScreenParts PauseMenu(ARbHUD* Hud)
 	AddRow(Box, MakeButton(LOCTEXT("Save", "Save game"), Click([Hud]() { FString M; Hud->SaveNow(M); })), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("Journal", "Journal"), Click([Hud]() { Hud->CloseScreen(); Hud->OpenJournal(); })), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("PauseSettings", "Settings"), Click([Hud]() { Hud->OpenSettings([Hud]() { Hud->CloseScreen(); Hud->OpenPauseMenu(); }); })), 8.0f);
+	AddRow(Box, MakeButton(LOCTEXT("PauseCredits", "Credits"), Click([Hud]() { Hud->OpenCredits([Hud]() { Hud->CloseScreen(); Hud->OpenPauseMenu(); }); })), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("QuitDesktop", "Quit to desktop"), Click([Hud]() { Hud->QuitToDesktop(); })), 12.0f);
 	AddRow(Box, MakeBody(LOCTEXT("PauseNote", "Progress autosaves after meeting your manager and after submitting. Unsaved investigation steps are lost on quit."), 12, TextMuted), 0.0f);
 	return {MakeModalFrame(Box, 520.0f), First};
@@ -281,6 +285,36 @@ FRbScreenParts Journal(ARbHUD* Hud)
 		MakeButton(LOCTEXT("CloseJournal", "Close"), Click([Hud]() { Hud->CloseScreen(); }), &Close)
 	];
 	return {MakeModalFrame(Root, 820.0f), Close};
+}
+
+FRbScreenParts Credits(ARbHUD* Hud, TFunction<void()> OnBack)
+{
+	TSharedPtr<SButton> Back;
+	TSharedRef<SVerticalBox> Box = Column();
+	AddRow(Box, MakeEyebrow(LOCTEXT("CreditsEyebrow", "Riskbound")), Space1);
+	AddRow(Box, MakeHeading(LOCTEXT("CreditsTitle", "Credits")), Space4);
+	for (const RbCredits::FSection& S : RbCredits::Sections())
+	{
+		AddRow(Box, MakeHeading(FText::FromString(S.Title), 17), Space1);
+		for (const FString& Line : S.Lines)
+		{
+			AddRow(Box, MakeBody(FText::FromString(Line), 14, S.Title == TEXT("Created by") ? TextPrimary : TextMuted), 2.0f);
+		}
+		if (S.Title == TEXT("Created by"))
+		{
+			// Links are shown as text; the browser opens only on this explicit button press.
+			AddRow(Box, MakeButton(LOCTEXT("OpenLinkedIn", "Open LinkedIn profile in browser"),
+				Click([]() { FPlatformProcess::LaunchURL(RbCredits::CreatorLinkedIn, nullptr, nullptr); })), Space2);
+		}
+		Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)[SNew(SBox)];
+	}
+	TSharedRef<SVerticalBox> Root = Column();
+	Root->AddSlot().FillHeight(1.0f)[Scrolling(Box)];
+	Root->AddSlot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f).HAlign(HAlign_Right)
+	[
+		MakeButton(LOCTEXT("CreditsBack", "Back"), Click(OnBack), &Back, true, true)
+	];
+	return {MakeModalFrame(Root, 900.0f), Back};
 }
 
 FRbScreenParts Workstation(ARbHUD* Hud)

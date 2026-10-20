@@ -31,6 +31,7 @@ public:
 	void OpenPauseMenu();
 	void OpenSettings(TFunction<void()> OnBack);
 	void OpenJournal();
+	void OpenCredits(TFunction<void()> OnBack);
 	bool SaveNow(FString& OutMessage);
 	void QuitToDesktop();
 

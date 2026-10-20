@@ -267,6 +267,14 @@ void ARbHUD::OpenJournal()
 	ShowScreen(Parts.Widget, Parts.Focus, [this]() { CloseScreen(); }, false);
 }
 
+void ARbHUD::OpenCredits(TFunction<void()> OnBack)
+{
+	const bool bFromMenu = bMainMenuOpen;
+	const FRbScreenParts Parts = RbScreens::Credits(this, OnBack);
+	ShowScreen(Parts.Widget, Parts.Focus, OnBack, !bFromMenu);
+	bMainMenuOpen = bFromMenu; // keep the menu backdrop camera when opened from the main menu
+}
+
 bool ARbHUD::SaveNow(FString& OutMessage)
 {
 	FString Error;

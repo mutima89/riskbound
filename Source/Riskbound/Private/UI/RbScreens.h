@@ -22,6 +22,7 @@ FRbScreenParts DifficultyPicker(ARbHUD* Hud);
 FRbScreenParts PauseMenu(ARbHUD* Hud);
 FRbScreenParts Settings(ARbHUD* Hud, TFunction<void()> OnBack);
 FRbScreenParts Journal(ARbHUD* Hud);
+FRbScreenParts Credits(ARbHUD* Hud, TFunction<void()> OnBack);
 FRbScreenParts Workstation(ARbHUD* Hud);
 FRbScreenParts Document(const FText& Title, const FText& Subtitle, const FText& Body, TFunction<void()> OnClose);
 FRbScreenParts Dialogue(const FText& Speaker, const FText& Text, TFunction<void()> OnContinue);

@@ -56,3 +56,10 @@ Performance is measured in the editor's -game mode (uncooked), 1920x1080, on thi
 Defect found and fixed during this round: after switching repeated geometry to instanced static meshes, the cooked game replaced every material lacking the "used with instanced static meshes" flag by the default material (the editor hid it by compiling usages on demand). Earlier packaged FPS figures from that interval were measured on placeholder materials and are discarded. The import script now sets the flag on every master material, and the packaged log is checked for `missing usage flag`.
 
 Graphics quality presets: Low 50%, Medium 60%, High 70%, Epic 100% internal resolution (TSR upscale); Low also turns Lumen off via engine scalability.
+
+## 2026-10-20 - Credits (step 3)
+| Run | Command | Result |
+|---|---|---|
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 4/4 `Result={Success}`, incl. Riskbound.Credits.IncludeCreatorContactAndAttribution (exact email and LinkedIn URL, Epic attribution, asset list, Claude Code) |
+| UI capture | `-game -RbSelfTest=ui` | Credits screen captured (Docs/Screenshots/ui/Ui_10_Credits.jpg) |

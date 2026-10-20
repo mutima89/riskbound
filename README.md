@@ -27,5 +27,10 @@ Controls: WASD/arrows move, mouse looks, E interacts, J journal, Esc pause. Menu
 ## Saves
 Local only, no accounts or network. Backups and recovery: `Docs/SaveFormat.md`.
 
+## Credits
+Created by M A Almahlaki - m.awwadh.k@gmail.com - LinkedIn: https://www.linkedin.com/in/mohammed-almahlaki001/
+
+Built with Unreal Engine 5.8 (Unreal is a trademark of Epic Games, Inc.). Third-party assets (CC0 and SIL OFL) and their authors: Docs/AssetCredits.md. Development assistance: Claude Code by Anthropic. The same credits are in the game (main menu and pause menu > Credits).
+
 ## License
 MIT, see `LICENSE`.
