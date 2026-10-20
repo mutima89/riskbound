@@ -8,14 +8,16 @@ Last update: 2026-10-20
 - Repo scaffold, CLAUDE.md, five project skills, canonical docs.
 - `RiskboundSim` core: risk register + matrix + controls + appetite; quant tools (EL, NPV/ROI, KRI, sensitivity, stress, Monte Carlo); career ladder + promotion gates; organisation state + deferred consequences; Mission 001 content, hidden rubric, debrief; achievements (7); versioned saves with backup recovery + v1 migration.
 - 30 core unit tests passing (Docs/QAReport.md).
-- UE project files: `Riskbound.uproject`, targets, `RiskboundSim` and `Riskbound` modules (boilerplate only, **never compiled**).
+- UE project files: `Riskbound.uproject`, targets, `RiskboundSim` and `Riskbound` modules (boilerplate).
+- Windows PC verification (2026-10-20, UE 5.8.3, VS 2022 Build Tools 17.14, MSVC 14.44.35229, SDK 10.0.22621.0):
+  - `Scripts\RunCoreTests.bat`: `30 test cases, 0 failed, 0 failed checks`, no MSVC warnings at /W4.
+  - `Build.bat RiskboundEditor Win64 Development`: `Result: Succeeded` (19 actions, 0 warnings, 0 errors), no source changes needed.
 
 ### Next action
-On the Windows PC: run `unreal-project-audit`, generate project files, compile both modules, fix any MSVC issues in RiskboundSim. Then build the Gate 1 UE layer per Docs/Architecture.md "Riskbound UE module".
+On the Windows PC: build the Gate 1 UE layer per Docs/Architecture.md "Riskbound UE module".
 
 ### Open blockers
-- Windows + UE5 + VS2022 access (Remote Control or manual).
-- GitHub repo to push to.
+- None for compiling. No full VS IDE installed (Build Tools only); Inno Setup/NSIS/WiX not installed (needed by Gate 6).
 
 ### Gate checklist
 - [ ] Gate 1: M001 playable in packaged build, save/exit/relaunch/resume verified
