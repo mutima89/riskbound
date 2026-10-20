@@ -1,0 +1,12 @@
+# Unreal
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+.vs/
+*.sln
+*.VC.db
+# Standalone core build
+build*/
+# Release output
+Release/
