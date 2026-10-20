@@ -16,11 +16,13 @@ A first-person, offline, single-player career simulator about risk management, b
 Linux/macOS: `Scripts/run_core_tests.sh`
 Windows (CMake + Visual Studio C++): `Scripts\RunCoreTests.bat`
 
-## Build the game (Windows, once Gate 1 lands)
-1. Install Unreal Engine 5.4 or later and Visual Studio 2022 with "Game development with C++".
-2. Right-click `Riskbound.uproject` > Generate Visual Studio project files (or Switch Unreal Engine version).
-3. Open `Riskbound.sln`, build `Development Editor | Win64`.
-4. Package: `Scripts\BuildWindows.bat "C:\Program Files\Epic Games\UE_5.8"` (output in `Release\`).
+## Build the game (Windows)
+1. Install Unreal Engine 5.8 and Visual Studio 2022 (or Build Tools) with the C++ workload.
+2. Compile the editor: `"C:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat" RiskboundEditor Win64 Development -project="%CD%\Riskbound.uproject"`
+3. Automation tests: `Scripts\RunUnrealTests.bat "C:\Program Files\Epic Games\UE_5.8"`
+4. Package: `Scripts\BuildWindows.bat "C:\Program Files\Epic Games\UE_5.8" Development` (output in `Release\Development\Windows\`).
+
+Controls: WASD/arrows move, mouse looks, E interacts, J journal, Esc pause. Menus are keyboard navigable (Tab/arrows, Enter/Space, Esc back).
 
 ## Saves
 Local only, no accounts or network. Backups and recovery: `Docs/SaveFormat.md`.

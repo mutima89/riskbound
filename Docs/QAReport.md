@@ -8,5 +8,18 @@
 | Clang 18.1, `-std=c++20 -fno-exceptions -fno-rtti` compile of all core sources | per-file compile | clean (UE5 builds C++20) |
 | Mutation check: rubric answer key changed L4 -> L3 | `RiskboundCoreTests M001` | 2 cases failed as expected; reverted |
 
-## Not yet tested (blocked: needs Windows + UE5)
-UE module compilation, editor/PIE play, automation tests, packaged startup, offline packaged run, installer, UI workflows.
+## 2026-10-20 - Gate 1 on Windows (UE 5.8.3, MSVC 14.44.35229, SDK 10.0.22621.0)
+| Run | Command | Result |
+|---|---|---|
+| Core tests (MSVC /W4) after `RB_API` change | `Scripts\RunCoreTests.bat` | `30 test cases, 0 failed, 0 failed checks`, no warnings |
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded`, 0 warnings, 0 errors |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 3/3 `Result={Success}`: Riskbound.Gameplay.SubmissionNeedsBriefingAndEvidence, Riskbound.Save.RecoversFromCorruptPrimary, Riskbound.Session.PlaySaveLoadRoundTrip; `TEST COMPLETE. EXIT CODE: 0` |
+| Package Development Win64 | `Scripts\BuildWindows.bat <UE> Development` | `BUILD SUCCESSFUL`, `AutomationTool exiting with ExitCode=0`, 504 packages cooked, 0 warnings in UAT output |
+| Packaged self-test | `Riskbound.exe -RbSelfTest=play` | `PASS`: 5 evidence props + NPC + workstation found, 7/7 evidence viewed, submit ok, score 100 passed, checkpoint `M001:debriefed`, saved |
+| Packaged self-test | `Riskbound.exe -RbSelfTest=resume` | `PASS` (Saved/RbSelfTest.txt): load outcome Ok, objective "Mission 001 complete...", career level 2 Junior Risk Analyst, passed missions M001, R-014 treatment Reduce (owner ops_site_manager, In treatment) |
+| Normal launch | `Riskbound.exe -windowed` | Starts to the main menu in reception, Continue disabled with "No saved game yet." (Docs/Screenshots/01_main_menu.png); log shows HQ built (71 components, 7 rooms), no errors |
+
+What the automated checks cover: every mission action goes through `URbGameSubsystem` (the same calls the UI buttons make), save/load equality via `rb::SerializeGame`, backup recovery and both-corrupt handling, submission gating and hidden rubric before submit.
+
+## Not yet tested
+Hands-on play with real input (movement, look sensitivity, each screen by mouse and keyboard, text size, fullscreen toggle, volume), Shipping package, installer, offline packaged run on a second machine.

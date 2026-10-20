@@ -36,4 +36,4 @@ Primary valid -> `Ok`. Else backup valid -> `RecoveredFromBackup` (UI must tell 
 Any key change: bump `CurrentSaveVersion`, add `MigrateVnToVn+1`, add a test that loads a handcrafted old file.
 
 ## Player recovery instructions
-Saves live in the game's `Saved/SaveGames/` folder (exact path set by the UE adapter in Gate 1). To restore manually: close the game, rename `slotN.rbsave.bak` to `slotN.rbsave`.
+Saves live in `<game folder>/Riskbound/Saved/SaveGames/slot1.rbsave` (packaged) or the project's `Saved/SaveGames/` (editor). `selftest.rbsave` belongs to the self-test. To restore manually: close the game, rename `slotN.rbsave.bak` to `slotN.rbsave`.

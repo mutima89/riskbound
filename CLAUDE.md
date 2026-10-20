@@ -12,8 +12,10 @@ The player rises from Graduate Trainee to Chief Risk Officer by doing real risk 
 ## Commands
 - Core tests (Linux/macOS): `Scripts/run_core_tests.sh [filter]`
 - Core tests (Windows): `Scripts\RunCoreTests.bat [filter]`
-- UE automation tests: `Scripts\RunUnrealTests.bat <UE dir>` (Windows only, unverified until Gate 1)
-- Package: `Scripts\BuildWindows.bat <UE dir>` (Windows only, unverified until Gate 6)
+- UE automation tests: `Scripts\RunUnrealTests.bat <UE dir>` (Windows; prints per-test results)
+- Package: `Scripts\BuildWindows.bat <UE dir> [Development|Shipping]` -> `Release\<Config>\Windows\Riskbound.exe` (Development verified)
+- Packaged self-test: `Riskbound.exe -RbSelfTest=play`, then `-RbSelfTest=resume` -> `Riskbound\Saved\RbSelfTest.txt`
+- Create the empty map (once): `Scripts\CreateMap.bat <UE dir>`
 
 ## Conventions
 - UE naming style (PascalCase, `b` bools) in all C++. Core lives in `namespace rb`, files prefixed `Rb`.
@@ -34,4 +36,4 @@ The player rises from Graduate Trainee to Chief Risk Officer by doing real risk 
 `unreal-project-audit`, `riskbound-gameplay`, `riskbound-risk-engine`, `riskbound-career-simulation`, `riskbound-qa-release`.
 
 ## Current phase
-Gate 1 (Mission 001 vertical slice). Simulation side done and tested; UE gameplay side needs a Windows machine with UE5. See Docs/Progress.md.
+Gate 1 (Mission 001 vertical slice): implemented and verified on Windows/UE 5.8 by tests and self-test; hands-on playtest pending. See Docs/Progress.md.
