@@ -20,7 +20,7 @@ Windows (CMake + Visual Studio C++): `Scripts\RunCoreTests.bat`
 1. Install Unreal Engine 5.4 or later and Visual Studio 2022 with "Game development with C++".
 2. Right-click `Riskbound.uproject` > Generate Visual Studio project files (or Switch Unreal Engine version).
 3. Open `Riskbound.sln`, build `Development Editor | Win64`.
-4. Package: `Scripts\BuildWindows.bat "C:\Program Files\Epic Games\UE_5.5"` (output in `Release\`).
+4. Package: `Scripts\BuildWindows.bat "C:\Program Files\Epic Games\UE_5.8"` (output in `Release\`).
 
 ## Saves
 Local only, no accounts or network. Backups and recovery: `Docs/SaveFormat.md`.
