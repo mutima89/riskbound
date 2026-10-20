@@ -1,4 +1,4 @@
-# Save format (version 2)
+# Save format (version 3)
 
 Code: `RbSave.*`. Tests: `Save_*` in `Tests/Core/TestMissionSave.cpp`.
 
@@ -32,6 +32,10 @@ Primary valid -> `Ok`. Else backup valid -> `RecoveredFromBackup` (UI must tell 
 |---|---|
 | 1 | Prototype: `player`, text `difficulty` (easy/normal/hard), no `org.draws`. |
 | 2 | `profile.name`, numeric `profile.difficulty`, `org.draws` (random stream position). |
+| 3 | `act.*` corrective actions (`act.next`, per action id/risk/title/owner/created/due/started/done/doneWeek/evidence), `kri.*` KRI history (`kri.seed`, per series id and `h.<n>.week`/`.value`; status, amber streak and escalation are re-derived on load), `quant.*` player loss scenarios (risk, `s.<n>.name/p/loss`). |
+
+v2 -> v3 (`MigrateV2ToV3`): KRI history is rebuilt deterministically from the organisation and seed (12 weeks ending at the current week); if Mission 001 was submitted, its treatment actions are recreated with the decision week as the creation week; no quantified risks. Test: `Save_MigratesHandcraftedV2`.
+Invalid v3 data rejected: a done action without evidence, duplicate action ids, an unknown KRI id, invalid loss scenarios.
 
 Any key change: bump `CurrentSaveVersion`, add `MigrateVnToVn+1`, add a test that loads a handcrafted old file.
 
