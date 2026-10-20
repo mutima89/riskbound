@@ -32,7 +32,43 @@ GameState NewGame(const std::string& ProfileName, EDifficulty Difficulty, uint64
 	S.Org.EventSeed = Seed * 0x2545F4914F6CDD1DULL + 1;
 	S.Register = MakeDefaultRegister();
 	S.Settings.bHints = Difficulty != EDifficulty::Executive;
+	S.Kris = MakeKriMonitor(S.Org, Seed, KriHistoryWeeksAtStart);
 	return S;
+}
+
+m001::ESubmitError SubmitMission001(GameState& State, const m001::Submission& S)
+{
+	const m001::ESubmitError Err = State.Mission001.Submit(S, State.Difficulty, State.Career, State.Org, State.Register);
+	if (Err == m001::ESubmitError::None)
+	{
+		for (const CorrectiveAction& A : m001::TreatmentActions(S, State.Org.Week))
+		{
+			State.Actions.Create(A);
+		}
+	}
+	return Err;
+}
+
+std::vector<ResolvedConsequence> AdvanceGameWeeks(GameState& State, int Weeks)
+{
+	std::vector<ResolvedConsequence> Resolved = State.Org.AdvanceWeeks(Weeks);
+	RecordKriWeeks(State.Kris, State.Org);
+	return Resolved;
+}
+
+bool SetQuantification(GameState& State, const std::string& RiskId, const std::vector<LossScenario>& Scenarios)
+{
+	if (!State.Register.Find(RiskId) || Scenarios.empty() || !ValidateScenarios(Scenarios, true)) return false;
+	for (QuantifiedRisk& Q : State.Quantified)
+	{
+		if (Q.RiskId == RiskId)
+		{
+			Q.Scenarios = Scenarios;
+			return true;
+		}
+	}
+	State.Quantified.push_back({RiskId, Scenarios});
+	return true;
 }
 
 struct AchievementRule

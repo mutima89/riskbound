@@ -49,6 +49,9 @@ inline void Fail(const char* File, int Line, const std::string& Msg)
 #define CHECK(Cond) \
 	do { if (!(Cond)) rbtest::Fail(__FILE__, __LINE__, #Cond); } while (0)
 
+// Like CHECK, but ends the test case on failure (use before indexing into a container).
+#define REQUIRE(Cond) 	do { if (!(Cond)) { rbtest::Fail(__FILE__, __LINE__, "required: " #Cond); return; } } while (0)
+
 #define CHECK_EQ(A, B) \
 	do { const auto _a = (A); const auto _b = (B); \
 		if (!(_a == _b)) rbtest::Fail(__FILE__, __LINE__, std::string(#A " == " #B " (got ") + std::to_string(_a) + " vs " + std::to_string(_b) + ")"); } while (0)

@@ -3,7 +3,9 @@
 
 #include "RbApi.h"
 
+#include "RbActions.h"
 #include "RbCareer.h"
+#include "RbKri.h"
 #include "RbMission001.h"
 #include "RbOrganization.h"
 #include "RbRiskModel.h"
@@ -25,6 +27,13 @@ struct PlayerSettings
 	int GraphicsQuality = 2;       // 0 low .. 3 epic
 };
 
+// A register risk the player has quantified with loss scenarios (Loss Scenarios tool).
+struct QuantifiedRisk
+{
+	std::string RiskId;
+	std::vector<LossScenario> Scenarios;
+};
+
 struct GameState
 {
 	std::string ProfileName = "Analyst";
@@ -38,7 +47,23 @@ struct GameState
 	std::vector<std::string> LearningHistory;
 	std::string Checkpoint = "M001:start";
 	PlayerSettings Settings;
+	ActionTracker Actions;                  // corrective actions (save v3)
+	KriMonitor Kris;                        // KRI history (save v3)
+	std::vector<QuantifiedRisk> Quantified; // player-entered loss scenarios (save v3)
 };
+
+constexpr int KriHistoryWeeksAtStart = 12;
+
+// Mission 001 submission at game level: MissionState::Submit plus the corrective actions
+// for the chosen treatment. Returns the submit error; actions are only created on success.
+RB_API m001::ESubmitError SubmitMission001(GameState& State, const m001::Submission& S);
+
+// Advances organisation time: resolves due consequences and records a KRI reading per week.
+RB_API std::vector<ResolvedConsequence> AdvanceGameWeeks(GameState& State, int Weeks);
+
+// Stores (or replaces) the player's loss scenarios for a risk. False if the risk is unknown
+// or the scenarios are invalid (ValidateScenarios, mutually exclusive).
+RB_API bool SetQuantification(GameState& State, const std::string& RiskId, const std::vector<LossScenario>& Scenarios);
 
 // Default operational-risk register for an organisation profile: 5x5 matrix,
 // appetite limits by category, seeded with the stale R-014 entry Mission 001 investigates.

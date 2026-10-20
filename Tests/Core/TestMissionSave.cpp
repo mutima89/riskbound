@@ -148,7 +148,7 @@ TEST(M001_GoodControlReducesLaterIncident)
 			G.Mission001.Submit(Pass == 0 ? BestSubmission() : PoorSubmission(), G.Difficulty, G.Career, G.Org, G.Register);
 			const double Before = G.Org.Get(EOrgMetric::Cash);
 			const auto R = G.Org.AdvanceWeeks(6);
-			CHECK_EQ(R.size(), size_t(1));
+			REQUIRE(R.size() == size_t(1));
 			(Pass == 0 ? LossGood : LossBad) += Before - G.Org.Get(EOrgMetric::Cash);
 			(Pass == 0 ? HitsGood : HitsBad) += R[0].bOccurred ? 1 : 0;
 		}
@@ -307,4 +307,72 @@ TEST(Save_MigratesV1AndRejectsFutureVersions)
 	std::string BadEnum = SerializeGame(G);
 	ReplaceLine(BadEnum, "profile.difficulty\t", "profile.difficulty\t7");
 	CHECK(!DeserializeGame(Resign(BadEnum), L, Info));
+}
+
+TEST(Save_V3RoundTripsActionsKrisAndQuantification)
+{
+	GameState G = NewGame("V3", EDifficulty::Professional, 31);
+	PlayInvestigation(G.Mission001, true);
+	CHECK(SubmitMission001(G, BestSubmission()) == ESubmitError::None);
+	CHECK(G.Actions.Close("A-001", 1, "Service certificate\twith tab"));
+	CHECK(SetQuantification(G, "R-014", BaselineScenarios()));
+	AdvanceGameWeeks(G, 3);
+	const std::string Text = SerializeGame(G);
+	CHECK(Text.find("version\t3\n") != std::string::npos);
+	GameState L;
+	LoadResult Info;
+	CHECK(DeserializeGame(Text, L, Info));
+	CHECK(!Info.bMigrated);
+	CHECK(SerializeGame(L) == Text);
+	CHECK_EQ(L.Actions.All().size(), size_t(3));
+	CHECK(L.Actions.Find("A-001")->bDone);
+	CHECK_EQ(L.Actions.NextIdNumber(), G.Actions.NextIdNumber());
+	REQUIRE(L.Kris.Series[0].History.size() == size_t(KriHistoryWeeksAtStart + 3));
+	CHECK(L.Kris.Series[0].History.back().Status == G.Kris.Series[0].History.back().Status);
+	CHECK_EQ(L.Kris.Series[0].History.back().AmberStreak, G.Kris.Series[0].History.back().AmberStreak);
+	CHECK_EQ(L.Quantified.size(), size_t(1));
+
+	std::string Done = Text; // a done action without evidence is invalid
+	ReplaceLine(Done, "act.0.evidence\t", "act.0.evidence\t");
+	CHECK(!DeserializeGame(Resign(Done), L, Info));
+}
+
+// Removes every line whose key starts with Prefix.
+static void DropKeys(std::string& Text, const std::string& Prefix)
+{
+	size_t P = 0;
+	while ((P = Text.find("\n" + Prefix, P)) != std::string::npos)
+	{
+		const size_t E = Text.find('\n', P + 1);
+		Text.erase(P, E - P);
+	}
+}
+
+TEST(Save_MigratesHandcraftedV2)
+{
+	GameState G = NewGame("V2", EDifficulty::Analyst, 77);
+	PlayInvestigation(G.Mission001, true);
+	G.Org.AdvanceWeeks(2); // decision taken in week 2
+	CHECK(G.Mission001.Submit(BestSubmission(), G.Difficulty, G.Career, G.Org, G.Register) == ESubmitError::None);
+	std::string V2 = SerializeGame(G);
+	DropKeys(V2, "act.");
+	DropKeys(V2, "kri.");
+	DropKeys(V2, "quant.");
+	ReplaceLine(V2, "version\t", "version\t2");
+	CHECK(V2.find("\nact.") == std::string::npos);
+	GameState L;
+	LoadResult Info;
+	CHECK(DeserializeGame(Resign(V2), L, Info));
+	CHECK(Info.bMigrated);
+	CHECK_EQ(Info.LoadedVersion, 2);
+	REQUIRE(L.Actions.All().size() == size_t(3)); // recreated from the stored submission
+	CHECK_EQ(L.Actions.All()[0].CreatedWeek, 2);
+	CHECK_EQ(L.Actions.All()[0].DueWeek, 4);
+	REQUIRE(L.Kris.Series.size() == size_t(5));
+	CHECK_EQ(L.Kris.Series[0].History.back().Week, 2);
+	CHECK(L.Quantified.empty());
+	// Saving the migrated game writes v3, which loads without migration.
+	GameState L3;
+	CHECK(DeserializeGame(SerializeGame(L), L3, Info));
+	CHECK(!Info.bMigrated);
 }

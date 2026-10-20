@@ -159,7 +159,7 @@ ERbSubmitResult URbGameSubsystem::SubmitAssessment(const FRbSubmissionInput& Inp
 {
 	if (!bHasGame) return ERbSubmitResult::NoGame;
 	const ERbSubmitResult Result =
-		FromSim(State.Mission001.Submit(ToSim(Input), State.Difficulty, State.Career, State.Org, State.Register));
+		FromSim(rb::SubmitMission001(State, ToSim(Input)));
 	if (Result == ERbSubmitResult::Ok)
 	{
 		State.Checkpoint = ToStd(CheckpointSubmitted);

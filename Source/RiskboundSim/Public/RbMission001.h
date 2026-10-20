@@ -5,6 +5,7 @@
 
 #include "RbApi.h"
 
+#include "RbActions.h"
 #include "RbCareer.h"
 #include "RbOrganization.h"
 #include "RbQuant.h"
@@ -143,6 +144,10 @@ public:
 	// Scores the submission, writes the debrief, updates career + organisation + register.
 	ESubmitError Submit(const Submission& S, EDifficulty Difficulty, CareerState& Career, OrganizationState& Org, RiskRegister& Register);
 };
+
+// Corrective actions implied by a submitted treatment (owner = the chosen action owner's name),
+// due relative to Week. Empty for an unknown treatment id.
+RB_API std::vector<CorrectiveAction> TreatmentActions(const Submission& S, int Week);
 
 // Pure scoring, exposed for tests. Does not mutate anything.
 RB_API Debrief Score(const Submission& S, const std::vector<std::string>& ViewedEvidence);

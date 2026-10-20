@@ -2,8 +2,22 @@
 
 #include <cstring>
 
+#if defined(_MSC_VER)
+#include <crtdbg.h>
+#include <cstdlib>
+#endif
+
 int main(int argc, char** argv)
 {
+#if defined(_MSC_VER)
+	// Never block on a modal dialog: Debug CRT assertions (e.g. vector subscript out of range)
+	// print to stderr and the process exits with a failure code instead.
+	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
+	_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
+	_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+	_set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+#endif
 	const char* Filter = argc > 1 ? argv[1] : nullptr;
 	int Ran = 0;
 	int FailedCases = 0;

@@ -122,6 +122,32 @@ std::vector<SensitivityRow> SensitivityAnalysis(const ModelFn& Model, const std:
 	return Rows;
 }
 
+std::vector<SensitivityRow> AppraisalSensitivity(const TreatmentAppraisalInput& Base, double Fraction)
+{
+	const ModelFn Npv = [Base](const std::vector<double>& P) {
+		TreatmentAppraisalInput In = Base;
+		In.ExpectedLossBefore = P[0];
+		In.ExpectedLossAfter = P[1];
+		In.OneOffCost = P[2];
+		In.AnnualCost = P[3];
+		In.DiscountRate = P[4];
+		return AppraiseTreatment(In).Npv;
+	};
+	return SensitivityAnalysis(Npv, {Base.ExpectedLossBefore, Base.ExpectedLossAfter, Base.OneOffCost, Base.AnnualCost, Base.DiscountRate},
+		{"Expected loss before", "Expected loss after", "One-off cost", "Annual cost", "Discount rate"}, Fraction);
+}
+
+const std::vector<StressShock>& StandardStressShocks()
+{
+	static const std::vector<StressShock> S = {
+		{"Severe heatwave", 2.0, 1.2},
+		{"Key supplier failure", 1.5, 1.5},
+		{"Regulatory penalty regime", 1.0, 1.8},
+		{"Combined severe but plausible", 2.5, 2.0},
+	};
+	return S;
+}
+
 StressResult StressTest(const std::vector<LossScenario>& Scenarios, const StressShock& Shock, double LossCapacity)
 {
 	std::vector<LossScenario> Stressed = Scenarios;
@@ -193,6 +219,17 @@ MonteCarloResult RunMonteCarlo(const MonteCarloInput& In)
 	R.P99 = Percentile(Annual, 0.99);
 	R.Max = Annual.back();
 	R.ProbExceedThreshold = static_cast<double>(Exceed) / N;
+	if (In.HistogramBins > 0)
+	{
+		const double Top = R.P99 > 0.0 ? R.P99 : (R.Max > 0.0 ? R.Max : 1.0);
+		R.BinWidth = Top / In.HistogramBins;
+		R.Histogram.assign(static_cast<size_t>(In.HistogramBins), 0);
+		for (double V : Annual)
+		{
+			const int Bin = std::min(In.HistogramBins - 1, static_cast<int>(V / R.BinWidth));
+			++R.Histogram[static_cast<size_t>(Bin)];
+		}
+	}
 	return R;
 }
 } // namespace rb

@@ -422,6 +422,45 @@ Debrief Score(const Submission& S, const std::vector<std::string>& ViewedEvidenc
 	return D;
 }
 
+std::vector<CorrectiveAction> TreatmentActions(const Submission& S, int Week)
+{
+	std::string Owner = S.ActionOwnerId;
+	for (const Option& O : ActionOwnerOptions())
+	{
+		if (O.Id == S.ActionOwnerId) Owner = O.Label;
+	}
+	const auto Make = [&](const char* Title, int DueInWeeks) {
+		CorrectiveAction A;
+		A.RiskId = RegisterRiskId;
+		A.Title = Title;
+		A.Owner = Owner;
+		A.CreatedWeek = Week;
+		A.DueWeek = Week + DueInWeeks;
+		return A;
+	};
+	std::vector<CorrectiveAction> Out;
+	if (S.TreatmentId == "repair_and_escalation")
+	{
+		Out.push_back(Make("Complete the overdue Bay 3 compressor service", 2));
+		Out.push_back(Make("Introduce a 24/7 on-call engineer rota for temperature alarms", 4));
+		Out.push_back(Make("Require a logged action before an alarm can be silenced", 4));
+	}
+	else if (S.TreatmentId == "replace_plant")
+	{
+		Out.push_back(Make("Escalate the Bay 3 plant replacement capital request (above delegated authority)", 3));
+		Out.push_back(Make("Interim: complete the overdue Bay 3 compressor service", 2));
+	}
+	else if (S.TreatmentId == "increase_insurance")
+	{
+		Out.push_back(Make("Negotiate increased stock cover with the insurer", 4));
+	}
+	else if (S.TreatmentId == "accept_monitor")
+	{
+		Out.push_back(Make("Re-review R-014 next quarter", 13));
+	}
+	return Out;
+}
+
 ESubmitError MissionState::Submit(const Submission& S, EDifficulty Difficulty, CareerState& Career, OrganizationState& Org, RiskRegister& Register)
 {
 	const ESubmitError Err = Validate(S);

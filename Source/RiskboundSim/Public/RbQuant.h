@@ -90,8 +90,12 @@ struct SensitivityRow
 using ModelFn = std::function<double(const std::vector<double>&)>;
 
 // One-at-a-time: each parameter moved by +/- Fraction of its base value. Rows sorted by swing, largest first.
-std::vector<SensitivityRow> SensitivityAnalysis(const ModelFn& Model, const std::vector<double>& Base,
+RB_API std::vector<SensitivityRow> SensitivityAnalysis(const ModelFn& Model, const std::vector<double>& Base,
 	const std::vector<std::string>& Names, double Fraction);
+
+// Tornado for a treatment appraisal: NPV sensitivity to EL before, EL after, one-off cost,
+// annual cost and discount rate, each moved by +/- Fraction (SensitivityAnalysis over AppraiseTreatment).
+RB_API std::vector<SensitivityRow> AppraisalSensitivity(const TreatmentAppraisalInput& Base, double Fraction);
 
 // ---------- Stress testing ----------
 struct StressShock
@@ -110,6 +114,9 @@ struct StressResult
 	bool bBreachesCapacity = false; // stressed worst case > loss capacity
 };
 
+// Preset shocks offered by the Stress Test tool (Docs/RiskMethodology.md section 9).
+RB_API const std::vector<StressShock>& StandardStressShocks();
+
 RB_API StressResult StressTest(const std::vector<LossScenario>& Scenarios, const StressShock& Shock, double LossCapacity);
 
 // ---------- Monte Carlo (frequency x severity) ----------
@@ -122,6 +129,7 @@ struct MonteCarloInput
 	double LossThreshold = 0.0;      // reports P(annual loss > threshold)
 	int Trials = 10000;
 	uint64_t Seed = 1;
+	int HistogramBins = 0;           // 0 = no histogram
 };
 
 struct MonteCarloResult
@@ -135,6 +143,9 @@ struct MonteCarloResult
 	double Max = 0.0;
 	double ProbExceedThreshold = 0.0;
 	int Trials = 0;
+	// Annual-loss histogram over [0, P99]; trials above P99 are counted in the last bin.
+	std::vector<int> Histogram;
+	double BinWidth = 0.0;
 };
 
 // Lognormal parameters from a median and a 90th-percentile single-loss estimate (how

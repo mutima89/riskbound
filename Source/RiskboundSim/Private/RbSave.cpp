@@ -504,6 +504,137 @@ static void ReadMission(KvReader& R, m001::MissionState& M)
 	M.Result = m001::Score(S, M.ViewedEvidence);
 }
 
+static void WriteActions(KvWriter& W, const ActionTracker& T)
+{
+	W.Int("act.next", T.NextIdNumber());
+	W.Int("act.n", static_cast<long long>(T.All().size()));
+	for (size_t i = 0; i < T.All().size(); ++i)
+	{
+		const CorrectiveAction& A = T.All()[i];
+		const std::string P = "act." + std::to_string(i);
+		W.Put(P + ".id", A.Id);
+		W.Put(P + ".risk", A.RiskId);
+		W.Put(P + ".title", A.Title);
+		W.Put(P + ".owner", A.Owner);
+		W.Int(P + ".created", A.CreatedWeek);
+		W.Int(P + ".due", A.DueWeek);
+		W.Bool(P + ".started", A.bStarted);
+		W.Bool(P + ".done", A.bDone);
+		W.Int(P + ".doneWeek", A.DoneWeek);
+		W.Put(P + ".evidence", A.CompletionEvidence);
+	}
+}
+
+static void ReadActions(KvReader& R, ActionTracker& Out)
+{
+	ActionTracker T;
+	const int N = R.Count("act");
+	for (int i = 0; i < N; ++i)
+	{
+		const std::string P = "act." + std::to_string(i);
+		CorrectiveAction A;
+		A.Id = R.Str(P + ".id");
+		A.RiskId = R.Str(P + ".risk");
+		A.Title = R.Str(P + ".title");
+		A.Owner = R.Str(P + ".owner");
+		A.CreatedWeek = static_cast<int>(R.Int(P + ".created"));
+		A.DueWeek = static_cast<int>(R.Int(P + ".due"));
+		A.bStarted = R.Bool(P + ".started");
+		A.bDone = R.Bool(P + ".done");
+		A.DoneWeek = static_cast<int>(R.Int(P + ".doneWeek", -1));
+		A.CompletionEvidence = R.Str(P + ".evidence");
+		if (A.Id.empty() || T.Find(A.Id) != nullptr || (A.bDone && A.CompletionEvidence.empty())) R.bOk = false;
+		T.Restore(A);
+	}
+	T.SetNextIdNumber(static_cast<int>(R.Int("act.next", 1)));
+	Out = std::move(T);
+}
+
+// KRI history stores week and value only; status, streak and escalation are re-derived on load.
+static void WriteKris(KvWriter& W, const KriMonitor& M)
+{
+	W.U64("kri.seed", M.Seed);
+	W.Int("kri.n", static_cast<long long>(M.Series.size()));
+	for (size_t i = 0; i < M.Series.size(); ++i)
+	{
+		const KriSeries& S = M.Series[i];
+		const std::string P = "kri." + std::to_string(i);
+		W.Put(P + ".id", S.Id);
+		W.Int(P + ".h.n", static_cast<long long>(S.History.size()));
+		for (size_t h = 0; h < S.History.size(); ++h)
+		{
+			W.Int(P + ".h." + std::to_string(h) + ".week", S.History[h].Week);
+			W.Dbl(P + ".h." + std::to_string(h) + ".value", S.History[h].Value);
+		}
+	}
+}
+
+static void ReadKris(KvReader& R, KriMonitor& Out)
+{
+	KriMonitor M;
+	M.Seed = R.U64("kri.seed", 1);
+	const int N = R.Count("kri");
+	for (int i = 0; i < N; ++i)
+	{
+		const std::string P = "kri." + std::to_string(i);
+		KriSeries S;
+		S.Id = R.Str(P + ".id");
+		const KriDefinition* D = FindKri(S.Id);
+		if (!D)
+		{
+			R.bOk = false;
+			return;
+		}
+		const int NH = R.Count(P + ".h");
+		for (int h = 0; h < NH; ++h)
+		{
+			const int Week = static_cast<int>(R.Int(P + ".h." + std::to_string(h) + ".week"));
+			const double Value = R.Dbl(P + ".h." + std::to_string(h) + ".value");
+			S.History.push_back(MakeReading(*D, Value, Week, S.Latest()));
+		}
+		M.Series.push_back(std::move(S));
+	}
+	Out = std::move(M);
+}
+
+static void WriteQuantified(KvWriter& W, const std::vector<QuantifiedRisk>& Q)
+{
+	W.Int("quant.n", static_cast<long long>(Q.size()));
+	for (size_t i = 0; i < Q.size(); ++i)
+	{
+		const std::string P = "quant." + std::to_string(i);
+		W.Put(P + ".risk", Q[i].RiskId);
+		W.Int(P + ".s.n", static_cast<long long>(Q[i].Scenarios.size()));
+		for (size_t s = 0; s < Q[i].Scenarios.size(); ++s)
+		{
+			const std::string S = P + ".s." + std::to_string(s);
+			W.Put(S + ".name", Q[i].Scenarios[s].Name);
+			W.Dbl(S + ".p", Q[i].Scenarios[s].AnnualProbability);
+			W.Dbl(S + ".loss", Q[i].Scenarios[s].Loss);
+		}
+	}
+}
+
+static void ReadQuantified(KvReader& R, std::vector<QuantifiedRisk>& Out)
+{
+	Out.clear();
+	const int N = R.Count("quant");
+	for (int i = 0; i < N; ++i)
+	{
+		const std::string P = "quant." + std::to_string(i);
+		QuantifiedRisk Q;
+		Q.RiskId = R.Str(P + ".risk");
+		const int NS = R.Count(P + ".s");
+		for (int s = 0; s < NS; ++s)
+		{
+			const std::string S = P + ".s." + std::to_string(s);
+			Q.Scenarios.push_back({R.Str(S + ".name"), R.Dbl(S + ".p"), R.Dbl(S + ".loss")});
+		}
+		if (Q.RiskId.empty() || !ValidateScenarios(Q.Scenarios, true)) R.bOk = false;
+		Out.push_back(std::move(Q));
+	}
+}
+
 std::string SerializeGame(const GameState& S)
 {
 	KvWriter W;
@@ -524,6 +655,9 @@ std::string SerializeGame(const GameState& S)
 	WriteOrg(W, S.Org);
 	WriteRegister(W, S.Register);
 	WriteMission(W, S.Mission001);
+	WriteActions(W, S.Actions);
+	WriteKris(W, S.Kris);
+	WriteQuantified(W, S.Quantified);
 	W.List("achievements", S.Achievements);
 	W.List("learning", S.LearningHistory);
 	char Sum[32];
@@ -548,6 +682,28 @@ static void MigrateV1ToV2(KvReader& R)
 	}
 	if (!R.Has("org.draws")) R.Map["org.draws"] = "0";
 	R.Map["version"] = "2";
+}
+
+// v2 had no action tracker, KRI history or quantified risks. Defaults: KRI history rebuilt
+// deterministically from the organisation and seed; if Mission 001 was already submitted, its
+// treatment actions are recreated as of the decision week; no quantified risks.
+static void MigrateV2ToV3(GameState& S)
+{
+	S.Kris = MakeKriMonitor(S.Org, S.Seed, KriHistoryWeeksAtStart);
+	S.Actions = ActionTracker();
+	S.Quantified.clear();
+	if (S.Mission001.bSubmitted)
+	{
+		int Week = S.Org.Week;
+		for (const DecisionRecord& D : S.Org.Decisions)
+		{
+			if (D.Id == "M001-treatment") Week = D.Week;
+		}
+		for (const CorrectiveAction& A : m001::TreatmentActions(S.Mission001.Submitted, Week))
+		{
+			S.Actions.Create(A);
+		}
+	}
 }
 
 bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
@@ -624,6 +780,17 @@ bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 	ReadOrg(R, S.Org);
 	ReadRegister(R, S.Register);
 	ReadMission(R, S.Mission001);
+	if (Info.LoadedVersion < 3)
+	{
+		MigrateV2ToV3(S);
+		Info.bMigrated = true;
+	}
+	else
+	{
+		ReadActions(R, S.Actions);
+		ReadKris(R, S.Kris);
+		ReadQuantified(R, S.Quantified);
+	}
 	S.Achievements = R.List("achievements");
 	S.LearningHistory = R.List("learning");
 	if (!R.bOk)
