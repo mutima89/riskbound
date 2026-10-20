@@ -21,12 +21,12 @@ using namespace RbUI;
 
 namespace
 {
-FOnClicked Click(TFunction<void()> Fn)
+FOnClicked HubClick(TFunction<void()> Fn)
 {
 	return FOnClicked::CreateLambda([Fn]() { Fn(); return FReply::Handled(); });
 }
 
-FText Num(double V, int32 Fraction = 0)
+FText HubNum(double V, int32 Fraction = 0)
 {
 	FNumberFormattingOptions O;
 	O.MinimumFractionalDigits = Fraction;
@@ -34,14 +34,14 @@ FText Num(double V, int32 Fraction = 0)
 	return FText::AsNumber(V, &O);
 }
 
-FText Pct(double V)
+FText HubPct(double V)
 {
 	FNumberFormattingOptions O;
 	O.MaximumFractionalDigits = 1;
 	return FText::AsPercent(V, &O);
 }
 
-FLinearColor RatingColor(const FString& Rating)
+FLinearColor HubRatingColor(const FString& Rating)
 {
 	if (Rating == TEXT("Critical")) return Bad;
 	if (Rating == TEXT("High")) return Warning;
@@ -49,17 +49,17 @@ FLinearColor RatingColor(const FString& Rating)
 	return Good;
 }
 
-FLinearColor StatusColor(const FString& Status)
+FLinearColor HubStatusColor(const FString& Status)
 {
 	return Status == TEXT("Red") || Status == TEXT("Overdue") ? Bad : (Status == TEXT("Amber") ? Warning : Good);
 }
 
-TSharedRef<SWidget> Card(TSharedRef<SWidget> Content)
+TSharedRef<SWidget> HubCard(TSharedRef<SWidget> Content)
 {
 	return SNew(SBorder).BorderImage(CardBrush()).Padding(Space4)[Content];
 }
 
-TSharedRef<SWidget> Cell(const FText& Text, float Width, const FLinearColor& Color = TextPrimary, bool bBold = false)
+TSharedRef<SWidget> HubCell(const FText& Text, float Width, const FLinearColor& Color = TextPrimary, bool bBold = false)
 {
 	return SNew(SBox).WidthOverride(Width)
 		[
@@ -67,7 +67,7 @@ TSharedRef<SWidget> Cell(const FText& Text, float Width, const FLinearColor& Col
 		];
 }
 
-TSharedRef<SWidget> KeyValue(const FText& Key, const FText& Value, const FLinearColor& Color = TextPrimary)
+TSharedRef<SWidget> HubKeyValue(const FText& Key, const FText& Value, const FLinearColor& Color = TextPrimary)
 {
 	return SNew(SHorizontalBox)
 		+ SHorizontalBox::Slot().AutoWidth()[SNew(SBox).WidthOverride(260.0f)[MakeBody(Key, 14, TextMuted)]]
@@ -96,7 +96,7 @@ void SRbToolHub::Construct(const FArguments& InArgs)
 		const ETab Tab = static_cast<ETab>(i);
 		TabBar->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space1, 0.0f)
 		[
-			MakeButton(Names[i], Click([this, Tab]() { ShowTab(Tab); }), &Btn, true, false)
+			MakeButton(Names[i], HubClick([this, Tab]() { ShowTab(Tab); }), &Btn, true, false)
 		];
 		if (i == 0) FirstTab = Btn;
 	}
@@ -127,7 +127,7 @@ void SRbToolHub::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock).Text_Lambda([this]() { return Status; }).Font(FontW(13, EWeight::Medium)).ColorAndOpacity(TextMuted).AutoWrapText(true)
 			]
-			+ SHorizontalBox::Slot().AutoWidth()[MakeButton(LOCTEXT("HubClose", "Back to workstation"), Click([this]() { OnClose(); }))]
+			+ SHorizontalBox::Slot().AutoWidth()[MakeButton(LOCTEXT("HubClose", "Back to workstation"), HubClick([this]() { OnClose(); }))]
 		]
 	];
 	Rebuild();
@@ -212,7 +212,7 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space2, 0.0f)
 		[
 			MakeButton(FText::Format(LOCTEXT("CategoryFilter", "Category: {0}"), Filter.Category.IsEmpty() ? LOCTEXT("Any", "Any") : FText::FromString(Filter.Category)),
-				Click([this, T]()
+				HubClick([this, T]()
 				{
 					const TArray<FString> Cats = T->GetCategories();
 					const int32 Next = Cats.IndexOfByKey(Filter.Category) + 1;
@@ -233,12 +233,12 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 	Table->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space1)
 	[
 		SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot().AutoWidth()[Cell(LOCTEXT("ColId", "Id"), 60, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[Cell(LOCTEXT("ColTitle", "Title"), 220, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[Cell(LOCTEXT("ColCat", "Category"), 90, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[Cell(LOCTEXT("ColRes", "Residual (ordinal)"), 150, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[Cell(LOCTEXT("ColApp", "Appetite"), 80, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[Cell(LOCTEXT("ColTreat", "Treatment"), 90, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColId", "Id"), 60, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColTitle", "Title"), 220, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColCat", "Category"), 90, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColRes", "Residual (ordinal)"), 150, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColApp", "Appetite"), 80, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColTreat", "Treatment"), 90, TextMuted, true)]
 	];
 	for (const FRbRegisterRow& R : T->GetRegister(Filter))
 	{
@@ -246,18 +246,18 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 		Table->AddSlot().AutoHeight().Padding(0.0f, 2.0f)
 		[
 			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(R.Id), 60)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(R.Title), 220)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(R.Category), 90, TextMuted)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Id), 60)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Title), 220)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Category), 90, TextMuted)]
 			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
 			[
-				Cell(FText::Format(LOCTEXT("ResidualFmt", "{0} x {1} = {2} {3}"), R.ResidualLikelihood, R.ResidualImpact, R.ResidualScore, FText::FromString(R.Rating)), 150, RatingColor(R.Rating))
+				HubCell(FText::Format(LOCTEXT("ResidualFmt", "{0} x {1} = {2} {3}"), R.ResidualLikelihood, R.ResidualImpact, R.ResidualScore, FText::FromString(R.Rating)), 150, HubRatingColor(R.Rating))
 			]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(R.Appetite), 80, R.Appetite == TEXT("Exceeds") ? Bad : TextMuted)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(R.Treatment), 90, TextMuted)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Appetite), 80, R.Appetite == TEXT("Exceeds") ? Bad : TextMuted)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Treatment), 90, TextMuted)]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				MakeButton(LOCTEXT("Edit", "Edit"), Click([this, Id]()
+				MakeButton(LOCTEXT("Edit", "Edit"), HubClick([this, Id]()
 				{
 					EditingId = Id;
 					RiskForm = Tools->GetRiskInput(Id);
@@ -266,7 +266,7 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 			]
 		];
 	}
-	Left->AddSlot().AutoHeight()[Card(Table)];
+	Left->AddSlot().AutoHeight()[HubCard(Table)];
 
 	// Heatmap of residual positions.
 	TSharedRef<SUniformGridPanel> Grid = SNew(SUniformGridPanel).SlotPadding(FMargin(2.0f));
@@ -279,7 +279,7 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 		[
 			SNew(SBox).WidthOverride(46.0f).HeightOverride(40.0f)
 			[
-				SNew(SBorder).BorderImage(CardBrush()).BorderBackgroundColor(RatingColor(C.Rating) * FLinearColor(1, 1, 1, C.Count ? 0.95f : 0.35f))
+				SNew(SBorder).BorderImage(CardBrush()).BorderBackgroundColor(HubRatingColor(C.Rating) * FLinearColor(1, 1, 1, C.Count ? 0.95f : 0.35f))
 				.HAlign(HAlign_Center).VAlign(VAlign_Center)
 				[
 					SNew(STextBlock).Text(C.Count ? FText::AsNumber(C.Count) : FText::GetEmpty()).Font(FontW(15, EWeight::Bold)).ColorAndOpacity(FLinearColor::White)
@@ -288,7 +288,7 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 		];
 		++Index;
 	}
-	TSharedRef<SWidget> Heat = Card(SNew(SVerticalBox)
+	TSharedRef<SWidget> Heat = HubCard(SNew(SVerticalBox)
 		+ SVerticalBox::Slot().AutoHeight()[MakeHeading(LOCTEXT("Heatmap", "Residual heatmap"), 15)]
 		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, 2.0f, 0.0f, Space2)[MakeBody(LOCTEXT("HeatHelp", "Likelihood 5 (top) to 1; impact 1 (left) to 5. Counts are open risks. Ordinal, not money."), 12, TextMuted)]
 		+ SVerticalBox::Slot().AutoHeight()[Grid]);
@@ -311,7 +311,7 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 		+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[SNew(SBox).WidthOverride(230.0f)[MakeBody(LOCTEXT("FCategory", "Category"), 14)]]
 		+ SHorizontalBox::Slot().AutoWidth()
 		[
-			MakeButton(FText::FromString(RiskForm.Category), Click([this, T]()
+			MakeButton(FText::FromString(RiskForm.Category), HubClick([this, T]()
 			{
 				const TArray<FString> Cats = T->GetCategories();
 				if (Cats.Num()) RiskForm.Category = Cats[(Cats.IndexOfByKey(RiskForm.Category) + 1) % Cats.Num()];
@@ -342,7 +342,7 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 		SNew(SHorizontalBox)
 		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space2, 0.0f)
 		[
-			MakeButton(bEditing ? LOCTEXT("SaveRisk", "Save changes") : LOCTEXT("AddRisk", "Add to register"), Click([this, bEditing]()
+			MakeButton(bEditing ? LOCTEXT("SaveRisk", "Save changes") : LOCTEXT("AddRisk", "Add to register"), HubClick([this, bEditing]()
 			{
 				FString Error;
 				if (bEditing)
@@ -360,7 +360,7 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 		]
 		+ SHorizontalBox::Slot().AutoWidth()
 		[
-			MakeButton(LOCTEXT("NewForm", "New risk"), Click([this]() { EditingId.Empty(); RiskForm = FRbRiskInput(); Rebuild(); }))
+			MakeButton(LOCTEXT("NewForm", "New risk"), HubClick([this]() { EditingId.Empty(); RiskForm = FRbRiskInput(); Rebuild(); }))
 		]
 	];
 
@@ -371,7 +371,7 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 			+ SHorizontalBox::Slot().FillWidth(1.0f).Padding(0.0f, 0.0f, Space3, 0.0f)[Left]
 			+ SHorizontalBox::Slot().AutoWidth()[Heat]
 		]
-		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f)[Card(Form)];
+		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f)[HubCard(Form)];
 }
 
 // ---------------------------------------------------------------- KRIs
@@ -387,14 +387,14 @@ TSharedRef<SWidget> SRbToolHub::BuildKri()
 	{
 		Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)
 		[
-			Card(SNew(SHorizontalBox)
+			HubCard(SNew(SHorizontalBox)
 				+ SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center)
 				[
 					SNew(SVerticalBox)
 					+ SVerticalBox::Slot().AutoHeight()[MakeBody(FText::FromString(K.Name), 15)]
 					+ SVerticalBox::Slot().AutoHeight()
 					[
-						MakeBody(FText::Format(LOCTEXT("KriThresh", "Amber {0}  /  Red {1}  /  {2}"), Num(K.Amber, 1), Num(K.Red, 1),
+						MakeBody(FText::Format(LOCTEXT("KriThresh", "Amber {0}  /  Red {1}  /  {2}"), HubNum(K.Amber, 1), HubNum(K.Red, 1),
 							K.bHigherIsWorse ? LOCTEXT("HigherWorse", "higher is worse") : LOCTEXT("LowerWorse", "lower is worse")), 12, TextMuted)
 					]
 				]
@@ -402,8 +402,8 @@ TSharedRef<SWidget> SRbToolHub::BuildKri()
 				[
 					SNew(SBox).WidthOverride(190.0f)
 					[
-						SNew(STextBlock).Text(FText::Format(LOCTEXT("KriValue", "{0} {1}"), Num(K.Value, 1), FText::FromString(K.Unit)))
-						.Font(FontW(18, EWeight::SemiBold)).ColorAndOpacity(StatusColor(K.Status))
+						SNew(STextBlock).Text(FText::Format(LOCTEXT("KriValue", "{0} {1}"), HubNum(K.Value, 1), FText::FromString(K.Unit)))
+						.Font(FontW(18, EWeight::SemiBold)).ColorAndOpacity(HubStatusColor(K.Status))
 					]
 				]
 				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(Space3, 0.0f)
@@ -411,7 +411,7 @@ TSharedRef<SWidget> SRbToolHub::BuildKri()
 					SNew(SBox).WidthOverride(150.0f)
 					[
 						MakeBody(K.bEscalate ? FText::Format(LOCTEXT("Escalate", "{0}: ESCALATE"), FText::FromString(K.Status))
-							: FText::Format(LOCTEXT("NoEscalate", "{0}, amber streak {1}"), FText::FromString(K.Status), K.AmberStreak), 13, StatusColor(K.Status))
+							: FText::Format(LOCTEXT("NoEscalate", "{0}, amber streak {1}"), FText::FromString(K.Status), K.AmberStreak), 13, HubStatusColor(K.Status))
 					]
 				]
 				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
@@ -465,23 +465,23 @@ TSharedRef<SWidget> SRbToolHub::BuildLoss()
 			]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				MakeButton(LOCTEXT("Remove", "Remove"), Click([this, i]() { Scenarios.RemoveAt(i); Rebuild(); }))
+				MakeButton(LOCTEXT("Remove", "Remove"), HubClick([this, i]() { Scenarios.RemoveAt(i); Rebuild(); }))
 			]
 		];
 	}
 	const FRbLossView L = Tools->EvaluateScenarios(Scenarios);
 	TSharedRef<SVerticalBox> Result = SNew(SVerticalBox);
 	if (!L.bValid) Result->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)[MakeBody(FText::FromString(L.Problem), 13, Bad)];
-	Result->AddSlot().AutoHeight()[KeyValue(LOCTEXT("EL", "Expected loss (average per year)"), Money(L.ExpectedLoss))];
-	Result->AddSlot().AutoHeight()[KeyValue(LOCTEXT("Worst", "Worst single scenario (not the EL)"), Money(L.WorstCase), Warning)];
+	Result->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("EL", "Expected loss (average per year)"), Money(L.ExpectedLoss))];
+	Result->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("Worst", "Worst single scenario (not the EL)"), Money(L.WorstCase), Warning)];
 	return SNew(SVerticalBox)
-		+ SVerticalBox::Slot().AutoHeight()[Card(Rows)]
+		+ SVerticalBox::Slot().AutoHeight()[HubCard(Rows)]
 		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, Space2)
 		[
 			SNew(SHorizontalBox)
 			+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space2, 0.0f)
 			[
-				MakeButton(LOCTEXT("AddScenario", "Add scenario"), Click([this]() { Scenarios.Add({TEXT("New scenario"), 0.05, 50000.0}); Rebuild(); }))
+				MakeButton(LOCTEXT("AddScenario", "Add scenario"), HubClick([this]() { Scenarios.Add({TEXT("New scenario"), 0.05, 50000.0}); Rebuild(); }))
 			]
 			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0.0f, 0.0f, Space2, 0.0f)
 			[
@@ -493,7 +493,7 @@ TSharedRef<SWidget> SRbToolHub::BuildLoss()
 			]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				MakeButton(LOCTEXT("SaveQuant", "Save to register"), Click([this]()
+				MakeButton(LOCTEXT("SaveQuant", "Save to register"), HubClick([this]()
 				{
 					Status = Tools->SaveQuantification(QuantRiskId, Scenarios)
 						? FText::Format(LOCTEXT("QuantSaved", "Scenarios saved to {0}; they appear in the executive report."), FText::FromString(QuantRiskId))
@@ -502,7 +502,7 @@ TSharedRef<SWidget> SRbToolHub::BuildLoss()
 				}), nullptr, true, true)
 			]
 		]
-		+ SVerticalBox::Slot().AutoHeight()[Card(Result)];
+		+ SVerticalBox::Slot().AutoHeight()[HubCard(Result)];
 }
 
 // ---------------------------------------------------------------- cost-benefit and sensitivity
@@ -532,19 +532,19 @@ TSharedRef<SWidget> SRbToolHub::BuildCostBenefit()
 	];
 	In->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[NumberField(LOCTEXT("Rate", "Discount rate"), &Appraisal.DiscountRate, 0, 0.5, 0.005, 3)];
 	TSharedRef<SVerticalBox> Out = SNew(SVerticalBox);
-	Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("Reduction", "Annual risk reduction"), Money(A.AnnualRiskReduction))];
-	Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("PvBen", "PV of benefit"), Money(A.PvBenefit))];
-	Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("PvCost", "PV of cost"), Money(A.PvCost))];
-	Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("NpvK", "NPV"), Money(A.Npv), A.Npv > 0 ? Good : Bad)];
-	Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("RoiK", "ROI"), Pct(A.Roi))];
-	Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("BcrK", "Benefit-cost ratio"), Num(A.BenefitCostRatio, 2))];
+	Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("Reduction", "Annual risk reduction"), Money(A.AnnualRiskReduction))];
+	Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("PvBen", "PV of benefit"), Money(A.PvBenefit))];
+	Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("PvCost", "PV of cost"), Money(A.PvCost))];
+	Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("NpvK", "NPV"), Money(A.Npv), A.Npv > 0 ? Good : Bad)];
+	Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("RoiK", "ROI"), HubPct(A.Roi))];
+	Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("BcrK", "Benefit-cost ratio"), HubNum(A.BenefitCostRatio, 2))];
 	Out->AddSlot().AutoHeight().Padding(0.0f, Space2, 0.0f, 0.0f)
 	[
 		MakeBody(LOCTEXT("CbaNote", "Benefit = discounted reduction in expected loss. Only as good as the probability estimates behind it."), 12, TextMuted)
 	];
 	return SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space3, 0.0f)[Card(In)]
-		+ SHorizontalBox::Slot().FillWidth(1.0f)[Card(Out)];
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space3, 0.0f)[HubCard(In)]
+		+ SHorizontalBox::Slot().FillWidth(1.0f)[HubCard(Out)];
 }
 
 TSharedRef<SWidget> SRbToolHub::BuildSensitivity()
@@ -564,18 +564,18 @@ TSharedRef<SWidget> SRbToolHub::BuildSensitivity()
 		Box->AddSlot().AutoHeight().Padding(0.0f, 3.0f)
 		[
 			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(R.Name), 200)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Name), 200)]
 			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0.0f, 0.0f, Space3, 0.0f)
 			[
 				SNew(SRbTornadoBar).Low(R.OutputLow).High(R.OutputHigh).Base(Base).Extent(Extent)
 			]
 			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
 			[
-				Cell(FText::Format(LOCTEXT("TornadoVals", "{0} to {1}  (swing {2})"), Money(R.OutputLow), Money(R.OutputHigh), Money(R.Swing)), 340, TextMuted)
+				HubCell(FText::Format(LOCTEXT("TornadoVals", "{0} to {1}  (swing {2})"), Money(R.OutputLow), Money(R.OutputHigh), Money(R.Swing)), 340, TextMuted)
 			]
 		];
 	}
-	return Card(Box);
+	return HubCard(Box);
 }
 
 // ---------------------------------------------------------------- stress
@@ -587,7 +587,7 @@ TSharedRef<SWidget> SRbToolHub::BuildStress()
 	{
 		Presets->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space2, 0.0f)
 		[
-			MakeButton(FText::FromString(P.Name), Click([this, P]() { Shock = P; Rebuild(); }), nullptr, true, Shock.Name == P.Name)
+			MakeButton(FText::FromString(P.Name), HubClick([this, P]() { Shock = P; Rebuild(); }), nullptr, true, Shock.Name == P.Name)
 		];
 	}
 	const FRbStressView R = Tools->Stress(Scenarios, Shock, LossCapacity);
@@ -600,14 +600,14 @@ TSharedRef<SWidget> SRbToolHub::BuildStress()
 	Box->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[NumberField(LOCTEXT("ProbMult", "Probability multiplier"), &Shock.ProbabilityMultiplier, 0.1, 10.0, 0.1, 2)];
 	Box->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[NumberField(LOCTEXT("LossMult", "Loss multiplier"), &Shock.LossMultiplier, 0.1, 10.0, 0.1, 2)];
 	Box->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[NumberField(LOCTEXT("Capacity", "Loss capacity (largest loss absorbable)"), &LossCapacity, 0, 1e10, 10000)];
-	Box->AddSlot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f)[KeyValue(LOCTEXT("BaseEL", "Expected loss, base"), Money(R.BaseExpectedLoss))];
-	Box->AddSlot().AutoHeight()[KeyValue(LOCTEXT("StressEL", "Expected loss, stressed"), Money(R.StressedExpectedLoss), Warning)];
-	Box->AddSlot().AutoHeight()[KeyValue(LOCTEXT("StressWorst", "Worst case, stressed"), Money(R.StressedWorstCase), Warning)];
+	Box->AddSlot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f)[HubKeyValue(LOCTEXT("BaseEL", "Expected loss, base"), Money(R.BaseExpectedLoss))];
+	Box->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("StressEL", "Expected loss, stressed"), Money(R.StressedExpectedLoss), Warning)];
+	Box->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("StressWorst", "Worst case, stressed"), Money(R.StressedWorstCase), Warning)];
 	Box->AddSlot().AutoHeight()
 	[
-		KeyValue(LOCTEXT("Breach", "Breaches loss capacity"), R.bBreachesCapacity ? LOCTEXT("YesBreach", "Yes") : LOCTEXT("NoBreach", "No"), R.bBreachesCapacity ? Bad : Good)
+		HubKeyValue(LOCTEXT("Breach", "Breaches loss capacity"), R.bBreachesCapacity ? LOCTEXT("YesBreach", "Yes") : LOCTEXT("NoBreach", "No"), R.bBreachesCapacity ? Bad : Good)
 	];
-	return Card(Box);
+	return HubCard(Box);
 }
 
 // ---------------------------------------------------------------- Monte Carlo
@@ -638,7 +638,7 @@ TSharedRef<SWidget> SRbToolHub::BuildMonteCarlo()
 	In->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[IntField(LOCTEXT("Seed", "Seed (same seed = same result)"), &Mc.Seed, 0, 999999)];
 	In->AddSlot().AutoHeight().Padding(0.0f, Space2, 0.0f, 0.0f)
 	[
-		MakeButton(LOCTEXT("RunMc", "Run simulation"), Click([this]() { McResult = Tools->MonteCarlo(Mc, 30); bMcRun = true; Rebuild(); }), nullptr, true, true)
+		MakeButton(LOCTEXT("RunMc", "Run simulation"), HubClick([this]() { McResult = Tools->MonteCarlo(Mc, 30); bMcRun = true; Rebuild(); }), nullptr, true, true)
 	];
 	TSharedRef<SVerticalBox> Out = SNew(SVerticalBox);
 	if (!bMcRun)
@@ -648,13 +648,13 @@ TSharedRef<SWidget> SRbToolHub::BuildMonteCarlo()
 	else
 	{
 		const FRbMonteCarloView& R = McResult;
-		Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("Fit", "Lognormal fit (mu, sigma)"), FText::Format(LOCTEXT("FitV", "{0}, {1}"), Num(R.Mu, 3), Num(R.Sigma, 3)))];
-		Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("Mean", "Mean annual loss"), Money(R.Mean))];
-		Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("Sd", "Standard deviation"), Money(R.StdDev))];
-		Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("P50K", "P50 / P90"), FText::Format(LOCTEXT("P50V", "{0} / {1}"), Money(R.P50), Money(R.P90)))];
-		Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("P95K", "P95 / P99"), FText::Format(LOCTEXT("P95V", "{0} / {1}"), Money(R.P95), Money(R.P99)), Warning)];
-		Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("MaxK", "Worst trial"), Money(R.Max), Warning)];
-		Out->AddSlot().AutoHeight()[KeyValue(LOCTEXT("Exceed", "P(annual loss > threshold)"), Pct(R.ProbExceedThreshold))];
+		Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("Fit", "Lognormal fit (mu, sigma)"), FText::Format(LOCTEXT("FitV", "{0}, {1}"), HubNum(R.Mu, 3), HubNum(R.Sigma, 3)))];
+		Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("Mean", "Mean annual loss"), Money(R.Mean))];
+		Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("Sd", "Standard deviation"), Money(R.StdDev))];
+		Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("P50K", "P50 / P90"), FText::Format(LOCTEXT("P50V", "{0} / {1}"), Money(R.P50), Money(R.P90)))];
+		Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("P95K", "P95 / P99"), FText::Format(LOCTEXT("P95V", "{0} / {1}"), Money(R.P95), Money(R.P99)), Warning)];
+		Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("MaxK", "Worst trial"), Money(R.Max), Warning)];
+		Out->AddSlot().AutoHeight()[HubKeyValue(LOCTEXT("Exceed", "P(annual loss > threshold)"), HubPct(R.ProbExceedThreshold))];
 		const int32 HotFrom = R.BinWidth > 0.0 ? FMath::Clamp(FMath::FloorToInt(Mc.LossThreshold / R.BinWidth), 0, R.Histogram.Num()) : -1;
 		Out->AddSlot().AutoHeight().Padding(0.0f, Space3, 0.0f, Space1)
 		[
@@ -663,8 +663,8 @@ TSharedRef<SWidget> SRbToolHub::BuildMonteCarlo()
 		Out->AddSlot().AutoHeight()[SNew(SRbBarSeries).Counts(R.Histogram).HighlightFrom(HotFrom).Size(FVector2D(560.0, 150.0))];
 	}
 	return SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space3, 0.0f)[Card(In)]
-		+ SHorizontalBox::Slot().FillWidth(1.0f)[Card(Out)];
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space3, 0.0f)[HubCard(In)]
+		+ SHorizontalBox::Slot().FillWidth(1.0f)[HubCard(Out)];
 }
 
 // ---------------------------------------------------------------- actions
@@ -676,16 +676,16 @@ TSharedRef<SWidget> SRbToolHub::BuildActions()
 	{
 		const FString Id = A.Id;
 		TSharedRef<SHorizontalBox> Row = SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(A.Id), 60)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(A.RiskId), 60, TextMuted)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(A.Title), 330)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::Format(LOCTEXT("Due", "due wk {0}"), A.DueWeek), 80, TextMuted)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[Cell(FText::FromString(A.Status), 90, A.bDone ? Good : StatusColor(A.Status))];
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(A.Id), 60)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(A.RiskId), 60, TextMuted)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(A.Title), 330)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::Format(LOCTEXT("Due", "due wk {0}"), A.DueWeek), 80, TextMuted)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(A.Status), 90, A.bDone ? Good : HubStatusColor(A.Status))];
 		if (!A.bDone)
 		{
 			Row->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space1, 0.0f)
 			[
-				MakeButton(LOCTEXT("Start", "Start"), Click([this, Id]() { Tools->StartAction(Id); Rebuild(); }))
+				MakeButton(LOCTEXT("Start", "Start"), HubClick([this, Id]() { Tools->StartAction(Id); Rebuild(); }))
 			];
 			Row->AddSlot().FillWidth(1.0f).Padding(0.0f, 0.0f, Space1, 0.0f)
 			[
@@ -695,7 +695,7 @@ TSharedRef<SWidget> SRbToolHub::BuildActions()
 			];
 			Row->AddSlot().AutoWidth()
 			[
-				MakeButton(LOCTEXT("CloseAction", "Close"), Click([this, Id]()
+				MakeButton(LOCTEXT("CloseAction", "Close"), HubClick([this, Id]()
 				{
 					FString Error;
 					Status = Tools->CloseAction(Id, CloseEvidence.FindRef(Id), Error) ? FText::Format(LOCTEXT("Closed", "{0} closed."), FText::FromString(Id)) : FText::FromString(Error);
@@ -724,7 +724,7 @@ TSharedRef<SWidget> SRbToolHub::BuildActions()
 		SNew(SHorizontalBox)
 		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space2, 0.0f)
 		[
-			MakeButton(LOCTEXT("CreateAction", "Create action"), Click([this]()
+			MakeButton(LOCTEXT("CreateAction", "Create action"), HubClick([this]()
 			{
 				FString Error;
 				const FString Id = Tools->CreateAction(ActionRisk, ActionTitle, ActionOwner, FMath::RoundToInt(ActionDue), Error);
@@ -735,7 +735,7 @@ TSharedRef<SWidget> SRbToolHub::BuildActions()
 		]
 		+ SHorizontalBox::Slot().AutoWidth()
 		[
-			MakeButton(LOCTEXT("AdvanceWeek", "Advance one week"), Click([this]()
+			MakeButton(LOCTEXT("AdvanceWeek", "Advance one week"), HubClick([this]()
 			{
 				const TArray<FString> Events = Tools->AdvanceWeek();
 				Status = Events.IsEmpty() ? FText::Format(LOCTEXT("NowWeek", "Now week {0}."), Tools->GetWeek()) : FText::FromString(FString::Join(Events, TEXT("  ")));
@@ -744,8 +744,8 @@ TSharedRef<SWidget> SRbToolHub::BuildActions()
 		]
 	];
 	return SNew(SVerticalBox)
-		+ SVerticalBox::Slot().AutoHeight()[Card(List)]
-		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f)[Card(Form)];
+		+ SVerticalBox::Slot().AutoHeight()[HubCard(List)]
+		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f)[HubCard(Form)];
 }
 
 // ---------------------------------------------------------------- report
@@ -763,7 +763,7 @@ TSharedRef<SWidget> SRbToolHub::BuildReport()
 			]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				MakeButton(LOCTEXT("Export", "Export Markdown"), Click([this]()
+				MakeButton(LOCTEXT("Export", "Export Markdown"), HubClick([this]()
 				{
 					ExportedPath = Tools->ExportReport();
 					Status = ExportedPath.IsEmpty() ? LOCTEXT("ExportFail", "Export failed.") : LOCTEXT("ExportOk", "Report exported.");
@@ -773,7 +773,7 @@ TSharedRef<SWidget> SRbToolHub::BuildReport()
 		]
 		+ SVerticalBox::Slot().AutoHeight()
 		[
-			Card(SNew(STextBlock).Text(FText::FromString(Tools->GetReportMarkdown())).Font(FontW(13, EWeight::Regular)).ColorAndOpacity(TextPrimary).AutoWrapText(true))
+			HubCard(SNew(STextBlock).Text(FText::FromString(Tools->GetReportMarkdown())).Font(FontW(13, EWeight::Regular)).ColorAndOpacity(TextPrimary).AutoWrapText(true))
 		];
 }
 

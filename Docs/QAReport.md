@@ -71,3 +71,14 @@ Graphics quality presets: Low 50%, Medium 60%, High 70%, Epic 100% internal reso
 | Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
 | Automation tests | `Scripts\RunUnrealTests.bat` | 8/8 `Result={Success}`: adds Riskbound.Tools.RegisterAddFilterSearchMatrix, .QuantViewModels (EL 117,500 / worst 1,800,000, tornado swing 60,561.78, stressed EL 567,500, seeded Monte Carlo, histogram counts every trial), .KrisActionsAndTime, .ReportExport (file equals on-screen report) |
 | UI capture | `-game -RbSelfTest=ui` | all 9 tool tabs captured (Docs/Screenshots/ui/Ui_11..19_Tools_*.jpg) |
+
+## 2026-10-21 - Shipping package check
+| Run | Command | Result |
+|---|---|---|
+| Package Shipping (first attempt) | `Scripts\BuildWindows.bat <UE> Shipping` | FAILED: `SRbToolHub.cpp(24): error C2084: function 'Click' already has a body`. The Shipping unity build merges SRbToolHub.cpp and RbScreens.cpp, so their anonymous-namespace helpers collided. Fixed by prefixing the hub helpers (`HubClick`, `HubNum`, `HubPct`, `HubCard`, `HubCell`, `HubKeyValue`, `HubRatingColor`, `HubStatusColor`); no other same-signature helpers exist across UI/subsystem files. |
+| Package Shipping | `Scripts\BuildWindows.bat <UE> Shipping` | `BUILD SUCCESSFUL`, 0 compiler warnings -> `Release\Shipping\Windows\Riskbound.exe` |
+| Shipping self-test play | `Riskbound.exe -RbSelfTest=play` | PASS (12 checks; result in `%LOCALAPPDATA%\Riskbound\Saved\RbSelfTest_play.txt`; Shipping writes Saved under %LOCALAPPDATA%, not next to the exe) |
+| Shipping self-test resume | `Riskbound.exe -RbSelfTest=resume` | PASS (career level 2, M001 passed, R-014 treatment restored) |
+| Shipping tour, 1920x1080, default High | `Riskbound.exe -RbSelfTest=tour -ResX=1920 -ResY=1080` | PASS, average 71.7 fps; rooms 62.1 (corridor, includes warm-up) to 81.3 fps, GPU 11.7-15.3 ms |
+| Editor compile after the rename | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 8/8 `Result={Success}` |
