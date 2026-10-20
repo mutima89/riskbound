@@ -10,5 +10,8 @@ public class Riskbound : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] {
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "Slate", "SlateCore", "RiskboundSim" });
 		PrivateDependencyModuleNames.AddRange(new string[] { "RenderCore", "RHI" });
+		// Inter UI font (SIL OFL), loaded from loose files at runtime (RbUIStyle).
+		RuntimeDependencies.Add("$(ProjectDir)/Resources/Fonts/*.ttf", StagedFileType.UFS);
+		RuntimeDependencies.Add("$(ProjectDir)/Resources/Fonts/OFL.txt", StagedFileType.UFS);
 	}
 }

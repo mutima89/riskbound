@@ -20,6 +20,7 @@
 #include "RenderTimer.h"
 #include "DynamicRHI.h"
 #include "TimerManager.h"
+#include "Containers/Ticker.h"
 #include "UnrealClient.h"
 #include "GameFramework/Pawn.h"
 
@@ -256,6 +257,58 @@ static void RunTour(UWorld* World, ARbHUD* Hud)
 	}, 2.0f, true);
 }
 
+// Opens every screen through the same HUD calls the UI uses and captures each with the UI visible
+// (Saved/Screenshots/<platform>/Ui_<n>_<name>.png). Uses the self-test save slot.
+static void RunUiTour(UWorld* World, ARbHUD* Hud)
+{
+	struct FStep
+	{
+		FString Name;
+		TFunction<void(ARbHUD*)> Open;
+	};
+	TSharedRef<TArray<FStep>> Steps = MakeShared<TArray<FStep>>();
+	Steps->Add({TEXT("MainMenu"), [](ARbHUD* H) { H->ShowMainMenu(); }});
+	Steps->Add({TEXT("Difficulty"), [](ARbHUD* H) { H->ShowDifficultyPicker(); }});
+	Steps->Add({TEXT("Hud"), [](ARbHUD* H) { H->StartNewGame(ERbDifficulty::Professional); }});
+	Steps->Add({TEXT("Briefing"), [](ARbHUD* H) { H->TalkToManager(); }});
+	Steps->Add({TEXT("Workstation"), [](ARbHUD* H) { H->OpenWorkstation(); }});
+	Steps->Add({TEXT("Document"), [](ARbHUD* H) { H->OpenEvidence(TEXT("risk_register_R014")); }});
+	Steps->Add({TEXT("Assessment"), [](ARbHUD* H) { H->OpenAssessment(); }});
+	Steps->Add({TEXT("Journal"), [](ARbHUD* H) { H->CloseScreen(); H->OpenJournal(); }});
+	Steps->Add({TEXT("Pause"), [](ARbHUD* H) { H->CloseScreen(); H->OpenPauseMenu(); }});
+	Steps->Add({TEXT("Settings"), [](ARbHUD* H) { H->OpenSettings([H]() { H->CloseScreen(); }); }});
+	Steps->Add({TEXT("Debrief"), [](ARbHUD* H)
+	{
+		H->CloseScreen();
+		for (const FRbEvidenceView& E : H->Game()->GetEvidence()) H->Game()->ViewEvidence(E.Id);
+		H->SubmitAssessment(StrongAssessment());
+		H->TalkToManager();
+	}});
+	TSharedRef<int32> Index = MakeShared<int32>(0);
+	TSharedRef<bool> bOpened = MakeShared<bool>(false);
+	TWeakObjectPtr<ARbHUD> WeakHud(Hud);
+	// Core ticker, not a world timer: menus pause the world, and world timers stop while paused.
+	FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([Steps, Index, bOpened, WeakHud](float)
+	{
+		if (!WeakHud.IsValid()) return false;
+		if (*Index >= Steps->Num())
+		{
+			FPlatformMisc::RequestExit(false, TEXT("RbSelfTest"));
+			return false;
+		}
+		if (!*bOpened)
+		{
+			(*Steps)[*Index].Open(WeakHud.Get());
+			*bOpened = true;
+			return true;
+		}
+		FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("Ui_%02d_%s"), *Index, *(*Steps)[*Index].Name), true, false);
+		*bOpened = false;
+		++*Index;
+		return true;
+	}), 0.8f);
+}
+
 void Run(UWorld* World)
 {
 	const FString Mode = RequestedMode();
@@ -263,6 +316,12 @@ void Run(UWorld* World)
 	APlayerController* PC = World->GetFirstPlayerController();
 	ARbHUD* Hud = PC ? Cast<ARbHUD>(PC->GetHUD()) : nullptr;
 	R.Check(TEXT("hud"), Hud != nullptr, Hud ? Hud->GetName() : FString(TEXT("missing")));
+	if (Hud && Mode == TEXT("ui"))
+	{
+		Hud->Saves()->SetSlotName(SlotName);
+		RunUiTour(World, Hud);
+		return;
+	}
 	if (Hud && Mode == TEXT("tour"))
 	{
 		RunTour(World, Hud);

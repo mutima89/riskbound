@@ -197,4 +197,6 @@ struct FRbSettingsView
 	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") bool bReducedMotion = false;
 	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") bool bHints = true;
 	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") bool bFullscreen = true;
+	// 0 Low .. 3 Epic (engine scalability presets; Low turns Lumen off).
+	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") int32 GraphicsQuality = 2;
 };

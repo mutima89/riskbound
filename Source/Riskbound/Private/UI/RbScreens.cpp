@@ -3,6 +3,10 @@
 #include "RbGameSubsystem.h"
 #include "RbHUD.h"
 #include "RbSaveSubsystem.h"
+#include "Brushes/SlateColorBrush.h"
+#include "Brushes/SlateRoundedBoxBrush.h"
+#include "Styling/AppStyle.h"
+#include "Styling/CoreStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SCheckBox.h"
 #include "Widgets/Input/SSlider.h"
@@ -70,6 +74,21 @@ TSharedRef<SWidget> TableRow(const FText& A, const FText& B, const FText& C, boo
 		+ SHorizontalBox::Slot().FillWidth(1.0f)[SNew(STextBlock).Text(C).Font(Font(Size, bHeader)).ColorAndOpacity(bHeader ? TextMuted : TextPrimary).AutoWrapText(true)];
 }
 
+const FSliderStyle& SliderStyle()
+{
+	static FSliderStyle Style = []
+	{
+		FSliderStyle S = FCoreStyle::Get().GetWidgetStyle<FSliderStyle>("Slider");
+		const FSlateColorBrush Bar(FLinearColor(1.0f, 1.0f, 1.0f, 0.22f));
+		const FSlateRoundedBoxBrush Handle(Accent, 7.0f, FVector2f(14.0f, 14.0f));
+		S.SetNormalBarImage(Bar).SetHoveredBarImage(Bar).SetDisabledBarImage(Bar);
+		S.SetNormalThumbImage(Handle).SetHoveredThumbImage(Handle).SetDisabledThumbImage(Handle);
+		S.SetBarThickness(3.0f);
+		return S;
+	}();
+	return Style;
+}
+
 TSharedRef<SWidget> SettingSlider(const FText& Label, float Min, float Max, float Step, TFunction<float()> Get, TFunction<void(float)> Set)
 {
 	return SNew(SHorizontalBox)
@@ -84,6 +103,7 @@ TSharedRef<SWidget> SettingSlider(const FText& Label, float Min, float Max, floa
 			.MaxValue(Max)
 			.StepSize(Step)
 			.IsFocusable(true)
+			.Style(&SliderStyle())
 			.Value_Lambda([Get]() { return Get(); })
 			.OnValueChanged_Lambda([Set](float V) { Set(V); })
 		]
@@ -114,9 +134,10 @@ FRbScreenParts MainMenu(ARbHUD* Hud)
 	TSharedPtr<SButton> First;
 	const bool bHasSave = Hud->Saves()->HasSave();
 	TSharedRef<SVerticalBox> Box = Column();
-	AddRow(Box, SNew(STextBlock).Text(LOCTEXT("GameTitle", "RISKBOUND")).Font(Font(46, true)).ColorAndOpacity(Accent), 2.0f);
+	AddRow(Box, MakeEyebrow(LOCTEXT("Studio", "Valtren Coldline Logistics  /  Risk function")), Space2);
+	AddRow(Box, SNew(STextBlock).Text(LOCTEXT("GameTitle", "RISKBOUND")).Font(FontW(52, EWeight::Bold)).ColorAndOpacity(TextPrimary), 2.0f);
 	AddRow(Box, MakeBody(LOCTEXT("Tagline", "From graduate trainee to Chief Risk Officer, one real decision at a time."), 16, TextMuted), 24.0f);
-	AddRow(Box, MakeButton(LOCTEXT("NewGame", "New game"), Click([Hud]() { Hud->ShowDifficultyPicker(); }), &First), 8.0f);
+	AddRow(Box, MakeButton(LOCTEXT("NewGame", "New game"), Click([Hud]() { Hud->ShowDifficultyPicker(); }), &First, true, true), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("Continue", "Continue"), Click([Hud]()
 	{
 		FString Message;
@@ -169,7 +190,7 @@ FRbScreenParts PauseMenu(ARbHUD* Hud)
 	TSharedPtr<SButton> First;
 	TSharedRef<SVerticalBox> Box = Column();
 	AddRow(Box, MakeHeading(LOCTEXT("Paused", "Paused")), 16.0f);
-	AddRow(Box, MakeButton(LOCTEXT("Resume", "Resume"), Click([Hud]() { Hud->CloseScreen(); }), &First), 8.0f);
+	AddRow(Box, MakeButton(LOCTEXT("Resume", "Resume"), Click([Hud]() { Hud->CloseScreen(); }), &First, true, true), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("Save", "Save game"), Click([Hud]() { FString M; Hud->SaveNow(M); })), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("Journal", "Journal"), Click([Hud]() { Hud->CloseScreen(); Hud->OpenJournal(); })), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("PauseSettings", "Settings"), Click([Hud]() { Hud->OpenSettings([Hud]() { Hud->CloseScreen(); Hud->OpenPauseMenu(); }); })), 8.0f);
@@ -199,6 +220,26 @@ FRbScreenParts Settings(ARbHUD* Hud, TFunction<void()> OnBack)
 		[Get]() { return Get().TextScale; }, [Update](float V) { Update([V](FRbSettingsView& S) { S.TextScale = V; }, false); }));
 	AddRow(Box, SettingSlider(LOCTEXT("Volume", "Master volume"), 0.0f, 1.0f, 0.05f,
 		[Get]() { return Get().MasterVolume; }, [Update](float V) { Update([V](FRbSettingsView& S) { S.MasterVolume = V; }, false); }));
+	{
+		// Graphics quality: engine scalability presets. Low switches off Lumen for slower GPUs.
+		TSharedRef<SHorizontalBox> Row = SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[SNew(SBox).WidthOverride(220.0f)[MakeBody(LOCTEXT("Quality", "Graphics quality"), 15)]];
+		const FText Names[] = {LOCTEXT("QLow", "Low"), LOCTEXT("QMedium", "Medium"), LOCTEXT("QHigh", "High"), LOCTEXT("QEpic", "Epic")};
+		for (int32 Q = 0; Q < 4; ++Q)
+		{
+			Row->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space4, 0.0f)
+			[
+				SNew(SCheckBox)
+				.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("RadioButton"))
+				.IsChecked_Lambda([Get, Q]() { return Get().GraphicsQuality == Q ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
+				.OnCheckStateChanged_Lambda([Update, Q](ECheckBoxState) { Update([Q](FRbSettingsView& S) { S.GraphicsQuality = Q; }, false); })
+				[
+					MakeBody(Names[Q], 14)
+				]
+			];
+		}
+		AddRow(Box, Row);
+	}
 	AddRow(Box, SettingToggle(LOCTEXT("ReducedMotion", "Reduced motion (no motion blur)"),
 		[Get]() { return Get().bReducedMotion; }, [Update](bool B) { Update([B](FRbSettingsView& S) { S.bReducedMotion = B; }, false); }));
 	AddRow(Box, SettingToggle(LOCTEXT("Hints", "Hints (evidence locations in briefing and journal)"),
@@ -287,7 +328,7 @@ FRbScreenParts Dialogue(const FText& Speaker, const FText& Text, TFunction<void(
 	TSharedRef<SVerticalBox> Box = Column();
 	AddRow(Box, SNew(STextBlock).Text(Speaker).Font(Font(16, true)).ColorAndOpacity(Accent), 8.0f);
 	AddRow(Box, MakeBody(Text, 16), 16.0f);
-	Box->AddSlot().AutoHeight().HAlign(HAlign_Right)[MakeButton(LOCTEXT("DialogueContinue", "Continue"), Click(OnContinue), &Continue)];
+	Box->AddSlot().AutoHeight().HAlign(HAlign_Right)[MakeButton(LOCTEXT("DialogueContinue", "Continue"), Click(OnContinue), &Continue, true, true)];
 	return {MakeModalFrame(Box, 820.0f), Continue};
 }
 

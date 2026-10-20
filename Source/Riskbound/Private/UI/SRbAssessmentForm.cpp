@@ -131,7 +131,7 @@ void SRbAssessmentForm::Construct(const FArguments& InArgs)
 			]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				RbUI::MakeButton(LOCTEXT("Submit", "Submit assessment"), FOnClicked::CreateSP(this, &SRbAssessmentForm::HandleSubmit), &SubmitButton)
+				RbUI::MakeButton(LOCTEXT("Submit", "Submit assessment"), FOnClicked::CreateSP(this, &SRbAssessmentForm::HandleSubmit), &SubmitButton, true, true)
 			]
 		]
 	];

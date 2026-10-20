@@ -2,6 +2,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HAL/PlatformTime.h"
+#include "RbUIStyle.h"
 #include "Widgets/SCompoundWidget.h"
 
 class SRbScreen : public SCompoundWidget
@@ -16,6 +18,25 @@ public:
 	{
 		OnBack = InArgs._OnBack;
 		ChildSlot[InArgs._Content.Widget];
+		// 150 ms fade-in, skipped with Reduced Motion (Docs/ArtDirection.md "UI rules").
+		StartTime = FPlatformTime::Seconds();
+		SetRenderOpacity(RbUI::IsReducedMotion() ? 1.0f : 0.0f);
+	}
+
+	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override
+	{
+		SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+		if (GetRenderOpacity() < 1.0f)
+		{
+			const float T = static_cast<float>((FPlatformTime::Seconds() - StartTime) / 0.15);
+			SetRenderOpacity(RbUI::IsReducedMotion() ? 1.0f : FMath::Clamp(FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(T, 0.0f, 1.0f), 2.0f), 0.0f, 1.0f));
+		}
+	}
+
+	virtual FReply OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override
+	{
+		// Clicking the backdrop keeps keyboard focus inside the screen so Escape still works.
+		return FReply::Handled().SetUserFocus(SharedThis(this), EFocusCause::Mouse);
 	}
 
 	virtual bool SupportsKeyboardFocus() const override { return true; }
@@ -33,4 +54,5 @@ public:
 
 private:
 	TFunction<void()> OnBack;
+	double StartTime = 0.0;
 };

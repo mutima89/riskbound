@@ -386,6 +386,7 @@ FRbSettingsView URbGameSubsystem::GetSettings() const
 	V.bReducedMotion = S.bReducedMotion;
 	V.bHints = S.bHints;
 	V.bFullscreen = S.bFullscreen;
+	V.GraphicsQuality = S.GraphicsQuality;
 	return V;
 }
 
@@ -398,6 +399,7 @@ void URbGameSubsystem::SetSettings(const FRbSettingsView& In, bool bApplyWindowM
 	S.bReducedMotion = In.bReducedMotion;
 	S.bHints = In.bHints;
 	S.bFullscreen = In.bFullscreen;
+	S.GraphicsQuality = FMath::Clamp(In.GraphicsQuality, 0, 3);
 	ApplySettings(bApplyWindowMode);
 	OnStateChanged.Broadcast();
 }
@@ -406,6 +408,7 @@ void URbGameSubsystem::ApplySettings(bool bApplyWindowMode) const
 {
 	const rb::PlayerSettings& S = State.Settings;
 	RbUI::SetTextScale(static_cast<float>(S.TextScale));
+	RbUI::SetReducedMotion(S.bReducedMotion);
 	if (IConsoleVariable* MotionBlur = IConsoleManager::Get().FindConsoleVariable(TEXT("r.MotionBlurQuality")))
 	{
 		MotionBlur->Set(S.bReducedMotion ? 0 : 4, ECVF_SetByGameSetting);
@@ -415,6 +418,19 @@ void URbGameSubsystem::ApplySettings(bool bApplyWindowMode) const
 		if (FAudioDeviceHandle Audio = GEngine->GetMainAudioDevice())
 		{
 			Audio->SetTransientPrimaryVolume(static_cast<float>(S.MasterVolume));
+		}
+		// Scalability preset (never in the editor, where it would change the editor's own settings).
+		if (!GIsEditor)
+		{
+			if (UGameUserSettings* User = GEngine->GetGameUserSettings())
+			{
+				if (User->GetOverallScalabilityLevel() != S.GraphicsQuality)
+				{
+					User->SetOverallScalabilityLevel(S.GraphicsQuality);
+					User->ApplyNonResolutionSettings();
+					User->SaveSettings();
+				}
+			}
 		}
 		// Window mode is only touched on an explicit settings change, never in the editor.
 		if (bApplyWindowMode && !GIsEditor)
