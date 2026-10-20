@@ -54,8 +54,8 @@ struct KriMonitor
 constexpr int KriHistoryLimit = 52;
 constexpr int KriAmberWeeksBeforeEscalation = 3;
 
-// Meridian Logistics cold-chain KRIs (the set Mission 001 is about).
-RB_API const std::vector<KriDefinition>& MeridianKris();
+// Valtren Coldline Logistics cold-chain KRIs (the set Mission 001 is about).
+RB_API const std::vector<KriDefinition>& ValtrenKris();
 RB_API const KriDefinition* FindKri(const std::string& Id);
 
 // Value = round1( clamp( Target x (1 + Noise x (2u - 1)) ) ), Target = Improved if bImproved else Baseline,

@@ -74,7 +74,7 @@ TEST(Kri_StatusStreakAndEscalation)
 TEST(Kri_MonitorHistoryIsDeterministicAndFlagDriven)
 {
 	GameState G = NewGame("Test", EDifficulty::Professional, 99);
-	CHECK_EQ(G.Kris.Series.size(), MeridianKris().size());
+	CHECK_EQ(G.Kris.Series.size(), ValtrenKris().size());
 	const KriSeries& Alarm = G.Kris.Series[0];
 	CHECK(Alarm.Id == "alarm_ack_no_action");
 	REQUIRE(Alarm.History.size() == size_t(KriHistoryWeeksAtStart));

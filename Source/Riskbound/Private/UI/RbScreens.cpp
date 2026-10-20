@@ -363,7 +363,7 @@ FRbScreenParts Debrief(const FRbDebriefView& D, const FRbCareerView& Career, con
 FText BriefingText(bool bHints)
 {
 	FText Text = LOCTEXT("Briefing",
-		"Welcome to Meridian Logistics. Straight to it: Bay 3 at our Northgate cold store had another temperature excursion last night. "
+		"Welcome to Valtren Coldline Logistics. Straight to it: Bay 3 at our Northgate cold store had another temperature excursion last night. "
 		"42,000 of client stock written off, and that is the third excursion in six months.\n\n"
 		"Our register still rates R-014 as Medium with Effective controls, and nobody has reviewed it in 14 months. "
 		"I want your independent assessment. Start with the incident report in your inbox and the R-014 entry, both on your workstation in the analyst workspace. "

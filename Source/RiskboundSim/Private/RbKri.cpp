@@ -8,7 +8,7 @@
 
 namespace rb
 {
-const std::vector<KriDefinition>& MeridianKris()
+const std::vector<KriDefinition>& ValtrenKris()
 {
 	static const std::vector<KriDefinition> K = {
 		{"alarm_ack_no_action", "Alarm acknowledgements without follow-up", "%", 20.0, 40.0, true, 68.0, 8.0, "northgate_controls_fixed", 0.10, true},
@@ -22,7 +22,7 @@ const std::vector<KriDefinition>& MeridianKris()
 
 const KriDefinition* FindKri(const std::string& Id)
 {
-	for (const KriDefinition& D : MeridianKris())
+	for (const KriDefinition& D : ValtrenKris())
 	{
 		if (D.Id == Id) return &D;
 	}
@@ -76,7 +76,7 @@ KriMonitor MakeKriMonitor(const OrganizationState& Org, uint64_t Seed, int Weeks
 {
 	KriMonitor M;
 	M.Seed = Seed;
-	const std::vector<KriDefinition>& Defs = MeridianKris();
+	const std::vector<KriDefinition>& Defs = ValtrenKris();
 	const int Weeks = std::max(1, std::min(WeeksOfHistory, KriHistoryLimit));
 	for (size_t i = 0; i < Defs.size(); ++i)
 	{
@@ -93,7 +93,7 @@ KriMonitor MakeKriMonitor(const OrganizationState& Org, uint64_t Seed, int Weeks
 
 int RecordKriWeeks(KriMonitor& M, const OrganizationState& Org)
 {
-	const std::vector<KriDefinition>& Defs = MeridianKris();
+	const std::vector<KriDefinition>& Defs = ValtrenKris();
 	int Added = 0;
 	for (size_t i = 0; i < M.Series.size() && i < Defs.size(); ++i)
 	{

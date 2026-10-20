@@ -10,7 +10,7 @@
 
 namespace rb
 {
-constexpr int CurrentSaveVersion = 3;
+constexpr int CurrentSaveVersion = 4;
 
 enum class ELoadStatus
 {

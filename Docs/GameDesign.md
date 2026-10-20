@@ -4,7 +4,10 @@
 Real risk work, consequential decisions, competence over grinding, short resumable sessions, offline.
 
 ## Setting
-Meridian Cold Chain Ltd, a fictional temperature-controlled logistics firm (other profiles: Aldmoor Mutual Insurance, Kestrel Grid Projects). HQ spaces: reception, junior analyst workspace, manager's office, meeting room, risk monitoring room, executive boardroom, training area.
+Valtren Coldline Logistics, a fictional temperature-controlled logistics firm (other profiles: Orrinbrook Mutual Assurance, Quellard Grid Projects). HQ spaces: reception, junior analyst workspace, manager's office, meeting room, risk monitoring room, executive boardroom, training area.
+
+## Fictional names
+All companies, suppliers, banks, insurers, regulators-by-brand, products, logos and visible text in the game are invented. Before adding a name, web-search it and pick another if a real business uses it (or something confusingly close). Downloaded assets are inspected for real-world logos or brand text (monitors, laptops, packaging, signage, vehicles); any that show one are retextured or excluded, and the decision is noted in Docs/AssetCredits.md. Renamed in save v4: Valtren Coldline Logistics, Orrinbrook Mutual Assurance, Quellard Grid Projects, Kelvarin Refrigeration Services.
 
 ## Mission 001: The Unresolved Warning
 Manager: Priya Okafor (Risk Manager). Site: Northgate cold store, Bay 3.

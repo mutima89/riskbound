@@ -52,11 +52,11 @@ const std::vector<OrganizationProfile>& OrganizationProfiles()
 {
 	// Revenue, Costs, Cash, Exposure, ControlEff, Reputation, Trust, Morale, Resilience, Strategy
 	static const std::vector<OrganizationProfile> P = {
-		{"meridian", "Meridian Cold Chain Ltd", "Temperature-controlled logistics",
+		{"valtren", "Valtren Coldline Logistics", "Temperature-controlled logistics",
 			{48000000, 44500000, 3200000, 55, 50, 62, 58, 60, 45, 30}},
-		{"aldmoor", "Aldmoor Mutual Insurance", "Financial services",
+		{"orrinbrook", "Orrinbrook Mutual Assurance", "Financial services",
 			{120000000, 104000000, 18000000, 45, 62, 70, 66, 55, 60, 40}},
-		{"kestrel", "Kestrel Grid Projects", "Infrastructure construction",
+		{"quellard", "Quellard Grid Projects", "Infrastructure construction",
 			{260000000, 248000000, 9000000, 65, 45, 55, 50, 52, 40, 35}},
 	};
 	return P;

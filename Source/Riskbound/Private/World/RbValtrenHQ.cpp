@@ -1,4 +1,4 @@
-#include "RbMeridianHQ.h"
+#include "RbValtrenHQ.h"
 
 #include "Components/DirectionalLightComponent.h"
 #include "Components/PointLightComponent.h"
@@ -33,7 +33,7 @@ const FLinearColor PersonColor(0.55f, 0.22f, 0.30f);
 const FLinearColor CabinetColor(0.40f, 0.42f, 0.30f);
 } // namespace
 
-const TArray<ARbMeridianHQ::FRoom>& ARbMeridianHQ::Rooms()
+const TArray<ARbValtrenHQ::FRoom>& ARbValtrenHQ::Rooms()
 {
 	static const TArray<FRoom> R = {
 		{TEXT("Reception"), FBox2D(FVector2D(0, 200), FVector2D(1000, 1200)), true},
@@ -47,19 +47,39 @@ const TArray<ARbMeridianHQ::FRoom>& ARbMeridianHQ::Rooms()
 	return R;
 }
 
-ARbMeridianHQ::ARbMeridianHQ()
+ARbValtrenHQ::ARbValtrenHQ()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 }
 
-FTransform ARbMeridianHQ::GetPlayerStart() const
+FTransform ARbValtrenHQ::GetPlayerStart() const
 {
 	// Reception, facing the door to the corridor.
 	return FTransform(FRotator(0.0f, -90.0f, 0.0f), FVector(500.0f, 760.0f, 100.0f));
 }
 
-void ARbMeridianHQ::Build()
+void ARbValtrenHQ::GetTourViewpoints(TArray<FString>& OutNames, TArray<FTransform>& OutViews) const
+{
+	const float Eye = 165.0f;
+	auto Add = [&](const FString& Name, const FVector& From, const FVector& To)
+	{
+		OutNames.Add(Name);
+		OutViews.Add(FTransform((To - From).Rotation(), From));
+	};
+	Add(TEXT("Corridor"), FVector(150.0f, 0.0f, Eye), FVector(4000.0f, 0.0f, 120.0f));
+	for (const FRoom& Room : Rooms())
+	{
+		const FVector2D C = Room.Bounds.GetCenter();
+		const FVector2D S = Room.Bounds.GetSize();
+		const float Dir = Room.bNorthSide ? 1.0f : -1.0f; // into the room from the corridor
+		const float DoorY = Room.bNorthSide ? CorridorHalfY : -CorridorHalfY;
+		Add(Room.Name, FVector(C.X - 0.32f * S.X, DoorY + Dir * 130.0f, Eye),
+			FVector(C.X + 0.3f * S.X, C.Y + Dir * 0.3f * S.Y, 100.0f));
+	}
+}
+
+void ARbValtrenHQ::Build()
 {
 	if (bBuilt) return;
 	bBuilt = true;
@@ -69,16 +89,16 @@ void ARbMeridianHQ::Build()
 	BaseMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
 	if (!Cube || !Cylinder || !BaseMaterial)
 	{
-		UE_LOG(LogRiskbound, Error, TEXT("Meridian HQ: engine basic shapes missing; is /Engine/BasicShapes cooked?"));
+		UE_LOG(LogRiskbound, Error, TEXT("Valtren HQ: engine basic shapes missing; is /Engine/BasicShapes cooked?"));
 		return;
 	}
 	BuildRooms();
 	BuildLighting();
 	PlaceInteractables();
-	UE_LOG(LogRiskbound, Display, TEXT("Meridian HQ built: %d components, %d rooms"), ComponentCount, Rooms().Num());
+	UE_LOG(LogRiskbound, Display, TEXT("Valtren HQ built: %d components, %d rooms"), ComponentCount, Rooms().Num());
 }
 
-void ARbMeridianHQ::AddBox(const FVector& Center, const FVector& Size, const FLinearColor& Color)
+void ARbValtrenHQ::AddBox(const FVector& Center, const FVector& Size, const FLinearColor& Color)
 {
 	UStaticMeshComponent* Box = NewObject<UStaticMeshComponent>(this, NAME_None);
 	Box->SetMobility(EComponentMobility::Movable);
@@ -92,7 +112,7 @@ void ARbMeridianHQ::AddBox(const FVector& Center, const FVector& Size, const FLi
 	++ComponentCount;
 }
 
-void ARbMeridianHQ::AddWallX(float Y, float X0, float X1, const TArray<float>& DoorCentersX)
+void ARbValtrenHQ::AddWallX(float Y, float X0, float X1, const TArray<float>& DoorCentersX)
 {
 	float Start = X0;
 	TArray<float> Doors = DoorCentersX;
@@ -114,12 +134,12 @@ void ARbMeridianHQ::AddWallX(float Y, float X0, float X1, const TArray<float>& D
 	Segment(Start, X1);
 }
 
-void ARbMeridianHQ::AddWallY(float X, float Y0, float Y1)
+void ARbValtrenHQ::AddWallY(float X, float Y0, float Y1)
 {
 	AddBox(FVector(X, (Y0 + Y1) * 0.5f, WallHeight * 0.5f), FVector(WallThickness, Y1 - Y0, WallHeight), WallColor);
 }
 
-void ARbMeridianHQ::AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color)
+void ARbValtrenHQ::AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color)
 {
 	UTextRenderComponent* Label = NewObject<UTextRenderComponent>(this, NAME_None);
 	Label->SetupAttachment(RootComponent);
@@ -135,7 +155,7 @@ void ARbMeridianHQ::AddLabel(const FString& Text, const FVector& Location, float
 	++ComponentCount;
 }
 
-void ARbMeridianHQ::AddRoomLight(const FVector& Location)
+void ARbValtrenHQ::AddRoomLight(const FVector& Location)
 {
 	UPointLightComponent* Light = NewObject<UPointLightComponent>(this, NAME_None);
 	Light->SetMobility(EComponentMobility::Movable);
@@ -149,7 +169,7 @@ void ARbMeridianHQ::AddRoomLight(const FVector& Location)
 	++ComponentCount;
 }
 
-void ARbMeridianHQ::BuildRooms()
+void ARbValtrenHQ::BuildRooms()
 {
 	const float Width = BuildingMaxX - BuildingMinX;
 	// Floor slab and a tinted floor per room so rooms read apart at a glance.
@@ -187,7 +207,7 @@ void ARbMeridianHQ::BuildRooms()
 	for (float X : {1000.0f, 2000.0f, 3000.0f}) AddWallY(X, CorridorHalfY, BuildingHalfY);
 	for (float X : {1000.0f, 2000.0f}) AddWallY(X, -BuildingHalfY, -CorridorHalfY);
 
-	AddLabel(TEXT("MERIDIAN LOGISTICS  -  Head office"), FVector(2000.0f, 0.0f, WallHeight + 40.0f), 180.0f, 40.0f, FColor::White);
+	AddLabel(TEXT("VALTREN COLDLINE LOGISTICS  -  Head office"), FVector(2000.0f, 0.0f, WallHeight + 40.0f), 180.0f, 40.0f, FColor::White);
 
 	// Furniture.
 	AddBox(FVector(500.0f, 980.0f, 50.0f), FVector(260.0f, 80.0f, 100.0f), WoodColor);                 // reception desk
@@ -203,7 +223,7 @@ void ARbMeridianHQ::BuildRooms()
 	AddBox(FVector(3000.0f, -700.0f, DeskHeight * 0.5f), FVector(700.0f, 180.0f, DeskHeight), WoodColor); // boardroom table
 }
 
-void ARbMeridianHQ::BuildLighting()
+void ARbValtrenHQ::BuildLighting()
 {
 	UDirectionalLightComponent* Sun = NewObject<UDirectionalLightComponent>(this, TEXT("Sun"));
 	Sun->SetMobility(EComponentMobility::Movable);
@@ -227,7 +247,7 @@ void ARbMeridianHQ::BuildLighting()
 }
 
 template <class T>
-T* ARbMeridianHQ::SpawnInteractable(const FString& Id, const FVector& Location, float Yaw, UStaticMesh* Mesh, const FVector& Scale,
+T* ARbValtrenHQ::SpawnInteractable(const FString& Id, const FVector& Location, float Yaw, UStaticMesh* Mesh, const FVector& Scale,
 	const FLinearColor& Color, const FString& Label, float LabelHeight)
 {
 	FActorSpawnParameters Params;
@@ -241,7 +261,7 @@ T* ARbMeridianHQ::SpawnInteractable(const FString& Id, const FVector& Location, 
 	return Actor;
 }
 
-void ARbMeridianHQ::PlaceInteractables()
+void ARbValtrenHQ::PlaceInteractables()
 {
 	const float OnDesk = DeskHeight + 3.0f;
 	// Text labels face the player's approach direction (TextRender faces +X of the actor).

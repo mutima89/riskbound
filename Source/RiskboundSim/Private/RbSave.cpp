@@ -3,6 +3,8 @@
 #include <cinttypes>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <utility>
 #include <filesystem>
 #include <fstream>
 #include <map>
@@ -706,6 +708,39 @@ static void MigrateV2ToV3(GameState& S)
 	}
 }
 
+// v4 renamed the organisations and the contractor to invented names (Docs/GameDesign.md
+// "Fictional names"). Old ids are mapped, and old display names are replaced wherever a
+// saved string contains them (organisation name, action owners, decision summaries).
+static void MigrateV3ToV4(KvReader& R)
+{
+	static const std::pair<const char*, const char*> Ids[] = {{"meridian", "valtren"}, {"aldmoor", "orrinbrook"}, {"kestrel", "quellard"}};
+	static const std::pair<const char*, const char*> Names[] = {
+		{"Meridian Cold Chain Ltd", "Valtren Coldline Logistics"},
+		{"Aldmoor Mutual Insurance", "Orrinbrook Mutual Assurance"},
+		{"Kestrel Grid Projects", "Quellard Grid Projects"},
+		{"CoolServ Ltd", "Kelvarin Refrigeration Services"}};
+	if (R.Has("org.profile"))
+	{
+		for (const auto& Id : Ids)
+		{
+			if (R.Map["org.profile"] == Id.first) R.Map["org.profile"] = Id.second;
+		}
+	}
+	for (auto& KV : R.Map)
+	{
+		for (const auto& N : Names)
+		{
+			const std::string From = N.first;
+			size_t Pos = 0;
+			while ((Pos = KV.second.find(From, Pos)) != std::string::npos)
+			{
+				KV.second.replace(Pos, From.size(), N.second);
+				Pos += std::strlen(N.second);
+			}
+		}
+	}
+}
+
 bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 {
 	Info = LoadResult();
@@ -761,6 +796,11 @@ bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 	if (Info.LoadedVersion == 1)
 	{
 		MigrateV1ToV2(R);
+		Info.bMigrated = true;
+	}
+	if (Info.LoadedVersion < 4)
+	{
+		MigrateV3ToV4(R);
 		Info.bMigrated = true;
 	}
 

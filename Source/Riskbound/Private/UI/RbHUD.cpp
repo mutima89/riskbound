@@ -172,7 +172,7 @@ void ARbHUD::StartNewGame(ERbDifficulty Difficulty)
 	Game()->NewGame(Difficulty);
 	Draft = MakeShared<FRbAssessmentDraft>();
 	CloseScreen();
-	Notice(TEXT("Day one at Meridian Logistics. Priya Okafor is expecting you in the manager's office."));
+	Notice(TEXT("Day one at Valtren Coldline Logistics. Priya Okafor is expecting you in the manager's office."));
 }
 
 ERbLoadOutcome ARbHUD::ContinueGame(FString& OutMessage)

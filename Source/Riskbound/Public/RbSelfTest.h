@@ -1,6 +1,8 @@
 // Packaged-build self check.
 //   -RbSelfTest=play    new game, plays Mission 001 through the HUD/interactable calls the UI uses, saves, quits.
 //   -RbSelfTest=resume  loads that save the way Continue does, checks it, writes Saved/RbSelfTest.txt, quits.
+//   -RbSelfTest=tour    visits every room without player input, renders a screenshot per room
+//                       (Saved/Screenshots/<platform>/Tour_<room>.png) and writes frame timings to Saved/RbTour.txt.
 // Uses its own save slot ("selftest") so the player's saves are never touched.
 #pragma once
 

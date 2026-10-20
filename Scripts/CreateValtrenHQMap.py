@@ -1,9 +1,9 @@
-# Creates the (empty) L_MeridianHQ map asset. The HQ itself is built at runtime by
-# ARbMeridianHQ (Source/Riskbound/Private/World), so this map only needs to exist.
+# Creates the (empty) L_ValtrenHQ map asset. The HQ itself is built at runtime by
+# ARbValtrenHQ (Source/Riskbound/Private/World), so this map only needs to exist.
 # Run through Scripts\CreateMap.bat; safe to re-run (does nothing if the map exists).
 import unreal
 
-MAP_PATH = "/Game/Maps/L_MeridianHQ"
+MAP_PATH = "/Game/Maps/L_ValtrenHQ"
 
 if unreal.EditorAssetLibrary.does_asset_exist(MAP_PATH):
     unreal.log("RbCreateMap: {} already exists".format(MAP_PATH))

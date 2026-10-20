@@ -70,7 +70,7 @@ RB_API bool SetQuantification(GameState& State, const std::string& RiskId, const
 RB_API RiskRegister MakeDefaultRegister();
 
 // New game for the given profile and difficulty, with event seed derived from Seed.
-RB_API GameState NewGame(const std::string& ProfileName, EDifficulty Difficulty, uint64_t Seed, const std::string& OrgProfileId = "meridian");
+RB_API GameState NewGame(const std::string& ProfileName, EDifficulty Difficulty, uint64_t Seed, const std::string& OrgProfileId = "valtren");
 
 // ---- Achievements (Docs/GameDesign.md) ----
 struct AchievementDef

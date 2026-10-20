@@ -125,7 +125,7 @@ const std::vector<Option>& ActionOwnerOptions()
 		{"ops_site_manager", "Daniel Reyes, Northgate Site Manager (Operations)", "Runs the site, staff and maintenance budget."},
 		{"it_systems", "Mei Lin, Building Systems Administrator (IT)", "Administers the alarm software."},
 		{"risk_team", "You (Risk team)", "The risk function that raised the issue."},
-		{"facilities_contractor", "CoolServ Ltd (external maintenance contractor)", "Performs compressor servicing."},
+		{"facilities_contractor", "Kelvarin Refrigeration Services (external maintenance contractor)", "Performs compressor servicing."},
 	};
 	return O;
 }

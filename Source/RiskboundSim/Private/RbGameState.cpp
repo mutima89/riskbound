@@ -81,7 +81,7 @@ static const std::vector<AchievementRule>& Rules()
 {
 	using namespace m001;
 	static const std::vector<AchievementRule> R = {
-		{{"first_day", "First Day", "Meet your manager at Meridian."},
+		{{"first_day", "First Day", "Meet your manager at Valtren."},
 			[](const GameState& S) { return S.Mission001.IsComplete(EObjective::MeetManager); }},
 		{{"paper_trail", "Paper Trail", "Review every piece of evidence in Mission 001."},
 			[](const GameState& S) { return S.Mission001.ViewedEvidence.size() == Evidence().size(); }},

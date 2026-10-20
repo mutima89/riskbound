@@ -1,26 +1,29 @@
-// Graybox of Meridian Logistics HQ built from code: seven labelled rooms off a central corridor,
+// Graybox of Valtren Coldline Logistics HQ built from code: seven labelled rooms off a central corridor,
 // lights, furniture, and the Mission 001 interactables placed per Docs/GameDesign.md.
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "RbMeridianHQ.generated.h"
+#include "RbValtrenHQ.generated.h"
 
 class ARbInteractable;
 class UStaticMesh;
 
 UCLASS()
-class RISKBOUND_API ARbMeridianHQ : public AActor
+class RISKBOUND_API ARbValtrenHQ : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	ARbMeridianHQ();
+	ARbValtrenHQ();
 
 	// Builds geometry and spawns interactables. Safe to call once per world.
 	void Build();
 
 	FTransform GetPlayerStart() const;
+
+	// Camera positions for the screenshot/performance tour: the corridor plus one view per room.
+	void GetTourViewpoints(TArray<FString>& OutNames, TArray<FTransform>& OutViews) const;
 
 	struct FRoom
 	{

@@ -27,7 +27,7 @@ Assumption: controls are not independent enough to stack safely. Designers needi
 
 ## 4. Appetite
 Per-category maximum residual score (`AppetiteRule`), default 9. Status: Within (< limit), At limit (= limit), Exceeds (> limit).
-Default Meridian limits: Operational 8, Compliance 4, Financial 10, Strategic 12, Cyber 6.
+Default Valtren limits: Operational 8, Compliance 4, Financial 10, Strategic 12, Cyber 6.
 
 ## 5. Expected loss
 `EL = sum(p_i x L_i)` over scenarios. Units: currency per year. `p_i` annual probability (0..1), `L_i` loss in currency.
@@ -66,7 +66,7 @@ Reports mean, sample std dev, P50/P90/P95/P99 (linear interpolation between orde
 - Histogram (optional, `HistogramBins`): equal-width bins over [0, P99]; trials above P99 are counted in the last bin, so every trial is counted once. Does not change any statistic.
 Limitation: frequency and severity are independent; no fat-tail beyond lognormal.
 
-## 11. Mission 001 figures (Meridian, Northgate cold store)
+## 11. Mission 001 figures (Valtren, Northgate cold store)
 Scenarios (annual, exclusive): minor excursion 0.50 x 40,000; major spoilage + penalty 0.15 x 290,000; contract termination 0.03 x 1,800,000. EL = 117,500/yr; worst case 1,800,000.
 Treatments over 3 years at 8%: service + escalation rota (18k + 12k/yr) NPV > 0; plant replacement (400k + 5k/yr) larger reduction but NPV < 0; insurance (35k/yr) recovers only claimable sudden-failure losses above the 100k excess, NPV < 0; accept: no change. All verified in `M001_ContentIsConsistent`.
 
@@ -77,7 +77,7 @@ An action links a register risk to an owner, a creation week and a due week (due
 - Mission 001 treatments create actions owned by the chosen action owner (`m001::TreatmentActions`): service + escalation creates the overdue service (due +2 weeks), an on-call rota (+4) and logged alarm silencing (+4); plant replacement creates an escalated capital request (+3) and the interim service (+2); insurance creates a cover negotiation (+4); accept creates a quarterly re-review (+13).
 Tests: `Actions_*`.
 
-## 13. Key risk indicators for Meridian (`RbKri`)
+## 13. Key risk indicators for Valtren (`RbKri`)
 Five KRIs: alarm acknowledgements without follow-up (%; amber 20, red 40), planned maintenance overdue (%; 10, 25), temperature excursions per month (0.4, 1.0), manual temperature checks completed (%; lower is worse; amber 90, red 75), client complaints per month (2, 4). Status thresholds follow section 7 (inclusive).
 - Weekly value: `round1(clamp(T x (1 + n x (2u - 1))))`, where `T` is the untreated baseline (68, 35, 0.5, 77, 3) or, once the organisation has the flag `northgate_controls_fixed`, the improved target (8, 4, 0.1, 96, 1); `n` is the relative noise (0.10, 0.15, 0.40, 0.05, 0.30); `u` in [0,1) comes from an `rb::Rng` seeded by (game seed, week, KRI index). Percentages are clamped to [0, 100], counts to >= 0.
 - So the history is a pure function of seed, week and org flags: identical across reloads. 12 weeks of history exist at the start of a game (weeks -11..0); `AdvanceGameWeeks` appends one reading per week; at most 52 readings are kept.

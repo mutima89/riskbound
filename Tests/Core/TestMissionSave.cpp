@@ -318,7 +318,7 @@ TEST(Save_V3RoundTripsActionsKrisAndQuantification)
 	CHECK(SetQuantification(G, "R-014", BaselineScenarios()));
 	AdvanceGameWeeks(G, 3);
 	const std::string Text = SerializeGame(G);
-	CHECK(Text.find("version\t3\n") != std::string::npos);
+	CHECK(Text.find("version\t4\n") != std::string::npos);
 	GameState L;
 	LoadResult Info;
 	CHECK(DeserializeGame(Text, L, Info));
@@ -375,4 +375,48 @@ TEST(Save_MigratesHandcraftedV2)
 	GameState L3;
 	CHECK(DeserializeGame(SerializeGame(L), L3, Info));
 	CHECK(!Info.bMigrated);
+}
+
+// The only place the pre-v4 organisation and contractor names may appear: they must be migrated.
+TEST(Save_MigratesV3OrganisationNamesToFictionalNames)
+{
+	GameState G = NewGame("V3", EDifficulty::Professional, 12);
+	PlayInvestigation(G.Mission001, true);
+	Submission S = BestSubmission();
+	S.ActionOwnerId = "facilities_contractor";
+	CHECK(SubmitMission001(G, S) == ESubmitError::None);
+	CHECK(G.Org.ProfileId == "valtren");
+	CHECK(G.Org.Name == "Valtren Coldline Logistics");
+	REQUIRE(!G.Actions.All().empty());
+	CHECK(G.Actions.All()[0].Owner == "Kelvarin Refrigeration Services (external maintenance contractor)");
+
+	std::string V3 = SerializeGame(G);
+	ReplaceLine(V3, "version\t", "version\t3");
+	ReplaceLine(V3, "org.profile\t", "org.profile\tmeridian");
+	ReplaceLine(V3, "org.name\t", "org.name\tMeridian Cold Chain Ltd");
+	size_t P = 0;
+	while ((P = V3.find("Kelvarin Refrigeration Services", P)) != std::string::npos) V3.replace(P, 31, "CoolServ Ltd");
+	CHECK(V3.find("Kelvarin") == std::string::npos);
+
+	GameState L;
+	LoadResult Info;
+	CHECK(DeserializeGame(Resign(V3), L, Info));
+	CHECK(Info.bMigrated);
+	CHECK_EQ(Info.LoadedVersion, 3);
+	CHECK(L.Org.ProfileId == "valtren");
+	CHECK(L.Org.Name == "Valtren Coldline Logistics");
+	REQUIRE(!L.Actions.All().empty());
+	CHECK(L.Actions.All()[0].Owner == "Kelvarin Refrigeration Services (external maintenance contractor)");
+	const std::string Again = SerializeGame(L);
+	CHECK(Again.find("Meridian") == std::string::npos);
+	CHECK(Again.find("CoolServ") == std::string::npos);
+
+	for (const auto& Old : {std::pair<const char*, const char*>{"aldmoor", "orrinbrook"}, {"kestrel", "quellard"}})
+	{
+		std::string Other = SerializeGame(NewGame("X", EDifficulty::Professional, 1, Old.second));
+		ReplaceLine(Other, "version\t", "version\t3");
+		ReplaceLine(Other, "org.profile\t", std::string("org.profile\t") + Old.first);
+		CHECK(DeserializeGame(Resign(Other), L, Info));
+		CHECK(L.Org.ProfileId == Old.second);
+	}
 }

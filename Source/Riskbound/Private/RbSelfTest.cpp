@@ -1,6 +1,7 @@
 #include "RbSelfTest.h"
 
 #include "Engine/GameInstance.h"
+#include "Engine/GameViewportClient.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
@@ -13,7 +14,16 @@
 #include "RbHUD.h"
 #include "RbInteractable.h"
 #include "RbLog.h"
+#include "RbValtrenHQ.h"
 #include "RbSaveSubsystem.h"
+#include "RenderTimer.h"
+#include "DynamicRHI.h"
+#include "TimerManager.h"
+#include "UnrealClient.h"
+#include "GameFramework/Pawn.h"
+
+extern ENGINE_API float GAverageFPS;
+extern ENGINE_API float GAverageMS;
 
 namespace RbSelfTest
 {
@@ -155,6 +165,81 @@ void RunResume(FReport& R, ARbHUD* Hud)
 }
 } // namespace
 
+struct FTourState
+{
+	TArray<FString> Names;
+	TArray<FTransform> Views;
+	TArray<FString> Lines;
+	int32 Index = 0;
+	double SumMs = 0.0;
+	FTimerHandle Timer;
+};
+
+static FString FileSafe(const FString& Name)
+{
+	FString Out;
+	for (TCHAR C : Name) Out.AppendChar(FChar::IsAlnum(C) ? C : TEXT('_'));
+	return Out;
+}
+
+// Teleports the player through every room; each stop settles for 2.5 s, then records timings and a screenshot.
+static void RunTour(UWorld* World, ARbHUD* Hud)
+{
+	APlayerController* PC = World->GetFirstPlayerController();
+	ARbValtrenHQ* HQ = nullptr;
+	for (TActorIterator<ARbValtrenHQ> It(World); It; ++It) HQ = *It;
+	if (!PC || !HQ || !PC->GetPawn())
+	{
+		FFileHelper::SaveStringToFile(TEXT("FAIL\nno player or HQ\n"), *(FPaths::ProjectSavedDir() / TEXT("RbTour.txt")));
+		FPlatformMisc::RequestExit(false, TEXT("RbSelfTest"));
+		return;
+	}
+	Hud->StartNewGame(ERbDifficulty::Professional);
+	PC->SetIgnoreLookInput(true);
+	PC->SetIgnoreMoveInput(true);
+	TSharedRef<FTourState> State = MakeShared<FTourState>();
+	HQ->GetTourViewpoints(State->Names, State->Views);
+	const FIntPoint Size = World->GetGameViewport() ? World->GetGameViewport()->Viewport->GetSizeXY() : FIntPoint::ZeroValue;
+	State->Lines.Add(FString::Printf(TEXT("resolution=%dx%d"), Size.X, Size.Y));
+
+	auto Place = [PC](const FTransform& View)
+	{
+		PC->GetPawn()->SetActorLocation(View.GetLocation() - FVector(0.0f, 0.0f, 70.0f), false, nullptr, ETeleportType::TeleportPhysics);
+		PC->SetControlRotation(View.Rotator());
+	};
+	Place(State->Views[0]);
+	TWeakObjectPtr<UWorld> WeakWorld(World);
+	World->GetTimerManager().SetTimer(State->Timer, [StateRef = State, WeakWorld, Place]()
+	{
+		// Clearing this timer below destroys the lambda and its captures, so work on local copies.
+		const TSharedRef<FTourState> State = StateRef;
+		const TWeakObjectPtr<UWorld> TourWorld = WeakWorld;
+		const auto PlaceAt = Place;
+		if (!TourWorld.IsValid()) return;
+		const int32 I = State->Index;
+		const double Gpu = FPlatformTime::ToMilliseconds(RHIGetGPUFrameCycles());
+		State->Lines.Add(FString::Printf(TEXT("%s: fps=%.1f frame_ms=%.2f game_ms=%.2f render_ms=%.2f gpu_ms=%.2f"), *State->Names[I], GAverageFPS, GAverageMS,
+			FPlatformTime::ToMilliseconds(GGameThreadTime), FPlatformTime::ToMilliseconds(GRenderThreadTime), Gpu));
+		State->SumMs += GAverageMS;
+		FScreenshotRequest::RequestScreenshot(TEXT("Tour_") + FileSafe(State->Names[I]), false, false);
+		if (++State->Index < State->Views.Num())
+		{
+			PlaceAt(State->Views[State->Index]);
+			return;
+		}
+		TourWorld->GetTimerManager().ClearTimer(State->Timer);
+		const double AvgMs = State->SumMs / State->Views.Num();
+		FString Text = FString::Printf(TEXT("PASS\nmode=tour\naverage_frame_ms=%.2f average_fps=%.1f\n"), AvgMs, AvgMs > 0.0 ? 1000.0 / AvgMs : 0.0);
+		for (const FString& L : State->Lines) Text += L + TEXT("\n");
+		const FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir() / TEXT("RbTour.txt"));
+		FFileHelper::SaveStringToFile(Text, *Path, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+		UE_LOG(LogRiskbound, Display, TEXT("RbSelfTest wrote %s:\n%s"), *Path, *Text);
+		// Let the last screenshot be written before exiting.
+		FTimerHandle Quit;
+		TourWorld->GetTimerManager().SetTimer(Quit, []() { FPlatformMisc::RequestExit(false, TEXT("RbSelfTest")); }, 1.0f, false);
+	}, 2.5f, true);
+}
+
 void Run(UWorld* World)
 {
 	const FString Mode = RequestedMode();
@@ -162,6 +247,11 @@ void Run(UWorld* World)
 	APlayerController* PC = World->GetFirstPlayerController();
 	ARbHUD* Hud = PC ? Cast<ARbHUD>(PC->GetHUD()) : nullptr;
 	R.Check(TEXT("hud"), Hud != nullptr, Hud ? Hud->GetName() : FString(TEXT("missing")));
+	if (Hud && Mode == TEXT("tour"))
+	{
+		RunTour(World, Hud);
+		return;
+	}
 	if (Hud)
 	{
 		Hud->Saves()->SetSlotName(SlotName);

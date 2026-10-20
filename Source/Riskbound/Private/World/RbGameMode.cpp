@@ -5,7 +5,7 @@
 #include "EngineUtils.h"
 #include "RbCharacter.h"
 #include "RbHUD.h"
-#include "RbMeridianHQ.h"
+#include "RbValtrenHQ.h"
 #include "RbSelfTest.h"
 #include "TimerManager.h"
 
@@ -15,16 +15,16 @@ ARbGameMode::ARbGameMode()
 	HUDClass = ARbHUD::StaticClass();
 }
 
-ARbMeridianHQ* ARbGameMode::EnsureHQ()
+ARbValtrenHQ* ARbGameMode::EnsureHQ()
 {
 	if (HQ) return HQ;
-	for (TActorIterator<ARbMeridianHQ> It(GetWorld()); It; ++It)
+	for (TActorIterator<ARbValtrenHQ> It(GetWorld()); It; ++It)
 	{
 		HQ = *It; // placed in the map by hand
 	}
 	if (!HQ)
 	{
-		HQ = GetWorld()->SpawnActor<ARbMeridianHQ>();
+		HQ = GetWorld()->SpawnActor<ARbValtrenHQ>();
 	}
 	HQ->Build();
 	FActorSpawnParameters Params;

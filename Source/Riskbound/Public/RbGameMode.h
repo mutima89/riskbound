@@ -5,7 +5,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "RbGameMode.generated.h"
 
-class ARbMeridianHQ;
+class ARbValtrenHQ;
 
 UCLASS()
 class RISKBOUND_API ARbGameMode : public AGameModeBase
@@ -18,11 +18,11 @@ public:
 	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName) override;
 	virtual void BeginPlay() override;
 
-	ARbMeridianHQ* EnsureHQ();
+	ARbValtrenHQ* EnsureHQ();
 
 private:
 	UPROPERTY(Transient)
-	TObjectPtr<ARbMeridianHQ> HQ;
+	TObjectPtr<ARbValtrenHQ> HQ;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> StartSpot;
