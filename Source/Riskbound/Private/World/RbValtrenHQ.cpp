@@ -14,6 +14,7 @@
 #include "Engine/TextureCube.h"
 #include "Engine/World.h"
 #include "Materials/MaterialInterface.h"
+#include "RbCredits.h"
 #include "RbInteractable.h"
 #include "RbLog.h"
 
@@ -153,12 +154,12 @@ UStaticMeshComponent* ARbValtrenHQ::AddBox(const FVector& Center, const FVector&
 	return nullptr;
 }
 
-void ARbValtrenHQ::AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color)
+void ARbValtrenHQ::AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color, float Roll, float Pitch)
 {
 	UTextRenderComponent* Label = NewObject<UTextRenderComponent>(this, NAME_None);
 	Label->SetupAttachment(RootComponent);
 	Label->SetRelativeLocation(Location);
-	Label->SetRelativeRotation(FRotator(0.0f, Yaw, 0.0f));
+	Label->SetRelativeRotation(FRotator(Pitch, Yaw, Roll));
 	Label->SetText(FText::FromString(Text));
 	Label->SetWorldSize(Size);
 	Label->SetHorizontalAlignment(EHTA_Center);
@@ -213,6 +214,7 @@ void ARbValtrenHQ::Build()
 	BuildShell();
 	BuildLighting();
 	FurnishRooms();
+	AddEasterEggs();
 	PlaceInteractables();
 	UE_LOG(LogRiskbound, Display, TEXT("Valtren HQ built: %d components, %d instances, %d lights, %d rooms, art %s"), ComponentCount, InstanceCount, LightCount, Rooms().Num(),
 		bHasArt ? TEXT("yes") : TEXT("missing"));
@@ -802,6 +804,40 @@ void ARbValtrenHQ::FurnishRooms()
 	ArtPrint(FVector(750.0f, -200.0f + WallThickness * 0.5f + 0.5f, 165.0f), 90.0f, TEXT("MI_ArtPrintC"), FVector2D(60.0f, 80.0f));
 	ArtPrint(FVector(250.0f, 200.0f - WallThickness * 0.5f - 0.5f, 165.0f), -90.0f, TEXT("MI_ArtPrintB"), FVector2D(60.0f, 80.0f));
 	SmallProps(FVector(1980.0f, -150.0f, 0.0f), 0.0f, 0);
+}
+
+void ARbValtrenHQ::AddEasterEggs()
+{
+	// Small credits to the creator for curious players. Text only, no interaction prompt, no mission effect.
+	const FString Name = RbCredits::CreatorName;
+	TArray<FString> Parts;
+	Name.ParseIntoArray(Parts, TEXT(" "));
+	const FString Surname = Parts.Num() ? Parts.Last() : Name;
+	FString Initials;
+	for (const FString& P : Parts) Initials += P.Left(1) + TEXT(".");
+
+	// 1) Training area, west wall: a framed certificate low beside the shelving.
+	const FVector Cert(WallThickness * 0.5f + 0.5f, -1010.0f, 150.0f);
+	AddBox(Cert + FVector(1.5f, 0, 0), FVector(3.0f, 42.0f, 32.0f), Mat(TEXT("MI_WoodWalnut")), 0.0f, false);
+	AddBox(Cert + FVector(3.2f, 0, 0), FVector(0.4f, 36.0f, 26.0f), Mat(TEXT("MI_Paper")), 0.0f, false);
+	AddLabel(TEXT("CERTIFICATE OF RECOGNITION"), Cert + FVector(3.6f, 0, 7.0f), 0.0f, 1.6f, FColor(120, 100, 60));
+	AddLabel(TEXT("Risk Analyst of the Year"), Cert + FVector(3.6f, 0, 2.5f), 0.0f, 2.4f, FColor(40, 44, 52));
+	AddLabel(Name, Cert + FVector(3.6f, 0, -2.5f), 0.0f, 2.8f, FColor(20, 70, 80));
+	AddLabel(TEXT("Valtren Coldline Logistics - Risk function"), Cert + FVector(3.6f, 0, -7.5f), 0.0f, 1.3f, FColor(110, 110, 110));
+
+	// 2) Manager's office shelf: a teal hardback whose spine reads author and title.
+	// Eye-level shelf, at the end clear of the binders (Shelf fills up to Width / 2 - 12).
+	const FVector Book(2000.0f + WallThickness * 0.5f + 22.0f, 654.0f, 4.0f + 3 * 44.0f + 1.25f + 16.0f);
+	AddBox(Book, FVector(30.0f, 5.5f, 32.0f), Mat(TEXT("MI_TealAccent")), 0.0f, false);
+	FString Given; // "M. A." from "M A Almahlaki"
+	for (int32 i = 0; i + 1 < Parts.Num(); ++i) Given += (Given.IsEmpty() ? TEXT("") : TEXT(" ")) + Parts[i].Left(1) + TEXT(".");
+	AddLabel(FString::Printf(TEXT("%s, %s  -  Thinking in Residual Risk"), *Surname, *Given),
+		Book + FVector(15.2f, 0, 0), 0.0f, 1.25f, FColor(236, 238, 240), -90.0f);
+
+	// 3) Boardroom table: a small brass maker's inlay near the far corner of the walnut top.
+	const FVector Plate(3282.0f, -770.0f, DeskHeight + 0.1f);
+	AddBox(Plate, FVector(10.0f, 3.0f, 0.3f), Mat(TEXT("MI_Brass")), 0.0f, false);
+	AddLabel(Initials, Plate + FVector(0, 0, 0.2f), -90.0f, 1.5f, FColor(60, 44, 20), 0.0f, 90.0f);
 }
 
 template <class T>

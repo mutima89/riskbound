@@ -44,3 +44,6 @@ No streak penalties, no artificial scarcity, no timers on thinking, manual save 
 
 ## Campaign targets (Gate 4)
 30+ missions, 12+ crises, 100+ decision points, 50+ achievements, 5 skill branches, 5+ rubrics, 10+ tools, 3 org profiles (data done), 3 difficulties (done), CRO capstone.
+
+## Easter eggs
+Three small credits to the creator, built from `RbCredits::CreatorName`, with no prompts and no effect on missions: a framed certificate in the training area, a book on the manager's shelf, and a brass inlay on the boardroom table. Local check: `-RbSelfTest=tour -RbTourEggs` (screenshots not published).

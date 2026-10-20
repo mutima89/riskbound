@@ -43,7 +43,7 @@ private:
 	UStaticMeshComponent* AddMesh(UStaticMesh* Mesh, const FVector& Location, float Yaw, const FVector& Scale, UMaterialInterface* Override = nullptr, bool bCollision = true);
 	bool AddInstance(UStaticMesh* Mesh, const FVector& Location, float Yaw, const FVector& Scale, UMaterialInterface* Override = nullptr, bool bCollision = true);
 	UStaticMeshComponent* AddBox(const FVector& Center, const FVector& Size, UMaterialInterface* Material, float Yaw = 0.0f, bool bCollision = true);
-	void AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color);
+	void AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color, float Roll = 0.0f, float Pitch = 0.0f);
 	void AddPanelLight(const FVector& Location, float Lumens, bool bShadows, const FLinearColor& Tint = FLinearColor(0.92f, 0.96f, 1.0f));
 
 	// Architecture
@@ -67,6 +67,7 @@ private:
 	void ArtPrint(const FVector& WallPoint, float Yaw, const TCHAR* Print, const FVector2D& Size);
 	void SmallProps(const FVector& Location, float Yaw, int32 Kind); // 0 bin, 1 coat stand, 2 printer, 3 water cooler
 	void FurnishRooms();
+	void AddEasterEggs(); // Docs/GameDesign.md "Easter eggs"; no prompts, not part of any mission
 	void PlaceInteractables();
 	template <class T>
 	T* SpawnInteractable(const FString& Id, const FVector& Location, float Yaw, UStaticMesh* Mesh, const FVector& Scale, UMaterialInterface* Material);

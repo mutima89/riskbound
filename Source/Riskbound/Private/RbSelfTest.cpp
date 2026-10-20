@@ -202,6 +202,15 @@ static void RunTour(UWorld* World, ARbHUD* Hud)
 	PC->SetIgnoreMoveInput(true);
 	TSharedRef<FTourState> State = MakeShared<FTourState>();
 	HQ->GetTourViewpoints(State->Names, State->Views);
+	if (FParse::Param(FCommandLine::Get(), TEXT("RbTourEggs")))
+	{
+		// Local check of the hidden credits; these close-ups are not published.
+		auto View = [](const FVector& From, const FVector& To) { return FTransform((To - From).Rotation(), From); };
+		State->Names = {TEXT("Egg_Certificate"), TEXT("Egg_Book"), TEXT("Egg_Plate")};
+		State->Views = {View(FVector(70.0f, -1010.0f, 160.0f), FVector(8.0f, -1010.0f, 150.0f)),
+			View(FVector(2085.0f, 654.0f, 165.0f), FVector(2030.0f, 654.0f, 153.0f)),
+			View(FVector(3282.0f, -850.0f, 165.0f), FVector(3282.0f, -770.0f, 74.0f))};
+	}
 	const FIntPoint Size = World->GetGameViewport() ? World->GetGameViewport()->Viewport->GetSizeXY() : FIntPoint::ZeroValue;
 	State->Lines.Add(FString::Printf(TEXT("resolution=%dx%d"), Size.X, Size.Y));
 
