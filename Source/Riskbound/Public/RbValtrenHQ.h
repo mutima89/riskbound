@@ -1,5 +1,7 @@
-// Graybox of Valtren Coldline Logistics HQ built from code: seven labelled rooms off a central corridor,
-// lights, furniture, and the Mission 001 interactables placed per Docs/GameDesign.md.
+// Valtren Coldline Logistics head office, built from code: seven rooms off a central corridor,
+// glazed facades with a city view, PBR materials, ceiling light panels, furniture and the
+// Mission 001 interactables placed per Docs/GameDesign.md. Art rules: Docs/ArtDirection.md.
+// Falls back to plain shapes if the imported art (Scripts/ImportAssets.bat) is missing.
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,6 +9,7 @@
 #include "RbValtrenHQ.generated.h"
 
 class ARbInteractable;
+class UMaterialInterface;
 class UStaticMesh;
 
 UCLASS()
@@ -34,22 +37,40 @@ public:
 	static const TArray<FRoom>& Rooms();
 
 private:
-	void AddBox(const FVector& Center, const FVector& Size, const FLinearColor& Color);
-	void AddWallX(float Y, float X0, float X1, const TArray<float>& DoorCentersX);
-	void AddWallY(float X, float Y0, float Y1);
+	// Primitives
+	UMaterialInterface* Mat(const TCHAR* Name);
+	UStaticMesh* Model(const TCHAR* Id);
+	UStaticMeshComponent* AddMesh(UStaticMesh* Mesh, const FVector& Location, float Yaw, const FVector& Scale, UMaterialInterface* Override = nullptr, bool bCollision = true);
+	UStaticMeshComponent* AddBox(const FVector& Center, const FVector& Size, UMaterialInterface* Material, float Yaw = 0.0f, bool bCollision = true);
 	void AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color);
-	void AddRoomLight(const FVector& Location);
-	void BuildRooms();
+	void AddPanelLight(const FVector& Location, float Lumens, bool bShadows, const FLinearColor& Tint = FLinearColor(1.0f, 0.96f, 0.9f));
+
+	// Architecture
+	void BuildShell();
+	void AddWallX(float Y, float X0, float X1, const TArray<float>& DoorCentersX, bool bGlass);
+	void AddWallY(float X, float Y0, float Y1, bool bGlass);
+	void AddFacadeX(float Y, float X0, float X1);
+	void AddFacadeY(float X, float Y0, float Y1);
+	void AddDoorSign(const FString& Text, float DoorX, bool bNorthSide);
 	void BuildLighting();
+
+	// Furniture
+	void Desk(const FVector& Center, float Yaw, const FVector& Size, UMaterialInterface* Top);
+	void Monitor(const FVector& Base, float Yaw, UMaterialInterface* Screen);
+	void Chair(const FVector& Location, float Yaw, const TCHAR* ModelId = TEXT("modern_arm_chair_01"));
+	void Plant(const FVector& Location, bool bLarge);
+	void FurnishRooms();
 	void PlaceInteractables();
 	template <class T>
-	T* SpawnInteractable(const FString& Id, const FVector& Location, float Yaw, UStaticMesh* Mesh, const FVector& Scale, const FLinearColor& Color, const FString& Label, float LabelHeight);
+	T* SpawnInteractable(const FString& Id, const FVector& Location, float Yaw, UStaticMesh* Mesh, const FVector& Scale, UMaterialInterface* Material);
 
 	UPROPERTY(Transient) TObjectPtr<UStaticMesh> Cube;
 	UPROPERTY(Transient) TObjectPtr<UStaticMesh> Cylinder;
 	UPROPERTY(Transient) TObjectPtr<UStaticMesh> Sphere;
-	UPROPERTY(Transient) TObjectPtr<UMaterialInterface> BaseMaterial;
+	UPROPERTY(Transient) TMap<FString, TObjectPtr<UMaterialInterface>> Materials;
 
 	int32 ComponentCount = 0;
+	int32 LightCount = 0;
 	bool bBuilt = false;
+	bool bHasArt = false;
 };

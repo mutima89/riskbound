@@ -6,10 +6,12 @@
 #include "RbInteractable.generated.h"
 
 class ARbHUD;
-class UMaterialInstanceDynamic;
+class UAnimSequence;
+class UMaterialInterface;
+class USkeletalMesh;
+class USkeletalMeshComponent;
 class UStaticMesh;
 class UStaticMeshComponent;
-class UTextRenderComponent;
 
 UCLASS(Abstract)
 class RISKBOUND_API ARbInteractable : public AActor
@@ -19,8 +21,8 @@ class RISKBOUND_API ARbInteractable : public AActor
 public:
 	ARbInteractable();
 
-	// Mesh, scale and colour for the graybox; label floats above the object.
-	void SetAppearance(UStaticMesh* Mesh, const FVector& Scale, const FLinearColor& Color, const FString& LabelText, float LabelHeight);
+	// Mesh, scale and optional material override (nullptr keeps the mesh's own materials).
+	void SetAppearance(UStaticMesh* InMesh, const FVector& Scale, UMaterialInterface* Material = nullptr);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Riskbound")
 	FString InteractableId;
@@ -28,19 +30,12 @@ public:
 	virtual FText GetPrompt() const PURE_VIRTUAL(ARbInteractable::GetPrompt, return FText::GetEmpty(););
 	virtual void Interact(ARbHUD* Hud) PURE_VIRTUAL(ARbInteractable::Interact, );
 
+	// Focus feedback: a fresnel overlay on every mesh of the actor.
 	void SetFocused(bool bFocused);
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Riskbound")
 	TObjectPtr<UStaticMeshComponent> Mesh;
-
-	UPROPERTY(VisibleAnywhere, Category = "Riskbound")
-	TObjectPtr<UTextRenderComponent> Label;
-
-	UPROPERTY(Transient)
-	TObjectPtr<UMaterialInstanceDynamic> Material;
-
-	FLinearColor BaseColor = FLinearColor::White;
 };
 
 // A document or log the player examines: ViewEvidence(InteractableId).
@@ -65,16 +60,26 @@ public:
 	virtual void Interact(ARbHUD* Hud) override;
 };
 
-// Priya Okafor: briefing (MeetManager), reminders, and the debrief.
+// Priya Okafor: briefing (MeetManager), reminders, and the debrief. The static mesh is an invisible
+// collision capsule for the interaction trace; the visible body is a skeletal mesh playing an idle.
 UCLASS()
 class RISKBOUND_API ARbNpc : public ARbInteractable
 {
 	GENERATED_BODY()
 
 public:
+	ARbNpc();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Riskbound")
 	FString DisplayName = TEXT("Priya Okafor");
 
+	// Body mesh, looping idle and an outfit material for every slot (any may be null).
+	void SetBody(USkeletalMesh* BodyMesh, UAnimSequence* Idle, UMaterialInterface* Outfit, float MeshYaw);
+
 	virtual FText GetPrompt() const override;
 	virtual void Interact(ARbHUD* Hud) override;
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Riskbound")
+	TObjectPtr<USkeletalMeshComponent> Body;
 };

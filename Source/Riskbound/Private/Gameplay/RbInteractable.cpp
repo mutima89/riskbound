@@ -1,13 +1,26 @@
 #include "RbInteractable.h"
 
+#include "Animation/AnimSequence.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/TextRenderComponent.h"
 #include "Engine/GameInstance.h"
-#include "Materials/MaterialInstanceDynamic.h"
+#include "Engine/SkeletalMesh.h"
+#include "Engine/StaticMesh.h"
+#include "Materials/MaterialInterface.h"
 #include "RbGameSubsystem.h"
 #include "RbHUD.h"
 
 #define LOCTEXT_NAMESPACE "Riskbound"
+
+static UMaterialInterface* HighlightMaterial()
+{
+	static TWeakObjectPtr<UMaterialInterface> Cached;
+	if (!Cached.IsValid())
+	{
+		Cached = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Riskbound/Materials/Instances/MI_Highlight.MI_Highlight"));
+	}
+	return Cached.Get();
+}
 
 ARbInteractable::ARbInteractable()
 {
@@ -16,38 +29,27 @@ ARbInteractable::ARbInteractable()
 	Mesh->SetMobility(EComponentMobility::Movable);
 	Mesh->SetCollisionProfileName(TEXT("BlockAll"));
 	RootComponent = Mesh;
-
-	Label = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Label"));
-	Label->SetupAttachment(Mesh);
-	Label->SetAbsolute(false, false, true); // keep text readable regardless of mesh scale
-	Label->SetHorizontalAlignment(EHTA_Center);
-	Label->SetWorldSize(9.0f);
-	Label->SetTextRenderColor(FColor(240, 240, 240));
-	Label->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-void ARbInteractable::SetAppearance(UStaticMesh* InMesh, const FVector& Scale, const FLinearColor& Color, const FString& LabelText, float LabelHeight)
+void ARbInteractable::SetAppearance(UStaticMesh* InMesh, const FVector& Scale, UMaterialInterface* Material)
 {
-	BaseColor = Color;
 	Mesh->SetStaticMesh(InMesh);
 	Mesh->SetWorldScale3D(Scale);
-	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")))
+	if (Material)
 	{
-		Material = Mesh->CreateDynamicMaterialInstance(0, Base);
-		Material->SetVectorParameterValue(TEXT("Color"), BaseColor);
+		for (int32 i = 0; i < Mesh->GetNumMaterials(); ++i) Mesh->SetMaterial(i, Material);
 	}
-	Label->SetText(FText::FromString(LabelText));
-	Label->SetRelativeLocation(FVector(0.0f, 0.0f, LabelHeight / FMath::Max(Scale.Z, 0.01f)));
 }
 
 void ARbInteractable::SetFocused(bool bFocused)
 {
-	if (Material)
+	UMaterialInterface* Overlay = bFocused ? HighlightMaterial() : nullptr;
+	TArray<UMeshComponent*> Meshes;
+	GetComponents<UMeshComponent>(Meshes);
+	for (UMeshComponent* M : Meshes)
 	{
-		const FLinearColor Highlight = BaseColor * 0.4f + FLinearColor(1.0f, 0.85f, 0.3f) * 0.6f;
-		Material->SetVectorParameterValue(TEXT("Color"), bFocused ? Highlight : BaseColor);
+		if (M->IsVisible()) M->SetOverlayMaterial(Overlay);
 	}
-	Label->SetTextRenderColor(bFocused ? FColor(255, 220, 90) : FColor(240, 240, 240));
 }
 
 FText ARbEvidenceProp::GetPrompt() const
@@ -73,6 +75,31 @@ FText ARbWorkstation::GetPrompt() const
 void ARbWorkstation::Interact(ARbHUD* Hud)
 {
 	Hud->OpenWorkstation();
+}
+
+ARbNpc::ARbNpc()
+{
+	Body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
+	Body->SetupAttachment(Mesh);
+	Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Body->SetAbsolute(false, false, true);
+}
+
+void ARbNpc::SetBody(USkeletalMesh* BodyMesh, UAnimSequence* Idle, UMaterialInterface* Outfit, float MeshYaw)
+{
+	if (!BodyMesh) return;
+	Mesh->SetVisibility(false); // the capsule stays for collision and the interaction trace
+	Body->SetSkeletalMesh(BodyMesh);
+	// The capsule is centred on the actor; the mannequin's origin is at its feet.
+	Body->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f / FMath::Max(GetActorScale3D().Z, 0.01f)), FRotator(0.0f, MeshYaw, 0.0f));
+	if (Outfit)
+	{
+		for (int32 i = 0; i < Body->GetNumMaterials(); ++i) Body->SetMaterial(i, Outfit);
+	}
+	if (Idle)
+	{
+		Body->PlayAnimation(Idle, true);
+	}
 }
 
 FText ARbNpc::GetPrompt() const

@@ -151,6 +151,7 @@ def pbr_tail(m, base, normal_out, arm, x):
 
 def build_surface(defaults):
     m = new_material("M_RbSurface")
+    m.set_editor_property("used_with_skeletal_mesh", True)  # Priya's outfit
     uv = expr(m, unreal.MaterialExpressionTextureCoordinate, -1200, 0)
     uvs = expr(m, unreal.MaterialExpressionScalarParameter, -1200, 120, parameter_name="UVScale", default_value=1.0)
     uvm = expr(m, unreal.MaterialExpressionMultiply, -1000, 40)
@@ -222,7 +223,7 @@ def build_sky(hdri):
     m = new_material("M_RbSky")
     m.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
     m.set_editor_property("two_sided", True)
-    m.set_editor_property("is_sky", True)
+    m.set_editor_property("is_sky", False)  # a plain unlit dome; IsSky needs full-screen coverage
     cam = expr(m, unreal.MaterialExpressionCameraVectorWS, -1100, 0)
     neg = expr(m, unreal.MaterialExpressionMultiply, -850, 0)
     minus = expr(m, unreal.MaterialExpressionConstant, -1100, 150, r=-1.0)
@@ -376,12 +377,14 @@ for name, tint, rough, metal in [("MI_Graphite", (0.06, 0.065, 0.075), 0.75, 1.0
     instance(name, SURFACE, {}, {"RoughnessScale": rough / 0.55, "MetallicScale": metal}, {"Tint": tint + (1,)})
 instance("MI_Glass", unreal.load_asset(MAT + "/M_RbGlass"))
 instance("MI_GlassFrosted", unreal.load_asset(MAT + "/M_RbGlass"), {}, {"Opacity": 0.55, "Roughness": 0.45}, {"Tint": (0.9, 0.93, 0.94, 1)})
-instance("MI_LightPanel", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 6.0}, {"Color": (1, 0.97, 0.92, 1)})
-instance("MI_ScreenTeal", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 2.2}, {"Color": (0.12, 0.45, 0.55, 1)})
-instance("MI_ScreenAlert", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 2.0}, {"Color": (0.75, 0.3, 0.12, 1)})
+instance("MI_LightPanel", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 60.0}, {"Color": (1, 0.97, 0.92, 1)})
+instance("MI_ScreenTeal", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 18.0}, {"Color": (0.12, 0.45, 0.55, 1)})
+instance("MI_ScreenAlert", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 16.0}, {"Color": (0.75, 0.3, 0.12, 1)})
 instance("MI_Highlight", unreal.load_asset(MAT + "/M_RbHighlight"))
+# Ceiling: faintly self-lit so it reads as bounce-lit white rather than black between panels.
+instance("MI_CeilingSoft", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 4.5}, {"Color": (0.85, 0.85, 0.84, 1)})
 if EAL.does_asset_exist(MAT + "/M_RbSky"):
-    instance("MI_Sky", unreal.load_asset(MAT + "/M_RbSky"), {}, {"Intensity": 1.0})
+    instance("MI_Sky", unreal.load_asset(MAT + "/M_RbSky"), {}, {"Intensity": 14.0})
 
 for asset_id in ["modern_arm_chair_01", "dining_chair_02", "sofa_02", "modern_coffee_table_01", "potted_plant_02", "potted_plant_04",
                  "drawer_cabinet", "binder_notebook", "clipboard", "office_notepads", "wall_clock", "projector_screen", "modern_ceiling_lamp_01"]:

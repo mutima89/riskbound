@@ -23,3 +23,14 @@ What the automated checks cover: every mission action goes through `URbGameSubsy
 
 ## Not yet tested
 Hands-on play with real input (movement, look sensitivity, each screen by mouse and keyboard, text size, fullscreen toggle, volume), Shipping package, installer, offline packaged run on a second machine.
+
+## 2026-10-20 - Visual quality pass, step 1 (HQ art)
+| Run | Command | Result |
+|---|---|---|
+| Asset import | `Scripts\ImportAssets.bat` | `done: 13 meshes, 6 materials, 0 errors`; Content/Riskbound 43 MB |
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded`, 0 warnings |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 3/3 `Result={Success}` |
+| Tour, before (graybox) | `UnrealEditor.exe Riskbound.uproject -game -RbSelfTest=tour -ResX=1920 -ResY=1080` | average 67.5 fps (14.8 ms) |
+| Tour, after (art) | same | rooms 52.0-60.3 fps (16.6-19.2 ms, GPU 15.7-19.1 ms); the first stop (corridor) includes the editor's first-use shader compile and is not representative |
+
+Performance is measured in the editor's -game mode (uncooked), 1920x1080, on this PC's 4 GB GPU; a cooked build is expected to be faster. After screenshots: Docs/Screenshots/after/. The graybox "before" screenshots were not kept (overwritten by later tours); Docs/Screenshots/01_main_menu.png shows the graybox reception.

@@ -1,5 +1,6 @@
 #include "RbSelfTest.h"
 
+#include "Camera/PlayerCameraManager.h"
 #include "Engine/GameInstance.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/World.h"
@@ -171,6 +172,7 @@ struct FTourState
 	TArray<FTransform> Views;
 	TArray<FString> Lines;
 	int32 Index = 0;
+	bool bCaptured = false;
 	double SumMs = 0.0;
 	FTimerHandle Timer;
 };
@@ -206,6 +208,7 @@ static void RunTour(UWorld* World, ARbHUD* Hud)
 	{
 		PC->GetPawn()->SetActorLocation(View.GetLocation() - FVector(0.0f, 0.0f, 70.0f), false, nullptr, ETeleportType::TeleportPhysics);
 		PC->SetControlRotation(View.Rotator());
+		if (PC->PlayerCameraManager) PC->PlayerCameraManager->SetGameCameraCutThisFrame(); // no motion blur from the jump
 	};
 	Place(State->Views[0]);
 	TWeakObjectPtr<UWorld> WeakWorld(World);
@@ -216,28 +219,41 @@ static void RunTour(UWorld* World, ARbHUD* Hud)
 		const TWeakObjectPtr<UWorld> TourWorld = WeakWorld;
 		const auto PlaceAt = Place;
 		if (!TourWorld.IsValid()) return;
+		// Alternate ticks: capture the current view, then move on the next tick, so the screenshot
+		// (taken at the end of the frame) always shows the view it is named after.
+		if (State->bCaptured)
+		{
+			State->bCaptured = false;
+			if (++State->Index < State->Views.Num())
+			{
+				PlaceAt(State->Views[State->Index]);
+				return;
+			}
+		}
+		else
+		{
+			State->bCaptured = true;
+		}
 		const int32 I = State->Index;
+		if (I >= State->Views.Num())
+		{
+			TourWorld->GetTimerManager().ClearTimer(State->Timer);
+			const double AvgMs = State->SumMs / State->Views.Num();
+			FString Text = FString::Printf(TEXT("PASS\nmode=tour\naverage_frame_ms=%.2f average_fps=%.1f\n"), AvgMs, AvgMs > 0.0 ? 1000.0 / AvgMs : 0.0);
+			for (const FString& L : State->Lines) Text += L + TEXT("\n");
+			const FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir() / TEXT("RbTour.txt"));
+			FFileHelper::SaveStringToFile(Text, *Path, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+			UE_LOG(LogRiskbound, Display, TEXT("RbSelfTest wrote %s:\n%s"), *Path, *Text);
+			FTimerHandle Quit;
+			TourWorld->GetTimerManager().SetTimer(Quit, []() { FPlatformMisc::RequestExit(false, TEXT("RbSelfTest")); }, 1.0f, false);
+			return;
+		}
 		const double Gpu = FPlatformTime::ToMilliseconds(RHIGetGPUFrameCycles());
 		State->Lines.Add(FString::Printf(TEXT("%s: fps=%.1f frame_ms=%.2f game_ms=%.2f render_ms=%.2f gpu_ms=%.2f"), *State->Names[I], GAverageFPS, GAverageMS,
 			FPlatformTime::ToMilliseconds(GGameThreadTime), FPlatformTime::ToMilliseconds(GRenderThreadTime), Gpu));
 		State->SumMs += GAverageMS;
 		FScreenshotRequest::RequestScreenshot(TEXT("Tour_") + FileSafe(State->Names[I]), false, false);
-		if (++State->Index < State->Views.Num())
-		{
-			PlaceAt(State->Views[State->Index]);
-			return;
-		}
-		TourWorld->GetTimerManager().ClearTimer(State->Timer);
-		const double AvgMs = State->SumMs / State->Views.Num();
-		FString Text = FString::Printf(TEXT("PASS\nmode=tour\naverage_frame_ms=%.2f average_fps=%.1f\n"), AvgMs, AvgMs > 0.0 ? 1000.0 / AvgMs : 0.0);
-		for (const FString& L : State->Lines) Text += L + TEXT("\n");
-		const FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir() / TEXT("RbTour.txt"));
-		FFileHelper::SaveStringToFile(Text, *Path, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
-		UE_LOG(LogRiskbound, Display, TEXT("RbSelfTest wrote %s:\n%s"), *Path, *Text);
-		// Let the last screenshot be written before exiting.
-		FTimerHandle Quit;
-		TourWorld->GetTimerManager().SetTimer(Quit, []() { FPlatformMisc::RequestExit(false, TEXT("RbSelfTest")); }, 1.0f, false);
-	}, 2.5f, true);
+	}, 2.0f, true);
 }
 
 void Run(UWorld* World)
