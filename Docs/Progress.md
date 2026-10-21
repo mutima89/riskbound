@@ -1,6 +1,6 @@
 # Progress
 
-## Status: Phases 1-4 of the 30-idea roadmap done and phase 5 nearly done (Docs/Roadmap.md); phase 1 merged to main, phases 2-5 on claude/project-thread-sq9vzl awaiting the owner's go-ahead; 0.5.1-alpha built locally (not published); whole game walked through the real UI by a scripted driver; hands-on playtest by a person pending
+## Status: 1.0.0 released (owner approved, 2026-10-21); all five roadmap phases done (Docs/Roadmap.md); whole game walked through the real UI by a scripted driver; playtested by the owner
 Last update: 2026-10-21
 
 ### Done
@@ -28,7 +28,8 @@ Last update: 2026-10-21
 - Phase 3 (2026-10-21): four backgrounds, ten skills, conversations with tones (Data/Dialogue.json), promotion and CRO ceremonies, save v7. Shipping walkthrough passed new game to CRO with no findings.
 - Phase 4 (2026-10-21): eight endings, performance review and certificate, what-if replays, Survival, Daily and Classroom challenges with a local leaderboard, glossary (40 terms), photo mode, mission mods (Docs/Modding.md), save v8. Shipping walkthrough passed to CRO; text-wrap findings in the journal and debriefs fixed after.
 - Phase 5 (2026-10-21): controller support, TSR upscaling, frame cap, vsync, invert look, colour-safe palette (save v9); optional AI colleagues (off by default, player's own key, Docs/AiColleagues.md); website page (Artifact). Verified this session: 95 core tests; editor build; 16/16 Unreal tests; Shipping package to Release\Phase5; Shipping self-test play (21 checks) and resume (16 checks) PASS.
-- MetaHuman faces: blocked. The engine's MetaHumanCharacter plugin is missing its optional content (texture synthesis, grooms, clothing) and the editor asserts on BodyTexture; needs the MetaHuman optional add-on installed from the Epic launcher.
+- Playtest fixes and 1.0.0 (2026-10-21): realistic office cast (Microsoft Rocketbox, MIT) replacing the mannequins; promotion ceremonies cut to the boardroom with reduced motion (they showed only a title before); queued ceremonies; walkthrough checks and screenshots every ceremony. Verified this session: 95 core tests; 16/16 Unreal tests; Shipping package (Release\Shipping); Shipping self-test play, resume and tour PASS (57 fps average at 1080p with the cast); walkthrough new game to CRO with every ceremony from level 3 to 10 on the boardroom camera, no findings; 1.0.0 installer: silent install, self-test play PASS, uninstall keeps saves; portable zip: self-test play PASS.
+- MetaHuman faces: not used. The optional content is installed, but the face rig needs Epic's cloud service and MetaHuman Creator crashed the editor on this PC's 4 GB GTX 1650. Earlier note: The engine's MetaHumanCharacter plugin is missing its optional content (texture synthesis, grooms, clothing) and the editor asserts on BodyTexture; needs the MetaHuman optional add-on installed from the Epic launcher.
 
 ### Not yet verified
 - A hands-on playthrough by a person (movement feel, mouse sensitivity, readability at all text sizes, volume). The walkthrough sends real UI input but its timing and judgement are not a person's.
