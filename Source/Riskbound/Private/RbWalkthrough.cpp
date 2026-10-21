@@ -251,6 +251,7 @@ public:
 	TSet<FString> FailedOnPurpose;
 	bool bCrisisTriggered = false;
 	bool bCeremonySeen = false;
+	double CeremonySeenAt = 0.0;
 	int32 WeakDecisions = 0;
 	TMap<FString, int32> AttemptsSeen;
 	TSet<const SWidget*> AuditSuspects; // text that looked clipped on the first look
@@ -1009,8 +1010,25 @@ void AddMission(FDriver& D, const rb::MissionDef& M, EPolicy Policy, bool bScree
 		if (!V.bPromoted || !H) return true;
 		if (H->IsCeremonyPlaying())
 		{
-			if (!Dr.bCeremonySeen) Dr.Note(TEXT("PASS promotion ceremony: ") + V.LevelTitle);
+			if (!Dr.bCeremonySeen)
+			{
+				Dr.Note(TEXT("PASS promotion ceremony: ") + V.LevelTitle);
+				Dr.CeremonySeenAt = Dr.Now();
+				Dr.Sub = 0;
+			}
 			Dr.bCeremonySeen = true;
+			if (Dr.Sub == 0 && Dr.Now() - Dr.CeremonySeenAt > 3.0)
+			{
+				// Mid-shot, after the camera blend: what the player sees at this level.
+				FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("Walk_P%d_%02d_Ceremony_L%d"), Dr.Phase, Dr.Shots++, V.Level), true, false);
+				Dr.Sub = 1;
+				// The shot must be the boardroom, not the player's own view (with or without reduced motion).
+				const APlayerController* PC = H->GetOwningPlayerController();
+				if (PC && PC->GetViewTarget() == PC->GetPawn())
+				{
+					Dr.Finding(TEXT("High"), TEXT("Promotion"), FString::Printf(TEXT("Ceremony for %s stays on the player's view (level %d)"), *V.LevelTitle, V.Level));
+				}
+			}
 			return false;
 		}
 		if (Dr.bCeremonySeen || Dr.Now() > Dr.StepStart + 4.0)

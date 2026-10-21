@@ -369,16 +369,20 @@ void ARbHUD::PlayCeremony(const FString& Title, const FString& Subtitle)
 	Viewport->AddViewportWidgetContent(CeremonyRoot.ToSharedRef(), 25);
 	CeremonyEnds = FPlatformTime::Seconds() + 6.5;
 	URbAudioSubsystem::Cue(this, ERbCue::Promotion);
-	// The camera eases to the head of the boardroom table, unless motion is reduced.
-	APlayerController* PC = PlayerOwner.Get();
-	if (PC && !RbUI::IsReducedMotion())
+	// The camera eases to the head of the boardroom table. With reduced motion it cuts there instead:
+	// every promotion keeps its boardroom shot, only the camera movement goes.
+	if (APlayerController* PC = PlayerOwner.Get())
 	{
 		if (!CeremonyCamera)
 		{
 			CeremonyCamera = GetWorld()->SpawnActor<ACameraActor>(FVector(3820.0f, -700.0f, 165.0f), FRotator(-8.0f, 180.0f, 0.0f));
 			if (CeremonyCamera) CeremonyCamera->GetCameraComponent()->SetFieldOfView(62.0f);
 		}
-		if (CeremonyCamera) PC->SetViewTargetWithBlend(CeremonyCamera, 1.6f, VTBlend_EaseInOut, 2.0f);
+		if (CeremonyCamera)
+		{
+			if (RbUI::IsReducedMotion()) PC->SetViewTarget(CeremonyCamera);
+			else PC->SetViewTargetWithBlend(CeremonyCamera, 1.6f, VTBlend_EaseInOut, 2.0f);
+		}
 	}
 }
 
@@ -391,7 +395,11 @@ void ARbHUD::EndCeremony()
 	CeremonyRoot.Reset();
 	if (APlayerController* PC = PlayerOwner.Get())
 	{
-		if (PC->GetPawn() && PC->GetViewTarget() != PC->GetPawn()) PC->SetViewTargetWithBlend(PC->GetPawn(), 1.2f, VTBlend_EaseInOut, 2.0f);
+		if (PC->GetPawn() && PC->GetViewTarget() != PC->GetPawn())
+		{
+			if (RbUI::IsReducedMotion()) PC->SetViewTarget(PC->GetPawn());
+			else PC->SetViewTargetWithBlend(PC->GetPawn(), 1.2f, VTBlend_EaseInOut, 2.0f);
+		}
 	}
 }
 
