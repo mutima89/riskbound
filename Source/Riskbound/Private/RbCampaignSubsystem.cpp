@@ -218,6 +218,7 @@ FRbMissionView URbCampaignSubsystem::GetMission(const FString& MissionId) const
 		EV.At = ToFString(E.At);
 		EV.AtName = ToFString(rb::LocationName(E.At));
 		EV.PersonName = E.Person.empty() ? FString() : PersonName(E.Person);
+		EV.PersonId = ToFString(E.Person);
 		V.Evidence.Add(EV);
 	}
 	for (const rb::MissionQuestionDef& Q : M->Questions)
@@ -314,10 +315,10 @@ ERbMissionResult URbCampaignSubsystem::SubmitMission(const FString& MissionId, c
 	if (D.bPromoted)
 	{
 		Game()->Notify(FString::Printf(TEXT("Promoted to %s"), *ToFString(rb::LevelDef(D.Level).Title)));
-		PendingCeremony = ToFString(rb::LevelDef(D.Level).Title);
+		PendingCeremonies.Add(ToFString(rb::LevelDef(D.Level).Title));
 		URbAudioSubsystem::Cue(this, ERbCue::Promotion);
 	}
-	if (D.bPassed && M->Kind == rb::EMissionKind::Capstone) PendingCeremony = TEXT("CRO");
+	if (D.bPassed && M->Kind == rb::EMissionKind::Capstone) PendingCeremonies.Add(TEXT("CRO"));
 	if (Game()->GetState().Challenge.bOver) bChallengeOverPending = true;
 	AnnounceWorldUpdate(D.NewMessages, D.Escalated, D.bBurnout);
 	Game()->StateCheckpoint();

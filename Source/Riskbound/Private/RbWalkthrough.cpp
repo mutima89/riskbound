@@ -250,6 +250,7 @@ public:
 	// Campaign policy state.
 	TSet<FString> FailedOnPurpose;
 	bool bCrisisTriggered = false;
+	bool bCeremonySeen = false;
 	int32 WeakDecisions = 0;
 	TMap<FString, int32> AttemptsSeen;
 	TSet<const SWidget*> AuditSuspects; // text that looked clipped on the first look
@@ -1000,6 +1001,28 @@ void AddMission(FDriver& D, const rb::MissionDef& M, EPolicy Policy, bool bScree
 		return true;
 	});
 	D.Click(L(TEXT("Back to case files")));
+	// Every promotion gets its ceremony once the player leaves the screens.
+	D.Add(TEXT("promotion ceremony ") + Id, [Id](FDriver& Dr)
+	{
+		const FRbMissionDebriefView V = Dr.Campaign()->GetDebrief(Id);
+		ARbHUD* H = Dr.Hud.Get();
+		if (!V.bPromoted || !H) return true;
+		if (H->IsCeremonyPlaying())
+		{
+			if (!Dr.bCeremonySeen) Dr.Note(TEXT("PASS promotion ceremony: ") + V.LevelTitle);
+			Dr.bCeremonySeen = true;
+			return false;
+		}
+		if (Dr.bCeremonySeen || Dr.Now() > Dr.StepStart + 4.0)
+		{
+			if (!Dr.bCeremonySeen) Dr.Finding(TEXT("High"), TEXT("Promotion"), FString::Printf(TEXT("No ceremony for the promotion to %s (level %d)"), *V.LevelTitle, V.Level));
+			Dr.bCeremonySeen = false;
+			H->OpenCaseFiles();
+			return true;
+		}
+		if (H->IsScreenOpen()) H->CloseScreen();
+		return false;
+	}, 15.0, false);
 }
 
 // Plans the next mission from what the case list shows, the way a player would pick.

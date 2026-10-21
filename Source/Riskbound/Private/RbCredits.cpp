@@ -27,8 +27,12 @@ TArray<FSection> Sections()
 		AssetSection.Lines.Add(FString::Printf(TEXT("%s - %s (%s, %s, %s)"), A.Name, A.Role, A.Authors, A.Source, A.Licence));
 	}
 	AssetSection.Lines.Add(TEXT("Screen interfaces, whiteboard and wall prints: original Riskbound artwork."));
-	AssetSection.Lines.Add(TEXT("Mannequin body for Priya Okafor: Epic Games template content."));
+	AssetSection.Lines.Add(TEXT("Mannequin body (stand-in when the cast is not imported): Epic Games template content."));
 	Out.Add(AssetSection);
+	// MIT licence: the copyright notice must accompany the avatars (Docs/AssetCredits.md "Characters").
+	Out.Add({TEXT("Characters"),
+		{TEXT("Office cast and animations: Microsoft Rocketbox Avatar Library (github.com/microsoft/Microsoft-Rocketbox)"),
+		 TEXT("Copyright (c) 2020 Microsoft. Licensed under the MIT License.")}});
 	// Music is CC BY 4.0: the attribution below is required wherever the music is used (Docs/AssetCredits.md "Audio").
 	Out.Add({TEXT("Music and sound"),
 		{TEXT("\"Clean Soul\", \"Thinking Music\", \"Lightless Dawn\" and \"Hitman\" by Kevin MacLeod (incompetech.com)"),

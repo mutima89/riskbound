@@ -1,6 +1,6 @@
 # Progress
 
-## Status: Phase 1 of the 30-idea roadmap done (Docs/Roadmap.md); 0.5.1-alpha built locally (not published); whole game walked through the real UI by a scripted driver; hands-on playtest by a person pending
+## Status: Phases 1-4 of the 30-idea roadmap done and phase 5 nearly done (Docs/Roadmap.md); phase 1 merged to main, phases 2-5 on claude/project-thread-sq9vzl awaiting the owner's go-ahead; 0.5.1-alpha built locally (not published); whole game walked through the real UI by a scripted driver; hands-on playtest by a person pending
 Last update: 2026-10-21
 
 ### Done
@@ -24,14 +24,18 @@ Last update: 2026-10-21
 - 0.5.1-alpha (2026-10-21): installer and portable zip from the walkthrough commit; install, run, uninstall verified. Not published on GitHub yet (owner stopped the push, 2026-10-21).
 
 - Phase 1 of the 30-idea roadmap (2026-10-21, Docs/Roadmap.md, Docs/GameDesign.md "Living world"): relationships and office politics, inbox with reply deadlines, stress and burnout, regulator events, fallout from weak answers traced to the decision, crisis causes and escalation, The Corvane Ledger story (S001-S004, 10 clues), share index and news, adaptive music and sound (Docs/AssetCredits.md "Audio"), save v6. Verified: 86 core tests, 14 Unreal tests, Shipping self-test play/resume (world_content, inbox, audio checks), Shipping UI walkthrough new game to level 10 with save/quit/Continue (findings: journal headline wrap, binder target; both fixed after the build).
-- Phase 2 started: numeric and rating questions (scored by closeness; case files UI, walkthrough and self-test support) and six case studies inspired by real events (M031-M036). Core tests pass; not yet in a packaged build.
+- Phase 2 (2026-10-21): numeric and rating questions (scored by closeness), six case studies inspired by real events (M031-M036), located evidence (people and rooms), board papers presented at the boardroom lectern, living office (staff by morale, weather, daylight, case markers). Shipping walkthrough stopped at the CRO lectern (Submit offscreen); fixed by scrolling to the end at the lectern, verified in the phase 3 walkthrough.
+- Phase 3 (2026-10-21): four backgrounds, ten skills, conversations with tones (Data/Dialogue.json), promotion and CRO ceremonies, save v7. Shipping walkthrough passed new game to CRO with no findings.
+- Phase 4 (2026-10-21): eight endings, performance review and certificate, what-if replays, Survival, Daily and Classroom challenges with a local leaderboard, glossary (40 terms), photo mode, mission mods (Docs/Modding.md), save v8. Shipping walkthrough passed to CRO; text-wrap findings in the journal and debriefs fixed after.
+- Phase 5 (2026-10-21): controller support, TSR upscaling, frame cap, vsync, invert look, colour-safe palette (save v9); optional AI colleagues (off by default, player's own key, Docs/AiColleagues.md); website page (Artifact). Verified this session: 95 core tests; editor build; 16/16 Unreal tests; Shipping package to Release\Phase5; Shipping self-test play (21 checks) and resume (16 checks) PASS.
+- MetaHuman faces: blocked. The engine's MetaHumanCharacter plugin is missing its optional content (texture synthesis, grooms, clothing) and the editor asserts on BodyTexture; needs the MetaHuman optional add-on installed from the Epic launcher.
 
 ### Not yet verified
 - A hands-on playthrough by a person (movement feel, mouse sensitivity, readability at all text sizes, volume). The walkthrough sends real UI input but its timing and judgement are not a person's.
-- Gamepad (unsupported), resolutions other than 1920x1080, Analyst and Executive difficulty through the UI (covered by core replay tests).
+- Controller support (mapped and tested in code, not by hand), resolutions other than 1920x1080, Analyst and Executive difficulty through the UI (covered by core replay tests).
 
 ### Next action
-Owner plays the phase 1 build (Release\Shipping\Windows\Riskbound.exe). Phase 2: in-world evidence and presenting, tool-scored questions in more missions, living office, own office by level.
+Owner plays the phase 5 build (Release\Phase5\Windows\Riskbound.exe) and decides on merging phases 2-5 to main. Remaining: Steam page (needs the owner's Steam account), trailer, MetaHuman faces (needs the optional add-on), Arabic localisation.
 Earlier: Owner's hands-on review of 0.5.1-alpha. Open walkthrough findings (Docs/KnownIssues.md): incident frequency for weak choices, crisis briefings naming their cause, binder interaction target, case list grouping, audio.
 
 ### Open blockers

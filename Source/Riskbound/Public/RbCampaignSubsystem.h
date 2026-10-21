@@ -158,7 +158,8 @@ public:
 	bool TakeChallengeOver() { const bool b = bChallengeOverPending; bChallengeOverPending = false; return b; }
 
 	// A ceremony the HUD plays when the screen is free (promotion, the CRO capstone). Cleared when taken.
-	FString TakePendingCeremony() { FString C = PendingCeremony; PendingCeremony.Reset(); return C; }
+	// Ceremonies queue in order (a promotion and the CRO capstone can land together).
+	FString TakePendingCeremony() { if (PendingCeremonies.IsEmpty()) return FString(); FString C = PendingCeremonies[0]; PendingCeremonies.RemoveAt(0); return C; }
 
 	// Answers in progress for a mission, kept for the session so a board paper drafted at the
 	// workstation is still there at the boardroom lectern. Cleared on submit or set aside.
@@ -187,7 +188,7 @@ private:
 	TArray<FString> ModProblems;
 	bool bChallengeOverPending = false;
 	static std::string RbConvertToStd(const FString& S);
-	FString PendingCeremony;
+	TArray<FString> PendingCeremonies;
 	FRbConversationView NodeView(const rb::ConversationDef& C, const std::string& NodeId) const;
 	TArray<FString> LoadErrors;
 	std::vector<rb::AchievementDef> Achievements;

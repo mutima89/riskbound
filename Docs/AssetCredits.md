@@ -29,6 +29,12 @@ Assets under the Fab Standard License or Epic template content are not stored in
 | [Canary Wharf](https://polyhaven.com/a/canary_wharf) | Business-district view through the windows, sky light | Poly Haven | Andreas Mischok | CC0 1.0 |
 | [Inter 4.1](https://rsms.me/inter/) | UI typeface | rsms/inter (Rasmus Andersson) | Rasmus Andersson | SIL Open Font License 1.1 |
 
+## Characters
+| Asset | Use in Riskbound | Source | Author(s) | Licence |
+|---|---|---|---|---|
+| [Microsoft Rocketbox Avatar Library](https://github.com/microsoft/Microsoft-Rocketbox): Business_Female_01-04, Business_Male_01-07, Female_Adult_01-05, Male_Adult_01-04 | Valtren's people and background staff (Source/Riskbound/Private/World/RbCast.cpp) | GitHub, fetched by Scripts/FetchCharacters.py, imported by Scripts/ImportCharacters.py (textures reduced to 1024 px) | Microsoft (Rocketbox Studios) | MIT; copyright (c) 2020 Microsoft, notice kept in the credits |
+| Rocketbox animations: m_/f_ idle_neutral_01-02, idle_breathe_01, idle_look_around_01, documents_idle, gestic_listen_neutral_01, cell_phone_listen_01 | Idles and listening loops | Same repository (all_animations_max_motextr_static) | Microsoft (Rocketbox Studios) | MIT |
+
 ## Audio
 Sources: Data/AudioManifest.json (URL, SHA-256, licence), built by Scripts/BuildAudio.py and imported by Scripts/ImportAudio.py to /Game/Riskbound/Audio.
 

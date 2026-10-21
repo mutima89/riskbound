@@ -74,6 +74,7 @@ struct FRbMissionEvidenceView
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString At;         // HQ location id; empty: the workstation
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString AtName;     // "Risk monitoring room"
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PersonName; // interview with this person, may be empty
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PersonId;   // that person's id (People.json)
 };
 
 USTRUCT(BlueprintType)

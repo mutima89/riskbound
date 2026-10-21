@@ -19,6 +19,7 @@
 #include "RbLog.h"
 #include "RbAudioSubsystem.h"
 #include "RbCampaignSubsystem.h"
+#include "RbCast.h"
 #include "TimerManager.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/SkyLightComponent.h"
@@ -98,6 +99,8 @@ void ARbValtrenHQ::GetTourViewpoints(TArray<FString>& OutNames, TArray<FTransfor
 	}
 	// Reverse view of the monitoring room: operator rows, acoustic panels, door wall.
 	Add(TEXT("Risk monitoring room (operators)"), FVector(1950.0f, -1120.0f, Eye), FVector(1150.0f, -380.0f, 100.0f));
+	// Conversation distance with Priya: checks the cast's faces, materials and facing.
+	Add(TEXT("Priya Okafor (close)"), FVector(2300.0f, 700.0f, 160.0f), FVector(2330.0f, 880.0f, 150.0f));
 }
 
 // ---------------------------------------------------------------------------- primitives
@@ -899,11 +902,11 @@ void ARbValtrenHQ::PlaceInteractables()
 {
 	auto ModelOr = [this](const TCHAR* Id) { UStaticMesh* M = Model(Id); return M ? M : Cube.Get(); };
 
-	// Priya Okafor beside her desk, facing the door. Invisible capsule for the trace, mannequin body.
+	// Priya Okafor beside her desk, facing the door. Invisible capsule for the trace, cast body (RbCast).
 	if (ARbNpc* Priya = SpawnInteractable<ARbNpc>(TEXT("priya_okafor"), FVector(2330.0f, 880.0f, 90.0f), -90.0f, Cylinder, FVector(0.5f, 0.5f, 1.8f), nullptr))
 	{
-		Priya->SetBody(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple")),
-			LoadObject<UAnimSequence>(nullptr, TEXT("/Game/Characters/Mannequins/Anims/Unarmed/MM_Idle.MM_Idle")), Mat(TEXT("MI_SuitNavy")), -90.0f);
+		const RbCast::FLook L = RbCast::ForPerson(TEXT("priya"), 2);
+		Priya->SetBody(L.Mesh, L.Idle, L.bFallback ? Mat(TEXT("MI_SuitNavy")) : nullptr, L.MeshYaw);
 	}
 	// The player's workstation: the monitor screen is the interactable.
 	Monitor(FVector(1500.0f, 1100.0f, DeskHeight), -90.0f, nullptr);
@@ -982,9 +985,7 @@ void ARbValtrenHQ::RefreshCaseMarkers()
 		{TEXT("workspace"), {FVector(1250.0f, 450.0f, 90.0f), 0.0f, FVector(1750.0f, 760.0f, DeskHeight + 0.5f), 0.0f}},
 		{TEXT("reception"), {FVector(300.0f, 500.0f, 90.0f), 0.0f, FVector(500.0f, 700.0f, 45.0f), 0.0f}},
 	};
-	static const TCHAR* const Bodies[] = {TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"), TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple")};
 	static const TCHAR* const Outfits[] = {TEXT("MI_FabricDark"), TEXT("MI_SuitNavy"), TEXT("MI_Graphite")};
-	UAnimSequence* Idle = LoadObject<UAnimSequence>(nullptr, TEXT("/Game/Characters/Mannequins/Anims/Unarmed/MM_Idle.MM_Idle"));
 	TMap<FString, int32> Used;
 	int32 PersonIndex = 0;
 	auto Label = [this](const FString& Text, const FVector& At)
@@ -1008,7 +1009,8 @@ void ARbValtrenHQ::RefreshCaseMarkers()
 			if (!M) continue;
 			M->Kind = ERbCaseMarkerKind::Interview;
 			M->Title = E.PersonName;
-			M->SetBody(LoadObject<USkeletalMesh>(nullptr, Bodies[PersonIndex % 2]), Idle, Mat(Outfits[PersonIndex % 3]), -90.0f);
+			const RbCast::FLook L = RbCast::ForPerson(E.PersonId, 1);
+			M->SetBody(L.Mesh, L.Idle, L.bFallback ? Mat(Outfits[PersonIndex % 3]) : nullptr, L.MeshYaw);
 			++PersonIndex;
 			M->MissionId = Active;
 			M->EvidenceId = E.Id;
@@ -1101,28 +1103,26 @@ void ARbValtrenHQ::RefreshStaff(int32 Wanted)
 		{FVector(1200.0f, 930.0f, 0.0f), 90.0f}, {FVector(1650.0f, 430.0f, 0.0f), -20.0f}, {FVector(1450.0f, -950.0f, 0.0f), 60.0f},
 		{FVector(3300.0f, 500.0f, 0.0f), 30.0f}, {FVector(700.0f, 380.0f, 0.0f), -60.0f}, {FVector(1820.0f, 880.0f, 0.0f), 110.0f},
 		{FVector(1720.0f, -420.0f, 0.0f), 200.0f}, {FVector(430.0f, -700.0f, 0.0f), 0.0f}, {FVector(2550.0f, 60.0f, 0.0f), 180.0f}};
-	USkeletalMesh* Bodies[] = {LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple")),
-		LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple"))};
-	UAnimSequence* Idle = LoadObject<UAnimSequence>(nullptr, TEXT("/Game/Characters/Mannequins/Anims/Unarmed/MM_Idle.MM_Idle"));
 	UMaterialInterface* Outfits[] = {Mat(TEXT("MI_SuitNavy")), Mat(TEXT("MI_FabricDark")), Mat(TEXT("MI_Graphite"))};
 	for (int32 i = 0; i < FMath::Min(Wanted, static_cast<int32>(UE_ARRAY_COUNT(Spots))); ++i)
 	{
-		USkeletalMesh* Body = Bodies[i % 2];
-		if (!Body) continue;
+		const RbCast::FLook L = RbCast::ForStaff(i);
+		if (!L.Mesh) continue;
 		USkeletalMeshComponent* C = NewObject<USkeletalMeshComponent>(this, NAME_None);
 		C->SetupAttachment(RootComponent);
-		C->SetRelativeLocationAndRotation(Spots[i].Key, FRotator(0.0f, Spots[i].Value, 0.0f));
-		C->SetSkeletalMesh(Body);
+		C->SetRelativeLocationAndRotation(Spots[i].Key, FRotator(0.0f, Spots[i].Value + L.MeshYaw + 90.0f, 0.0f));
+		C->SetSkeletalMesh(L.Mesh);
 		C->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		if (Outfits[i % 3])
+		if (L.bFallback && Outfits[i % 3])
 		{
 			for (int32 m = 0; m < C->GetNumMaterials(); ++m) C->SetMaterial(m, Outfits[i % 3]);
 		}
 		C->RegisterComponent();
-		if (Idle)
+		if (L.Idle)
 		{
-			C->PlayAnimation(Idle, true);
-			C->SetPosition(0.37f * i); // not all in step
+			C->PlayAnimation(L.Idle, true);
+			C->SetPosition(FMath::Fmod(1.7f * i, FMath::Max(L.Idle->GetPlayLength(), 0.1f))); // not all in step
+			C->SetPlayRate(0.9f + 0.05f * (i % 4));
 		}
 		Staff.Add(C);
 	}

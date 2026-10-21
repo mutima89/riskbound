@@ -1,4 +1,4 @@
-# Save format (version 5)
+# Save format (version 9)
 
 Code: `RbSave.*`. Tests: `Save_*` in `Tests/Core/TestMissionSave.cpp`.
 
@@ -37,6 +37,8 @@ Primary valid -> `Ok`. Else backup valid -> `RecoveredFromBackup` (UI must tell 
 | 5 | `camp.active`, `camp.viewed` (evidence opened in the active mission), `camp.rec.<n>` per submitted attempt (`.id`, `.week`, `.level`, `.score`, `.passed`, answers `.a.<k>.q` + option list `.a.<k>.o`), and `org.pend.<n>.setflag` (flag set if the consequence occurs). Older saves load with no campaign progress and no consequence flags. Test: `Save_MigratesV4WithoutCampaign`, round trip `Save_V5RoundTripsCampaignAndConsequenceFlags`. |
 | 6 | The living world: `world.stress`, `world.burnouts`, `world.nextMsg`, `world.clues`, `world.fired` (events delivered), `world.rel.<n>` (`.id`, `.v` -100..100), `world.msg.<n>` (`.id`, `.event`, `.cat`, `.from`, `.subject`, `.body`, `.week`, `.deadline` (-1: no reply), `.read`, `.choice`, `.outcome`, `.auto`), `world.news.<n>` (`.week`, `.text`, `.tone`), `world.share.<n>` (`.week`, `.v`), `world.open.<n>` (crisis `.id`, `.week` it opened), and `org.hist.<n>.setflag`. Older saves load with stress 20, an empty inbox and no clues; relationship start values come from Data/People.json on load (`InitWorld`). Out-of-range stress or relations are rejected. Test: `Save_V6RoundTripsTheWorldAndMigratesV5`. |
 | 7 | `world.background`, `world.skills` (learned skill ids), `world.talks` (conversations had). Older saves load with no background and no skills. Test: `Growth_SkillsAreEarnedLearnedInOrderAndSaved`. |
+| 8 | Challenge modes: `chal.mode` (0 career, 1 survival, 2 daily), `chal.seq` (mission ids in order), `chal.index`, `chal.lives`, `chal.points`, `chal.over`, `chal.date` (daily seed date). Older saves load as career games. An index past the sequence is rejected. |
+| 9 | Display and input settings: `settings.upscale` (0 native, 1 quality, 2 balanced, 3 performance; TSR), `settings.fps` (0 uncapped), `settings.vsync`, `settings.invertY`, `settings.pad` (controller look sensitivity), `settings.colourSafe`. Older saves load with defaults (native resolution, uncapped, vsync on); values are clamped by `ClampSettings`. |
 
 v2 -> v3 (`MigrateV2ToV3`): KRI history is rebuilt deterministically from the organisation and seed (12 weeks ending at the current week); if Mission 001 was submitted, its treatment actions are recreated with the decision week as the creation week; no quantified risks. Test: `Save_MigratesHandcraftedV2`.
 

@@ -32,7 +32,8 @@ TSharedRef<SWidget> CaseCard(TSharedRef<SWidget> Content)
 
 TSharedRef<SWidget> CaseText(const FString& Text, int32 Size = 14, const FLinearColor& Color = TextPrimary, EWeight Weight = EWeight::Regular)
 {
-	return SNew(STextBlock).Text(FText::FromString(Text)).Font(FontW(Size, Weight)).ColorAndOpacity(Color).AutoWrapText(true);
+	// Fixed wrap width: rows below the fold of a long debrief wrap correctly before they are painted.
+	return SNew(STextBlock).Text(FText::FromString(Text)).Font(FontW(Size, Weight)).ColorAndOpacity(Color).WrapTextAt(900.0f);
 }
 
 FString PromotionLine(const TArray<FString>& Gaps)

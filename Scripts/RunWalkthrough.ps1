@@ -1,18 +1,20 @@
 # Runs the two-phase UI walkthrough (Docs/WalkthroughReport.md) against a build.
 #   -Exe   : packaged Riskbound.exe (e.g. Release\Shipping\Windows\Riskbound.exe); omit to use the editor in -game mode
 #   -UE    : UE install dir (editor mode only)
+#   -Shipping : the exe is a Shipping build in a folder not named Shipping (saves go to %LOCALAPPDATA%)
 # Phase 1 plays from a new game and quits through the pause menu; phase 2 is a new process that uses Continue.
 # Results: <Saved>\RbWalkthrough_1.txt, RbWalkthrough_2.txt and Saved\Screenshots\<platform>\Walk_*.png.
 # The driver only injects input while the game window is the active application.
 param(
     [string]$Exe = "",
     [string]$UE = "C:\Program Files\Epic Games\UE_5.8",
-    [int]$TimeoutMinutes = 40
+    [int]$TimeoutMinutes = 40,
+    [switch]$Shipping
 )
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 if ($Exe -ne "") {
-    $Saved = if ($Exe -match "Shipping") { Join-Path $env:LOCALAPPDATA "Riskbound\Saved" } else { Join-Path (Split-Path -Parent $Exe) "Riskbound\Saved" }
+    $Saved = if ($Shipping -or $Exe -match "Shipping") { Join-Path $env:LOCALAPPDATA "Riskbound\Saved" } else { Join-Path (Split-Path -Parent $Exe) "Riskbound\Saved" }
     $Launch = { param($Mode) Start-Process -PassThru $Exe -ArgumentList "-RbSelfTest=$Mode", "-windowed", "-ResX=1920", "-ResY=1080" }
 } else {
     $Saved = Join-Path $Root "Saved"
