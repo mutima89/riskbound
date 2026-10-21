@@ -1,0 +1,16 @@
+UNSIGNED BUILD
+==============
+
+Riskbound.exe in this folder is not code-signed. Windows SmartScreen may show
+"Windows protected your PC" or "Unknown publisher" the first time you run it.
+
+That warning appears for any program without a paid code-signing certificate;
+it does not mean a virus was found. If you got this zip from the creator and the
+SHA-256 checksum matches the published one, choose "More info" > "Run anyway".
+
+To check the checksum, open PowerShell in the folder that holds the zip and run:
+    Get-FileHash -Algorithm SHA256 .\<zip file name>
+and compare it with the .sha256 file published next to the zip.
+
+The game is offline: it does not connect to the internet, create accounts or
+collect data. Saves stay on your PC under %LOCALAPPDATA%\Riskbound.

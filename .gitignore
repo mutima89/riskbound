@@ -9,7 +9,7 @@ DerivedDataCache/
 # Standalone core build
 build*/
 # Release output
-Release/
+/Release/
 
 # Third-party raw downloads (re-fetch with Scripts/FetchAssets.py)
 Data/Assets/raw/
