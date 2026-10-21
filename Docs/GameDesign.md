@@ -32,6 +32,7 @@ Treatments: accept and monitor; service compressor + fix alarm escalation (recom
 - If the player's fix is in place, probability x0.25 and severity x0.5.
 - Accepting sets `m001_warning_ignored` for later missions to reference. Wrong owner costs stakeholder trust.
 - Decision quality (rubric score) is recorded separately from outcome; the "Good Call, Bad Luck" achievement rewards understanding that.
+- Campaign missions (Gate 3) use the same machinery from data: each option can change metrics, set flags and schedule consequences; an incident can open a crisis mission; later briefings mention earlier choices (Docs/CareerModel.md "Campaign progression").
 
 ## Difficulty
 Analyst (hints on, incidents less likely), Professional, Executive (no hints by default, incidents more likely). Difficulty never changes the rubric.

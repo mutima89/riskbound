@@ -1,4 +1,4 @@
-# Save format (version 4)
+# Save format (version 5)
 
 Code: `RbSave.*`. Tests: `Save_*` in `Tests/Core/TestMissionSave.cpp`.
 
@@ -34,6 +34,7 @@ Primary valid -> `Ok`. Else backup valid -> `RecoveredFromBackup` (UI must tell 
 | 2 | `profile.name`, numeric `profile.difficulty`, `org.draws` (random stream position). |
 | 3 | `act.*` corrective actions (`act.next`, per action id/risk/title/owner/created/due/started/done/doneWeek/evidence), `kri.*` KRI history (`kri.seed`, per series id and `h.<n>.week`/`.value`; status, amber streak and escalation are re-derived on load), `quant.*` player loss scenarios (risk, `s.<n>.name/p/loss`). |
 | 4 | No new keys. Organisation ids `meridian`/`aldmoor`/`kestrel` become `valtren`/`orrinbrook`/`quellard`, and the old organisation and contractor display names are replaced in every saved string (Docs/GameDesign.md "Fictional names"). Test: `Save_MigratesV3OrganisationNamesToFictionalNames`. |
+| 5 | `camp.active`, `camp.viewed` (evidence opened in the active mission), `camp.rec.<n>` per submitted attempt (`.id`, `.week`, `.level`, `.score`, `.passed`, answers `.a.<k>.q` + option list `.a.<k>.o`), and `org.pend.<n>.setflag` (flag set if the consequence occurs). Older saves load with no campaign progress and no consequence flags. Test: `Save_MigratesV4WithoutCampaign`, round trip `Save_V5RoundTripsCampaignAndConsequenceFlags`. |
 
 v2 -> v3 (`MigrateV2ToV3`): KRI history is rebuilt deterministically from the organisation and seed (12 weeks ending at the current week); if Mission 001 was submitted, its treatment actions are recreated with the decision week as the creation week; no quantified risks. Test: `Save_MigratesHandcraftedV2`.
 

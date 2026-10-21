@@ -276,6 +276,7 @@ static void WriteOrg(KvWriter& W, const OrganizationState& O)
 		W.Put(P + ".flag", C.MitigatingFlag);
 		W.Dbl(P + ".mp", C.MitigatedProbabilityFactor);
 		W.Dbl(P + ".ms", C.MitigatedSeverityFactor);
+		W.Put(P + ".setflag", C.FlagIfOccurs);
 	}
 	W.Int("org.hist.n", static_cast<long long>(O.History.size()));
 	for (size_t i = 0; i < O.History.size(); ++i)
@@ -331,6 +332,7 @@ static void ReadOrg(KvReader& R, OrganizationState& O)
 		C.MitigatingFlag = R.Str(P + ".flag");
 		C.MitigatedProbabilityFactor = R.Dbl(P + ".mp", 1.0);
 		C.MitigatedSeverityFactor = R.Dbl(P + ".ms", 1.0);
+		C.FlagIfOccurs = R.Str(P + ".setflag");
 		O.Pending.push_back(C);
 	}
 	O.History.clear();
@@ -637,6 +639,56 @@ static void ReadQuantified(KvReader& R, std::vector<QuantifiedRisk>& Out)
 	}
 }
 
+static void WriteCampaign(KvWriter& W, const CampaignState& C)
+{
+	W.Put("camp.active", C.ActiveMissionId);
+	W.List("camp.viewed", C.ViewedEvidence);
+	W.Int("camp.rec.n", static_cast<long long>(C.Records.size()));
+	for (size_t i = 0; i < C.Records.size(); ++i)
+	{
+		const MissionRecord& Rec = C.Records[i];
+		const std::string P = "camp.rec." + std::to_string(i);
+		W.Put(P + ".id", Rec.MissionId);
+		W.Int(P + ".week", Rec.Week);
+		W.Int(P + ".level", Rec.Level);
+		W.Int(P + ".score", Rec.Score);
+		W.Bool(P + ".passed", Rec.bPassed);
+		W.Int(P + ".a.n", static_cast<long long>(Rec.Answers.size()));
+		for (size_t a = 0; a < Rec.Answers.size(); ++a)
+		{
+			const std::string Q = P + ".a." + std::to_string(a);
+			W.Put(Q + ".q", Rec.Answers[a].QuestionId);
+			W.List(Q + ".o", Rec.Answers[a].OptionIds);
+		}
+	}
+}
+
+static void ReadCampaign(KvReader& R, CampaignState& Out)
+{
+	Out = CampaignState();
+	Out.ActiveMissionId = R.Str("camp.active");
+	Out.ViewedEvidence = R.List("camp.viewed");
+	const int N = R.Count("camp.rec");
+	for (int i = 0; i < N; ++i)
+	{
+		const std::string P = "camp.rec." + std::to_string(i);
+		MissionRecord Rec;
+		Rec.MissionId = R.Str(P + ".id");
+		Rec.Week = static_cast<int>(R.Int(P + ".week"));
+		Rec.Level = static_cast<int>(R.Int(P + ".level"));
+		Rec.Score = static_cast<int>(R.Int(P + ".score"));
+		Rec.bPassed = R.Bool(P + ".passed");
+		const int NA = R.Count(P + ".a");
+		for (int a = 0; a < NA; ++a)
+		{
+			const std::string Q = P + ".a." + std::to_string(a);
+			Rec.Answers.push_back({R.Str(Q + ".q"), R.List(Q + ".o")});
+		}
+		if (Rec.MissionId.empty() || Rec.Score < 0 || Rec.Score > 100 || Rec.Level < 1 || Rec.Level > static_cast<int>(CareerLadder().size())) R.bOk = false;
+		Out.Records.push_back(std::move(Rec));
+	}
+}
+
 std::string SerializeGame(const GameState& S)
 {
 	KvWriter W;
@@ -660,6 +712,7 @@ std::string SerializeGame(const GameState& S)
 	WriteActions(W, S.Actions);
 	WriteKris(W, S.Kris);
 	WriteQuantified(W, S.Quantified);
+	WriteCampaign(W, S.Campaign);
 	W.List("achievements", S.Achievements);
 	W.List("learning", S.LearningHistory);
 	char Sum[32];
@@ -831,6 +884,9 @@ bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 		ReadKris(R, S.Kris);
 		ReadQuantified(R, S.Quantified);
 	}
+	// v5 added the campaign and consequence flags; older saves default to no campaign progress.
+	ReadCampaign(R, S.Campaign);
+	if (Info.LoadedVersion < 5) Info.bMigrated = true;
 	S.Achievements = R.List("achievements");
 	S.LearningHistory = R.List("learning");
 	if (!R.bOk)

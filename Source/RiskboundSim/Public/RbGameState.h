@@ -4,6 +4,7 @@
 #include "RbApi.h"
 
 #include "RbActions.h"
+#include "RbCampaign.h"
 #include "RbCareer.h"
 #include "RbKri.h"
 #include "RbMission001.h"
@@ -50,6 +51,7 @@ struct GameState
 	ActionTracker Actions;                  // corrective actions (save v3)
 	KriMonitor Kris;                        // KRI history (save v3)
 	std::vector<QuantifiedRisk> Quantified; // player-entered loss scenarios (save v3)
+	CampaignState Campaign;                 // missions after M001 (save v5)
 };
 
 constexpr int KriHistoryWeeksAtStart = 12;

@@ -121,6 +121,8 @@ public:
 	// For URbToolsSubsystem: edit, then call StateEdited() so achievements and UI refresh.
 	rb::GameState& EditState() { return State; }
 	void StateEdited() { AfterAction(false); }
+	// As StateEdited, and autosaves (mission submissions).
+	void StateCheckpoint() { AfterAction(true); }
 	void SetLoadedState(rb::GameState&& Loaded);
 
 	static FString SubmitResultText(ERbSubmitResult Result);

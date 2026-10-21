@@ -11,6 +11,15 @@ Code: `RbCareer.*`. Ladder data in `BuildLadder()`; this file explains the rules
 - Specialisms (enterprise, financial, operational, strategic, cyber, compliance, business continuity, project, environmental) are tracked now; specialism-specific missions arrive in Gate 3/4.
 - Post-CRO pathways: Group CRO, CEO, COO, Specialist Executive, Board Risk Adviser.
 
+## Campaign progression (Gate 3)
+Code: `RbCampaign.*` (sim), `URbCampaignSubsystem` (UE). Tests: `Campaign_*` in `Tests/Core/TestCampaign.cpp`, `Riskbound.Campaign.*`.
+- Missions after M001 are `MissionDef` content: evidence, single- or multi-choice questions (each tied to one competency, weights sum to 100), pass mark, organisation time they take, a lesson. Content is checked by `ValidateMission` / `ValidateCatalogue`.
+- **Availability is decided in the sim** (`CheckAvailability`): not already passed, career level >= `MinLevel`, every `RequiresPassed` mission passed (M001 counts), every `RequiresFlags` flag set, no `ExcludedByFlags` flag set. Only one mission is active at a time. A failed mission can be retried; every attempt is recorded.
+- **Scoring** (`ScoreMission`, pure): single choice = the option's score; multi-select = `round(100 x hits / correct) - 25 x wrong picks`, clamped 0..100. A single choice that commits more than the player's decision authority without escalating is capped at 40 and says why. Overall = weighted mean; pass = overall >= pass mark. Each mission gives one assessment per competency it tested (the weighted mean of that competency's questions), so evidence counts measure distinct pieces of work.
+- **Submission** (`SubmitMission`): applies the assessments, records the mission (XP is feedback only), records one organisational decision (quality = score) with every chosen option's effects, sets the options' flags and `<id>_passed` / `<id>_failed`, schedules the options' consequences (probability x difficulty multiplier), then advances organisation time by the mission's weeks. Anything due resolves then, from this or any earlier mission.
+- **Consequences carry between missions** three ways: (1) organisation metrics persist; (2) a consequence that occurs can set a flag (`FlagIfOccurs`) that opens a crisis or another mission; (3) `ContextNote`s add briefing paragraphs when a flag is (or is not) set or a metric is below/above a threshold, so later missions refer to earlier choices. A mitigating flag from a good earlier decision lowers probability and severity.
+- **Promotion review** runs after every submission: `TryPromote` with the rules above (competency minimums, evidence counts, required missions). The debrief lists the remaining gaps. Tests: `Campaign_PromotionNeedsCompetenceAndMissionsAcrossMissions` (promotes only after M003) and `Campaign_PassingMissionsWithWeakCompetenceDoesNotPromote` (missions passed, communication 42 < 45: no promotion).
+
 ## Levels
 | # | Title | Authority | Promotion needs (competency >= min) | Missions |
 |---|---|---|---|---|

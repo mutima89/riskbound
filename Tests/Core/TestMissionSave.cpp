@@ -318,7 +318,7 @@ TEST(Save_V3RoundTripsActionsKrisAndQuantification)
 	CHECK(SetQuantification(G, "R-014", BaselineScenarios()));
 	AdvanceGameWeeks(G, 3);
 	const std::string Text = SerializeGame(G);
-	CHECK(Text.find("version\t4\n") != std::string::npos);
+	CHECK(Text.find("version\t" + std::to_string(CurrentSaveVersion) + "\n") != std::string::npos);
 	GameState L;
 	LoadResult Info;
 	CHECK(DeserializeGame(Text, L, Info));
@@ -419,4 +419,36 @@ TEST(Save_MigratesV3OrganisationNamesToFictionalNames)
 		CHECK(DeserializeGame(Resign(Other), L, Info));
 		CHECK(L.Org.ProfileId == Old.second);
 	}
+}
+
+// v4 had no campaign block and no consequence flags: loads with no campaign progress.
+TEST(Save_MigratesV4WithoutCampaign)
+{
+	GameState G = NewGame("V4", EDifficulty::Professional, 9);
+	PlayInvestigation(G.Mission001, true);
+	CHECK(SubmitMission001(G, BestSubmission()) == ESubmitError::None);
+	std::string V4 = SerializeGame(G);
+	DropKeys(V4, "camp.");
+	size_t P = 0;
+	while ((P = V4.find(".setflag\t", P)) != std::string::npos)
+	{
+		const size_t Start = V4.rfind('\n', P);
+		V4.erase(Start, V4.find('\n', P) - Start);
+	}
+	ReplaceLine(V4, "version\t", "version\t4");
+	CHECK(V4.find("camp.") == std::string::npos);
+	GameState L;
+	LoadResult Info;
+	CHECK(DeserializeGame(Resign(V4), L, Info));
+	CHECK(Info.bMigrated);
+	CHECK_EQ(Info.LoadedVersion, 4);
+	CHECK(L.Campaign.Records.empty());
+	CHECK(L.Campaign.ActiveMissionId.empty());
+	REQUIRE(!L.Org.Pending.empty());
+	CHECK(L.Org.Pending[0].FlagIfOccurs.empty());
+	CHECK(L.Career.HasPassed("M001"));
+	GameState L5;
+	CHECK(DeserializeGame(SerializeGame(L), L5, Info));
+	CHECK(!Info.bMigrated);
+	CHECK_EQ(Info.LoadedVersion, 5);
 }

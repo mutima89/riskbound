@@ -97,3 +97,12 @@ Changes: ceiling T-bars 0.8 cm (was 1.5 cm) in a self-lit light grey instead of 
 Defect found and fixed: the KRI ticker first rendered as an unreadable dark strip because texture streaming kept a tiny mip for a 35 cm-high screen. Fixed by `never_stream` on generated screen textures (Scripts/ImportAssets.py).
 
 Screenshots: before `Docs/Screenshots/pass3/before/`, after `Docs/Screenshots/pass3/after/`.
+
+## 2026-10-21 - Gate 3: career and organisation across missions
+| Run | Command | Result |
+|---|---|---|
+| Core tests | `Scripts\RunCoreTests.bat` | `56 test cases, 0 failed, 0 failed checks`; core library builds at /W4 with no warnings. New: Campaign_ValidatorAcceptsFixtureAndRejectsBrokenContent, Campaign_AvailabilityIsCheckedInTheSim, Campaign_SubmitNeedsEvidenceAndEveryAnswer, Campaign_ScoringSingleMultiAndAuthority (multi 25, authority cap 40, overall 56), Campaign_PromotionNeedsCompetenceAndMissionsAcrossMissions, Campaign_PassingMissionsWithWeakCompetenceDoesNotPromote (communication 80 -> 56 -> 42 < 45), Campaign_ConsequencesCarryIntoLaterMissions (M002 deferral -> fire during M003 -> crisis opens; mitigated variant never opens it), Campaign_FailedMissionCanBeRetriedAndRecordsEachAttempt, Save_V5RoundTripsCampaignAndConsequenceFlags, Save_MigratesV4WithoutCampaign |
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 9/9 `Result={Success}`, incl. Riskbound.Campaign.ProgressPromotionAndHiddenRubric (closed before M001, invalid catalogue rejected, evidence gate, debrief hidden until submit, promotion to Risk Analyst after M003) |
+
+Save format is now v5 (Docs/SaveFormat.md). The shipped game has no campaign content yet: Gate 4 adds data files and the mission screen.

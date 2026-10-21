@@ -77,6 +77,7 @@ struct PendingConsequence
 	std::string MitigatingFlag;    // if set in Flags at trigger time...
 	double MitigatedProbabilityFactor = 1.0; // ...probability multiplied by this
 	double MitigatedSeverityFactor = 1.0;    // ...and effects multiplied by this
+	std::string FlagIfOccurs;                // set when the incident happens (save v5)
 };
 
 struct ResolvedConsequence

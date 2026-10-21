@@ -151,6 +151,7 @@ std::vector<ResolvedConsequence> OrganizationState::AdvanceWeeks(int Weeks)
 		if (R.bOccurred)
 		{
 			Apply(C.EffectsIfOccurs, R.bMitigated ? C.MitigatedSeverityFactor : 1.0);
+			if (!C.FlagIfOccurs.empty()) SetFlag(C.FlagIfOccurs);
 		}
 		for (DecisionRecord& D : Decisions)
 		{

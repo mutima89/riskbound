@@ -14,6 +14,7 @@ Last update: 2026-10-21
 - Fictional business names everywhere (save v4 migrates old names); CC0/OFL asset pipeline (Docs/AssetCredits.md); UI restyle and visual polish round 2 (60+ fps packaged at 1080p High); credits screen and README credits; three easter eggs.
 - Gate 2 workstation tool hub: risk register (add/edit/filter/search), 5x5 matrix, KRI dashboard with history, loss scenarios, cost-benefit, sensitivity tornado, stress presets, seeded Monte Carlo with histogram, action tracker with weeks, executive report export. 46 core tests, 8 Unreal automation tests.
 - Visual pass 3 (2026-10-21): lighter, thinner ceiling grid; busier risk monitoring room; clean polished concrete (Docs/Screenshots/pass3).
+- Gate 3 (2026-10-21): campaign missions in the sim (`RbCampaign`) and UE (`URbCampaignSubsystem`): availability gates, hidden-rubric scoring with decision authority, competence-based promotion across missions, consequences and flags that carry between missions, save v5. 56 core tests, 9 Unreal tests.
 - Shipping Win64 package builds (2026-10-21); Shipping self-test play, resume and tour PASS (Docs/QAReport.md).
 
 ### Not yet verified
@@ -21,7 +22,7 @@ Last update: 2026-10-21
 - Save/exit/relaunch/resume by hand (verified only through the self-test process pair and automation tests).
 
 ### Next action
-Owner's hands-on review of the build; fix findings. Gate 3: career and organisation consequences across missions. Then Gate 4 (data-driven missions).
+Owner's hands-on review of the build; fix findings. Gate 4: mission data files under Data/ with a validator, Mission 002-005, a mission screen at the workstation; then scale to 30+ missions, 12 crises, 50 achievements and the CRO capstone.
 
 ### Open blockers
 - None for building. No full VS IDE installed (Build Tools only); Inno Setup/NSIS/WiX not installed (needed by Gate 6).
@@ -29,7 +30,7 @@ Owner's hands-on review of the build; fix findings. Gate 3: career and organisat
 ### Gate checklist
 - [ ] Gate 1: M001 playable in packaged build, save/exit/relaunch/resume verified (automated checks pass; hands-on playtest outstanding)
 - [x] Gate 2: remaining risk tools in UI (Monte Carlo, sensitivity, stress, KRI dashboard, reports) - automated tests and UI captures; hands-on review pending
-- [ ] Gate 3: career + organisation consequences across missions
+- [x] Gate 3: career + organisation consequences across missions (sim + UE subsystem, tested; content arrives in Gate 4)
 - [ ] Gate 4: campaign content (30 missions, 12 crises, CRO capstone), data-driven missions
 - [ ] Gate 5: automated + integration tests
 - [ ] Gate 6: Windows package, installer, release verification
