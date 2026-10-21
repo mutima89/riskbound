@@ -20,6 +20,7 @@ public:
 		SLATE_ARGUMENT(TWeakObjectPtr<URbGameSubsystem>, Game)
 		SLATE_ARGUMENT(TFunction<void()>, OnClose)
 		SLATE_ARGUMENT(TFunction<void()>, OnMissionStarted)
+		SLATE_ARGUMENT(FString, Where) // HQ location of this terminal ("" = the player's workstation)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -33,11 +34,12 @@ public:
 	TArray<FRbMissionAnswer> CurrentAnswers() const;
 	void SetAnswer(const FString& QuestionId, const FString& OptionId, bool bMulti, bool bSelected);
 	// Sets a whole answer at once (a typed figure, or a rating's likelihood and impact).
-	void SetAnswerValues(const FString& QuestionId, const TArray<FString>& Values) { Answers.Add(QuestionId, Values); }
+	void SetAnswerValues(const FString& QuestionId, const TArray<FString>& Values) { Answers.Add(QuestionId, Values); SaveDraft(); }
 
 private:
 	enum class EView : uint8 { List, Mission, Debrief };
 	void Rebuild();
+	void SaveDraft();
 	TSharedRef<SWidget> BuildList();
 	TSharedRef<SWidget> BuildMission();
 	TSharedRef<SWidget> BuildDebrief();
@@ -50,6 +52,7 @@ private:
 	TSharedPtr<SWidget> FirstFocus;
 	EView View = EView::List;
 	FString MissionId;
+	FString Where;
 	FString OpenEvidenceId;
 	TMap<FString, TArray<FString>> Answers;
 	FText Status;

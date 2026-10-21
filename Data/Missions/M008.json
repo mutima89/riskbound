@@ -39,7 +39,8 @@
     {
       "id": "loss_events",
       "title": "Warehouse loss events, last 12 months",
-      "body": "Stock write-offs 214,000 (up 40%). Two forklift incidents. One fire service visit (false alarm, door alarms disabled)."
+      "body": "Stock write-offs 214,000 (up 40%). Two forklift incidents. One fire service visit (false alarm, door alarms disabled).",
+      "at": "monitoring"
     },
     {
       "id": "override_log",

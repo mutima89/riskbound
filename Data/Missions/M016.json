@@ -38,7 +38,9 @@
         "Fleet: average age 9 years (Valtren: 5). Two vehicles failed temperature mapping last year.",
         "Compliance: Good Distribution Practice licence renewed with 'minor findings'; corrective actions not closed.",
         "People: the founder runs all client relationships and will leave 6 months after completion."
-      ]
+      ],
+      "at": "boardroom",
+      "person": "hollis"
     },
     {
       "id": "deal_terms",
@@ -143,26 +145,21 @@
     },
     {
       "id": "value_at_risk",
+      "kind": "numeric",
       "competency": "QuantitativeAnalysis",
       "weight": 15,
       "prompt": "If the pharma client (41% of 14m revenue) leaves and Pellmoor's 9% margin applies, roughly how much annual margin is at risk?",
-      "options": [
+      "answer": 520000.0,
+      "tolerance": 0.05,
+      "unit": "a year",
+      "explanation": "0.41 x 14m = 5.74m revenue; 9% margin = about 517,000.",
+      "mistakes": [
         {
-          "id": "about_520k",
-          "label": "About 520,000 a year",
-          "score": 92,
-          "feedback": "0.41 x 14m = 5.74m revenue; 9% margin = about 517,000."
-        },
-        {
-          "id": "about_574m",
-          "label": "About 5.74m a year: the client's whole revenue",
-          "score": 25,
+          "value": 5.74,
           "feedback": "That is revenue, not margin."
         },
         {
-          "id": "about_126m",
-          "label": "About 1.26m a year: Pellmoor's total margin",
-          "score": 20,
+          "value": 1.26,
           "feedback": "That is Pellmoor's whole margin."
         }
       ]

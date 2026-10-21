@@ -84,8 +84,8 @@ bool FRbWorldInboxTest::RunTest(const FString& Parameters)
 	const FRbInboxMessageView* Done = After.FindByPredicate([&](const FRbInboxMessageView& M) { return M.Id == Dinner->Id; });
 	TestTrue(TEXT("reply recorded with outcome"), Done && !Done->bNeedsReply && Done->ChosenLabel == TEXT("Go, phone off") && !Done->Outcome.IsEmpty());
 	const TArray<FRbPersonView> People = S.Campaign->GetPeople();
-	const FRbPersonView* Sam = People.FindByPredicate([](const FRbPersonView& P) { return P.Id == TEXT("sam"); });
-	TestTrue(TEXT("Sam appreciated it"), Sam && Sam->Relation == 50);
+	const FRbPersonView* Sam = People.FindByPredicate([](const FRbPersonView& P) { return P.Id == TEXT("jordan"); });
+	TestTrue(TEXT("Jordan appreciated it"), Sam && Sam->Relation == 50);
 	TestTrue(TEXT("stress came down"), S.Campaign->GetWorldView().Stress < 20);
 	return true;
 }

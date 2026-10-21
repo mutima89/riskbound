@@ -33,7 +33,9 @@
     {
       "id": "request",
       "title": "Supervisor's request",
-      "body": "Board and committee minutes (12 months); the risk appetite statement; the enterprise risk profile; evidence of how appetite breaches were handled; any open regulatory findings and their status."
+      "body": "Board and committee minutes (12 months); the risk appetite statement; the enterprise risk profile; evidence of how appetite breaches were handled; any open regulatory findings and their status.",
+      "at": "meeting",
+      "person": "ruth"
     },
     {
       "id": "gaps",

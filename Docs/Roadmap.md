@@ -9,17 +9,17 @@ The owner asked for all 30 ideas from the 2026-10-21 review, in five phases, eac
 | 4 | Sound and atmosphere | Done: adaptive music (licensed), ambience, cues, footsteps. Voiced characters: phase 3 |
 | 6 | Pressure and pacing (timed crises, interrupting inbox) | Done: crisis deadlines in weeks, inbox replies with deadlines. Real-time timers only in the optional challenge mode (phase 4); the base game keeps "no timers on thinking" |
 | 9 | Story arc (central mystery, rival, mentor) | Done: The Corvane Ledger, four chapters, ten clues, rival Callum Reyes, mentor Celeste Marlow |
-| 11 | Consequences you can see (share price, reputation, morale) | Done: share index board, HUD, news crawl, journal headlines. Office emptying with morale: phase 2 (needs the living office) |
+| 11 | Consequences you can see (share price, reputation, morale) | Done: share index board, HUD, news crawl, journal headlines; office staff follow morale (phase 2) |
 | 18 | Office politics | Done: factions, rival, favours, whistleblowing cost (never gates promotion) |
 | 19 | Personal life | Done: stress, burnout leave, partner messages, overtime choices |
 | 20 | Regulators | Done: inspections, data requests, fines, enforcement flag. Hearing as a walk-in scene: phase 2 |
 
 ## Phase 2: in-world missions and real tools
-| 2 | Missions in the world (interviews, documents on desks, presenting in person) | Planned |
-| 3 | Real tools scored by use, not answer lists | Planned |
-| 10 | Living office (day/night, routines, weather, market screens) | Planned |
-| 15 | Missions inspired by real events (fictional names) | Planned |
-| 23 | Your own office that grows with promotions | Planned |
+| 2 | Missions in the world (interviews, documents on desks, presenting in person) | Done: located evidence and interviews in 17 missions, boardroom lectern for 4 board papers |
+| 3 | Real tools scored by use, not answer lists | Done: numeric and rating questions (8 converted, 18 in case studies). Scoring the tool sessions themselves: later |
+| 10 | Living office (day/night, routines, weather, market screens) | Done: time of day and overcast weeks, staff by morale, market board and news crawl. Walking routines: phase 3 with characters |
+| 15 | Missions inspired by real events (fictional names) | Done: six case studies M031-M036 |
+| 23 | Your own office that grows with promotions | Partial: nameplate, trophies, CRO plaque. Moving desks to a private office: phase 5 polish |
 
 ## Phase 3: characters and dialogue
 | 5 | Characters with faces and animation | Planned (free MetaHuman/Fab content needs the owner's Epic sign-in in the launcher) |

@@ -152,36 +152,22 @@
     },
     {
       "id": "cost_of_resilience",
+      "kind": "numeric",
       "competency": "QuantitativeAnalysis",
       "weight": 15,
       "prompt": "Dual sourcing costs about 90,000 a year. A Corvane failure would cost about 1.9m. At what annual failure probability does dual sourcing pay for itself?",
-      "options": [
+      "answer": 5.0,
+      "tolerance": 0.1,
+      "unit": "%",
+      "explanation": "Break-even probability = cost / loss avoided = 4.7%. The credit signals suggest far higher.",
+      "mistakes": [
         {
-          "id": "about_5",
-          "label": "About 5% (90,000 / 1.9m)",
-          "score": 92,
-          "feedback": "Break-even probability = cost / loss avoided = 4.7%. The credit signals suggest far higher.",
-          "relations": {
-            "tomasz": 5
-          }
+          "value": 50.0,
+          "feedback": "That confuses break-even with the chance of failure."
         },
         {
-          "id": "about_50",
-          "label": "About 50%: dual sourcing only pays if failure is more likely than not",
-          "score": 20,
-          "feedback": "That confuses break-even with the chance of failure.",
-          "relations": {
-            "tomasz": -4
-          }
-        },
-        {
-          "id": "never",
-          "label": "Never: 90,000 a year is a certain cost against a loss that may never happen",
-          "score": 15,
-          "feedback": "A small certain cost against a large uncertain loss is what resilience costs.",
-          "relations": {
-            "tomasz": -4
-          }
+          "value": 90000.0,
+          "feedback": "A small certain cost against a large uncertain loss is what resilience costs."
         }
       ]
     },

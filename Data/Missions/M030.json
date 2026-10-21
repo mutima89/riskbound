@@ -105,26 +105,21 @@
     },
     {
       "id": "quant",
+      "kind": "numeric",
       "competency": "QuantitativeAnalysis",
       "weight": 25,
       "prompt": "Industry data: about 1 in 400 bank-detail change requests is fraudulent; Valtren gets about 600 a year; average fraudulent payment 45,000. Expected annual loss without verification?",
-      "options": [
+      "answer": 67500.0,
+      "tolerance": 0.05,
+      "unit": "a year",
+      "explanation": "600 / 400 = 1.5 expected frauds; x 45,000 = 67,500.",
+      "mistakes": [
         {
-          "id": "about_67500",
-          "label": "About 67,500 a year (1.5 frauds x 45,000)",
-          "score": 92,
-          "feedback": "600 / 400 = 1.5 expected frauds; x 45,000 = 67,500."
-        },
-        {
-          "id": "about_27m",
-          "label": "About 27 million (600 requests x 45,000)",
-          "score": 5,
+          "value": 27.0,
           "feedback": "That multiplies every request by the loss."
         },
         {
-          "id": "about_45000",
-          "label": "About 45,000 (one fraudulent payment a year)",
-          "score": 40,
+          "value": 45000.0,
           "feedback": "One fraud; the expected number is 1.5."
         }
       ]

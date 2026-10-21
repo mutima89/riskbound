@@ -33,7 +33,8 @@
     {
       "id": "temps",
       "title": "Store temperatures (live)",
-      "body": "Corby Road chilled: 6.8C rising 0.3C/hour (limit 8C). Eastfield: 5.1C stable. Northgate: 4.2C stable. Harrowgate: 7.4C, door seal damaged."
+      "body": "Corby Road chilled: 6.8C rising 0.3C/hour (limit 8C). Eastfield: 5.1C stable. Northgate: 4.2C stable. Harrowgate: 7.4C, door seal damaged.",
+      "at": "monitoring"
     },
     {
       "id": "loads",

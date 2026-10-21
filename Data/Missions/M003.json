@@ -44,7 +44,9 @@
       "body": [
         "Three excursions above 8C. All three were on routes planned for more than 9 hours of driving, two of them on the final drop of the day.",
         "Each was found when the data logger was downloaded at the depot, between 1 and 3 days after delivery."
-      ]
+      ],
+      "at": "monitoring",
+      "person": "amara"
     },
     {
       "id": "tacho",

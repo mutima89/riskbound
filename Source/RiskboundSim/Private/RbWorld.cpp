@@ -1,6 +1,7 @@
 #include "RbWorld.h"
 
 #include "RbGameState.h"
+#include "RbGrowth.h"
 #include "RbMission001.h"
 #include "RbQuant.h"
 
@@ -81,6 +82,7 @@ const char* ToString(EReplyError E)
 	case EReplyError::NoReplyNeeded: return "This message does not need a reply.";
 	case EReplyError::AlreadyAnswered: return "You have already replied.";
 	case EReplyError::UnknownChoice: return "Unknown reply.";
+	case EReplyError::NeedsSkill: return "That reply needs a skill you do not have.";
 	}
 	return "?";
 }
@@ -123,11 +125,14 @@ void ChangeRelation(GameState& State, const std::string& CharacterId, int Delta)
 		State.World.Relations.push_back({CharacterId, 0});
 		R = &State.World.Relations.back();
 	}
-	R->Value = std::max(RelationMin, std::min(RelationMax, R->Value + Delta));
+	// Skills shape how people take things (RbGrowth.h): rounded towards a whole point.
+	const double Scaled = Delta * (Delta > 0 ? RelationGainFactor(State) : RelationLossFactor(State));
+	R->Value = std::max(RelationMin, std::min(RelationMax, R->Value + static_cast<int>(std::lround(Scaled))));
 }
 
 void ChangeStress(GameState& State, int Delta)
 {
+	if (Delta > 0) Delta = static_cast<int>(std::lround(Delta * StressGainFactor(State)));
 	State.World.Stress = std::max(0, std::min(StressMax, State.World.Stress + Delta));
 }
 
@@ -287,6 +292,7 @@ EReplyError ReplyToMessage(GameState& State, const WorldContent& Content, const 
 	const EventDef* E = Content.Events.Find(M->EventId);
 	const EventChoiceDef* C = E ? FindChoice(*E, ChoiceId) : nullptr;
 	if (!C) return EReplyError::UnknownChoice;
+	if (!C->RequiresSkill.empty() && !HasSkill(State, C->RequiresSkill)) return EReplyError::NeedsSkill;
 	ApplyChoice(State, *M, *C, false);
 	return EReplyError::None;
 }
@@ -348,7 +354,7 @@ int WeeksUntilEscalation(const GameState& State, const MissionDef& M)
 	if (M.DeadlineWeeks <= 0) return -1;
 	for (const auto& O : State.World.CrisisOpened)
 	{
-		if (O.first == M.Id) return std::max(0, O.second + M.DeadlineWeeks - State.Org.Week);
+		if (O.first == M.Id) return std::max(0, O.second + M.DeadlineWeeks + ExtraCrisisWeeks(State) - State.Org.Week);
 	}
 	return -1;
 }
@@ -420,7 +426,7 @@ static void CheckCrisisDeadlines(GameState& State, const MissionCatalogue& Missi
 			State.World.CrisisOpened.push_back({M.Id, State.Org.Week});
 			continue;
 		}
-		if (State.Org.Week <= It->second + M.DeadlineWeeks) continue;
+		if (State.Org.Week <= It->second + M.DeadlineWeeks + ExtraCrisisWeeks(State)) continue;
 		State.Org.Apply(M.EscalationEffects);
 		State.Org.SetFlag(M.Id + "_escalated");
 		InboxMessage Msg;
@@ -473,7 +479,7 @@ WorldUpdate UpdateWorld(GameState& State, const MissionCatalogue* Missions, cons
 	ReportResolved(State, Resolved, U);
 	ResolveOverdue(State, Content, U);
 	if (Missions) CheckCrisisDeadlines(State, *Missions, U);
-	ChangeStress(State, -StressRecoveryPerWeek * std::max(0, WeeksElapsed));
+	ChangeStress(State, -(StressRecoveryPerWeek + ExtraRecoveryPerWeek(State)) * std::max(0, WeeksElapsed));
 	if (State.World.Stress >= StressBurnout)
 	{
 		U.bBurnout = true;

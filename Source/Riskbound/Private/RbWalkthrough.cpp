@@ -1,4 +1,5 @@
 #include "RbWalkthrough.h"
+#include "EngineUtils.h"
 
 #include "Camera/PlayerCameraManager.h"
 #include "Containers/Ticker.h"
@@ -896,9 +897,46 @@ void AddMission(FDriver& D, const rb::MissionDef& M, EPolicy Policy, bool bScree
 	D.ExpectScreen(TEXT("Evidence"), true);
 	if (bScreens) D.Shot(Id + TEXT("_briefing"));
 	D.Audit(Id + TEXT(" mission"));
+	bool bInPerson = false;
 	for (const rb::MissionEvidenceDef& E : M.Evidence)
 	{
-		D.Click(In(TEXT("Evidence"), NSBorder, ToFString(E.Title), true, false));
+		if (E.At.empty())
+		{
+			D.Click(In(TEXT("Evidence"), NSBorder, ToFString(E.Title), true, false));
+			continue;
+		}
+		bInPerson = true;
+	}
+	if (bInPerson)
+	{
+		// In-person evidence: leave the terminal and use the case markers in the office (the walk itself is
+		// covered by the Mission 001 route; here the marker is used directly).
+		D.Click(L(TEXT("Back to workstation")));
+		AddLogOff(D);
+		for (const rb::MissionEvidenceDef& E : M.Evidence)
+		{
+			if (E.At.empty()) continue;
+			const FString EvId = ToFString(E.Id);
+			D.Add(TEXT("in person ") + EvId, [EvId](FDriver& Dr)
+			{
+				for (TActorIterator<ARbCaseMarker> It(Dr.World.Get()); It; ++It)
+				{
+					if (It->EvidenceId == EvId)
+					{
+						It->Interact(Dr.Hud.Get());
+						Dr.WaitUntil = Dr.Now() + 0.6;
+						return true;
+					}
+				}
+				return Dr.Now() > Dr.StepStart + 5.0 ? (Dr.Finding(TEXT("High"), TEXT("Casework"), TEXT("No case marker for ") + EvId), true) : false;
+			});
+			D.Audit(TEXT("In-person ") + EvId);
+			D.Press(EKeys::Escape);
+		}
+		D.Add(TEXT("back to the workstation"), [](FDriver& Dr) { Dr.Hud->OpenWorkstation(); return true; });
+		D.Click(L(TEXT("Case files: your assignments"), false));
+		D.Click(In(Title, NSBorder, TEXT("Resume"), true));
+		D.ExpectScreen(TEXT("Evidence"), true);
 	}
 	bool bUsedWeak = false;
 	for (const rb::MissionQuestionDef& Q : M.Questions)
@@ -927,6 +965,26 @@ void AddMission(FDriver& D, const rb::MissionDef& M, EPolicy Policy, bool bScree
 		{
 			D.Click(In(Anchor, NSBorder, Label, false, true));
 		}
+	}
+	if (!M.PresentAt.empty())
+	{
+		// Board papers are presented at the boardroom lectern; the drafted answers carry over.
+		D.ExpectScreen(TEXT("presented in person"));
+		D.Click(L(TEXT("Back to workstation")));
+		AddLogOff(D);
+		D.Add(TEXT("lectern ") + Id, [](FDriver& Dr)
+		{
+			for (TActorIterator<ARbCaseMarker> It(Dr.World.Get()); It; ++It)
+			{
+				if (It->Kind == ERbCaseMarkerKind::Lectern)
+				{
+					It->Interact(Dr.Hud.Get());
+					return true;
+				}
+			}
+			return Dr.Now() > Dr.StepStart + 5.0 ? (Dr.Finding(TEXT("Blocker"), TEXT("Casework"), TEXT("No lectern in the boardroom")), true) : false;
+		});
+		if (bScreens) D.Shot(Id + TEXT("_lectern"));
 	}
 	D.ExpectScreen(TEXT("Ready to submit"));
 	D.Click(L(TEXT("Submit")));

@@ -29,7 +29,9 @@
     {
       "id": "driver",
       "title": "Driver statement",
-      "body": "\"I was tired. Everyone's covering for the shortage.\""
+      "body": "\"I was tired. Everyone's covering for the shortage.\"",
+      "at": "training",
+      "person": "grace"
     }
   ],
   "questions": [

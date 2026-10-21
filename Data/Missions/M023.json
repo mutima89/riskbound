@@ -40,7 +40,9 @@
     {
       "id": "independence",
       "title": "Reporting lines",
-      "body": "The Director of Risk reports to the CFO. No private session with the committee chair is scheduled."
+      "body": "The Director of Risk reports to the CFO. No private session with the committee chair is scheduled.",
+      "at": "boardroom",
+      "person": "helen"
     }
   ],
   "questions": [
@@ -220,5 +222,6 @@
       ]
     }
   ],
-  "lesson": "A risk committee earns its place by deciding and challenging. Agenda design, an independent risk function, and minutes that show challenge make that real."
+  "lesson": "A risk committee earns its place by deciding and challenging. Agenda design, an independent risk function, and minutes that show challenge make that real.",
+  "presentAt": "boardroom"
 }

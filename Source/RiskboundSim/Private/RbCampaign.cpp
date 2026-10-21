@@ -4,6 +4,7 @@
 #include "RbQuant.h"
 #include "RbRng.h"
 #include "RbWorld.h"
+#include "RbGrowth.h"
 
 #include <algorithm>
 #include <cctype>
@@ -74,8 +75,27 @@ const char* ToString(EMissionError E)
 	case EMissionError::UnansweredQuestion: return "Answer every question.";
 	case EMissionError::UnknownOption: return "Unknown answer.";
 	case EMissionError::SingleNeedsOneOption: return "Choose exactly one option where asked.";
+	case EMissionError::EvidenceElsewhere: return "This has to be seen in person: go to where it is.";
+	case EMissionError::PresentInPerson: return "Present this in person at the right place in the building.";
 	}
 	return "?";
+}
+
+const std::vector<std::pair<std::string, std::string>>& KnownLocations()
+{
+	static const std::vector<std::pair<std::string, std::string>> L = {
+		{"reception", "Reception"}, {"workspace", "Junior analyst workspace"}, {"manager", "Manager's office"}, {"meeting", "Meeting room"},
+		{"training", "Training area"}, {"monitoring", "Risk monitoring room"}, {"boardroom", "Executive boardroom"}};
+	return L;
+}
+
+std::string LocationName(const std::string& Id)
+{
+	for (const auto& P : KnownLocations())
+	{
+		if (P.first == Id) return P.second;
+	}
+	return std::string();
 }
 
 const MissionDef* MissionCatalogue::Find(const std::string& Id) const
@@ -160,6 +180,7 @@ std::vector<std::string> ValidateMission(const MissionDef& M)
 		if (C.Flag.empty() && !C.bUseMetric && C.RelationId.empty() && C.MinClues <= 0) Err("context note without a condition");
 	}
 	if (M.RequiresClues < 0) Err("negative requiresClues");
+	if (!M.PresentAt.empty() && LocationName(M.PresentAt).empty()) Err("presentAt is an unknown location '" + M.PresentAt + "'");
 	if (M.DeadlineWeeks < 0 || M.DeadlineWeeks > 26) Err("deadlineWeeks outside 0..26");
 	if (M.DeadlineWeeks > 0 && (M.Kind != EMissionKind::Crisis || M.RequiresFlags.empty()))
 	{
@@ -174,6 +195,8 @@ std::vector<std::string> ValidateMission(const MissionDef& M)
 	{
 		if (E.Id.empty() || !EvidenceIds.insert(E.Id).second) Err("evidence id missing or duplicated: '" + E.Id + "'");
 		if (E.Title.empty() || E.Body.empty()) Err("evidence '" + E.Id + "' needs a title and body");
+		if (!E.At.empty() && LocationName(E.At).empty()) Err("evidence '" + E.Id + "' is at an unknown location '" + E.At + "'");
+		if (!E.Person.empty() && E.At.empty()) Err("evidence '" + E.Id + "': an interview needs a location");
 	}
 
 	std::set<std::string> QuestionIds;
@@ -408,12 +431,13 @@ EMissionError StartMission(GameState& State, const MissionDef& M, const MissionC
 	return EMissionError::None;
 }
 
-EMissionError ViewMissionEvidence(GameState& State, const MissionDef& M, const std::string& EvidenceId)
+EMissionError ViewMissionEvidence(GameState& State, const MissionDef& M, const std::string& EvidenceId, const std::string& Where)
 {
 	CampaignState& C = State.Campaign;
 	if (C.ActiveMissionId != M.Id) return EMissionError::NotActive;
-	const bool bKnown = std::any_of(M.Evidence.begin(), M.Evidence.end(), [&](const MissionEvidenceDef& E) { return E.Id == EvidenceId; });
-	if (!bKnown) return EMissionError::UnknownEvidence;
+	const auto It = std::find_if(M.Evidence.begin(), M.Evidence.end(), [&](const MissionEvidenceDef& E) { return E.Id == EvidenceId; });
+	if (It == M.Evidence.end()) return EMissionError::UnknownEvidence;
+	if (!It->At.empty() && It->At != Where) return EMissionError::EvidenceElsewhere;
 	if (!Contains(C.ViewedEvidence, EvidenceId)) C.ViewedEvidence.push_back(EvidenceId);
 	for (const MissionEvidenceDef& E : M.Evidence)
 	{
@@ -644,7 +668,7 @@ static void ScheduleFallout(GameState& State, const MissionDef& M, const std::ve
 		C.SourceDecisionId = DecisionId;
 		C.Description = Text;
 		C.TriggerWeek = State.Org.Week + 2 + static_cast<int>(H % 5);
-		C.Probability = std::min(1.0, P * IncidentProbabilityMultiplier(State.Difficulty));
+		C.Probability = std::min(1.0, P * IncidentProbabilityMultiplier(State.Difficulty) * FalloutFactor(State));
 		C.FlagIfOccurs = "fallout_incident";
 		for (const MetricEffect& E : T->Effects)
 		{
@@ -657,10 +681,11 @@ static void ScheduleFallout(GameState& State, const MissionDef& M, const std::ve
 }
 
 EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers, MissionDebrief* OutDebrief,
-	const MissionCatalogue* Catalogue, const WorldContent* World)
+	const MissionCatalogue* Catalogue, const WorldContent* World, const std::string& Where)
 {
 	const EMissionError Err = ValidateAnswers(State, M, Answers);
 	if (Err != EMissionError::None) return Err;
+	if (!M.PresentAt.empty() && Where != M.PresentAt) return EMissionError::PresentInPerson;
 
 	MissionDebrief D = ScoreMission(M, Answers, State.Career.Level);
 	D.bReview = State.Career.HasPassed(M.Id);

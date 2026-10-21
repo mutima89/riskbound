@@ -1,0 +1,250 @@
+{
+  "schema": 1,
+  "conversations": [
+    {
+      "id": "priya_first_chat",
+      "person": "priya",
+      "title": "How are you finding it?",
+      "trigger": "talk",
+      "when": {"passed": ["M002"]},
+      "nodes": [
+        {
+          "id": "start",
+          "line": "Two cases in. How are you finding it? Honest answer, not the one for your appraisal.",
+          "responses": [
+            {"id": "honest", "label": "Harder than I expected. The evidence never quite lines up.", "tone": "direct", "next": "evidence", "relations": {"priya": 4}},
+            {"id": "fine", "label": "Good, thanks. I'm learning a lot.", "tone": "diplomatic", "next": "evidence"},
+            {"id": "numbers", "label": "The numbers are fine. It's getting people to act on them that's hard.", "tone": "analytical", "next": "people", "relations": {"priya": 3}}
+          ]
+        },
+        {
+          "id": "evidence",
+          "line": "It never lines up. That's the job. If it lined up, nobody would need us. Write down what you know, what you don't, and what would change your mind.",
+          "responses": [
+            {"id": "thanks", "label": "I'll keep a note of that.", "tone": "diplomatic"},
+            {"id": "push", "label": "And when the people above you don't want to hear it?", "tone": "direct", "next": "people", "relations": {"priya": 2}}
+          ]
+        },
+        {
+          "id": "people",
+          "line": "Then you make it easy for them to do the right thing and awkward to do the wrong one. Numbers help. So does knowing who owes you a favour.",
+          "responses": [
+            {"id": "end", "label": "Noted. Thanks, Priya.", "tone": "diplomatic", "relations": {"priya": 2}},
+            {"id": "favours", "label": "So the job is half analysis, half politics.", "tone": "direct", "relations": {"priya": 3}, "setsFlags": ["priya_politics_talk"]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "priya_pressure",
+      "person": "priya",
+      "title": "You look tired",
+      "trigger": "talk",
+      "when": {"minStress": 55},
+      "nodes": [
+        {
+          "id": "start",
+          "line": "You look tired. Don't tell me you're fine. What's on your plate?",
+          "responses": [
+            {"id": "list", "label": "Everything. Three cases, the inbox, and a partner who's stopped asking when I'll be home.", "tone": "direct", "next": "advice", "relations": {"priya": 5}, "stress": -5},
+            {"id": "deflect", "label": "It's a busy patch. I'll manage.", "tone": "diplomatic", "next": "advice"},
+            {"id": "plan", "label": "I've mapped it: two of these could wait a fortnight without any real risk.", "tone": "analytical", "requiresSkill": "self_care", "next": "advice", "relations": {"priya": 6}, "stress": -10}
+          ]
+        },
+        {
+          "id": "advice",
+          "line": "Burned-out risk managers miss things. That's a risk too, and I own it. Take Friday. That's not a suggestion.",
+          "responses": [
+            {"id": "take", "label": "Thank you. I'll take it.", "tone": "diplomatic", "stress": -10, "relations": {"priya": 3}},
+            {"id": "refuse", "label": "Not this week. Too much is moving.", "tone": "direct", "stress": 3}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "priya_investigation",
+      "person": "priya",
+      "title": "About the Corvane file",
+      "trigger": "talk",
+      "when": {"passed": ["S001"], "minClues": 3},
+      "nodes": [
+        {
+          "id": "start",
+          "line": "Internal Audit mentioned your name. I'm not going to ask what about. I'm going to ask whether you're protecting yourself.",
+          "responses": [
+            {"id": "yes", "label": "Everything goes through the proper route. Dated notes, nothing on my own.", "tone": "direct", "next": "trust", "relations": {"priya": 5}},
+            {"id": "worried", "label": "Honestly? I'm not sure who I can trust.", "tone": "diplomatic", "next": "trust", "relations": {"priya": 3}},
+            {"id": "analysis", "label": "I've kept the facts apart from the theories. The facts alone are bad enough.", "tone": "analytical", "requiresSkill": "quant_modeller", "next": "trust", "relations": {"priya": 6}}
+          ]
+        },
+        {
+          "id": "trust",
+          "line": "Good. Trust the process, not the people, including me. If someone senior offers you something to stop, write it down and take it to Dame Helen.",
+          "responses": [
+            {"id": "end", "label": "I will.", "tone": "diplomatic", "setsFlags": ["priya_warned_offer"]},
+            {"id": "you", "label": "Including you?", "tone": "direct", "relations": {"priya": 2}, "setsFlags": ["priya_warned_offer"]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "amara_excursions",
+      "person": "amara",
+      "title": "In-transit excursions",
+      "trigger": "evidence:M003/excursions",
+      "nodes": [
+        {
+          "id": "start",
+          "line": "Three excursions this quarter, all on the long routes, all on night shifts. The drivers say the reefer units drift when they're tired and miss the alarms. I say they're on the road too long.",
+          "responses": [
+            {"id": "hours", "label": "How many drivers are close to their hours limit on those routes?", "tone": "analytical", "next": "data", "relations": {"amara": 4}},
+            {"id": "blame", "label": "So it's a discipline problem with the drivers?", "tone": "direct", "next": "pushback", "relations": {"amara": -6}},
+            {"id": "listen", "label": "What would you change if it were up to you?", "tone": "diplomatic", "next": "data", "relations": {"amara": 6}}
+          ]
+        },
+        {
+          "id": "pushback",
+          "line": "No. It's a scheduling problem we call a discipline problem because it's cheaper. Look at the tachograph data before you write that down.",
+          "responses": [
+            {"id": "ok", "label": "Fair. I'll look at it.", "tone": "diplomatic", "relations": {"amara": 2}}
+          ]
+        },
+        {
+          "id": "data",
+          "line": "Most of them, most weeks. I've asked for two more drivers twice. The answer is always next quarter. Here's the excursion log.",
+          "responses": [
+            {"id": "take", "label": "Thanks. This goes in the risk pack with your name on the ask.", "tone": "direct", "relations": {"amara": 4}},
+            {"id": "deal", "label": "If I can show the cost of one lost load against two salaries, will Operations back it?", "tone": "analytical", "requiresSkill": "negotiator", "relations": {"amara": 8}, "setsFlags": ["amara_driver_case"]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "grace_cctv",
+      "person": "grace",
+      "title": "What the cameras show",
+      "trigger": "evidence:M006/cctv_review",
+      "nodes": [
+        {
+          "id": "start",
+          "line": "Seventeen near misses on camera in one week. Two were reported. The bonus scheme pays supervisors for low numbers, and they've noticed.",
+          "responses": [
+            {"id": "scheme", "label": "Then the scheme is the control failure, not the people.", "tone": "direct", "next": "end", "relations": {"grace": 6}},
+            {"id": "careful", "label": "That's a serious claim. Can we be sure the cameras saw them all?", "tone": "analytical", "next": "end", "relations": {"grace": -2}},
+            {"id": "support", "label": "What would make people feel safe to report?", "tone": "diplomatic", "next": "end", "relations": {"grace": 5}}
+          ]
+        },
+        {
+          "id": "end",
+          "line": "Stop paying for silence. Thank them for every report for a month, publicly. The numbers will go up before they come down, and the board has to be ready for that.",
+          "responses": [
+            {"id": "thanks", "label": "I'll put that to the board in those words.", "tone": "direct", "relations": {"grace": 3}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mei_access",
+      "person": "mei",
+      "title": "Who has access",
+      "trigger": "evidence:M012/mfa",
+      "nodes": [
+        {
+          "id": "start",
+          "line": "Forty-one accounts with admin rights. Nine belong to people who've left. Multi-factor is on for email and nothing else. I've had the fix costed for a year.",
+          "responses": [
+            {"id": "budget", "label": "Send me the costing. I'll put a loss figure next to it.", "tone": "analytical", "next": "end", "relations": {"mei": 7}},
+            {"id": "why", "label": "Why are leavers still active? That's basic.", "tone": "direct", "next": "end", "relations": {"mei": -4}},
+            {"id": "ally", "label": "You've been carrying this alone. What do you need from risk?", "tone": "diplomatic", "next": "end", "relations": {"mei": 6}}
+          ]
+        },
+        {
+          "id": "end",
+          "line": "Someone senior to say it out loud. IT asking for money sounds like IT wanting toys. Risk asking sounds like the company protecting itself.",
+          "responses": [
+            {"id": "ok", "label": "Then risk will ask.", "tone": "direct", "relations": {"mei": 3}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hollis_due_diligence",
+      "person": "hollis",
+      "title": "Pellmoor, off the record",
+      "trigger": "evidence:M016/dd_findings",
+      "nodes": [
+        {
+          "id": "start",
+          "line": "The deal team has fallen in love. I need someone to tell the board what Pellmoor really costs if its pharma client walks. Can you do that without sounding like you want to kill the deal?",
+          "responses": [
+            {"id": "numbers", "label": "I'll show the value with and without that client, and what we'd pay for each.", "tone": "analytical", "next": "end", "relations": {"hollis": 7}},
+            {"id": "blunt", "label": "If the numbers kill it, the numbers kill it.", "tone": "direct", "next": "end", "relations": {"hollis": 3, "adrian": -2}},
+            {"id": "frame", "label": "I'll frame it as protecting the price, not stopping the deal.", "tone": "diplomatic", "requiresSkill": "board_presence", "next": "end", "relations": {"hollis": 8, "adrian": 3}}
+          ]
+        },
+        {
+          "id": "end",
+          "line": "Good. Bring it to me before it goes to Adrian. I'll back you in the room.",
+          "responses": [
+            {"id": "ok", "label": "You'll have it first.", "tone": "diplomatic", "relations": {"hollis": 3}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "helen_independence",
+      "person": "helen",
+      "title": "Who you report to",
+      "trigger": "evidence:M023/independence",
+      "nodes": [
+        {
+          "id": "start",
+          "line": "You report to the COO. The COO's business is half of what you assess. Tell me why I should believe your papers.",
+          "responses": [
+            {"id": "change", "label": "You shouldn't have to take it on trust. I'd like a direct line to this committee.", "tone": "direct", "next": "end", "relations": {"helen": 8, "celeste": -5}},
+            {"id": "evidence", "label": "Judge the papers by their evidence. Every figure in them can be traced.", "tone": "analytical", "next": "end", "relations": {"helen": 5}},
+            {"id": "loyal", "label": "Celeste has never interfered with my work.", "tone": "diplomatic", "next": "end", "relations": {"helen": -4, "celeste": 4}}
+          ]
+        },
+        {
+          "id": "end",
+          "line": "Then let's write it into the terms of reference: the risk function has unrestricted access to this committee, and I meet you without management present every quarter.",
+          "responses": [
+            {"id": "agree", "label": "Agreed.", "tone": "direct", "relations": {"helen": 3}, "setsFlags": ["risk_direct_line"]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ruth_supervisor",
+      "person": "ruth",
+      "title": "Preparing for the Authority",
+      "trigger": "evidence:M025/request",
+      "nodes": [
+        {
+          "id": "start",
+          "line": "Imogen Raske doesn't want a presentation. She wants to see that we find our own problems before she does. Do we have a list?",
+          "responses": [
+            {"id": "list", "label": "We have a gap check. It isn't flattering.", "tone": "direct", "next": "end", "relations": {"ruth": 6}},
+            {"id": "polish", "label": "Let's tidy the list before she sees it.", "tone": "diplomatic", "next": "warn", "relations": {"ruth": -6}},
+            {"id": "insight", "label": "Lead with the three worst gaps and the dates we'll fix them. She'll trust the rest.", "tone": "analytical", "requiresSkill": "regulatory_insight", "next": "end", "relations": {"ruth": 8, "imogen": 5}}
+          ]
+        },
+        {
+          "id": "warn",
+          "line": "No. Tidying is how firms get enforcement notices. She'll find what we hid, and then she'll stop believing anything we say.",
+          "responses": [
+            {"id": "ok", "label": "You're right. We show it as it is.", "tone": "diplomatic", "relations": {"ruth": 3}}
+          ]
+        },
+        {
+          "id": "end",
+          "line": "Then we're ready. Bring the gap check and the action plan, and let her ask the questions.",
+          "responses": [
+            {"id": "done", "label": "We'll be there.", "tone": "direct"}
+          ]
+        }
+      ]
+    }
+  ]
+}

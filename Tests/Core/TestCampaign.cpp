@@ -368,3 +368,31 @@ TEST(Campaign_NumericAndRatingQuestionsScoreByCloseness)
 	CHECK(HasText(E, "tolerance"));
 	CHECK(HasText(E, "rating targets"));
 }
+
+TEST(Campaign_LocatedEvidenceAndPresentingInPerson)
+{
+	MissionDef M = BasicMission("M061", {"M001"});
+	M.Evidence[0].At = "monitoring";
+	M.Evidence[0].Person = "amara";
+	M.PresentAt = "boardroom";
+	CHECK(ValidateMission(M).empty());
+	CHECK(LocationName("monitoring") == "Risk monitoring room");
+	GameState G = AfterM001();
+	REQUIRE(StartMission(G, M) == EMissionError::None);
+	CHECK(ViewMissionEvidence(G, M, "ev1") == EMissionError::EvidenceElsewhere);
+	CHECK(ViewMissionEvidence(G, M, "ev1", "meeting") == EMissionError::EvidenceElsewhere);
+	CHECK(ViewMissionEvidence(G, M, "ev1", "monitoring") == EMissionError::None);
+	CHECK(ViewMissionEvidence(G, M, "ev2") == EMissionError::None); // unlocated evidence: anywhere
+	const auto A = AllAnswers(M, "good");
+	CHECK(SubmitMission(G, M, A) == EMissionError::PresentInPerson);
+	CHECK(G.Campaign.Records.empty());
+	CHECK(SubmitMission(G, M, A, nullptr, nullptr, nullptr, "boardroom") == EMissionError::None);
+
+	MissionDef Bad = M;
+	Bad.Evidence[1].At = "basement";
+	Bad.Evidence[1].Person = "nobody";
+	Bad.PresentAt = "roof";
+	const auto E = ValidateMission(Bad);
+	CHECK(HasText(E, "unknown location 'basement'"));
+	CHECK(HasText(E, "presentAt is an unknown location"));
+}

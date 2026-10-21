@@ -121,8 +121,8 @@ EMissionError Play(GameState& G, const MissionDef& M, const std::vector<MissionA
 {
 	const EMissionError E = StartMission(G, M, C);
 	if (E != EMissionError::None) return E;
-	for (const MissionEvidenceDef& Ev : M.Evidence) ViewMissionEvidence(G, M, Ev.Id);
-	return SubmitMission(G, M, A, D, C, W);
+	for (const MissionEvidenceDef& Ev : M.Evidence) ViewMissionEvidence(G, M, Ev.Id, Ev.At);
+	return SubmitMission(G, M, A, D, C, W, M.PresentAt);
 }
 
 std::vector<MissionAnswer> Best(const MissionDef& M)

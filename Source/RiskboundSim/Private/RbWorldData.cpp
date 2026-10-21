@@ -3,6 +3,7 @@
 #include "RbWorld.h"
 
 #include "RbJsonReader.h"
+#include "RbGrowth.h"
 
 #include <cctype>
 #include <cmath>
@@ -102,6 +103,7 @@ void ReadChoice(const JsonValue& V, const std::string& Where, EventChoiceDef& C,
 	R.Int("stress", C.Stress, false);
 	R.Strings("setsFlags", C.SetsFlags);
 	R.Str("clue", C.Clue, false);
+	R.Str("requiresSkill", C.RequiresSkill, false);
 	for (const JsonValue& S : Items(R, "schedules", false))
 	{
 		ConsequenceDef Def;
@@ -313,6 +315,8 @@ std::vector<std::string> ValidateWorld(const WorldContent& W, const MissionCatal
 				if (C.Label.empty()) Out.push_back(CP + ": missing label");
 				if (C.Stress < -30 || C.Stress > 30) Out.push_back(CP + ": stress change outside -30..30");
 				bDefault = bDefault || C.Id == E.DefaultChoice;
+				if (!C.RequiresSkill.empty() && !FindSkill(C.RequiresSkill)) Out.push_back(CP + ": unknown skill '" + C.RequiresSkill + "'");
+				if (!C.RequiresSkill.empty() && C.Id == E.DefaultChoice) Out.push_back(CP + ": the default cannot need a skill");
 				CheckEffects(C.Effects, CP, Out);
 				Relations(C.Relations, CP);
 				Clue(C.Clue, CP);
@@ -359,7 +363,11 @@ std::vector<std::string> ValidateWorld(const WorldContent& W, const MissionCatal
 	{
 		for (const MissionDef& M : Missions->Missions)
 		{
-			for (const MissionEvidenceDef& E : M.Evidence) Clue(E.Clue, M.Id + " evidence '" + E.Id + "'");
+			for (const MissionEvidenceDef& E : M.Evidence)
+			{
+				Clue(E.Clue, M.Id + " evidence '" + E.Id + "'");
+				if (!E.Person.empty() && !W.People.Find(E.Person)) Out.push_back(M.Id + " evidence '" + E.Id + "': unknown person '" + E.Person + "'");
+			}
 			for (const ContextNoteDef& C : M.Context)
 			{
 				if (!C.RelationId.empty() && !W.People.Find(C.RelationId)) Out.push_back(M.Id + ": context on unknown character '" + C.RelationId + "'");

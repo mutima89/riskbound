@@ -34,7 +34,9 @@
     {
       "id": "comments",
       "title": "Selected comments",
-      "body": "'Raise a problem here and you become the problem.' 'Targets matter more than how you hit them.' 'My manager listens, his manager doesn't.'"
+      "body": "'Raise a problem here and you become the problem.' 'Targets matter more than how you hit them.' 'My manager listens, his manager doesn't.'",
+      "at": "training",
+      "person": "grace"
     },
     {
       "id": "speak_up",

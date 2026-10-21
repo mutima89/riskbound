@@ -42,7 +42,8 @@
     {
       "id": "usage",
       "title": "Fleet system: Tessaline call-outs",
-      "body": "Two call-outs in 24 months, 9 vehicle-days in total. Market rate for spot refrigerated hire: about 650 a vehicle-day."
+      "body": "Two call-outs in 24 months, 9 vehicle-days in total. Market rate for spot refrigerated hire: about 650 a vehicle-day.",
+      "at": "monitoring"
     },
     {
       "id": "rebate",

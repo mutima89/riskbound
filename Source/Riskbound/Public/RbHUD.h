@@ -46,7 +46,10 @@ public:
 	void OpenToolHub(int32 Tab = 0);
 	void OpenAssessment();
 	// Campaign missions after M001. Optionally opens a mission (or its debrief) directly.
-	TSharedPtr<SRbCaseFiles> OpenCaseFiles(const FString& MissionId = FString(), bool bDebrief = false);
+	// Where: the HQ location of the terminal ("" for the player's workstation; "boardroom" for the lectern).
+	TSharedPtr<SRbCaseFiles> OpenCaseFiles(const FString& MissionId = FString(), bool bDebrief = false, const FString& Where = FString());
+	// In-person casework (ARbCaseMarker): evidence examined or a person interviewed at a location.
+	void ExamineInPerson(const FString& MissionId, const FString& EvidenceId, const FString& Where);
 	ERbSubmitResult SubmitAssessment(const FRbSubmissionInput& Input);
 	void OpenDebrief();
 

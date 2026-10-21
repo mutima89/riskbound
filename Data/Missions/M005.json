@@ -46,7 +46,8 @@
     {
       "id": "rota",
       "title": "Depot rota notes",
-      "body": "All six late or missing downloads fell on the supervisor's days off. There is no named cover. Nothing alerts anyone when a download is late."
+      "body": "All six late or missing downloads fell on the supervisor's days off. There is no named cover. Nothing alerts anyone when a download is late.",
+      "at": "meeting"
     },
     {
       "id": "logger_report",
@@ -137,45 +138,26 @@
     },
     {
       "id": "extrapolate",
+      "kind": "numeric",
       "competency": "QuantitativeAnalysis",
       "weight": 15,
       "prompt": "If the sample is representative, roughly how many deliveries a month are downloaded late or not at all?",
-      "options": [
+      "answer": 480.0,
+      "tolerance": 0.06,
+      "unit": "deliveries a month",
+      "explanation": "24% of 2,000 = 480 a month. A small sample, so treat it as an estimate and say so.",
+      "mistakes": [
         {
-          "id": "about_480",
-          "label": "About 480",
-          "score": 92,
-          "feedback": "24% of 2,000 = 480 a month. A small sample, so treat it as an estimate and say so.",
-          "relations": {
-            "ruth": 5
-          }
+          "value": 6.0,
+          "feedback": "6 is the count in the sample, not the population."
         },
         {
-          "id": "about_6",
-          "label": "6",
-          "score": 15,
-          "feedback": "6 is the count in the sample, not the population.",
-          "relations": {
-            "ruth": -4
-          }
+          "value": 120.0,
+          "feedback": "That is 6% of 2,000; the exception rate was 24%."
         },
         {
-          "id": "about_120",
-          "label": "About 120",
-          "score": 30,
-          "feedback": "That is 6% of 2,000; the exception rate was 24%.",
-          "relations": {
-            "ruth": -4
-          }
-        },
-        {
-          "id": "about_24",
-          "label": "24",
-          "score": 10,
-          "feedback": "24 is the percentage, not a number of deliveries.",
-          "relations": {
-            "ruth": -4
-          }
+          "value": 24.0,
+          "feedback": "24 is the percentage, not a number of deliveries."
         }
       ]
     },

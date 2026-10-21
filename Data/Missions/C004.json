@@ -25,7 +25,8 @@
     {
       "id": "store",
       "title": "Store status",
-      "body": "Chilled store 6.5C, rising about 0.5C an hour (limit 8C). 190 pallets, 30 of them high-value dairy for a retailer with strict penalties."
+      "body": "Chilled store 6.5C, rising about 0.5C an hour (limit 8C). 190 pallets, 30 of them high-value dairy for a retailer with strict penalties.",
+      "at": "monitoring"
     },
     {
       "id": "options",

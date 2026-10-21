@@ -18,6 +18,8 @@ enum class ERbMissionResult : uint8
 	UnansweredQuestion,
 	UnknownOption,
 	SingleNeedsOneOption,
+	EvidenceElsewhere,
+	PresentInPerson,
 	UnknownMission
 };
 
@@ -69,6 +71,9 @@ struct FRbMissionEvidenceView
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Body;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bRequired = true;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bViewed = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString At;         // HQ location id; empty: the workstation
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString AtName;     // "Risk monitoring room"
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PersonName; // interview with this person, may be empty
 };
 
 USTRUCT(BlueprintType)
@@ -85,6 +90,8 @@ struct FRbMissionView
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FRbMissionQuestionView> Questions;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bActive = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") double DecisionAuthority = 0.0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PresentAt;     // presented in person at this location id
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PresentAtName;
 };
 
 USTRUCT(BlueprintType)

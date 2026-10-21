@@ -220,6 +220,8 @@ FString URbGameSubsystem::GetCurrentObjectiveText() const
 		const FString Active = ToFString(State.Campaign.ActiveMissionId);
 		if (Campaign && !Active.IsEmpty())
 		{
+			const FString InPerson = Campaign->InPersonObjective();
+			if (!InPerson.IsEmpty()) return FString::Printf(TEXT("Case %s: %s"), *Active, *InPerson);
 			return FString::Printf(TEXT("Case %s: %s - review the evidence and submit at your workstation"), *Active, *Campaign->GetMission(Active).Title);
 		}
 		return TEXT("Open Case files at your workstation for your next assignment");

@@ -20,6 +20,15 @@
 #include "RbAudioSubsystem.h"
 #include "RbCampaignSubsystem.h"
 #include "TimerManager.h"
+#include "Components/DirectionalLightComponent.h"
+#include "Components/SkyLightComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "RbUIStyle.h"
+#include "RbGameSubsystem.h"
+#include "RbInteractable.h"
+#include "Animation/AnimSequence.h"
+#include "Engine/SkeletalMesh.h"
 
 namespace
 {
@@ -395,6 +404,7 @@ void ARbValtrenHQ::BuildLighting()
 {
 	// Late-morning sun through the facades.
 	UDirectionalLightComponent* Sun = NewObject<UDirectionalLightComponent>(this, TEXT("Sun"));
+	SunLight = Sun;
 	Sun->SetMobility(EComponentMobility::Movable);
 	Sun->SetupAttachment(RootComponent);
 	Sun->SetRelativeRotation(FRotator(-32.0f, 62.0f, 0.0f));
@@ -405,6 +415,7 @@ void ARbValtrenHQ::BuildLighting()
 	// City HDRI: an unlit inside-out sphere for the window view, and the sky light's cubemap.
 	if (UStaticMeshComponent* Sky = AddMesh(Sphere, FVector(2000.0f, 0.0f, 0.0f), 0.0f, FVector(800.0f), Mat(TEXT("MI_Sky")), false))
 	{
+		if (UMaterialInterface* SkyMat = Mat(TEXT("MI_Sky"))) SkyMaterial = Sky->CreateDynamicMaterialInstance(0, SkyMat);
 		Sky->SetCastShadow(false);
 		Sky->bAffectDistanceFieldLighting = false;
 		Sky->bVisibleInRayTracing = false;
@@ -419,6 +430,7 @@ void ARbValtrenHQ::BuildLighting()
 	}
 	SkyLight->SetIntensity(SkyIntensity);
 	SkyLight->RegisterComponent();
+	SkyLightComp = SkyLight;
 	SkyLight->RecaptureSky();
 
 	// Ceiling panels: a grid per room, one shadowed light per room keeps the cost down.
@@ -935,8 +947,238 @@ void ARbValtrenHQ::BuildLivingWorld()
 	GetWorldTimerManager().SetTimer(LivingTimer, this, &ARbValtrenHQ::UpdateLivingWorld, 0.25f, true);
 }
 
+void ARbValtrenHQ::RefreshCaseMarkers()
+{
+	const UGameInstance* GI = GetGameInstance();
+	const URbCampaignSubsystem* Campaign = GI ? GI->GetSubsystem<URbCampaignSubsystem>() : nullptr;
+	const URbGameSubsystem* Game = GI ? GI->GetSubsystem<URbGameSubsystem>() : nullptr;
+	if (!Campaign || !Game || !Game->HasGame()) return;
+	const FString Active = Campaign->GetActiveMissionId();
+	const int32 Viewed = static_cast<int32>(Game->GetState().Campaign.ViewedEvidence.size());
+	if (Active == MarkerMission && Viewed == MarkerViewed) return;
+	MarkerMission = Active;
+	MarkerViewed = Viewed;
+	for (ARbCaseMarker* M : CaseMarkers)
+	{
+		if (IsValid(M)) M->Destroy();
+	}
+	CaseMarkers.Reset();
+	for (UTextRenderComponent* L : CaseLabels)
+	{
+		if (IsValid(L)) L->DestroyComponent();
+	}
+	CaseLabels.Reset();
+	if (Active.IsEmpty()) return;
+	const FRbMissionView View = Campaign->GetMission(Active);
+
+	// Where things go in each room: a standing spot for people and a surface for documents.
+	struct FSpot { FVector Person; float PersonYaw; FVector Doc; float DocYaw; };
+	static const TMap<FString, FSpot> Spots = {
+		{TEXT("monitoring"), {FVector(1260.0f, -420.0f, 90.0f), 0.0f, FVector(1700.0f, -570.0f, DeskHeight + 1.0f), 10.0f}},
+		{TEXT("meeting"), {FVector(3820.0f, 420.0f, 90.0f), 180.0f, FVector(3560.0f, 720.0f, DeskHeight + 0.5f), -10.0f}},
+		{TEXT("training"), {FVector(300.0f, -420.0f, 90.0f), -45.0f, FVector(600.0f, -880.0f, DeskHeight + 0.5f), 15.0f}},
+		{TEXT("boardroom"), {FVector(2350.0f, -380.0f, 90.0f), -30.0f, FVector(3200.0f, -700.0f, DeskHeight + 0.5f), 0.0f}},
+		{TEXT("manager"), {FVector(2700.0f, 450.0f, 90.0f), 180.0f, FVector(2600.0f, 1000.0f, DeskHeight + 0.5f), 0.0f}},
+		{TEXT("workspace"), {FVector(1250.0f, 450.0f, 90.0f), 0.0f, FVector(1750.0f, 760.0f, DeskHeight + 0.5f), 0.0f}},
+		{TEXT("reception"), {FVector(300.0f, 500.0f, 90.0f), 0.0f, FVector(500.0f, 700.0f, 45.0f), 0.0f}},
+	};
+	static const TCHAR* const Bodies[] = {TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"), TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple")};
+	static const TCHAR* const Outfits[] = {TEXT("MI_FabricDark"), TEXT("MI_SuitNavy"), TEXT("MI_Graphite")};
+	UAnimSequence* Idle = LoadObject<UAnimSequence>(nullptr, TEXT("/Game/Characters/Mannequins/Anims/Unarmed/MM_Idle.MM_Idle"));
+	TMap<FString, int32> Used;
+	int32 PersonIndex = 0;
+	auto Label = [this](const FString& Text, const FVector& At)
+	{
+		// A small teal tag so in-person work is easy to find; it faces the room's centre line.
+		if (UTextRenderComponent* T = AddLabel(Text, At, 0.0f, 6.0f, FColor(43, 163, 168)))
+		{
+			T->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
+			CaseLabels.Add(T);
+		}
+	};
+	for (const FRbMissionEvidenceView& E : View.Evidence)
+	{
+		const FSpot* S = Spots.Find(E.At);
+		if (!S || E.bViewed) continue;
+		const int32 N = Used.FindOrAdd(E.At)++;
+		const FVector Offset(0.0f, 70.0f * N, 0.0f);
+		if (!E.PersonName.IsEmpty())
+		{
+			ARbCaseMarker* M = SpawnInteractable<ARbCaseMarker>(TEXT("case_person"), S->Person + Offset, S->PersonYaw, Cylinder, FVector(0.5f, 0.5f, 1.8f), nullptr);
+			if (!M) continue;
+			M->Kind = ERbCaseMarkerKind::Interview;
+			M->Title = E.PersonName;
+			M->SetBody(LoadObject<USkeletalMesh>(nullptr, Bodies[PersonIndex % 2]), Idle, Mat(Outfits[PersonIndex % 3]), -90.0f);
+			++PersonIndex;
+			M->MissionId = Active;
+			M->EvidenceId = E.Id;
+			M->Where = E.At;
+			CaseMarkers.Add(M);
+			Label(E.PersonName, S->Person + Offset + FVector(0.0f, 0.0f, 110.0f));
+		}
+		else
+		{
+			UStaticMesh* Folder = Model(TEXT("office_notepads"));
+			ARbCaseMarker* M = SpawnInteractable<ARbCaseMarker>(TEXT("case_document"), S->Doc + Offset, S->DocYaw, Folder ? Folder : Cube.Get(),
+				Folder ? FVector(0.3f) : FVector(0.3f, 0.22f, 0.02f), Folder ? nullptr : Mat(TEXT("MI_Paper")));
+			if (!M) continue;
+			M->Kind = ERbCaseMarkerKind::Document;
+			M->Title = E.Title;
+			M->MissionId = Active;
+			M->EvidenceId = E.Id;
+			M->Where = E.At;
+			CaseMarkers.Add(M);
+			Label(TEXT("Case ") + Active, S->Doc + Offset + FVector(0.0f, 0.0f, 22.0f));
+		}
+	}
+	if (!View.PresentAt.IsEmpty() && View.PresentAt == TEXT("boardroom"))
+	{
+		// The lectern at the east end of the boardroom, facing the table.
+		const FVector At(3880.0f, -700.0f, 55.0f);
+		ARbCaseMarker* M = SpawnInteractable<ARbCaseMarker>(TEXT("case_lectern"), At, 180.0f, Cube, FVector(0.5f, 0.6f, 1.1f), Mat(TEXT("MI_WoodWalnut")));
+		if (M)
+		{
+			M->Kind = ERbCaseMarkerKind::Lectern;
+			M->Title = View.Title;
+			M->MissionId = Active;
+			M->Where = View.PresentAt;
+			CaseMarkers.Add(M);
+			Label(TEXT("Present here"), At + FVector(0.0f, 0.0f, 80.0f));
+		}
+	}
+}
+
+void ARbValtrenHQ::UpdateDaylight(float DeltaSeconds)
+{
+	const UGameInstance* GI = GetGameInstance();
+	const URbGameSubsystem* Game = GI ? GI->GetSubsystem<URbGameSubsystem>() : nullptr;
+	if (!SunLight || !Game || !Game->HasGame()) return;
+	const rb::GameState& S = Game->GetState();
+	if (S.Org.Week != DayWeek)
+	{
+		// Each submission lands at a different time of a working day; some weeks are overcast.
+		// Deterministic from the week and the save's seed, so a reload looks the same.
+		DayWeek = S.Org.Week;
+		const uint64 H = (static_cast<uint64>(S.Seed) * 0x9E3779B97F4A7C15ULL) ^ (static_cast<uint64>(DayWeek) * 0xC2B2AE3D27D4EB4FULL);
+		const int32 Phase = static_cast<int32>(H % 4);        // morning, midday, afternoon, evening
+		const bool bOvercast = ((H >> 8) % 10) < 3;
+		static const float Pitch[] = {-18.0f, -48.0f, -26.0f, -7.0f};
+		static const float Yaw[] = {95.0f, 160.0f, 230.0f, 262.0f};
+		static const float Lux[] = {1300.0f, 1900.0f, 1500.0f, 650.0f};
+		static const FLinearColor Colour[] = {FLinearColor(1.0f, 0.93f, 0.84f), FLinearColor(1.0f, 0.98f, 0.95f), FLinearColor(1.0f, 0.92f, 0.80f), FLinearColor(1.0f, 0.68f, 0.45f)};
+		static const float Sky[] = {16.0f, 19.0f, 17.0f, 9.0f};
+		SunFrom = SunLight->GetRelativeRotation();
+		SunLuxFrom = SunLight->Intensity;
+		SunColorFrom = SunLight->GetLightColor();
+		SkyFrom = SkyLightComp ? SkyLightComp->Intensity : SkyIntensity;
+		SunTo = FRotator(Pitch[Phase], Yaw[Phase], 0.0f);
+		SunLuxTo = Lux[Phase] * (bOvercast ? 0.25f : 1.0f);
+		SunColorTo = bOvercast ? FLinearColor(0.85f, 0.88f, 0.92f) : Colour[Phase];
+		SkyTo = Sky[Phase] * (bOvercast ? 0.75f : 1.0f);
+		DayBlend = RbUI::IsReducedMotion() ? 1.0f : 0.0f;
+	}
+	if (DayBlend >= 1.0f && SunLight->GetRelativeRotation().Equals(SunTo, 0.01f)) return;
+	DayBlend = FMath::Min(1.0f, DayBlend + DeltaSeconds / 6.0f); // a slow change, never a jump
+	const float T = FMath::SmoothStep(0.0f, 1.0f, DayBlend);
+	SunLight->SetRelativeRotation(FMath::Lerp(SunFrom, SunTo, T));
+	SunLight->SetIntensity(FMath::Lerp(SunLuxFrom, SunLuxTo, T));
+	SunLight->SetLightColor(FMath::Lerp(SunColorFrom, SunColorTo, T));
+	if (SkyLightComp) SkyLightComp->SetIntensity(FMath::Lerp(SkyFrom, SkyTo, T));
+	if (SkyMaterial) SkyMaterial->SetScalarParameterValue(TEXT("Intensity"), 14.0f * FMath::Lerp(SkyFrom, SkyTo, T) / SkyIntensity);
+}
+
+void ARbValtrenHQ::RefreshStaff(int32 Wanted)
+{
+	if (Wanted == StaffShown) return;
+	StaffShown = Wanted;
+	for (USkeletalMeshComponent* C : Staff)
+	{
+		if (IsValid(C)) C->DestroyComponent();
+	}
+	Staff.Reset();
+	// Colleagues at work: where they stand, which way they face. Fewer of them when morale is low.
+	static const TPair<FVector, float> Spots[] = {
+		{FVector(1200.0f, 930.0f, 0.0f), 90.0f}, {FVector(1650.0f, 430.0f, 0.0f), -20.0f}, {FVector(1450.0f, -950.0f, 0.0f), 60.0f},
+		{FVector(3300.0f, 500.0f, 0.0f), 30.0f}, {FVector(700.0f, 380.0f, 0.0f), -60.0f}, {FVector(1820.0f, 880.0f, 0.0f), 110.0f},
+		{FVector(1720.0f, -420.0f, 0.0f), 200.0f}, {FVector(430.0f, -700.0f, 0.0f), 0.0f}, {FVector(2550.0f, 60.0f, 0.0f), 180.0f}};
+	USkeletalMesh* Bodies[] = {LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple")),
+		LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple"))};
+	UAnimSequence* Idle = LoadObject<UAnimSequence>(nullptr, TEXT("/Game/Characters/Mannequins/Anims/Unarmed/MM_Idle.MM_Idle"));
+	UMaterialInterface* Outfits[] = {Mat(TEXT("MI_SuitNavy")), Mat(TEXT("MI_FabricDark")), Mat(TEXT("MI_Graphite"))};
+	for (int32 i = 0; i < FMath::Min(Wanted, static_cast<int32>(UE_ARRAY_COUNT(Spots))); ++i)
+	{
+		USkeletalMesh* Body = Bodies[i % 2];
+		if (!Body) continue;
+		USkeletalMeshComponent* C = NewObject<USkeletalMeshComponent>(this, NAME_None);
+		C->SetupAttachment(RootComponent);
+		C->SetRelativeLocationAndRotation(Spots[i].Key, FRotator(0.0f, Spots[i].Value, 0.0f));
+		C->SetSkeletalMesh(Body);
+		C->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		if (Outfits[i % 3])
+		{
+			for (int32 m = 0; m < C->GetNumMaterials(); ++m) C->SetMaterial(m, Outfits[i % 3]);
+		}
+		C->RegisterComponent();
+		if (Idle)
+		{
+			C->PlayAnimation(Idle, true);
+			C->SetPosition(0.37f * i); // not all in step
+		}
+		Staff.Add(C);
+	}
+}
+
+void ARbValtrenHQ::RefreshOwnDesk(int32 Level, const FString& Title, int32 Trophies)
+{
+	if (Level == DeskLevel && Trophies == DeskTrophies) return;
+	DeskLevel = Level;
+	DeskTrophies = Trophies;
+	for (USceneComponent* C : DeskDressing)
+	{
+		if (IsValid(C)) C->DestroyComponent();
+	}
+	DeskDressing.Reset();
+	// Nameplate on the front of the player's desk, with the current title.
+	if (UStaticMeshComponent* Plate = AddMesh(Cube, FVector(1500.0f, 1046.0f, DeskHeight + 3.5f), 0.0f, FVector(0.28f, 0.015f, 0.06f), Mat(TEXT("MI_Brass")), false))
+	{
+		DeskDressing.Add(Plate);
+	}
+	if (UTextRenderComponent* T = AddLabel(Title, FVector(1500.0f, 1045.0f, DeskHeight + 3.5f), -90.0f, 2.6f, FColor(40, 30, 14)))
+	{
+		DeskDressing.Add(T);
+	}
+	// A trophy for every five achievements, in a row at the back of the desk (glass, then brass).
+	for (int32 i = 0; i < FMath::Min(Trophies, 8); ++i)
+	{
+		const bool bBrass = i >= 4;
+		const FVector At(1415.0f + i * 15.0f, 1125.0f, DeskHeight + (bBrass ? 9.0f : 7.0f));
+		if (UStaticMeshComponent* Base = AddMesh(Cube, At - FVector(0, 0, bBrass ? 7.5f : 5.5f), 0.0f, FVector(0.07f, 0.07f, 0.02f), Mat(TEXT("MI_DeviceBlack")), false)) DeskDressing.Add(Base);
+		if (UStaticMeshComponent* Award = AddMesh(bBrass ? Cylinder : Cube, At, 15.0f * i, bBrass ? FVector(0.04f, 0.04f, 0.14f) : FVector(0.05f, 0.02f, 0.11f),
+			Mat(bBrass ? TEXT("MI_Brass") : TEXT("MI_Glass")), false)) DeskDressing.Add(Award);
+	}
+	// The Chief Risk Officer's plaque at the head of the boardroom table.
+	if (Level >= 10)
+	{
+		if (UTextRenderComponent* T = AddLabel(TEXT("Chief Risk Officer"), FVector(3700.0f, -700.0f, DeskHeight + 6.0f), 180.0f, 3.2f, FColor(200, 170, 90))) DeskDressing.Add(T);
+	}
+}
+
 void ARbValtrenHQ::UpdateLivingWorld()
 {
+	RefreshCaseMarkers();
+	UpdateDaylight(0.25f);
+	if (const UGameInstance* GI = GetGameInstance())
+	{
+		const URbGameSubsystem* Game = GI->GetSubsystem<URbGameSubsystem>();
+		if (Game && Game->HasGame())
+		{
+			const rb::GameState& S = Game->GetState();
+			const double Morale = S.Org.Get(rb::EOrgMetric::EmployeeMorale);
+			RefreshStaff(FMath::Clamp(FMath::RoundToInt(Morale / 9.0), 3, 9));
+			const FRbCareerView Career = Game->GetCareer();
+			RefreshOwnDesk(Career.Level, Career.Title, static_cast<int32>(S.Achievements.size()) / 5);
+		}
+	}
 	const UGameInstance* GI = GetGameInstance();
 	const URbCampaignSubsystem* Campaign = GI ? GI->GetSubsystem<URbCampaignSubsystem>() : nullptr;
 	const FRbWorldView W = Campaign ? Campaign->GetWorldView() : FRbWorldView();

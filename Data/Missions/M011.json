@@ -29,7 +29,8 @@
     {
       "id": "kri_series",
       "title": "On-time delivery, last 12 weeks",
-      "body": "96.0, 95.8, 95.1, 94.6, 94.2, 93.9, 93.1, 92.6, 92.4, 92.0, 91.9, 91.8. Appetite floor 94%; red below 94%."
+      "body": "96.0, 95.8, 95.1, 94.6, 94.2, 93.9, 93.1, 92.6, 92.4, 92.0, 91.9, 91.8. Appetite floor 94%; red below 94%.",
+      "at": "monitoring"
     },
     {
       "id": "policy",

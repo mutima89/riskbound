@@ -699,6 +699,9 @@ static void WriteWorld(KvWriter& W, const WorldState& S)
 	W.Int("world.nextMsg", S.NextMessage);
 	W.List("world.clues", S.Clues);
 	W.List("world.fired", S.FiredEvents);
+	W.Put("world.background", S.Background);
+	W.List("world.skills", S.Skills);
+	W.List("world.talks", S.ConversationsHad);
 	W.Int("world.rel.n", static_cast<long long>(S.Relations.size()));
 	for (size_t i = 0; i < S.Relations.size(); ++i)
 	{
@@ -758,6 +761,9 @@ static void ReadWorld(KvReader& R, WorldState& Out)
 	Out.NextMessage = static_cast<int>(R.Int("world.nextMsg", 1));
 	Out.Clues = R.List("world.clues");
 	Out.FiredEvents = R.List("world.fired");
+	Out.Background = R.Str("world.background"); // v7; older saves: no background, no skills
+	Out.Skills = R.List("world.skills");
+	Out.ConversationsHad = R.List("world.talks");
 	if (Out.Stress < 0 || Out.Stress > StressMax || Out.Burnouts < 0 || Out.NextMessage < 1) R.bOk = false;
 	const int NR = R.Count("world.rel");
 	for (int i = 0; i < NR; ++i)
@@ -1012,7 +1018,7 @@ bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 	ReadCampaign(R, S.Campaign);
 	if (Info.LoadedVersion < 5) Info.bMigrated = true;
 	ReadWorld(R, S.World);
-	if (Info.LoadedVersion < 6) Info.bMigrated = true;
+	if (Info.LoadedVersion < 7) Info.bMigrated = true;
 	S.Achievements = R.List("achievements");
 	S.LearningHistory = R.List("learning");
 	if (!R.bOk)

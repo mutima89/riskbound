@@ -35,7 +35,11 @@ Context note: `{"text": ..., "ifFlag": "x"}` or `{"text": ..., "ifNotFlag": "x"}
 
 Evidence: `{"id", "title", "body" (string or paragraphs), "required": true}`. Required evidence must be opened before submitting.
 
-Question: `{"id", "prompt", "kind": "single"|"multi", "competency", "weight", "options": [...]}`.
+Question: `{"id", "prompt", "kind": "single"|"multi"|"numeric"|"rating", "competency", "weight", ...}`.
+- `single` / `multi`: `"options": [...]`.
+- `numeric` (a figure the player types, usually worked out with the workstation tools): `"answer"`, `"tolerance"` (relative, default 0.02), `"unit"`, `"explanation"` (debrief), `"mistakes": [{"value", "feedback"}]` (common wrong figures, scored 10 with their feedback). Scored 100 within tolerance, 70 within 3x, 35 within 10x, else 0.
+- `rating` (place the risk on the 5x5 matrix): `"likelihood"`, `"impact"` (1-5), `"explanation"`. Each step away costs 30.
+Evidence may carry `"at"` (HQ location: `reception`, `workspace`, `manager`, `meeting`, `training`, `monitoring`, `boardroom`) and `"person"` (an interview, Data/People.json): it can only be examined there (`EvidenceElsewhere` otherwise). A mission with `"presentAt"` is submitted in person at that location (the boardroom lectern) (`PresentInPerson`).
 Competencies: `RiskIdentification, RiskAssessment, ControlEvaluation, QuantitativeAnalysis, Communication, StakeholderManagement, Judgement, Leadership, StrategicThinking, Governance`.
 
 Option: `{"id", "label", "feedback", "score" (single), "correct" (multi), "cost", "escalates", "effects", "setsFlags", "schedules"}`.

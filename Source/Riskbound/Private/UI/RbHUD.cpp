@@ -384,11 +384,12 @@ void ARbHUD::OpenToolHub(int32 Tab)
 	ShowScreen(RbUI::MakeModalFrame(SNew(SBox).MinDesiredWidth(1360.0f).MinDesiredHeight(780.0f)[Hub], 1500.0f), Hub->GetInitialFocus(), [this]() { OpenWorkstation(); }, false);
 }
 
-TSharedPtr<SRbCaseFiles> ARbHUD::OpenCaseFiles(const FString& MissionId, bool bDebrief)
+TSharedPtr<SRbCaseFiles> ARbHUD::OpenCaseFiles(const FString& MissionId, bool bDebrief, const FString& Where)
 {
 	TSharedRef<SRbCaseFiles> Files = SNew(SRbCaseFiles)
 		.Campaign(GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
 		.Game(Game())
+		.Where(Where)
 		.OnMissionStarted([this]() { ClearNotices(); }) // earlier mission toasts no longer apply
 		.OnClose([this]() { OpenWorkstation(); });
 	ClearNotices();
@@ -417,6 +418,34 @@ TSharedPtr<SRbInbox> ARbHUD::OpenInbox(const FString& MessageId)
 	ClearNotices();
 	ShowScreen(RbUI::MakeModalFrame(SNew(SBox).MinDesiredWidth(1100.0f).MinDesiredHeight(760.0f)[Inbox], 1200.0f), Inbox->GetInitialFocus(), Back, false);
 	return Inbox;
+}
+
+void ARbHUD::ExamineInPerson(const FString& MissionId, const FString& EvidenceId, const FString& Where)
+{
+	URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	if (!Campaign) return;
+	const ERbMissionResult R = Campaign->ViewEvidence(MissionId, EvidenceId, Where);
+	if (R != ERbMissionResult::Ok)
+	{
+		Notice(URbCampaignSubsystem::ResultText(R));
+		return;
+	}
+	const FRbMissionView M = Campaign->GetMission(MissionId);
+	const FRbMissionEvidenceView* E = M.Evidence.FindByPredicate([&](const FRbMissionEvidenceView& V) { return V.Id == EvidenceId; });
+	if (!E) return;
+	auto Back = [this]() { CloseScreen(); };
+	if (!E->PersonName.IsEmpty())
+	{
+		const FRbScreenParts Parts = RbScreens::Dialogue(FText::FromString(E->PersonName), FText::FromString(E->Title + TEXT("\n\n") + E->Body), Back);
+		ShowScreen(Parts.Widget, Parts.Focus, Back, false);
+	}
+	else
+	{
+		const FRbScreenParts Parts = RbScreens::Document(FText::FromString(E->Title), FText::FromString(FString::Printf(TEXT("Case %s  |  %s"), *M.Id, *E->AtName)),
+			FText::FromString(E->Body), Back);
+		ShowScreen(Parts.Widget, Parts.Focus, Back, false);
+	}
+	Notice(TEXT("Added to the case file."));
 }
 
 void ARbHUD::OpenAssessment()

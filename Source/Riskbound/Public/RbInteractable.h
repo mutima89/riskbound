@@ -49,6 +49,42 @@ public:
 	virtual void Interact(ARbHUD* Hud) override;
 };
 
+// In-person casework for the active campaign mission (spawned and removed by ARbValtrenHQ):
+// a document to examine or a person to interview at a location, or the boardroom lectern where
+// board papers are presented.
+UENUM()
+enum class ERbCaseMarkerKind : uint8
+{
+	Document,
+	Interview,
+	Lectern
+};
+
+UCLASS()
+class RISKBOUND_API ARbCaseMarker : public ARbInteractable
+{
+	GENERATED_BODY()
+
+public:
+	ARbCaseMarker();
+
+	ERbCaseMarkerKind Kind = ERbCaseMarkerKind::Document;
+	FString MissionId;
+	FString EvidenceId;
+	FString Where;
+	FString Title;      // document title, person's name, or mission title (lectern)
+
+	// Interviews use the NPC body; documents and the lectern use the static mesh.
+	void SetBody(USkeletalMesh* BodyMesh, UAnimSequence* Idle, UMaterialInterface* Outfit, float MeshYaw);
+
+	virtual FText GetPrompt() const override;
+	virtual void Interact(ARbHUD* Hud) override;
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Riskbound")
+	TObjectPtr<USkeletalMeshComponent> Body;
+};
+
 // The player's desk: inbox, risk register and the assessment form.
 UCLASS()
 class RISKBOUND_API ARbWorkstation : public ARbInteractable

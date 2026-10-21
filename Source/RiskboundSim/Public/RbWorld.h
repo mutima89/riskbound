@@ -90,6 +90,7 @@ struct EventChoiceDef
 	std::vector<std::string> SetsFlags;
 	std::string Clue;
 	std::vector<ConsequenceDef> Schedules;
+	std::string RequiresSkill;           // offered only with this skill (RbGrowth.h)
 };
 
 struct EventDef
@@ -177,6 +178,10 @@ struct WorldState
 	std::vector<SharePoint> Shares;      // one point per world update, capped at ShareCap
 	std::vector<std::pair<std::string, int>> CrisisOpened; // crisis id -> week it became available
 	int NextMessage = 1;
+	// Phase 3 (save v7): who the player is and what they have learned (RbGrowth.h).
+	std::string Background;
+	std::vector<std::string> Skills;
+	std::vector<std::string> ConversationsHad;
 };
 
 // ---------------------------------------------------------------- tuning (Docs/GameDesign.md "Living world")
@@ -218,7 +223,8 @@ enum class EReplyError
 	UnknownMessage,
 	NoReplyNeeded,
 	AlreadyAnswered,
-	UnknownChoice
+	UnknownChoice,
+	NeedsSkill
 };
 
 RB_API const char* ToString(EReplyError E);

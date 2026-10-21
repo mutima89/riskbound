@@ -34,7 +34,9 @@
     {
       "id": "site_feedback",
       "title": "Site managers' feedback",
-      "body": "'We get eleven programme emails a week.' 'Training clashes with peak shifts.' 'Nobody told us what's in it for the site.'"
+      "body": "'We get eleven programme emails a week.' 'Training clashes with peak shifts.' 'Nobody told us what's in it for the site.'",
+      "at": "meeting",
+      "person": "amara"
     },
     {
       "id": "sponsor",

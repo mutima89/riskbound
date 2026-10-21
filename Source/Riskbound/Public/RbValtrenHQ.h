@@ -54,6 +54,30 @@ private:
 	UPROPERTY(Transient) TObjectPtr<class UTextRenderComponent> NewsCrawl;
 	FTimerHandle LivingTimer;
 	int32 CrawlOffset = 0;
+	// In-person casework for the active mission: document props, interviewees and the lectern.
+	void RefreshCaseMarkers();
+	FString MarkerMission;    // mission the markers were built for
+	int32 MarkerViewed = -1;  // evidence viewed count when built (markers for seen evidence go)
+	UPROPERTY(Transient) TArray<TObjectPtr<class ARbCaseMarker>> CaseMarkers;
+	UPROPERTY(Transient) TArray<TObjectPtr<class UTextRenderComponent>> CaseLabels;
+	// Living office: light follows the working week and the weather, staff numbers follow morale,
+	// and the player's desk shows their title and trophies.
+	void UpdateDaylight(float DeltaSeconds);
+	void RefreshStaff(int32 Wanted);
+	void RefreshOwnDesk(int32 Level, const FString& Title, int32 Trophies);
+	UPROPERTY(Transient) TObjectPtr<class UDirectionalLightComponent> SunLight;
+	UPROPERTY(Transient) TObjectPtr<class USkyLightComponent> SkyLightComp;
+	UPROPERTY(Transient) TObjectPtr<class UMaterialInstanceDynamic> SkyMaterial;
+	UPROPERTY(Transient) TArray<TObjectPtr<class USkeletalMeshComponent>> Staff;
+	UPROPERTY(Transient) TArray<TObjectPtr<class USceneComponent>> DeskDressing;
+	int32 StaffShown = -1;
+	int32 DeskLevel = -1;
+	int32 DeskTrophies = -1;
+	float DayBlend = 1.0f;     // 0..1 progress towards the target light
+	int32 DayWeek = -1;
+	FRotator SunFrom, SunTo;
+	float SunLuxFrom = 0.0f, SunLuxTo = 0.0f, SkyFrom = 0.0f, SkyTo = 0.0f;
+	FLinearColor SunColorFrom, SunColorTo;
 	void AddPanelLight(const FVector& Location, float Lumens, bool bShadows, const FLinearColor& Tint = FLinearColor(0.92f, 0.96f, 1.0f));
 
 	// Architecture

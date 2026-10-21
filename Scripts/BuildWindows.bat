@@ -8,7 +8,10 @@ set UE=%~1
 set CONFIG=%~2
 if "%CONFIG%"=="" set CONFIG=Shipping
 set ROOT=%~dp0..
+rem Optional third argument: archive directory (default Release\<Config>), e.g. to keep a build someone is playing.
+set ARCHIVE=%~3
+if "%ARCHIVE%"=="" set ARCHIVE=%ROOT%\Release\%CONFIG%
 call "%UE%\Engine\Build\BatchFiles\RunUAT.bat" BuildCookRun ^
   -project="%ROOT%\Riskbound.uproject" -noP4 -platform=Win64 -clientconfig=%CONFIG% ^
-  -build -cook -stage -pak -archive -archivedirectory="%ROOT%\Release\%CONFIG%" -utf8output
+  -build -cook -stage -pak -archive -archivedirectory="%ARCHIVE%" -utf8output
 exit /b %ERRORLEVEL%

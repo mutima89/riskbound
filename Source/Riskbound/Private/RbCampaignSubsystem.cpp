@@ -29,6 +29,8 @@ ERbMissionResult FromSimError(rb::EMissionError E)
 	case rb::EMissionError::UnansweredQuestion: return ERbMissionResult::UnansweredQuestion;
 	case rb::EMissionError::UnknownOption: return ERbMissionResult::UnknownOption;
 	case rb::EMissionError::SingleNeedsOneOption: return ERbMissionResult::SingleNeedsOneOption;
+	case rb::EMissionError::EvidenceElsewhere: return ERbMissionResult::EvidenceElsewhere;
+	case rb::EMissionError::PresentInPerson: return ERbMissionResult::PresentInPerson;
 	}
 	return ERbMissionResult::UnknownOption;
 }
@@ -182,10 +184,16 @@ FRbMissionView URbCampaignSubsystem::GetMission(const FString& MissionId) const
 	V.Briefing = ToFStrings(rb::BriefingFor(S, *M));
 	V.bActive = S.Campaign.ActiveMissionId == M->Id;
 	V.DecisionAuthority = rb::LevelDef(S.Career.Level).DecisionAuthority;
+	V.PresentAt = ToFString(M->PresentAt);
+	V.PresentAtName = ToFString(rb::LocationName(M->PresentAt));
 	for (const rb::MissionEvidenceDef& E : M->Evidence)
 	{
 		const bool bViewed = V.bActive && std::find(S.Campaign.ViewedEvidence.begin(), S.Campaign.ViewedEvidence.end(), E.Id) != S.Campaign.ViewedEvidence.end();
-		V.Evidence.Add({ToFString(E.Id), ToFString(E.Title), ToFString(E.Body), E.bRequired, bViewed});
+		FRbMissionEvidenceView EV{ToFString(E.Id), ToFString(E.Title), ToFString(E.Body), E.bRequired, bViewed};
+		EV.At = ToFString(E.At);
+		EV.AtName = ToFString(rb::LocationName(E.At));
+		EV.PersonName = E.Person.empty() ? FString() : PersonName(E.Person);
+		V.Evidence.Add(EV);
 	}
 	for (const rb::MissionQuestionDef& Q : M->Questions)
 	{
@@ -225,17 +233,18 @@ ERbMissionResult URbCampaignSubsystem::StartMission(const FString& MissionId)
 	return R;
 }
 
-ERbMissionResult URbCampaignSubsystem::ViewEvidence(const FString& MissionId, const FString& EvidenceId)
+ERbMissionResult URbCampaignSubsystem::ViewEvidence(const FString& MissionId, const FString& EvidenceId, const FString& Where)
 {
 	const rb::MissionDef* M = Catalogue.Find(ToStd(MissionId));
 	if (!M) return ERbMissionResult::UnknownMission;
-	const ERbMissionResult R = FromSimError(rb::ViewMissionEvidence(Game()->EditState(), *M, ToStd(EvidenceId)));
+	const ERbMissionResult R = FromSimError(rb::ViewMissionEvidence(Game()->EditState(), *M, ToStd(EvidenceId), ToStd(Where)));
 	if (R == ERbMissionResult::Ok) Game()->StateEdited();
 	return R;
 }
 
 ERbMissionResult URbCampaignSubsystem::AbandonMission()
 {
+	Drafts.Remove(GetActiveMissionId());
 	const ERbMissionResult R = FromSimError(rb::AbandonMission(Game()->EditState()));
 	if (R == ERbMissionResult::Ok) Game()->StateCheckpoint();
 	return R;
@@ -248,14 +257,34 @@ ERbMissionResult URbCampaignSubsystem::ValidateAnswers(const FString& MissionId,
 	return FromSimError(rb::ValidateAnswers(Game()->GetState(), *M, ToSimAnswers(Answers)));
 }
 
-ERbMissionResult URbCampaignSubsystem::SubmitMission(const FString& MissionId, const TArray<FRbMissionAnswer>& Answers)
+FString URbCampaignSubsystem::InPersonObjective() const
+{
+	const rb::GameState& S = Game()->GetState();
+	const rb::MissionDef* M = Catalogue.Find(S.Campaign.ActiveMissionId);
+	if (!M) return FString();
+	for (const rb::MissionEvidenceDef& E : M->Evidence)
+	{
+		if (E.At.empty() || std::find(S.Campaign.ViewedEvidence.begin(), S.Campaign.ViewedEvidence.end(), E.Id) != S.Campaign.ViewedEvidence.end()) continue;
+		const FString Room = ToFString(rb::LocationName(E.At));
+		return E.Person.empty() ? FString::Printf(TEXT("Go to the %s: %s"), *Room.ToLower(), *ToFString(E.Title))
+			: FString::Printf(TEXT("Go to the %s and talk to %s"), *Room.ToLower(), *PersonName(E.Person));
+	}
+	if (!M->PresentAt.empty())
+	{
+		return FString::Printf(TEXT("Answer at your workstation, then present at the lectern in the %s"), *ToFString(rb::LocationName(M->PresentAt)).ToLower());
+	}
+	return FString();
+}
+
+ERbMissionResult URbCampaignSubsystem::SubmitMission(const FString& MissionId, const TArray<FRbMissionAnswer>& Answers, const FString& Where)
 {
 	const rb::MissionDef* M = Catalogue.Find(ToStd(MissionId));
 	if (!M) return ERbMissionResult::UnknownMission;
 	rb::MissionDebrief D;
-	const ERbMissionResult R = FromSimError(rb::SubmitMission(Game()->EditState(), *M, ToSimAnswers(Answers), &D, &Catalogue, &World));
+	const ERbMissionResult R = FromSimError(rb::SubmitMission(Game()->EditState(), *M, ToSimAnswers(Answers), &D, &Catalogue, &World, ToStd(Where)));
 	if (R != ERbMissionResult::Ok) return R;
 	URbAudioSubsystem::Cue(this, D.bPassed ? ERbCue::MissionPassed : ERbCue::MissionFailed);
+	Drafts.Remove(MissionId);
 	SessionDebriefs.Add(MissionId, TPair<int32, FRbMissionDebriefView>(static_cast<int32>(Game()->GetState().Campaign.Records.size()), ToView(*M, D, true)));
 	if (D.bPromoted)
 	{
@@ -346,7 +375,8 @@ FString URbCampaignSubsystem::ResultText(ERbMissionResult Result)
 	}
 	static const rb::EMissionError Map[] = {rb::EMissionError::None, rb::EMissionError::Unavailable, rb::EMissionError::AnotherMissionActive,
 		rb::EMissionError::NotActive, rb::EMissionError::UnknownEvidence, rb::EMissionError::RequiredEvidenceNotViewed,
-		rb::EMissionError::UnansweredQuestion, rb::EMissionError::UnknownOption, rb::EMissionError::SingleNeedsOneOption};
+		rb::EMissionError::UnansweredQuestion, rb::EMissionError::UnknownOption, rb::EMissionError::SingleNeedsOneOption,
+		rb::EMissionError::EvidenceElsewhere, rb::EMissionError::PresentInPerson};
 	return ToFString(rb::ToString(Map[static_cast<int32>(Result)]));
 }
 

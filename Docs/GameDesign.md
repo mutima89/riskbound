@@ -47,6 +47,12 @@ Rules in `RbWorld` (RiskboundSim), content in Data/People.json, Story.json and E
 - **Visible consequences.** A share index (RbQuant `ShareIndex`, Docs/RiskMethodology.md section 15) is shown on the reception board and the HUD; headlines from incidents and events scroll in the monitoring room and appear in the journal.
 - **Sound.** Adaptive music (menu, focus, tension when a crisis is open, an incident is unread or stress is high, crisis during a crisis or the capstone) with crossfades, positional ambience (servers, air handling, typing), UI and event cues, footsteps (`URbAudioSubsystem`, Docs/AssetCredits.md "Audio").
 
+## In the world, with real tools (phase 2)
+- **Tool-scored questions.** Missions mix option questions with typed figures and matrix ratings, scored by how close the player gets (Docs/MissionData.md). Eight earlier figure questions were converted. The workstation tools (loss scenarios, cost-benefit, Monte Carlo) are where the figures are worked out.
+- **Casework in person.** Interviews and documents are placed in the office for the active case (spokespeople at a standing spot, a case folder on a surface, a small teal tag); the case file says where to go and the objective line points there. Board papers (M020, M023, the CRO capstone, The Ledger) are drafted at the workstation and presented at the boardroom lectern; drafted answers carry over for the session.
+- **Case studies.** M031-M036 are optional missions inspired by real events (a canal blockage, a winter grid failure, a client concentration collapse, a rate shock on "safe" bonds, ransomware at a fuel supplier, a credit crunch), with fictional names and figure and rating questions.
+- **Living office.** Each organisation week lands at a different time of day (morning, midday, afternoon, evening) and some weeks are overcast; the light changes slowly. Staff in the office follow employee morale (3 to 9 people). The player's desk carries a brass nameplate with their title and a trophy for every five achievements; the Chief Risk Officer gets a plaque at the head of the boardroom table.
+
 ## Difficulty
 Analyst (hints on, incidents less likely), Professional, Executive (no hints by default, incidents more likely). Difficulty never changes the rubric.
 

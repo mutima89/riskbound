@@ -99,36 +99,22 @@
     },
     {
       "id": "cost_benefit",
+      "kind": "numeric",
       "competency": "QuantitativeAnalysis",
       "weight": 25,
       "prompt": "Sensors cost 54,000 for six sites. If they cut leaks by half and refrigerant costs about 120 per kg, what is the annual saving from refrigerant alone?",
-      "options": [
+      "answer": 18600.0,
+      "tolerance": 0.05,
+      "unit": "a year",
+      "explanation": "Half of 310 kg = 155 kg; x 120 = 18,600. Payback about 3 years before counting compliance and climate benefits.",
+      "mistakes": [
         {
-          "id": "about_18600",
-          "label": "About 18,600 a year (155 kg x 120)",
-          "score": 92,
-          "feedback": "Half of 310 kg = 155 kg; x 120 = 18,600. Payback about 3 years before counting compliance and climate benefits.",
-          "relations": {
-            "grace": 5
-          }
+          "value": 37200.0,
+          "feedback": "That assumes all leaks stop."
         },
         {
-          "id": "about_37200",
-          "label": "About 37,200 a year (310 kg x 120)",
-          "score": 30,
-          "feedback": "That assumes all leaks stop.",
-          "relations": {
-            "grace": -4
-          }
-        },
-        {
-          "id": "about_54000",
-          "label": "About 54,000 a year (the sensors pay back in one year)",
-          "score": 15,
-          "feedback": "That is the sensor cost.",
-          "relations": {
-            "grace": -4
-          }
+          "value": 54000.0,
+          "feedback": "That is the sensor cost."
         }
       ]
     },

@@ -43,7 +43,9 @@
     {
       "id": "cctv_review",
       "title": "Sample CCTV review (Health and Safety)",
-      "body": "A review of 20 random yard shifts after the scheme started found 17 events that met the near-miss definition (reversing without a banksman, pedestrians in vehicle lanes). Two of them were logged."
+      "body": "A review of 20 random yard shifts after the scheme started found 17 events that met the near-miss definition (reversing without a banksman, pedestrians in vehicle lanes). Two of them were logged.",
+      "at": "training",
+      "person": "grace"
     },
     {
       "id": "injury_stats",
@@ -89,36 +91,22 @@
     },
     {
       "id": "estimate",
+      "kind": "numeric",
       "competency": "QuantitativeAnalysis",
       "weight": 20,
       "prompt": "Using the CCTV sample, roughly what share of near misses now gets reported?",
-      "options": [
+      "answer": 12.0,
+      "tolerance": 0.1,
+      "unit": "%",
+      "explanation": "2 / 17 = 12%. A small sample, so quote it as an indication.",
+      "mistakes": [
         {
-          "id": "about_12",
-          "label": "About 12% (2 of 17)",
-          "score": 92,
-          "feedback": "2 / 17 = 12%. A small sample, so quote it as an indication.",
-          "relations": {
-            "grace": 5
-          }
+          "value": 85.0,
+          "feedback": "That is the share of shifts with events, not the reporting rate."
         },
         {
-          "id": "about_85",
-          "label": "About 85% (17 of 20 shifts had events)",
-          "score": 15,
-          "feedback": "That is the share of shifts with events, not the reporting rate.",
-          "relations": {
-            "grace": -4
-          }
-        },
-        {
-          "id": "about_30",
-          "label": "About 30%, the drop in reports",
-          "score": 30,
-          "feedback": "Reports fell by 70%; that does not tell you the reporting rate.",
-          "relations": {
-            "grace": -4
-          }
+          "value": 30.0,
+          "feedback": "Reports fell by 70%; that does not tell you the reporting rate."
         }
       ]
     },

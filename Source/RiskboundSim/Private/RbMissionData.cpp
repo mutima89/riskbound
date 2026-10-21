@@ -244,6 +244,7 @@ bool MissionFromJson(const std::string& Text, const std::string& SourceName, Mis
 		R.Int("weeks", M.WeeksToComplete, false);
 		R.Text("lesson", M.Lesson, false);
 		R.Int("requiresClues", M.RequiresClues, false);
+		R.Str("presentAt", M.PresentAt, false);
 		R.Int("deadlineWeeks", M.DeadlineWeeks, false);
 		if (const JsonValue* Esc = R.Get("escalation", false))
 		{
@@ -278,6 +279,8 @@ bool MissionFromJson(const std::string& Text, const std::string& SourceName, Mis
 					ER.Text("body", Def.Body, true);
 					ER.Bool("required", Def.bRequired);
 					ER.Str("clue", Def.Clue, false);
+					ER.Str("at", Def.At, false);
+					ER.Str("person", Def.Person, false);
 					M.Evidence.push_back(Def);
 				}
 			}

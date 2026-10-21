@@ -61,83 +61,47 @@
   "questions": [
     {
       "id": "el_gross",
+      "kind": "numeric",
       "competency": "QuantitativeAnalysis",
       "weight": 25,
       "prompt": "What is Harrowgate's expected annual flood loss today, before insurance?",
-      "options": [
+      "answer": 20800.0,
+      "tolerance": 0.02,
+      "unit": "a year",
+      "explanation": "4% x 120,000 + 1% x 1,600,000 = 4,800 + 16,000 = 20,800.",
+      "mistakes": [
         {
-          "id": "el_20800",
-          "label": "20,800 a year",
-          "score": 92,
-          "feedback": "4% x 120,000 + 1% x 1,600,000 = 4,800 + 16,000 = 20,800.",
-          "relations": {
-            "hollis": 5
-          }
-        },
-        {
-          "id": "el_16000",
-          "label": "16,000 a year",
-          "score": 40,
+          "value": 16000.0,
           "feedback": "That is the major flood only; the minor flood adds 4,800."
         },
         {
-          "id": "el_1720000",
-          "label": "1,720,000",
-          "score": 10,
-          "feedback": "That adds the losses without weighting by probability. Expected loss is a probability-weighted average.",
-          "relations": {
-            "hollis": -4
-          }
+          "value": 1720000.0,
+          "feedback": "That adds the losses without weighting by probability. Expected loss is a probability-weighted average."
         },
         {
-          "id": "el_1600000",
-          "label": "1,600,000 (the worst case)",
-          "score": 10,
-          "feedback": "That is the worst case, not the expected loss. Report the two separately.",
-          "relations": {
-            "hollis": -4
-          }
+          "value": 1600000.0,
+          "feedback": "That is the worst case, not the expected loss. Report the two separately."
         }
       ]
     },
     {
       "id": "el_net",
+      "kind": "numeric",
       "competency": "QuantitativeAnalysis",
       "weight": 20,
       "prompt": "What expected annual loss does Valtren keep after insurance (excess 250,000, limit 1,000,000)?",
-      "options": [
+      "answer": 10800.0,
+      "tolerance": 0.02,
+      "unit": "a year",
+      "explanation": "Minor floods are below the excess, so Valtren keeps all 120,000 (4,800 a year). For a major flood the insurer pays 1,000,000 and Valtren keeps 600,000 (6,000 a year).",
+      "mistakes": [
         {
-          "id": "net_10800",
-          "label": "10,800 a year",
-          "score": 92,
-          "feedback": "Minor floods are below the excess, so Valtren keeps all 120,000 (4,800 a year). For a major flood the insurer pays 1,000,000 and Valtren keeps 600,000 (6,000 a year).",
-          "relations": {
-            "hollis": 5
-          }
+          "value": 20800.0,
+          "feedback": "Insurance pays most of a major flood; the loss Valtren keeps is lower."
         },
         {
-          "id": "net_20800",
-          "label": "20,800 a year: the excess and limit only matter when a flood happens, not to the average",
-          "score": 35,
-          "feedback": "Insurance pays most of a major flood; the loss Valtren keeps is lower.",
-          "relations": {
-            "hollis": -4
-          }
-        },
-        {
-          "id": "net_4800",
-          "label": "4,800 a year: minor floods sit below the excess, and the insurer pays the major one",
-          "score": 40,
+          "value": 4800.0,
           "feedback": "The cover limit is 1,000,000 and the excess applies: Valtren still keeps 600,000 of a major flood."
-        },
-        {
-          "id": "net_0",
-          "label": "Close to nothing: both scenarios are insured perils, so the insurer carries the flood risk",
-          "score": 5,
-          "feedback": "Excess and limits mean insurance never covers everything.",
-          "relations": {
-            "hollis": -4
-          }
         }
       ]
     },

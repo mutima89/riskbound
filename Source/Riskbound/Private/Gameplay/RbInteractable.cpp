@@ -112,4 +112,41 @@ void ARbNpc::Interact(ARbHUD* Hud)
 	Hud->TalkToManager();
 }
 
+ARbCaseMarker::ARbCaseMarker()
+{
+	Body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
+	Body->SetupAttachment(Mesh);
+	Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Body->SetAbsolute(false, false, true);
+}
+
+void ARbCaseMarker::SetBody(USkeletalMesh* BodyMesh, UAnimSequence* Idle, UMaterialInterface* Outfit, float MeshYaw)
+{
+	if (!BodyMesh) return;
+	Mesh->SetVisibility(false);
+	Body->SetSkeletalMesh(BodyMesh);
+	Body->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f / FMath::Max(GetActorScale3D().Z, 0.01f)), FRotator(0.0f, MeshYaw, 0.0f));
+	if (Outfit)
+	{
+		for (int32 i = 0; i < Body->GetNumMaterials(); ++i) Body->SetMaterial(i, Outfit);
+	}
+	if (Idle) Body->PlayAnimation(Idle, true);
+}
+
+FText ARbCaseMarker::GetPrompt() const
+{
+	switch (Kind)
+	{
+	case ERbCaseMarkerKind::Interview: return FText::Format(LOCTEXT("CaseTalk", "Talk to {0} (case {1})"), FText::FromString(Title), FText::FromString(MissionId));
+	case ERbCaseMarkerKind::Lectern: return FText::Format(LOCTEXT("CasePresentPrompt", "Present to the board: {0}"), FText::FromString(Title));
+	default: return FText::Format(LOCTEXT("CaseExamine", "Examine: {0} (case {1})"), FText::FromString(Title), FText::FromString(MissionId));
+	}
+}
+
+void ARbCaseMarker::Interact(ARbHUD* Hud)
+{
+	if (Kind == ERbCaseMarkerKind::Lectern) Hud->OpenCaseFiles(MissionId, false, Where);
+	else Hud->ExamineInPerson(MissionId, EvidenceId, Where);
+}
+
 #undef LOCTEXT_NAMESPACE

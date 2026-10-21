@@ -30,7 +30,8 @@
     {
       "id": "interviews",
       "title": "Client interviews",
-      "body": "Three of the top five clients plan to require live temperature data feeds by 2027. Two will score suppliers on emissions."
+      "body": "Three of the top five clients plan to require live temperature data feeds by 2027. Two will score suppliers on emissions.",
+      "at": "meeting"
     },
     {
       "id": "assumptions",

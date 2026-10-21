@@ -53,6 +53,7 @@ void SRbCaseFiles::Construct(const FArguments& InArgs)
 	Game = InArgs._Game;
 	OnClose = InArgs._OnClose;
 	OnMissionStarted = InArgs._OnMissionStarted;
+	Where = InArgs._Where;
 	TSharedPtr<SButton> Close;
 	ChildSlot
 	[
@@ -109,7 +110,11 @@ void SRbCaseFiles::ShowMission(const FString& InMissionId)
 		Status = FText::FromString(URbCampaignSubsystem::ResultText(R));
 		return;
 	}
-	if (MissionId != InMissionId) Answers.Reset();
+	if (MissionId != InMissionId)
+	{
+		const TMap<FString, TArray<FString>>* Draft = Campaign->GetDraft(InMissionId);
+		Answers = Draft ? *Draft : TMap<FString, TArray<FString>>();
+	}
 	if (OnMissionStarted) OnMissionStarted();
 	MissionId = InMissionId;
 	View = EView::Mission;
@@ -158,6 +163,12 @@ void SRbCaseFiles::SetAnswer(const FString& QuestionId, const FString& OptionId,
 	if (bSelected) Picked.AddUnique(OptionId);
 	else Picked.Remove(OptionId);
 	if (Picked.IsEmpty()) Answers.Remove(QuestionId);
+	SaveDraft();
+}
+
+void SRbCaseFiles::SaveDraft()
+{
+	if (Campaign.IsValid() && !MissionId.IsEmpty()) Campaign->SetDraft(MissionId, Answers);
 }
 
 TSharedRef<SWidget> SRbCaseFiles::BuildList()
@@ -255,6 +266,19 @@ TSharedRef<SWidget> SRbCaseFiles::BuildMission()
 	Ev->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)[CaseText(TEXT("Evidence"), 15, TextPrimary, EWeight::SemiBold)];
 	for (const FRbMissionEvidenceView& E : M.Evidence)
 	{
+		if (!E.At.IsEmpty() && E.At != Where)
+		{
+			// Seen in person: the button becomes a pointer to where it is.
+			const FString Where2 = E.PersonName.IsEmpty() ? FString::Printf(TEXT("examine it in the %s"), *E.AtName.ToLower())
+				: FString::Printf(TEXT("talk to %s in the %s"), *E.PersonName, *E.AtName.ToLower());
+			Ev->AddSlot().AutoHeight().Padding(0.0f, Space1, 0.0f, Space2)
+			[
+				CaseText(FString::Printf(TEXT("%s%s  -  in person: %s%s"), E.bViewed ? TEXT("[seen]  ") : TEXT(""), *E.Title, *Where2, E.bRequired ? TEXT("") : TEXT(" (optional)")),
+					14, E.bViewed ? TextMuted : Warning, EWeight::Medium)
+			];
+			if (E.bViewed && OpenEvidenceId == E.Id) Ev->AddSlot().AutoHeight().Padding(Space4, Space1, 0.0f, Space2)[CaseText(E.Body, 14, TextPrimary)];
+			continue;
+		}
 		const FString EvId = E.Id;
 		const FString Label = FString::Printf(TEXT("%s%s%s"), E.bViewed ? TEXT("[read]  ") : TEXT(""), *E.Title, E.bRequired ? TEXT("") : TEXT("  (optional)"));
 		Ev->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space1)
@@ -262,7 +286,7 @@ TSharedRef<SWidget> SRbCaseFiles::BuildMission()
 			MakeButton(FText::FromString(Label), CaseClick([this, EvId]()
 			{
 				if (!Campaign.IsValid()) return;
-				Campaign->ViewEvidence(MissionId, EvId);
+				Campaign->ViewEvidence(MissionId, EvId, Where);
 				OpenEvidenceId = OpenEvidenceId == EvId ? FString() : EvId;
 				Rebuild();
 			}))
@@ -304,6 +328,7 @@ TSharedRef<SWidget> SRbCaseFiles::BuildMission()
 							const FString V = T.ToString().TrimStartAndEnd();
 							if (V.IsEmpty()) Answers.Remove(QId);
 							else Answers.Add(QId, {V});
+							SaveDraft();
 						})
 					]
 				]
@@ -343,6 +368,7 @@ TSharedRef<SWidget> SRbCaseFiles::BuildMission()
 							TArray<FString>& Picked = Answers.FindOrAdd(QId);
 							Picked.SetNum(2);
 							Picked[Part] = Value;
+							SaveDraft();
 						})
 						[
 							SNew(SBox).Padding(Space1, 0.0f, 0.0f, 0.0f)[CaseText(FString::Printf(TEXT("%d %s"), V, Words[Part][V - 1]), 13)]
@@ -384,6 +410,11 @@ TSharedRef<SWidget> SRbCaseFiles::BuildMission()
 			{
 				if (!Campaign.IsValid()) return FText::GetEmpty();
 				const ERbMissionResult R = Campaign->ValidateAnswers(MissionId, CurrentAnswers());
+				const FRbMissionView MV = Campaign->GetMission(MissionId);
+				if (R == ERbMissionResult::Ok && !MV.PresentAt.IsEmpty() && MV.PresentAt != Where)
+				{
+					return FText::Format(LOCTEXT("CasePresent", "Ready. This one is presented in person: take it to the lectern in the {0}."), FText::FromString(MV.PresentAtName.ToLower()));
+				}
 				return R == ERbMissionResult::Ok ? LOCTEXT("CaseReady", "Ready to submit. Your answers are scored only after you submit.")
 					: FText::FromString(URbCampaignSubsystem::ResultText(R));
 			})
@@ -401,7 +432,7 @@ TSharedRef<SWidget> SRbCaseFiles::BuildMission()
 			MakeButton(LOCTEXT("CaseSubmit", "Submit"), CaseClick([this]()
 			{
 				if (!Campaign.IsValid()) return;
-				const ERbMissionResult R = Campaign->SubmitMission(MissionId, CurrentAnswers());
+				const ERbMissionResult R = Campaign->SubmitMission(MissionId, CurrentAnswers(), Where);
 				if (R == ERbMissionResult::Ok)
 				{
 					Answers.Reset();
@@ -412,7 +443,12 @@ TSharedRef<SWidget> SRbCaseFiles::BuildMission()
 					Status = FText::FromString(URbCampaignSubsystem::ResultText(R));
 				}
 			}), nullptr,
-			TAttribute<bool>::CreateLambda([this]() { return Campaign.IsValid() && Campaign->ValidateAnswers(MissionId, CurrentAnswers()) == ERbMissionResult::Ok; }),
+			TAttribute<bool>::CreateLambda([this]()
+			{
+				if (!Campaign.IsValid() || Campaign->ValidateAnswers(MissionId, CurrentAnswers()) != ERbMissionResult::Ok) return false;
+				const FRbMissionView MV = Campaign->GetMission(MissionId);
+				return MV.PresentAt.IsEmpty() || MV.PresentAt == Where;
+			}),
 			true)
 		]
 	];

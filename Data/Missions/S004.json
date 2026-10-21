@@ -59,7 +59,8 @@
     {
       "id": "counsel",
       "title": "External counsel: options",
-      "body": "The committee may suspend the executive pending investigation, report to the police and the regulator, recover funds through civil action and review the controls that allowed it. Public disclosure obligations apply if the matter is material."
+      "body": "The committee may suspend the executive pending investigation, report to the police and the regulator, recover funds through civil action and review the controls that allowed it. Public disclosure obligations apply if the matter is material.",
+      "at": "boardroom"
     }
   ],
   "questions": [
@@ -199,5 +200,6 @@
       ]
     }
   ],
-  "lesson": "Fraud at the top is a governance test. The independent chair, the law and the regulator decide; the risk function brings facts, quantifies the loss and fixes the routes that let it happen."
+  "lesson": "Fraud at the top is a governance test. The independent chair, the law and the regulator decide; the risk function brings facts, quantifies the loss and fixes the routes that let it happen.",
+  "presentAt": "boardroom"
 }

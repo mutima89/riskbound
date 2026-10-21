@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace rb
@@ -116,7 +117,13 @@ struct MissionEvidenceDef
 	std::string Body;
 	bool bRequired = true; // must be opened before submitting
 	std::string Clue;      // story clue gained when opened (Data/Story.json), may be empty
+	std::string At;        // HQ location where it must be examined (empty: the workstation), see KnownLocations()
+	std::string Person;    // interview: the character met there (Data/People.json), may be empty
 };
+
+// Places in the Valtren HQ where casework happens in person: ids and display names.
+RB_API const std::vector<std::pair<std::string, std::string>>& KnownLocations();
+RB_API std::string LocationName(const std::string& Id); // "" if unknown
 
 // Briefing text that appears only when the organisation's state matches: this is how earlier
 // decisions and incidents change later missions.
@@ -159,6 +166,7 @@ struct MissionDef
 	int DeadlineWeeks = 0;
 	std::vector<MetricEffect> EscalationEffects;
 	std::string EscalationText;
+	std::string PresentAt;    // submitted in person at this HQ location (a board presentation), empty: anywhere
 };
 
 struct MissionCatalogue
@@ -231,13 +239,16 @@ enum class EMissionError
 	RequiredEvidenceNotViewed,
 	UnansweredQuestion,
 	UnknownOption,
-	SingleNeedsOneOption
+	SingleNeedsOneOption,
+	EvidenceElsewhere, // located evidence must be examined where it is
+	PresentInPerson    // this mission is presented at its PresentAt location
 };
 
 RB_API const char* ToString(EMissionError E);
 
 RB_API EMissionError StartMission(GameState& State, const MissionDef& M, const MissionCatalogue* Catalogue = nullptr);
-RB_API EMissionError ViewMissionEvidence(GameState& State, const MissionDef& M, const std::string& EvidenceId);
+// Where: the HQ location the player is examining it in ("" at the workstation).
+RB_API EMissionError ViewMissionEvidence(GameState& State, const MissionDef& M, const std::string& EvidenceId, const std::string& Where = std::string());
 RB_API EMissionError AbandonMission(GameState& State);
 RB_API EMissionError ValidateAnswers(const GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers);
 
@@ -297,5 +308,5 @@ RB_API MissionDebrief ScoreMission(const MissionDef& M, const std::vector<Missio
 // With World content: also schedules fallout from weak answers, applies relationship and stress
 // effects and runs UpdateWorld after time passes (inbox events, escalations, burnout, news).
 RB_API EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers, MissionDebrief* OutDebrief = nullptr,
-	const MissionCatalogue* Catalogue = nullptr, const WorldContent* World = nullptr);
+	const MissionCatalogue* Catalogue = nullptr, const WorldContent* World = nullptr, const std::string& Where = std::string());
 } // namespace rb

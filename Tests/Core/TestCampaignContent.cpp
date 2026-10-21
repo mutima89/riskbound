@@ -68,8 +68,8 @@ EMissionError PlayBestAnswers(GameState& G, const MissionDef& M, MissionDebrief*
 {
 	const EMissionError E = StartMission(G, M);
 	if (E != EMissionError::None) return E;
-	for (const MissionEvidenceDef& Ev : M.Evidence) ViewMissionEvidence(G, M, Ev.Id);
-	return SubmitMission(G, M, Best(M), D);
+	for (const MissionEvidenceDef& Ev : M.Evidence) ViewMissionEvidence(G, M, Ev.Id, Ev.At);
+	return SubmitMission(G, M, Best(M), D, nullptr, nullptr, M.PresentAt);
 }
 
 void PassMission001(GameState& G)

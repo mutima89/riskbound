@@ -98,12 +98,12 @@ ERbMissionResult PlayCaseBest(ARbHUD* Hud, const FString& MissionId)
 	const rb::MissionDef* Def = Campaign->GetCatalogue().Find(RbConvert::ToStd(MissionId));
 	if (!Def) return ERbMissionResult::UnknownMission;
 	TSharedPtr<SRbCaseFiles> Files = Hud->OpenCaseFiles(MissionId); // starts the mission
-	for (const FRbMissionEvidenceView& E : Campaign->GetMission(MissionId).Evidence) Campaign->ViewEvidence(MissionId, E.Id);
+	for (const FRbMissionEvidenceView& E : Campaign->GetMission(MissionId).Evidence) Campaign->ViewEvidence(MissionId, E.Id, E.At);
 	for (const FRbMissionAnswer& A : BestAnswers(*Def))
 	{
 		Files->SetAnswerValues(A.QuestionId, A.OptionIds);
 	}
-	return Campaign->SubmitMission(MissionId, Files->CurrentAnswers());
+	return Campaign->SubmitMission(MissionId, Files->CurrentAnswers(), RbConvert::ToFString(Def->PresentAt));
 }
 
 namespace
@@ -147,7 +147,7 @@ void CheckCampaign(FReport& R, URbGameSubsystem* Game)
 {
 	URbCampaignSubsystem* Campaign = Game->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
 	const TArray<FRbMissionSummary> Missions = Campaign->GetMissions(true);
-	R.Check(TEXT("mission_data"), Missions.Num() == 46 && Campaign->GetAchievementDefs().size() == 50 && Campaign->GetLoadErrors().IsEmpty(),
+	R.Check(TEXT("mission_data"), Missions.Num() == 52 && Campaign->GetAchievementDefs().size() == 50 && Campaign->GetLoadErrors().IsEmpty(),
 		FString::Printf(TEXT("%d missions, %d achievements, %d problems"), Missions.Num(), static_cast<int32>(Campaign->GetAchievementDefs().size()), Campaign->GetLoadErrors().Num()));
 	const FRbMissionSummary* M2 = Missions.FindByPredicate([](const FRbMissionSummary& M) { return M.Id == TEXT("M002"); });
 	const FRbMissionDebriefView D = Campaign->GetDebrief(TEXT("M002"));

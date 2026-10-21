@@ -160,10 +160,10 @@ GameState PlayCampaign(const MissionCatalogue& C, uint64_t Seed, EDifficulty Dif
 		if (bReloadEveryStep) G = Reload(G);
 		for (const MissionEvidenceDef& E : M.Evidence)
 		{
-			ViewMissionEvidence(G, M, E.Id);
+			ViewMissionEvidence(G, M, E.Id, E.At);
 			if (bReloadEveryStep) G = Reload(G);
 		}
-		if (SubmitMission(G, M, RandomAnswers(M, Policy)) != EMissionError::None) break;
+		if (SubmitMission(G, M, RandomAnswers(M, Policy), nullptr, nullptr, nullptr, M.PresentAt) != EMissionError::None) break;
 		if (bReloadEveryStep) G = Reload(G);
 	}
 	return G;

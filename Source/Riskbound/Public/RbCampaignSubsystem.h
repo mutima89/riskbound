@@ -51,8 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Riskbound|Campaign")
 	ERbMissionResult StartMission(const FString& MissionId);
 
+	// Where: the HQ location the player is in when examining it ("" at the workstation).
 	UFUNCTION(BlueprintCallable, Category = "Riskbound|Campaign")
-	ERbMissionResult ViewEvidence(const FString& MissionId, const FString& EvidenceId);
+	ERbMissionResult ViewEvidence(const FString& MissionId, const FString& EvidenceId, const FString& Where = TEXT(""));
 
 	UFUNCTION(BlueprintCallable, Category = "Riskbound|Campaign")
 	ERbMissionResult AbandonMission();
@@ -61,8 +62,12 @@ public:
 	ERbMissionResult ValidateAnswers(const FString& MissionId, const TArray<FRbMissionAnswer>& Answers) const;
 
 	// Scores, applies consequences, advances time and runs the promotion review; autosaves.
+	// Where: the HQ location of the submission ("" at the workstation); board papers are presented in person.
 	UFUNCTION(BlueprintCallable, Category = "Riskbound|Campaign")
-	ERbMissionResult SubmitMission(const FString& MissionId, const TArray<FRbMissionAnswer>& Answers);
+	ERbMissionResult SubmitMission(const FString& MissionId, const TArray<FRbMissionAnswer>& Answers, const FString& Where = TEXT(""));
+
+	// What the active case still needs in person, for the objective line ("" if nothing).
+	FString InPersonObjective() const;
 
 	// The debrief of the latest attempt at a mission. Consequences and promotion are only
 	// present for a submission made in this session; the scores are recomputed from the save.
@@ -101,6 +106,11 @@ public:
 
 	FString PersonName(const std::string& Id) const;
 
+	// Answers in progress for a mission, kept for the session so a board paper drafted at the
+	// workstation is still there at the boardroom lectern. Cleared on submit or set aside.
+	const TMap<FString, TArray<FString>>* GetDraft(const FString& MissionId) const { return Drafts.Find(MissionId); }
+	void SetDraft(const FString& MissionId, const TMap<FString, TArray<FString>>& Answers) { Drafts.Add(MissionId, Answers); }
+
 private:
 	URbGameSubsystem* Game() const;
 	FRbMissionDebriefView ToView(const rb::MissionDef& M, const rb::MissionDebrief& D, bool bFull) const;
@@ -111,6 +121,7 @@ private:
 
 	rb::MissionCatalogue Catalogue;
 	rb::WorldContent World;
+	TMap<FString, TMap<FString, TArray<FString>>> Drafts;
 	TArray<FString> LoadErrors;
 	std::vector<rb::AchievementDef> Achievements;
 	// Full debriefs from this session, keyed by mission, with the record count they belong to.
