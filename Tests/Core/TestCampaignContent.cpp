@@ -60,23 +60,7 @@ std::vector<AchievementDef> ShippedAchievements(std::vector<std::string>& Errors
 std::vector<MissionAnswer> Best(const MissionDef& M)
 {
 	std::vector<MissionAnswer> Out;
-	for (const MissionQuestionDef& Q : M.Questions)
-	{
-		MissionAnswer A{Q.Id, {}};
-		if (Q.Kind == EQuestionKind::Multi)
-		{
-			for (const MissionOptionDef& O : Q.Options)
-			{
-				if (O.bCorrect) A.OptionIds.push_back(O.Id);
-			}
-		}
-		else
-		{
-			A.OptionIds.push_back(std::max_element(Q.Options.begin(), Q.Options.end(),
-				[](const MissionOptionDef& L, const MissionOptionDef& R) { return L.Score < R.Score; })->Id);
-		}
-		Out.push_back(A);
-	}
+	for (const MissionQuestionDef& Q : M.Questions) Out.push_back(BestAnswer(Q));
 	return Out;
 }
 
@@ -118,7 +102,7 @@ TEST(Data_ShippedContentScale)
 		Crises += M.Kind == EMissionKind::Crisis ? 1 : 0;
 		Capstones += M.Kind == EMissionKind::Capstone ? 1 : 0;
 	}
-	CHECK_EQ(Missions, 30);
+	CHECK_EQ(Missions, 36); // 30 career missions (M001-M030) and 6 case studies inspired by real events (M031-M036)
 	CHECK_EQ(Crises, 12);
 	CHECK_EQ(Capstones, 1);
 	CHECK_EQ(Story, 4); // The Corvane Ledger (S001-S004), optional
@@ -378,7 +362,7 @@ TEST(Content_OptionDisplayOrderHidesTheAnswerPosition)
 					}
 					BestShownFirst += Order[0] == Best ? 1 : 0;
 				}
-				else
+				else if (Q.Kind == EQuestionKind::Multi)
 				{
 					++Multis;
 					// Correct options are not all shown before every incorrect one.

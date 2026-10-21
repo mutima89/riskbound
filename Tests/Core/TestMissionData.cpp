@@ -42,23 +42,7 @@ static std::vector<std::pair<std::string, std::string>> ShippedMissionFiles()
 static std::vector<MissionAnswer> BestAnswers(const MissionDef& M)
 {
 	std::vector<MissionAnswer> Out;
-	for (const MissionQuestionDef& Q : M.Questions)
-	{
-		MissionAnswer A{Q.Id, {}};
-		if (Q.Kind == EQuestionKind::Multi)
-		{
-			for (const MissionOptionDef& O : Q.Options)
-			{
-				if (O.bCorrect) A.OptionIds.push_back(O.Id);
-			}
-		}
-		else
-		{
-			const auto Best = std::max_element(Q.Options.begin(), Q.Options.end(), [](const MissionOptionDef& L, const MissionOptionDef& R) { return L.Score < R.Score; });
-			A.OptionIds.push_back(Best->Id);
-		}
-		Out.push_back(A);
-	}
+	for (const MissionQuestionDef& Q : M.Questions) Out.push_back(BestAnswer(Q));
 	return Out;
 }
 

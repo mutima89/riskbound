@@ -55,6 +55,8 @@ struct FRbMissionQuestionView
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Id;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Prompt;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bMulti = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Kind; // single, multi, numeric (type a figure), rating (likelihood and impact 1-5)
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Unit; // numeric: shown next to the input
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FRbMissionOptionView> Options;
 };
 

@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "id": "M032",
+  "title": "The Big Freeze",
+  "kind": "mission",
+  "department": "Operations",
+  "minLevel": 5,
+  "requiresPassed": [
+    "M010"
+  ],
+  "passMark": 60,
+  "xp": 190,
+  "weeks": 2,
+  "briefing": [
+    "Case study, inspired by the 2021 Texas winter storm. A week of -18C cold has hit the region and the grid operator has started rolling blackouts of up to 20 hours.",
+    "For a cold chain the danger runs the other way: medicines that must stay between 2 and 8C can freeze. Amara Lindqvist asks you to check whether Harrowgate can ride it out on its generator."
+  ],
+  "evidence": [
+    {
+      "id": "generator",
+      "title": "Harrowgate backup generator",
+      "body": [
+        "Fuel tank: 400 litres, full. Consumption at the current load: 25 litres an hour.",
+        "The diesel is summer grade."
+      ]
+    },
+    {
+      "id": "outages",
+      "title": "Grid operator notice",
+      "body": "Rolling outages of up to 20 hours at a time, possibly repeated over five days. Road fuel deliveries are delayed by ice."
+    },
+    {
+      "id": "product",
+      "title": "Stored product",
+      "body": "1.2 million of temperature-sensitive vaccines in the Harrowgate chilled store. Freezing below 0C destroys them."
+    }
+  ],
+  "questions": [
+    {
+      "id": "runtime",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 20,
+      "prompt": "How many hours can the Harrowgate generator run on a full tank?",
+      "answer": 16,
+      "tolerance": 0.02,
+      "explanation": "400 litres / 25 litres an hour = 16 hours.",
+      "unit": "hours",
+      "mistakes": [
+        {
+          "value": 20,
+          "feedback": "20 hours is the length of the outage, not what the tank lasts."
+        }
+      ]
+    },
+    {
+      "id": "shortfall",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 15,
+      "prompt": "How many extra litres of fuel are needed to cover one 20-hour outage?",
+      "answer": 100,
+      "tolerance": 0.02,
+      "explanation": "The outage outlasts the tank by 4 hours; 4 x 25 = 100 litres.",
+      "unit": "litres"
+    },
+    {
+      "id": "response",
+      "competency": "Judgement",
+      "weight": 30,
+      "prompt": "What do you do first?",
+      "options": [
+        {
+          "id": "prep",
+          "label": "Pre-position winter-grade diesel on site, keep trucks' heaters running and agree priority fuel delivery",
+          "score": 93,
+          "feedback": "It closes the fuel gap, removes the summer-diesel gelling risk and protects the vaccines.",
+          "relations": {
+            "amara": 5
+          }
+        },
+        {
+          "id": "move",
+          "label": "Move all the vaccines to another site with a stable grid",
+          "score": 50,
+          "feedback": "Moving 1.2 million of vaccines in ice is a risk of its own, and no site is guaranteed a stable grid."
+        },
+        {
+          "id": "insure",
+          "label": "Check the insurance covers freezing losses",
+          "score": 25,
+          "feedback": "Worth knowing, but it does not stop the loss or the patients' shortage."
+        },
+        {
+          "id": "wait",
+          "label": "Monitor temperatures and react if they fall",
+          "score": 15,
+          "feedback": "By the time the store freezes it is too late; this needs action before the outage."
+        }
+      ]
+    },
+    {
+      "id": "risks",
+      "kind": "multi",
+      "competency": "RiskIdentification",
+      "weight": 20,
+      "prompt": "Which risks does extreme cold create for a cold chain? Pick all that apply.",
+      "options": [
+        {
+          "id": "freeze",
+          "label": "Chilled products freezing",
+          "correct": true,
+          "feedback": "The headline risk: 2-8C products are destroyed below 0C."
+        },
+        {
+          "id": "gel",
+          "label": "Summer-grade diesel gelling in generators and trucks",
+          "correct": true,
+          "feedback": "Summer diesel waxes in deep cold and stops engines."
+        },
+        {
+          "id": "staff",
+          "label": "Staff unable to reach sites safely",
+          "correct": true,
+          "feedback": "People are part of resilience."
+        },
+        {
+          "id": "demand",
+          "label": "Customers no longer needing refrigeration",
+          "correct": false,
+          "feedback": "Medicines still need 2-8C whatever the weather outside."
+        }
+      ]
+    },
+    {
+      "id": "rate",
+      "kind": "rating",
+      "competency": "RiskAssessment",
+      "weight": 15,
+      "prompt": "Rate a multi-day winter grid failure at a key cold store, before treatment.",
+      "likelihood": 2,
+      "impact": 5,
+      "explanation": "Rare in this climate (unlikely), but losing a store of vaccines is catastrophic (severe)."
+    }
+  ],
+  "lesson": "Resilience is arithmetic before it is heroics: fuel hours against outage hours. Cold-chain risk includes too cold, not only too hot."
+}

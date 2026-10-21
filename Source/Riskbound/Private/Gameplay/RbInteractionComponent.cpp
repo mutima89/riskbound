@@ -31,7 +31,9 @@ void URbInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(RbInteract), false, GetOwner());
 	FHitResult Hit;
 	ARbInteractable* Candidate = nullptr;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, ViewLocation, End, ECC_Visibility, Params))
+	// A thin sphere sweep rather than a line: small props (binders, clipboards) are easy to target
+	// without pixel-perfect aim, and walls still block it.
+	if (GetWorld()->SweepSingleByChannel(Hit, ViewLocation, End, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(9.0f), Params))
 	{
 		Candidate = Cast<ARbInteractable>(Hit.GetActor());
 	}

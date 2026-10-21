@@ -6,6 +6,7 @@
 #include "RbUIStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SCheckBox.h"
+#include "Widgets/Input/SEditableTextBox.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SScrollBox.h"
@@ -141,6 +142,7 @@ TArray<FRbMissionAnswer> SRbCaseFiles::CurrentAnswers() const
 	TArray<FRbMissionAnswer> Out;
 	for (const TPair<FString, TArray<FString>>& A : Answers)
 	{
+		if (A.Value.Contains(FString())) continue; // a rating with only one of its two parts chosen
 		FRbMissionAnswer Answer;
 		Answer.QuestionId = A.Key;
 		Answer.OptionIds = A.Value;
@@ -281,9 +283,77 @@ TSharedRef<SWidget> SRbCaseFiles::BuildMission()
 		[
 			CaseText(FString::Printf(TEXT("%d. %s%s"), qi + 1, *Q.Prompt, Q.bMulti ? TEXT("  (select all that apply)") : TEXT("")), 15, TextPrimary, EWeight::SemiBold)
 		];
+		const FString QId = Q.Id;
+		if (Q.Kind == TEXT("numeric"))
+		{
+			// A figure the player works out, with the workstation tools if they like; scored by how close it is.
+			const TArray<FString>* Prior = Answers.Find(QId);
+			QBox->AddSlot().AutoHeight().Padding(0.0f, 2.0f)
+			[
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot().AutoWidth()
+				[
+					SNew(SBox).WidthOverride(220.0f)
+					[
+						SNew(SEditableTextBox)
+						.Text(FText::FromString(Prior && Prior->Num() == 1 ? (*Prior)[0] : FString()))
+						.HintText(LOCTEXT("NumericHint", "Enter a figure"))
+						.Font(FontW(15, EWeight::Medium))
+						.OnTextChanged_Lambda([this, QId](const FText& T)
+						{
+							const FString V = T.ToString().TrimStartAndEnd();
+							if (V.IsEmpty()) Answers.Remove(QId);
+							else Answers.Add(QId, {V});
+						})
+					]
+				]
+				+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(Space2, 0.0f, 0.0f, 0.0f)[CaseText(Q.Unit, 14, TextMuted)]
+			];
+			QBox->AddSlot().AutoHeight().Padding(0.0f, Space1, 0.0f, 0.0f)
+			[
+				CaseText(TEXT("Work it out from the evidence; the Risk tools at your workstation can help. Scored by how close you are."), 12, TextMuted)
+			];
+		}
+		else if (Q.Kind == TEXT("rating"))
+		{
+			// Two rows of 1-5 on the Valtren matrix scale.
+			static const TCHAR* const Words[2][5] = {{TEXT("Rare"), TEXT("Unlikely"), TEXT("Possible"), TEXT("Likely"), TEXT("Almost certain")},
+				{TEXT("Minimal"), TEXT("Minor"), TEXT("Moderate"), TEXT("Major"), TEXT("Severe")}};
+			for (int32 Part = 0; Part < 2; ++Part)
+			{
+				TSharedRef<SHorizontalBox> Row = SNew(SHorizontalBox);
+				Row->AddSlot().AutoWidth().VAlign(VAlign_Center).Padding(0.0f, 0.0f, Space3, 0.0f)
+				[
+					SNew(SBox).WidthOverride(90.0f)[CaseText(Part == 0 ? TEXT("Likelihood") : TEXT("Impact"), 14, TextMuted, EWeight::Medium)]
+				];
+				for (int32 V = 1; V <= 5; ++V)
+				{
+					const FString Value = FString::FromInt(V);
+					Row->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space3, 0.0f)
+					[
+						SNew(SCheckBox)
+						.Style(&RadioStyle())
+						.IsChecked_Lambda([this, QId, Part, Value]()
+						{
+							const TArray<FString>* Picked = Answers.Find(QId);
+							return Picked && Picked->Num() == 2 && (*Picked)[Part] == Value ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+						})
+						.OnCheckStateChanged_Lambda([this, QId, Part, Value](ECheckBoxState)
+						{
+							TArray<FString>& Picked = Answers.FindOrAdd(QId);
+							Picked.SetNum(2);
+							Picked[Part] = Value;
+						})
+						[
+							SNew(SBox).Padding(Space1, 0.0f, 0.0f, 0.0f)[CaseText(FString::Printf(TEXT("%d %s"), V, Words[Part][V - 1]), 13)]
+						]
+					];
+				}
+				QBox->AddSlot().AutoHeight().Padding(0.0f, 3.0f)[Row];
+			}
+		}
 		for (const FRbMissionOptionView& O : Q.Options)
 		{
-			const FString QId = Q.Id;
 			const FString OId = O.Id;
 			const bool bMulti = Q.bMulti;
 			QBox->AddSlot().AutoHeight().Padding(0.0f, 2.0f)

@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "id": "M034",
+  "title": "Rates Rise",
+  "kind": "mission",
+  "department": "Finance",
+  "minLevel": 8,
+  "requiresPassed": [
+    "M019"
+  ],
+  "passMark": 60,
+  "xp": 240,
+  "weeks": 2,
+  "briefing": [
+    "Case study, inspired by the 2023 failure of a bank that held 'safe' long-dated bonds when interest rates jumped. Two years ago Valtren's treasury put surplus cash into long fixed-rate government bonds for the extra yield.",
+    "Rates have since risen two percentage points. Valtren needs cash for a depot expansion in six months. Hollis Varga wants the board paper."
+  ],
+  "evidence": [
+    {
+      "id": "holding",
+      "title": "Treasury holding",
+      "body": [
+        "4,000,000 nominal in 10-year fixed-rate government bonds, bought at par.",
+        "Modified duration: 8."
+      ]
+    },
+    {
+      "id": "rates",
+      "title": "Market update",
+      "body": "Comparable yields are up 2.0 percentage points since purchase."
+    },
+    {
+      "id": "needs",
+      "title": "Cash plan",
+      "body": "Depot expansion: 2,500,000 payable in six months. A 3,000,000 revolving credit line is available at base rate plus 2%."
+    }
+  ],
+  "questions": [
+    {
+      "id": "loss",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 25,
+      "prompt": "Approximately how much value has the bond holding lost? (Enter the loss as a positive figure.)",
+      "answer": 640000,
+      "tolerance": 0.02,
+      "explanation": "Price change is about modified duration x yield change: 8 x 2% = 16% of 4,000,000 = 640,000.",
+      "mistakes": [
+        {
+          "value": 80000,
+          "feedback": "That is 2% of the holding: it ignores duration, which multiplies the effect of a rate change."
+        },
+        {
+          "value": 6400000,
+          "feedback": "Check the units: 2 percentage points is 0.02."
+        }
+      ]
+    },
+    {
+      "id": "value",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 15,
+      "prompt": "What is the holding worth now?",
+      "answer": 3360000,
+      "tolerance": 0.02,
+      "explanation": "4,000,000 - 640,000 = 3,360,000."
+    },
+    {
+      "id": "response",
+      "competency": "Judgement",
+      "weight": 30,
+      "prompt": "How should Valtren fund the depot payment?",
+      "options": [
+        {
+          "id": "credit",
+          "label": "Draw the credit line for the payment and run the bonds down as they mature, then set treasury limits on duration",
+          "score": 90,
+          "feedback": "Avoids crystallising the loss at the worst time and fixes the policy gap that created the mismatch.",
+          "relations": {
+            "hollis": 6
+          }
+        },
+        {
+          "id": "sell",
+          "label": "Sell bonds to raise the 2,500,000 now",
+          "score": 40,
+          "feedback": "It works, but it locks in most of the loss on the bonds sold."
+        },
+        {
+          "id": "hold",
+          "label": "Hold everything and delay the depot",
+          "score": 30,
+          "feedback": "Delaying strategy to protect an accounting position is the wrong way round."
+        },
+        {
+          "id": "double",
+          "label": "Buy more bonds now that yields are higher",
+          "score": 10,
+          "feedback": "It deepens the mismatch between long assets and short-term cash needs."
+        }
+      ]
+    },
+    {
+      "id": "lessons",
+      "kind": "multi",
+      "competency": "Governance",
+      "weight": 15,
+      "prompt": "Which lessons belong in the new treasury policy? Pick all that apply.",
+      "options": [
+        {
+          "id": "match",
+          "label": "Match the maturity of investments to when the cash will be needed",
+          "correct": true,
+          "feedback": "The mismatch was the real risk."
+        },
+        {
+          "id": "rate",
+          "label": "'Safe' assets still carry interest-rate risk",
+          "correct": true,
+          "feedback": "Government bonds have no credit risk but plenty of rate risk."
+        },
+        {
+          "id": "limits",
+          "label": "Set limits on duration and on how much can be invested long",
+          "correct": true,
+          "feedback": "Policy limits stop yield-chasing."
+        },
+        {
+          "id": "never",
+          "label": "Never hold any bonds",
+          "correct": false,
+          "feedback": "Bonds are fine within limits; the problem was no limits."
+        }
+      ]
+    },
+    {
+      "id": "rate",
+      "kind": "rating",
+      "competency": "RiskAssessment",
+      "weight": 15,
+      "prompt": "Rate the liquidity risk from the bond holding as it stands today.",
+      "likelihood": 3,
+      "impact": 3,
+      "explanation": "A forced sale is possible if cash needs grow (possible); a loss of up to 640,000 is moderate for Valtren."
+    }
+  ],
+  "lesson": "Interest-rate risk hides in assets labelled safe. Duration times the rate change sizes it; matching maturities to cash needs is the control."
+}

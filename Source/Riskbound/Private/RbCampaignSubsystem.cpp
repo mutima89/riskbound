@@ -193,6 +193,8 @@ FRbMissionView URbCampaignSubsystem::GetMission(const FString& MissionId) const
 		QV.Id = ToFString(Q.Id);
 		QV.Prompt = ToFString(Q.Prompt);
 		QV.bMulti = Q.Kind == rb::EQuestionKind::Multi;
+		QV.Kind = ToFString(rb::ToString(Q.Kind));
+		QV.Unit = ToFString(Q.Unit);
 		// Shuffled per save (rb::OptionDisplayOrder) so the answer's position in the content gives nothing away.
 		for (int Index : rb::OptionDisplayOrder(S.Seed, M->Id, Q.Id, static_cast<int>(Q.Options.size())))
 		{

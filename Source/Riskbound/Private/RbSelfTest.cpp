@@ -101,7 +101,7 @@ ERbMissionResult PlayCaseBest(ARbHUD* Hud, const FString& MissionId)
 	for (const FRbMissionEvidenceView& E : Campaign->GetMission(MissionId).Evidence) Campaign->ViewEvidence(MissionId, E.Id);
 	for (const FRbMissionAnswer& A : BestAnswers(*Def))
 	{
-		for (const FString& O : A.OptionIds) Files->SetAnswer(A.QuestionId, O, A.OptionIds.Num() > 1, true);
+		Files->SetAnswerValues(A.QuestionId, A.OptionIds);
 	}
 	return Campaign->SubmitMission(MissionId, Files->CurrentAnswers());
 }

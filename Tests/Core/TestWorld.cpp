@@ -128,23 +128,7 @@ EMissionError Play(GameState& G, const MissionDef& M, const std::vector<MissionA
 std::vector<MissionAnswer> Best(const MissionDef& M)
 {
 	std::vector<MissionAnswer> Out;
-	for (const MissionQuestionDef& Q : M.Questions)
-	{
-		MissionAnswer A{Q.Id, {}};
-		if (Q.Kind == EQuestionKind::Multi)
-		{
-			for (const MissionOptionDef& O : Q.Options)
-			{
-				if (O.bCorrect) A.OptionIds.push_back(O.Id);
-			}
-		}
-		else
-		{
-			A.OptionIds.push_back(std::max_element(Q.Options.begin(), Q.Options.end(),
-				[](const MissionOptionDef& L, const MissionOptionDef& R) { return L.Score < R.Score; })->Id);
-		}
-		Out.push_back(A);
-	}
+	for (const MissionQuestionDef& Q : M.Questions) Out.push_back(BestAnswer(Q));
 	return Out;
 }
 

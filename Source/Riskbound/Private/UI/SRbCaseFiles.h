@@ -32,6 +32,8 @@ public:
 	// The answers as currently selected (also used by the self-test).
 	TArray<FRbMissionAnswer> CurrentAnswers() const;
 	void SetAnswer(const FString& QuestionId, const FString& OptionId, bool bMulti, bool bSelected);
+	// Sets a whole answer at once (a typed figure, or a rating's likelihood and impact).
+	void SetAnswerValues(const FString& QuestionId, const TArray<FString>& Values) { Answers.Add(QuestionId, Values); }
 
 private:
 	enum class EView : uint8 { List, Mission, Debrief };

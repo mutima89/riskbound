@@ -301,3 +301,70 @@ TEST(Save_V5RoundTripsCampaignAndConsequenceFlags)
 	CHECK(SerializeGame(G) == SerializeGame(L));
 	CHECK(L.Org.HasFlag("depot_fire"));
 }
+
+TEST(Campaign_NumericAndRatingQuestionsScoreByCloseness)
+{
+	MissionDef M = BasicMission("M060", {"M001"});
+	MissionQuestionDef& Num = M.Questions[0];
+	Num.Kind = EQuestionKind::Numeric;
+	Num.Options.clear();
+	Num.Answer = 20800;
+	Num.Tolerance = 0.02;
+	Num.Unit = "a year";
+	Num.Explanation = "4% x 120,000 + 1% x 1,600,000.";
+	Num.Mistakes = {{1600000, "That is the worst case, not the expected loss."}};
+	MissionQuestionDef& Rate = M.Questions[1];
+	Rate.Kind = EQuestionKind::Rating;
+	Rate.Options.clear();
+	Rate.TargetLikelihood = 4;
+	Rate.TargetImpact = 4;
+	Rate.Explanation = "Likely and major.";
+	CHECK(ValidateMission(M).empty());
+
+	auto ScoreWith = [&](const std::string& Figure, const std::string& L, const std::string& I)
+	{
+		std::vector<MissionAnswer> A = AllAnswers(M, "good");
+		A[0].OptionIds = {Figure};
+		A[1].OptionIds = {L, I};
+		return ScoreMission(M, A, 2);
+	};
+	MissionDebrief D = ScoreWith("20,800", "4", "4");
+	CHECK_EQ(D.Criteria[0].Score, NumericScoreExact);
+	CHECK_EQ(D.Criteria[1].Score, 100);
+	CHECK_EQ(ScoreWith("21500", "4", "4").Criteria[0].Score, NumericScoreClose);  // 3.4% off
+	CHECK_EQ(ScoreWith("24000", "4", "4").Criteria[0].Score, NumericScoreNear);   // 15% off
+	CHECK_EQ(ScoreWith("52000", "4", "4").Criteria[0].Score, 0);
+	D = ScoreWith("1600000", "3", "5");
+	CHECK_EQ(D.Criteria[0].Score, 0);
+	CHECK(HasText(D.Criteria[0].Feedback, "worst case"));
+	CHECK(HasText(D.Criteria[0].Feedback, "Answer: 20,800 a year"));
+	CHECK_EQ(D.Criteria[1].Score, 100 - 2 * RatingStepPenalty);
+	CHECK_EQ(ScoreWith("20800", "1", "1").Criteria[1].Score, 0);
+
+	// Answers must be well formed before submission.
+	GameState G = AfterM001();
+	REQUIRE(StartMission(G, M) == EMissionError::None);
+	ViewMissionEvidence(G, M, "ev1");
+	std::vector<MissionAnswer> Bad = AllAnswers(M, "good");
+	Bad[0].OptionIds = {"about twenty"};
+	Bad[1].OptionIds = {"4", "4"};
+	CHECK(ValidateAnswers(G, M, Bad) == EMissionError::UnknownOption);
+	Bad[0].OptionIds = {"20800"};
+	Bad[1].OptionIds = {"4", "6"};
+	CHECK(ValidateAnswers(G, M, Bad) == EMissionError::UnknownOption);
+	std::vector<MissionAnswer> Best;
+	for (const MissionQuestionDef& Q : M.Questions) Best.push_back(BestAnswer(Q));
+	CHECK(ValidateAnswers(G, M, Best) == EMissionError::None);
+	MissionDebrief Final;
+	CHECK(SubmitMission(G, M, Best, &Final) == EMissionError::None);
+	CHECK_EQ(Final.Score, 100 * 25 / 100 + 100 * 25 / 100 + 80 * 25 / 100 + 80 * 25 / 100);
+
+	// Broken numeric content is caught.
+	MissionDef Broken = M;
+	Broken.Questions[0].Tolerance = 0.0;
+	Broken.Questions[0].Mistakes = {{20900, "Too close to be a mistake."}};
+	Broken.Questions[1].TargetImpact = 7;
+	const auto E = ValidateMission(Broken);
+	CHECK(HasText(E, "tolerance"));
+	CHECK(HasText(E, "rating targets"));
+}

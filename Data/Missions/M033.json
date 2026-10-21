@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "id": "M033",
+  "title": "One Client Too Many",
+  "kind": "mission",
+  "department": "Commercial",
+  "minLevel": 6,
+  "requiresPassed": [
+    "M013"
+  ],
+  "passMark": 60,
+  "xp": 210,
+  "weeks": 2,
+  "briefing": [
+    "Case study, inspired by the collapse of a single over-leveraged client that hurt the banks around it in 2021. Marrowby Pharma is Valtren's biggest client and growing fast.",
+    "Rafe Dunmore loves it. Hollis Varga has noticed Marrowby paying later every quarter. Before the new risk appetite is signed off, size the exposure."
+  ],
+  "evidence": [
+    {
+      "id": "share",
+      "title": "Revenue by client",
+      "body": "Valtren revenue: 48,000,000. Marrowby Pharma: 31% of it."
+    },
+    {
+      "id": "credit",
+      "title": "Credit control report",
+      "body": [
+        "Marrowby's receivables: 3,600,000, and paying in 75 days against 30 in the contract.",
+        "Rumours in the trade press about Marrowby's debts."
+      ]
+    },
+    {
+      "id": "commit",
+      "title": "Dedicated assets",
+      "body": "Twelve trailers leased solely for Marrowby, with 1,200,000 of lease payments left, which Valtren owes whatever happens."
+    }
+  ],
+  "questions": [
+    {
+      "id": "revenue",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 15,
+      "prompt": "How much revenue a year comes from Marrowby?",
+      "answer": 14880000,
+      "tolerance": 0.02,
+      "explanation": "31% x 48,000,000 = 14,880,000.",
+      "unit": "a year"
+    },
+    {
+      "id": "exposure",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 25,
+      "prompt": "If Marrowby failed tomorrow, what is Valtren's immediate loss exposure (money owed plus commitments it cannot walk away from)?",
+      "answer": 4800000,
+      "tolerance": 0.02,
+      "explanation": "3,600,000 receivables + 1,200,000 lease commitments = 4,800,000. Lost future revenue is a separate, strategic hit.",
+      "mistakes": [
+        {
+          "value": 14880000,
+          "feedback": "That is a year of revenue. The immediate loss is what Marrowby owes plus the commitments Valtren cannot exit."
+        },
+        {
+          "value": 3600000,
+          "feedback": "Receivables are most of it, but the dedicated trailer leases have to be paid too."
+        }
+      ]
+    },
+    {
+      "id": "response",
+      "competency": "StrategicThinking",
+      "weight": 30,
+      "prompt": "What do you recommend to the executive?",
+      "options": [
+        {
+          "id": "limit",
+          "label": "Set a client concentration limit in the appetite, tighten Marrowby's terms, insure the receivable and diversify growth",
+          "score": 92,
+          "feedback": "Keeps a profitable client while capping the damage if it fails.",
+          "relations": {
+            "hollis": 6,
+            "rafe": -2
+          }
+        },
+        {
+          "id": "drop",
+          "label": "Exit the Marrowby contract before it gets worse",
+          "score": 30,
+          "feedback": "That trades a risk for a certain loss of 31% of revenue.",
+          "relations": {
+            "rafe": -10
+          }
+        },
+        {
+          "id": "grow",
+          "label": "Keep growing with Marrowby: the margin pays for the risk",
+          "score": 15,
+          "feedback": "Margin does not help if the client cannot pay; exposure would grow further.",
+          "relations": {
+            "rafe": 5,
+            "hollis": -8
+          }
+        },
+        {
+          "id": "monitor",
+          "label": "Ask credit control to watch payment days monthly",
+          "score": 45,
+          "feedback": "Monitoring is part of it, but it changes nothing about the exposure."
+        }
+      ]
+    },
+    {
+      "id": "rate",
+      "kind": "rating",
+      "competency": "RiskAssessment",
+      "weight": 15,
+      "prompt": "Rate the risk of Marrowby failing to pay, given the evidence.",
+      "likelihood": 3,
+      "impact": 5,
+      "explanation": "Stretching payment days and debt rumours make it possible; a 4.8 million hit with 31% of revenue at stake is severe."
+    },
+    {
+      "id": "signals",
+      "kind": "multi",
+      "competency": "RiskIdentification",
+      "weight": 15,
+      "prompt": "Which are early warning signs of client credit risk? Pick all that apply.",
+      "options": [
+        {
+          "id": "days",
+          "label": "Payment days stretching quarter after quarter",
+          "correct": true,
+          "feedback": "The classic signal."
+        },
+        {
+          "id": "share",
+          "label": "One client's share of revenue rising quickly",
+          "correct": true,
+          "feedback": "Concentration amplifies any failure."
+        },
+        {
+          "id": "press",
+          "label": "Trade press reports about the client's debts",
+          "correct": true,
+          "feedback": "External signals matter."
+        },
+        {
+          "id": "orders",
+          "label": "The client placing larger orders",
+          "correct": false,
+          "feedback": "Bigger orders can come from a healthy or a struggling client; on its own it is not a warning."
+        }
+      ]
+    }
+  ],
+  "lesson": "Concentration turns one client's problem into yours. Measure exposure as what you would lose tomorrow, cap it in the appetite, and act on the early signals."
+}

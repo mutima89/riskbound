@@ -45,6 +45,12 @@ void AddBullets(const TSharedRef<SVerticalBox>& Box, const FText& Heading, const
 	Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, 8.0f)[SNew(SBox)];
 }
 
+// Wrapped at a fixed width: rows far down a scrolled journal wrap correctly before they are first painted.
+TSharedRef<SWidget> WrappedLine(const FString& Text, int32 Size, const FLinearColor& Color)
+{
+	return SNew(STextBlock).Text(FText::FromString(Text)).Font(FontW(Size, EWeight::Regular)).ColorAndOpacity(Color).WrapTextAt(720.0f).LineHeightPercentage(1.15f);
+}
+
 FOnClicked Click(TFunction<void()> Fn)
 {
 	return FOnClicked::CreateLambda([Fn]() { Fn(); return FReply::Handled(); });
@@ -306,7 +312,7 @@ FRbScreenParts Journal(ARbHUD* Hud)
 		for (const FRbPersonView& P : Campaign->GetPeople())
 		{
 			const FLinearColor C = P.Relation >= 20 ? Good : (P.Relation <= -20 ? Bad : TextMuted);
-			AddRow(Box, MakeBody(FText::FromString(FString::Printf(TEXT("%s, %s  -  %s"), *P.Name, *P.Role, *P.RelationLabel)), 14, C), 2.0f);
+			AddRow(Box, WrappedLine(FString::Printf(TEXT("%s, %s  -  %s"), *P.Name, *P.Role, *P.RelationLabel), 14, C), 2.0f);
 		}
 		const TArray<FRbClueView> Clues = Campaign->GetClues();
 		if (!Clues.IsEmpty())
@@ -315,8 +321,8 @@ FRbScreenParts Journal(ARbHUD* Hud)
 			AddRow(Box, MakeHeading(FText::Format(LOCTEXT("JournalStory", "{0}: case board ({1} of {2})"), FText::FromString(W.StoryTitle), W.CluesFound, W.CluesTotal), 16), 4.0f);
 			for (const FRbClueView& Cl : Clues)
 			{
-				AddRow(Box, MakeBody(FText::FromString(Cl.Title), 14, TextPrimary), 1.0f);
-				AddRow(Box, MakeBody(FText::FromString(Cl.Summary), 13, TextMuted), 6.0f);
+				AddRow(Box, WrappedLine(Cl.Title, 14, TextPrimary), 1.0f);
+				AddRow(Box, WrappedLine(Cl.Summary, 13, TextMuted), 6.0f);
 			}
 		}
 		if (!W.News.IsEmpty())
@@ -326,7 +332,7 @@ FRbScreenParts Journal(ARbHUD* Hud)
 			for (int32 i = 0; i < FMath::Min(6, W.News.Num()); ++i)
 			{
 				const FRbNewsView& N = W.News[i];
-				AddRow(Box, MakeBody(FText::FromString(FString::Printf(TEXT("Week %d: %s"), N.Week, *N.Text)), 13, N.Tone < 0 ? Bad : (N.Tone > 0 ? Good : TextMuted)), 2.0f);
+				AddRow(Box, WrappedLine(FString::Printf(TEXT("Week %d: %s"), N.Week, *N.Text), 13, N.Tone < 0 ? Bad : (N.Tone > 0 ? Good : TextMuted)), 2.0f);
 			}
 		}
 	}

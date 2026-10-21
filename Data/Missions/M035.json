@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "id": "M035",
+  "title": "Fuel Line",
+  "kind": "mission",
+  "department": "Operations",
+  "minLevel": 7,
+  "requiresPassed": [
+    "M016"
+  ],
+  "passMark": 60,
+  "xp": 220,
+  "weeks": 2,
+  "briefing": [
+    "Case study, inspired by the 2021 ransomware attack that shut a major fuel pipeline. Quarrow Fuels, Valtren's sole fuel distributor, has stopped deliveries after a ransomware attack on its systems.",
+    "It expects to be down for six days. Amara Lindqvist has the fleet numbers; Mei Lin is asking how Quarrow was ever allowed to be a single point of failure."
+  ],
+  "evidence": [
+    {
+      "id": "tanks",
+      "title": "Depot fuel",
+      "body": "Diesel in depot tanks across the network: 120,000 litres."
+    },
+    {
+      "id": "burn",
+      "title": "Fleet consumption",
+      "body": "The fleet uses 30,000 litres a day. Pharma routes account for 40% of it."
+    },
+    {
+      "id": "supplier",
+      "title": "Quarrow notice",
+      "body": "Deliveries suspended for an estimated six days. No secondary supplier is contracted."
+    }
+  ],
+  "questions": [
+    {
+      "id": "days",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 20,
+      "prompt": "How many days can the fleet run at the normal rate on the fuel in the tanks?",
+      "answer": 4,
+      "tolerance": 0.02,
+      "explanation": "120,000 / 30,000 = 4 days.",
+      "unit": "days",
+      "mistakes": [
+        {
+          "value": 6,
+          "feedback": "Six days is how long Quarrow expects to be down, not how long the fuel lasts."
+        }
+      ]
+    },
+    {
+      "id": "gap",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 20,
+      "prompt": "How many litres short is Valtren over the six-day outage at the normal rate?",
+      "answer": 60000,
+      "tolerance": 0.02,
+      "explanation": "Six days x 30,000 = 180,000 needed; 180,000 - 120,000 in tanks = 60,000 litres short.",
+      "unit": "litres"
+    },
+    {
+      "id": "response",
+      "competency": "Judgement",
+      "weight": 30,
+      "prompt": "What is your plan?",
+      "options": [
+        {
+          "id": "triage",
+          "label": "Prioritise pharma and contracted routes, cut non-critical runs and buy spot fuel from another distributor",
+          "score": 93,
+          "feedback": "Pharma routes alone use 12,000 litres a day, so the tanks cover them for ten days; spot purchases close the rest.",
+          "relations": {
+            "amara": 5
+          }
+        },
+        {
+          "id": "all",
+          "label": "Run the full schedule and hope Quarrow is back early",
+          "score": 15,
+          "feedback": "On day five the trucks stop, including the pharma loads."
+        },
+        {
+          "id": "ransom",
+          "label": "Offer to help Quarrow pay the ransom to speed things up",
+          "score": 10,
+          "feedback": "Not Valtren's call, possibly unlawful, and no guarantee it works."
+        },
+        {
+          "id": "park",
+          "label": "Park the whole fleet to save fuel until deliveries resume",
+          "score": 25,
+          "feedback": "Saves fuel by breaking every contract, including the critical ones."
+        }
+      ]
+    },
+    {
+      "id": "rate",
+      "kind": "rating",
+      "competency": "RiskAssessment",
+      "weight": 15,
+      "prompt": "Rate the risk of losing your only fuel supplier for several days, before treatment.",
+      "likelihood": 3,
+      "impact": 4,
+      "explanation": "Cyber attacks on suppliers are now common (possible); a fleet that stops within four days is a major impact."
+    },
+    {
+      "id": "lessons",
+      "kind": "multi",
+      "competency": "ControlEvaluation",
+      "weight": 15,
+      "prompt": "Which controls would have reduced the impact? Pick all that apply.",
+      "options": [
+        {
+          "id": "second",
+          "label": "A contracted secondary fuel supplier",
+          "correct": true,
+          "feedback": "Removes the single point of failure."
+        },
+        {
+          "id": "days",
+          "label": "A minimum days-of-fuel stock policy at depots",
+          "correct": true,
+          "feedback": "Buys time for any supplier problem."
+        },
+        {
+          "id": "cyber",
+          "label": "Cyber resilience questions in supplier due diligence",
+          "correct": true,
+          "feedback": "Third-party cyber risk is your risk."
+        },
+        {
+          "id": "own",
+          "label": "Valtren running its own refinery",
+          "correct": false,
+          "feedback": "Out of proportion to the risk."
+        }
+      ]
+    }
+  ],
+  "lesson": "Your supplier's cyber risk is your operational risk. Days of stock, a second source and triage of critical services keep the business moving."
+}

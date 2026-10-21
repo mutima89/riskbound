@@ -701,6 +701,7 @@ EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::ve
 	for (const MissionQuestionDef& Q : M.Questions)
 	{
 		const MissionAnswer* A = FindAnswer(Answers, Q.Id);
+		if (Q.Kind != EQuestionKind::Single && Q.Kind != EQuestionKind::Multi) continue; // figures and ratings carry no option effects
 		for (const std::string& Id : A->OptionIds)
 		{
 			const MissionOptionDef* O = FindOption(Q, Id);

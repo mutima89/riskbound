@@ -1,0 +1,150 @@
+{
+  "schema": 1,
+  "id": "M036",
+  "title": "Credit Crunch",
+  "kind": "mission",
+  "department": "Finance",
+  "minLevel": 9,
+  "requiresPassed": [
+    "M024"
+  ],
+  "passMark": 60,
+  "xp": 260,
+  "weeks": 2,
+  "briefing": [
+    "Case study, inspired by the 2008 credit crisis, when banks pulled lending from healthy firms overnight. Tamberlyn Bank has told Valtren it will not renew the 5,000,000 revolving credit facility next quarter, citing 'market conditions'.",
+    "Valtren's term loan carries a leverage covenant. Hollis Varga needs to know how close Valtren is to breaching it and what to do before the board meets."
+  ],
+  "evidence": [
+    {
+      "id": "debt",
+      "title": "Balance sheet extract",
+      "body": "Net debt: 9,600,000. Last twelve months' EBITDA: 3,500,000."
+    },
+    {
+      "id": "covenant",
+      "title": "Term loan covenant",
+      "body": "Net debt / EBITDA must not exceed 3.0, tested quarterly. A breach makes the loan repayable on demand."
+    },
+    {
+      "id": "outlook",
+      "title": "Forecast",
+      "body": "EBITDA could fall 10% next year if two contracts are lost."
+    }
+  ],
+  "questions": [
+    {
+      "id": "leverage",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 20,
+      "prompt": "What is Valtren's leverage today (net debt / EBITDA)?",
+      "answer": 2.74,
+      "tolerance": 0.01,
+      "explanation": "9,600,000 / 3,500,000 = 2.74.",
+      "unit": "times",
+      "mistakes": [
+        {
+          "value": 0.36,
+          "feedback": "That is EBITDA / net debt, the inverse."
+        }
+      ]
+    },
+    {
+      "id": "headroom",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 20,
+      "prompt": "By how much can EBITDA fall before the covenant is breached, with net debt unchanged?",
+      "answer": 300000,
+      "tolerance": 0.02,
+      "explanation": "Breach at EBITDA below 9,600,000 / 3.0 = 3,200,000; headroom = 3,500,000 - 3,200,000 = 300,000.",
+      "mistakes": [
+        {
+          "value": 3200000,
+          "feedback": "3,200,000 is the minimum EBITDA, not the headroom above it."
+        }
+      ]
+    },
+    {
+      "id": "response",
+      "competency": "StrategicThinking",
+      "weight": 30,
+      "prompt": "What do you advise the board?",
+      "options": [
+        {
+          "id": "act",
+          "label": "Open talks with other lenders now, agree covenant headroom early, build a 13-week cash forecast and cut discretionary spend",
+          "score": 92,
+          "feedback": "With only 300,000 of headroom and a facility going, acting early on funding and cash is what keeps control.",
+          "relations": {
+            "hollis": 6,
+            "helen": 4
+          }
+        },
+        {
+          "id": "wait",
+          "label": "Wait for markets to calm before approaching other banks",
+          "score": 20,
+          "feedback": "In a credit crunch, the firms that wait get the worst terms or none."
+        },
+        {
+          "id": "dividend",
+          "label": "Pay a special dividend to reassure shareholders",
+          "score": 5,
+          "feedback": "It spends cash and raises net debt exactly when headroom is thin."
+        },
+        {
+          "id": "hide",
+          "label": "Delay recognising the lost contracts so the covenant test passes",
+          "score": 0,
+          "feedback": "That is misreporting. It turns a funding problem into a legal one."
+        }
+      ]
+    },
+    {
+      "id": "signals",
+      "kind": "multi",
+      "competency": "Governance",
+      "weight": 15,
+      "prompt": "Which should the board monitor monthly from now on? Pick all that apply.",
+      "options": [
+        {
+          "id": "headroom",
+          "label": "Covenant headroom, actual and forecast",
+          "correct": true,
+          "feedback": "The trigger that matters most."
+        },
+        {
+          "id": "cash",
+          "label": "Rolling cash forecast against committed facilities",
+          "correct": true,
+          "feedback": "Liquidity is survival."
+        },
+        {
+          "id": "lenders",
+          "label": "Lender concentration and facility maturities",
+          "correct": true,
+          "feedback": "One bank holding most facilities is a risk in itself."
+        },
+        {
+          "id": "share",
+          "label": "The share price every day",
+          "correct": false,
+          "feedback": "Useful context, but it does not tell the board whether Valtren can pay its debts."
+        }
+      ]
+    },
+    {
+      "id": "rate",
+      "kind": "rating",
+      "competency": "RiskAssessment",
+      "weight": 15,
+      "prompt": "Rate the refinancing risk as it stands, before treatment.",
+      "likelihood": 4,
+      "impact": 4,
+      "explanation": "A facility is being withdrawn and headroom is thin (likely); a covenant breach would put the business at risk (major)."
+    }
+  ],
+  "lesson": "Funding risk is about headroom and time. Measure it, start talking to lenders early and never fix a covenant by fixing the numbers."
+}

@@ -903,9 +903,29 @@ void AddMission(FDriver& D, const rb::MissionDef& M, EPolicy Policy, bool bScree
 	bool bUsedWeak = false;
 	for (const rb::MissionQuestionDef& Q : M.Questions)
 	{
+		const FString Anchor = ToFString(Q.Prompt).Left(60);
+		if (Q.Kind == rb::EQuestionKind::Numeric)
+		{
+			// Click into the figure box and type, as a player would (worst play: three times the answer).
+			FLoc Box = In(Anchor, NSBorder, FString(), false, true);
+			Box.WantType = TEXT("SEditableText");
+			D.Click(Box);
+			D.Type(FString::Printf(TEXT("%.10g"), Policy == EPolicy::Worst ? Q.Answer * 3.0 : Q.Answer));
+			continue;
+		}
+		if (Q.Kind == rb::EQuestionKind::Rating)
+		{
+			static const TCHAR* const Likelihood[] = {TEXT("Rare"), TEXT("Unlikely"), TEXT("Possible"), TEXT("Likely"), TEXT("Almost certain")};
+			static const TCHAR* const Impact[] = {TEXT("Minimal"), TEXT("Minor"), TEXT("Moderate"), TEXT("Major"), TEXT("Severe")};
+			const int32 L = Policy == EPolicy::Worst ? 1 : Q.TargetLikelihood;
+			const int32 I = Policy == EPolicy::Worst ? 1 : Q.TargetImpact;
+			D.Click(In(Anchor, NSBorder, FString::Printf(TEXT("%d %s"), L, Likelihood[L - 1]), false, true));
+			D.Click(In(Anchor, NSBorder, FString::Printf(TEXT("%d %s"), I, Impact[I - 1]), false, true));
+			continue;
+		}
 		for (const FString& Label : ChooseAnswers(Q, Policy, bUsedWeak))
 		{
-			D.Click(In(ToFString(Q.Prompt).Left(60), NSBorder, Label, false, true));
+			D.Click(In(Anchor, NSBorder, Label, false, true));
 		}
 	}
 	D.ExpectScreen(TEXT("Ready to submit"));

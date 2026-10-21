@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "id": "M031",
+  "title": "The Canal",
+  "kind": "mission",
+  "department": "Procurement",
+  "minLevel": 4,
+  "requiresPassed": [
+    "M007"
+  ],
+  "passMark": 60,
+  "xp": 180,
+  "weeks": 2,
+  "briefing": [
+    "Case study, inspired by a real 2021 shipping blockage. A grounded container ship has closed the main canal on the Asia to Europe route. Ships carrying Corvane's insulated pallet liners are queuing behind it, and the shipping line says it will reroute around the cape.",
+    "Tomasz Brennan needs to know how long Valtren can keep running, and what to do about it. Everything you need is in the stock report and the shipping notice."
+  ],
+  "evidence": [
+    {
+      "id": "stock",
+      "title": "Liner stock report",
+      "body": [
+        "Insulated pallet liners in stock across all sites: 18,000.",
+        "Average daily use: 600 liners. Pharma loads use 60% of them."
+      ]
+    },
+    {
+      "id": "shipping",
+      "title": "Shipping line notice",
+      "body": [
+        "The next consignment of 25,000 liners was due to arrive in 10 days.",
+        "Rerouting around the cape adds 21 days to the voyage."
+      ]
+    },
+    {
+      "id": "options",
+      "title": "Procurement options",
+      "body": [
+        "Air freight: up to 4,000 liners within 5 days at about four times the sea cost.",
+        "A domestic manufacturer can supply reusable liners from week 4, at 20% above the current price, once qualified."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "cover",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 20,
+      "prompt": "How many days of liner cover does Valtren have at the normal rate of use?",
+      "answer": 30,
+      "tolerance": 0.02,
+      "explanation": "18,000 liners / 600 a day = 30 days.",
+      "unit": "days",
+      "mistakes": [
+        {
+          "value": 10,
+          "feedback": "10 days is when the next ship was due, not how long the stock lasts."
+        }
+      ]
+    },
+    {
+      "id": "arrival",
+      "kind": "numeric",
+      "competency": "QuantitativeAnalysis",
+      "weight": 15,
+      "prompt": "In how many days from today will the delayed consignment now arrive?",
+      "answer": 31,
+      "tolerance": 0.02,
+      "explanation": "Due in 10 days, plus 21 days for the reroute = 31 days. With 30 days of cover, Valtren runs out a day before it lands.",
+      "unit": "days",
+      "mistakes": [
+        {
+          "value": 21,
+          "feedback": "21 days is the delay, not the arrival date: it was already 10 days away."
+        }
+      ]
+    },
+    {
+      "id": "response",
+      "competency": "Judgement",
+      "weight": 30,
+      "prompt": "What do you recommend?",
+      "options": [
+        {
+          "id": "bridge",
+          "label": "Ring-fence liners for pharma, air-freight a small bridging quantity and start qualifying the domestic supplier",
+          "score": 92,
+          "feedback": "Protects the loads that matter most, closes the one-day gap at modest cost and fixes the single-source weakness.",
+          "relations": {
+            "tomasz": 5
+          }
+        },
+        {
+          "id": "air_all",
+          "label": "Air-freight enough liners to restore a full month of cover straight away",
+          "score": 45,
+          "feedback": "It works, but buying 18,000 liners at four times the price costs far more than the one-day gap requires."
+        },
+        {
+          "id": "wait",
+          "label": "Wait: the ship will be refloated within days and normal service will resume",
+          "score": 20,
+          "feedback": "Possible, but the shipping line has already rerouted. Hope is not a plan when stock runs out in 30 days."
+        },
+        {
+          "id": "switch",
+          "label": "Cancel the Corvane order and move everything to the domestic supplier now",
+          "score": 35,
+          "feedback": "Their liners are not qualified until week 4 and cost 20% more. A sudden switch swaps one risk for another."
+        }
+      ]
+    },
+    {
+      "id": "rate",
+      "kind": "rating",
+      "competency": "RiskAssessment",
+      "weight": 15,
+      "prompt": "Rate the risk of a major shipping-route disruption to a single overseas supplier of a critical item, before treatment.",
+      "likelihood": 3,
+      "impact": 4,
+      "explanation": "Major route disruptions happen every few years (possible); without liners pharma loads stop within weeks (major)."
+    },
+    {
+      "id": "lessons",
+      "kind": "multi",
+      "competency": "RiskIdentification",
+      "weight": 20,
+      "prompt": "Which lessons should go into the supply risk review? Pick all that apply.",
+      "options": [
+        {
+          "id": "dual",
+          "label": "Critical items need a qualified second source",
+          "correct": true,
+          "feedback": "Single sourcing is the root cause here."
+        },
+        {
+          "id": "buffer",
+          "label": "Safety stock should reflect how long resupply could take, not the average lead time",
+          "correct": true,
+          "feedback": "Cover must outlast plausible delays."
+        },
+        {
+          "id": "watch",
+          "label": "Monitor shipping and route disruption news as an early-warning indicator",
+          "correct": true,
+          "feedback": "A day's warning is worth a lot of air freight."
+        },
+        {
+          "id": "air",
+          "label": "Always air-freight critical items to avoid sea risk",
+          "correct": false,
+          "feedback": "Air freight has its own risks and costs four times as much; use it as a bridge."
+        }
+      ]
+    }
+  ],
+  "lesson": "Days of cover against resupply time is the core supply-risk figure. When a route closes, protect the critical loads first, bridge the gap cheaply and fix the single source."
+}

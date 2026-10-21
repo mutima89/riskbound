@@ -110,7 +110,15 @@ std::vector<MissionAnswer> RandomAnswers(const MissionDef& M, Rng& R)
 	{
 		MissionAnswer A{Q.Id, {}};
 		const int N = static_cast<int>(Q.Options.size());
-		if (Q.Kind == EQuestionKind::Single)
+		if (Q.Kind == EQuestionKind::Numeric)
+		{
+			A.OptionIds.push_back(std::to_string(Q.Answer * (0.5 + R.Uniform())));
+		}
+		else if (Q.Kind == EQuestionKind::Rating)
+		{
+			A.OptionIds = {std::to_string(R.UniformInt(1, 5)), std::to_string(R.UniformInt(1, 5))};
+		}
+		else if (Q.Kind == EQuestionKind::Single)
 		{
 			A.OptionIds.push_back(Q.Options[static_cast<size_t>(R.UniformInt(0, N - 1))].Id);
 		}
@@ -312,7 +320,7 @@ TEST(Settings_AccessibilityChoicesPersistAndAreClamped)
 TEST(Content_EveryFileIsValidatedAndABreakInAnyFileIsReported)
 {
 	const auto Files = MissionFiles();
-	REQUIRE(Files.size() == size_t(46)); // 29 missions, 12 crises, capstone, 4 story chapters
+	REQUIRE(Files.size() == size_t(52)); // 29 missions, 6 case studies, 12 crises, capstone, 4 story chapters
 	MissionCatalogue C;
 	std::vector<std::string> Errors;
 	CHECK(LoadMissionCatalogue(Files, C, Errors));
@@ -334,7 +342,7 @@ TEST(Content_EveryFileIsValidatedAndABreakInAnyFileIsReported)
 		CHECK(bNamed);
 		Reported += !bOk && bNamed ? 1 : 0;
 	}
-	CHECK_EQ(Reported, 46);
+	CHECK_EQ(Reported, 52);
 }
 
 TEST(Campaign_ReplayIsDeterministicWithSaveLoadBetweenEveryStep)
