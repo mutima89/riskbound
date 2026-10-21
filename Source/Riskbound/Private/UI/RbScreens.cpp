@@ -191,11 +191,118 @@ FRbScreenParts DifficultyPicker(ARbHUD* Hud)
 	{
 		const ERbDifficulty D = C.Difficulty;
 		TSharedPtr<SButton>* Out = First.IsValid() ? nullptr : &First;
-		AddRow(Box, MakeButton(C.Label, Click([Hud, D]() { Hud->StartNewGame(D); }), Out), 2.0f);
+		AddRow(Box, MakeButton(C.Label, Click([Hud, D]() { Hud->ShowBackgroundPicker(D); }), Out), 2.0f);
 		AddRow(Box, MakeBody(C.Help, 13, TextMuted), 12.0f);
 	}
 	AddRow(Box, MakeButton(LOCTEXT("Back", "Back"), Click([Hud]() { Hud->ShowMainMenu(); })), 0.0f);
 	return {MakeModalFrame(Box, 620.0f), First};
+}
+
+FRbScreenParts BackgroundPicker(ARbHUD* Hud, ERbDifficulty Difficulty)
+{
+	TSharedPtr<SButton> First;
+	TSharedRef<SVerticalBox> Box = Column();
+	AddRow(Box, MakeEyebrow(LOCTEXT("BgEyebrow", "New career")), Space1);
+	AddRow(Box, MakeHeading(LOCTEXT("ChooseBackground", "Where do you come from?")), 4.0f);
+	AddRow(Box, MakeBody(LOCTEXT("BgNote", "Your background changes how people take to you at first and gives you a starting skill. It never changes how your work is judged."), 14, TextMuted), 16.0f);
+	const URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	for (const FRbBackgroundView& B : Campaign ? Campaign->GetBackgrounds() : TArray<FRbBackgroundView>())
+	{
+		const FString Id = B.Id;
+		TSharedPtr<SButton>* Out = First.IsValid() ? nullptr : &First;
+		AddRow(Box, MakeButton(FText::FromString(B.Name), Click([Hud, Difficulty, Id]() { Hud->StartNewGame(Difficulty, Id); }), Out, true, Id == TEXT("graduate")), 2.0f);
+		const FString Help = B.StartingSkill.IsEmpty() ? B.Description : FString::Printf(TEXT("%s Starts with: %s."), *B.Description, *B.StartingSkill);
+		AddRow(Box, WrappedLine(Help, 13, TextMuted), 12.0f);
+	}
+	AddRow(Box, MakeButton(LOCTEXT("BgBack", "Back"), Click([Hud]() { Hud->ShowDifficultyPicker(); })), 0.0f);
+	return {MakeModalFrame(Box, 760.0f), First};
+}
+
+FRbScreenParts Skills(ARbHUD* Hud, TFunction<void()> OnBack)
+{
+	TSharedPtr<SButton> Back;
+	URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	TSharedRef<SVerticalBox> Box = Column();
+	AddRow(Box, MakeEyebrow(LOCTEXT("SkillsEyebrow", "Journal  /  Skills")), Space1);
+	AddRow(Box, MakeHeading(FText::Format(LOCTEXT("SkillsTitle", "Skills  ({0} point(s) to spend)"), Campaign ? Campaign->GetSkillPoints() : 0)), 4.0f);
+	AddRow(Box, MakeBody(LOCTEXT("SkillsNote", "Points come with promotions and every four missions you pass. Skills change how the office and your workload treat you and open new replies; they never change a score or a promotion."), 13, TextMuted), Space4);
+	FString Branch;
+	for (const FRbSkillView& S : Campaign ? Campaign->GetSkills() : TArray<FRbSkillView>())
+	{
+		if (S.Branch != Branch)
+		{
+			Branch = S.Branch;
+			AddRow(Box, MakeHeading(FText::FromString(Branch), 16), 4.0f);
+		}
+		TSharedRef<SHorizontalBox> Row = SNew(SHorizontalBox);
+		Row->AddSlot().FillWidth(1.0f).VAlign(VAlign_Center)
+		[
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot().AutoHeight()[MakeBody(FText::FromString(S.Name + (S.bLearned ? TEXT("  (learned)") : TEXT(""))), 14, S.bLearned ? Good : TextPrimary)]
+			+ SVerticalBox::Slot().AutoHeight()[WrappedLine(S.Description + (S.RequiresName.IsEmpty() || S.bLearned ? FString() : TEXT(" Needs ") + S.RequiresName + TEXT(" first.")), 12, TextMuted)]
+		];
+		if (!S.bLearned)
+		{
+			const FString Id = S.Id;
+			Row->AddSlot().AutoWidth().VAlign(VAlign_Center).Padding(Space3, 0.0f, 0.0f, 0.0f)
+			[
+				MakeButton(LOCTEXT("Learn", "Learn"), Click([Hud, Id, OnBack]()
+				{
+					FString Error;
+					URbCampaignSubsystem* C = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+					if (C && !C->LearnSkill(Id, Error)) Hud->Notice(Error);
+					Hud->OpenSkills(OnBack);
+				}), nullptr, S.bCanLearn)
+			];
+		}
+		AddRow(Box, Row, Space2);
+	}
+	TSharedRef<SVerticalBox> Root = Column();
+	Root->AddSlot().FillHeight(1.0f)[Scrolling(Box)];
+	Root->AddSlot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f).HAlign(HAlign_Right)[MakeButton(LOCTEXT("SkillsBack", "Back"), Click(OnBack), &Back)];
+	return {MakeModalFrame(Root, 820.0f), Back};
+}
+
+FRbScreenParts Conversation(ARbHUD* Hud, const FRbConversationView& View, TFunction<void()> OnEnd)
+{
+	TSharedPtr<SButton> First;
+	TSharedRef<SVerticalBox> Box = Column();
+	AddRow(Box, MakeEyebrow(FText::FromString(View.Title)), Space1);
+	AddRow(Box, MakeHeading(FText::FromString(View.PersonRole.IsEmpty() ? View.PersonName : View.PersonName + TEXT(", ") + View.PersonRole), 18), Space3);
+	AddRow(Box, SNew(SBorder).BorderImage(CardBrush()).Padding(Space4)[WrappedLine(TEXT("\u201C") + View.Line + TEXT("\u201D"), 16, TextPrimary)], Space4);
+	for (const FRbDialogueResponseView& R : View.Responses)
+	{
+		const FString ConvId = View.Id, NodeId = View.NodeId, RespId = R.Id;
+		const FString Tag = R.SkillName.IsEmpty() ? FString::Printf(TEXT("[%s]  "), *R.Tone) : FString::Printf(TEXT("[%s, %s]  "), *R.Tone, *R.SkillName);
+		TSharedPtr<SButton>* Out = First.IsValid() ? nullptr : &First;
+		AddRow(Box, MakeButton(FText::FromString(Tag + R.Label), Click([Hud, ConvId, NodeId, RespId, OnEnd]()
+		{
+			URbCampaignSubsystem* C = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+			FString Error;
+			const FRbConversationView Next = C ? C->ChooseResponse(ConvId, NodeId, RespId, Error) : FRbConversationView();
+			if (!Error.IsEmpty()) Hud->Notice(Error);
+			Hud->PlayConversation(Next, OnEnd);
+		}), Out, true, !R.SkillName.IsEmpty()), Space2);
+	}
+	return {MakeModalFrame(Box, 820.0f), First};
+}
+
+TSharedRef<SWidget> CeremonyOverlay(const FString& Title, const FString& Subtitle)
+{
+	const FLinearColor Bar(0.0f, 0.0f, 0.0f, 0.92f);
+	return SNew(SBox).Visibility(EVisibility::HitTestInvisible)
+	[
+		SNew(SVerticalBox)
+		+ SVerticalBox::Slot().AutoHeight()[SNew(SBox).HeightOverride(110.0f)[SNew(SBorder).BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush")).BorderBackgroundColor(Bar)]]
+		+ SVerticalBox::Slot().FillHeight(1.0f).VAlign(VAlign_Bottom).HAlign(HAlign_Center).Padding(0.0f, 0.0f, 0.0f, 40.0f)
+		[
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)[SNew(STextBlock).Text(LOCTEXT("CeremonyEyebrow", "VALTREN COLDLINE LOGISTICS")).Font(FontW(13, EWeight::SemiBold)).ColorAndOpacity(Accent)]
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0.0f, Space2)[SNew(STextBlock).Text(FText::FromString(Title)).Font(FontW(44, EWeight::SemiBold)).ColorAndOpacity(TextPrimary)]
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)[SNew(STextBlock).Text(FText::FromString(Subtitle)).Font(FontW(17, EWeight::Regular)).ColorAndOpacity(TextMuted)]
+		]
+		+ SVerticalBox::Slot().AutoHeight()[SNew(SBox).HeightOverride(110.0f)[SNew(SBorder).BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush")).BorderBackgroundColor(Bar)]]
+	];
 }
 
 FRbScreenParts PauseMenu(ARbHUD* Hud)
@@ -280,6 +387,14 @@ FRbScreenParts Journal(ARbHUD* Hud)
 	const FRbCareerView Career = Game->GetCareer();
 	AddRow(Box, MakeHeading(LOCTEXT("JournalTitle", "Journal")), 2.0f);
 	AddRow(Box, MakeBody(FText::Format(LOCTEXT("JournalCareer", "Level {0}: {1}"), Career.Level, FText::FromString(Career.Title)), 14, TextMuted), 12.0f);
+	if (const URbCampaignSubsystem* Camp = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+	{
+		if (!Camp->GetBackgroundName().IsEmpty() || Camp->GetSkillPoints() > 0)
+		{
+			AddRow(Box, MakeBody(FText::Format(LOCTEXT("JournalBackground", "Background: {0}.  Skill points to spend: {1}."), FText::FromString(Camp->GetBackgroundName().IsEmpty() ? TEXT("not recorded") : Camp->GetBackgroundName()),
+				Camp->GetSkillPoints()), 13, Camp->GetSkillPoints() > 0 ? Accent : TextMuted), 12.0f);
+		}
+	}
 	AddRow(Box, MakeHeading(LOCTEXT("Objectives", "Mission 001: The Unresolved Warning"), 16), 4.0f);
 	for (const FRbObjectiveView& O : Game->GetObjectives())
 	{
@@ -343,7 +458,15 @@ FRbScreenParts Journal(ARbHUD* Hud)
 	Root->AddSlot().FillHeight(1.0f)[Scrolling(Box)];
 	Root->AddSlot().AutoHeight().Padding(0.0f, 12.0f, 0.0f, 0.0f).HAlign(HAlign_Right)
 	[
-		MakeButton(LOCTEXT("CloseJournal", "Close"), Click([Hud]() { Hud->CloseScreen(); }), &Close)
+		SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space2, 0.0f)
+		[
+			MakeButton(LOCTEXT("JournalSkills", "Skills"), Click([Hud]() { Hud->CloseScreen(); Hud->OpenSkills([Hud]() { Hud->CloseScreen(); Hud->OpenJournal(); }); }))
+		]
+		+ SHorizontalBox::Slot().AutoWidth()
+		[
+			MakeButton(LOCTEXT("CloseJournal", "Close"), Click([Hud]() { Hud->CloseScreen(); }), &Close)
+		]
 	];
 	return {MakeModalFrame(Root, 820.0f), Close};
 }

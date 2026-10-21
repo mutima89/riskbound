@@ -20,6 +20,9 @@
 #include "SRbToolHub.h"
 #include "SRbCaseFiles.h"
 #include "SRbInbox.h"
+#include "RbAudioSubsystem.h"
+#include "RbConvert.h"
+#include "HAL/PlatformTime.h"
 #include "RbCampaignSubsystem.h"
 #include "Widgets/Layout/SBox.h"
 #include "RbToolsSubsystem.h"
@@ -182,6 +185,16 @@ void ARbHUD::StopMenuCamera()
 
 void ARbHUD::Tick(float DeltaSeconds)
 {
+	if (CeremonyRoot.IsValid() && FPlatformTime::Seconds() > CeremonyEnds) EndCeremony();
+	if (!CeremonyRoot.IsValid() && !IsScreenOpen() && Game() && Game()->HasGame())
+	{
+		if (URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+		{
+			const FString Ceremony = Campaign->TakePendingCeremony();
+			if (Ceremony == TEXT("CRO")) PlayCeremony(TEXT("Chief Risk Officer"), TEXT("From Northgate to the boardroom. Valtren's risk is yours to lead."));
+			else if (!Ceremony.IsEmpty()) PlayCeremony(Ceremony, TEXT("Promoted on the evidence of your work"));
+		}
+	}
 	Super::Tick(DeltaSeconds);
 	if (!bMainMenuOpen || !MenuCamera || RbUI::IsReducedMotion()) return;
 	// A slow dolly along the glass corridor, easing at both ends: 70 s per pass.
@@ -249,9 +262,67 @@ void ARbHUD::ShowDifficultyPicker()
 	bMainMenuOpen = true;
 }
 
-void ARbHUD::StartNewGame(ERbDifficulty Difficulty)
+void ARbHUD::ShowBackgroundPicker(ERbDifficulty Difficulty)
 {
-	Game()->NewGame(Difficulty);
+	const FRbScreenParts Parts = RbScreens::BackgroundPicker(this, Difficulty);
+	ShowScreen(Parts.Widget, Parts.Focus, [this]() { ShowDifficultyPicker(); }, true);
+}
+
+void ARbHUD::OpenSkills(TFunction<void()> OnBack)
+{
+	const FRbScreenParts Parts = RbScreens::Skills(this, OnBack);
+	ShowScreen(Parts.Widget, Parts.Focus, OnBack, false);
+}
+
+void ARbHUD::PlayConversation(const FRbConversationView& View, TFunction<void()> OnEnd)
+{
+	if (!View.bFound || View.bEnded)
+	{
+		if (OnEnd) OnEnd();
+		else CloseScreen();
+		return;
+	}
+	const FRbScreenParts Parts = RbScreens::Conversation(this, View, OnEnd);
+	ShowScreen(Parts.Widget, Parts.Focus, [this, OnEnd]() { if (OnEnd) OnEnd(); else CloseScreen(); }, false);
+}
+
+void ARbHUD::PlayCeremony(const FString& Title, const FString& Subtitle)
+{
+	UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
+	if (!Viewport || CeremonyRoot.IsValid()) return;
+	CeremonyRoot = RbScreens::CeremonyOverlay(Title, Subtitle);
+	Viewport->AddViewportWidgetContent(CeremonyRoot.ToSharedRef(), 25);
+	CeremonyEnds = FPlatformTime::Seconds() + 6.5;
+	URbAudioSubsystem::Cue(this, ERbCue::Promotion);
+	// The camera eases to the head of the boardroom table, unless motion is reduced.
+	APlayerController* PC = PlayerOwner.Get();
+	if (PC && !RbUI::IsReducedMotion())
+	{
+		if (!CeremonyCamera)
+		{
+			CeremonyCamera = GetWorld()->SpawnActor<ACameraActor>(FVector(3820.0f, -700.0f, 165.0f), FRotator(-8.0f, 180.0f, 0.0f));
+			if (CeremonyCamera) CeremonyCamera->GetCameraComponent()->SetFieldOfView(62.0f);
+		}
+		if (CeremonyCamera) PC->SetViewTargetWithBlend(CeremonyCamera, 1.6f, VTBlend_EaseInOut, 2.0f);
+	}
+}
+
+void ARbHUD::EndCeremony()
+{
+	if (UGameViewportClient* Viewport = GetWorld()->GetGameViewport())
+	{
+		if (CeremonyRoot.IsValid()) Viewport->RemoveViewportWidgetContent(CeremonyRoot.ToSharedRef());
+	}
+	CeremonyRoot.Reset();
+	if (APlayerController* PC = PlayerOwner.Get())
+	{
+		if (PC->GetPawn() && PC->GetViewTarget() != PC->GetPawn()) PC->SetViewTargetWithBlend(PC->GetPawn(), 1.2f, VTBlend_EaseInOut, 2.0f);
+	}
+}
+
+void ARbHUD::StartNewGame(ERbDifficulty Difficulty, const FString& Background)
+{
+	Game()->NewGame(Difficulty, TEXT("Analyst"), Background);
 	Draft = MakeShared<FRbAssessmentDraft>();
 	CloseScreen();
 	Notice(TEXT("Day one at Valtren Coldline Logistics. Priya Okafor is expecting you in the manager's office."));
@@ -327,6 +398,19 @@ void ARbHUD::QuitToDesktop()
 
 void ARbHUD::TalkToManager()
 {
+	// After Mission 001, Priya sometimes has something to talk about (Data/Dialogue.json).
+	if (Game()->IsDebriefed())
+	{
+		if (URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+		{
+			const FRbConversationView Talk = Campaign->StartConversation(TEXT("priya"), TEXT("talk"));
+			if (Talk.bFound)
+			{
+				PlayConversation(Talk, nullptr);
+				return;
+			}
+		}
+	}
 	switch (Game()->TalkToManager())
 	{
 	case ERbManagerTalk::Briefing:
@@ -436,8 +520,23 @@ void ARbHUD::ExamineInPerson(const FString& MissionId, const FString& EvidenceId
 	auto Back = [this]() { CloseScreen(); };
 	if (!E->PersonName.IsEmpty())
 	{
-		const FRbScreenParts Parts = RbScreens::Dialogue(FText::FromString(E->PersonName), FText::FromString(E->Title + TEXT("\n\n") + E->Body), Back);
-		ShowScreen(Parts.Widget, Parts.Focus, Back, false);
+		const FText Speaker = FText::FromString(E->PersonName);
+		const FText Text = FText::FromString(E->Title + TEXT("\n\n") + E->Body);
+		auto ShowNotes = [this, Speaker, Text, Back]()
+		{
+			const FRbScreenParts Parts = RbScreens::Dialogue(Speaker, Text, Back);
+			ShowScreen(Parts.Widget, Parts.Focus, Back, false);
+		};
+		// An interview starts as a conversation when there is one written for it, then the notes.
+		const rb::MissionDef* Def = Campaign->GetCatalogue().Find(RbConvert::ToStd(MissionId));
+		const rb::MissionEvidenceDef* Ev = nullptr;
+		for (const rb::MissionEvidenceDef& X : Def ? Def->Evidence : std::vector<rb::MissionEvidenceDef>())
+		{
+			if (RbConvert::ToFString(X.Id) == EvidenceId) Ev = &X;
+		}
+		const FRbConversationView Talk = Ev ? Campaign->StartConversation(RbConvert::ToFString(Ev->Person), FString::Printf(TEXT("evidence:%s/%s"), *MissionId, *EvidenceId)) : FRbConversationView();
+		if (Talk.bFound) PlayConversation(Talk, ShowNotes);
+		else ShowNotes();
 	}
 	else
 	{

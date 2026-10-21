@@ -20,5 +20,6 @@ public class Riskbound : ModuleRules
 		RuntimeDependencies.Add("$(ProjectDir)/Data/People.json", StagedFileType.UFS);
 		RuntimeDependencies.Add("$(ProjectDir)/Data/Story.json", StagedFileType.UFS);
 		RuntimeDependencies.Add("$(ProjectDir)/Data/Events.json", StagedFileType.UFS);
+		RuntimeDependencies.Add("$(ProjectDir)/Data/Dialogue.json", StagedFileType.UFS);
 	}
 }

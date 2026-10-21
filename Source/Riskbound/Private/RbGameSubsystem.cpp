@@ -103,7 +103,7 @@ FString OptionLabel(const std::vector<m001::Option>& Options, const std::string&
 }
 } // namespace
 
-void URbGameSubsystem::NewGame(ERbDifficulty Difficulty, const FString& ProfileName)
+void URbGameSubsystem::NewGame(ERbDifficulty Difficulty, const FString& ProfileName, const FString& Background)
 {
 	const rb::PlayerSettings KeptSettings = State.Settings;
 	State = rb::NewGame(ToStd(ProfileName), ToSim(Difficulty), rb::GameState().Seed);
@@ -114,6 +114,7 @@ void URbGameSubsystem::NewGame(ERbDifficulty Difficulty, const FString& ProfileN
 	}
 	State.Checkpoint = ToStd(CheckpointStart);
 	if (const URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>()) Campaign->InitWorldFor(State);
+	rb::ApplyBackground(State, ToStd(Background));
 	bHasGame = true;
 	AfterAction(false);
 }

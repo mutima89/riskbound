@@ -49,6 +49,7 @@ private:
 	TFunction<void()> OnClose;
 	TFunction<void()> OnMissionStarted;
 	TSharedPtr<SBox> Body;
+	TSharedPtr<class SScrollBox> Scroll;
 	TSharedPtr<SWidget> FirstFocus;
 	EView View = EView::List;
 	FString MissionId;

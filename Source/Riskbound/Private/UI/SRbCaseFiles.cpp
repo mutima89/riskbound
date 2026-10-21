@@ -77,7 +77,7 @@ void SRbCaseFiles::Construct(const FArguments& InArgs)
 		]
 		+ SVerticalBox::Slot().FillHeight(1.0f)
 		[
-			SNew(SScrollBox) + SScrollBox::Slot()[SAssignNew(Body, SBox)]
+			SAssignNew(Scroll, SScrollBox) + SScrollBox::Slot()[SAssignNew(Body, SBox)]
 		]
 		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f)
 		[
@@ -121,6 +121,12 @@ void SRbCaseFiles::ShowMission(const FString& InMissionId)
 	Status = FText::GetEmpty();
 	OpenEvidenceId.Reset();
 	Rebuild();
+	// At the lectern with the paper already drafted, go straight to the Submit button.
+	const FRbMissionView MV = Campaign->GetMission(MissionId);
+	if (Scroll.IsValid() && !MV.PresentAt.IsEmpty() && MV.PresentAt == Where && Campaign->ValidateAnswers(MissionId, CurrentAnswers()) == ERbMissionResult::Ok)
+	{
+		Scroll->ScrollToEnd();
+	}
 }
 
 void SRbCaseFiles::ShowDebrief(const FString& InMissionId)

@@ -289,8 +289,10 @@ ERbMissionResult URbCampaignSubsystem::SubmitMission(const FString& MissionId, c
 	if (D.bPromoted)
 	{
 		Game()->Notify(FString::Printf(TEXT("Promoted to %s"), *ToFString(rb::LevelDef(D.Level).Title)));
+		PendingCeremony = ToFString(rb::LevelDef(D.Level).Title);
 		URbAudioSubsystem::Cue(this, ERbCue::Promotion);
 	}
+	if (D.bPassed && M->Kind == rb::EMissionKind::Capstone) PendingCeremony = TEXT("CRO");
 	AnnounceWorldUpdate(D.NewMessages, D.Escalated, D.bBurnout);
 	Game()->StateCheckpoint();
 	return R;
@@ -408,6 +410,14 @@ void URbCampaignSubsystem::LoadWorld()
 	LoadErrors.Append(ToFStrings(Errors));
 	// Like missions: broken world content loads nothing rather than half a world.
 	if (Errors.empty() && !People.empty() && !Story.empty() && !Events.empty()) World = MoveTemp(Loaded);
+	Dialogue = rb::DialogueCatalogue();
+	std::string DialogueText;
+	std::vector<std::string> DErrors;
+	if (Read(TEXT("Dialogue.json"), DialogueText)) rb::DialogueFromJson(DialogueText, "Dialogue.json", Dialogue, DErrors);
+	for (const std::string& E : rb::ValidateDialogue(Dialogue, World.People, World.Story)) DErrors.push_back(E);
+	for (const std::string& E : DErrors) UE_LOG(LogRiskbound, Error, TEXT("Dialogue data: %s"), *ToFString(E));
+	LoadErrors.Append(ToFStrings(DErrors));
+	if (!DErrors.empty()) Dialogue = rb::DialogueCatalogue();
 	UE_LOG(LogRiskbound, Display, TEXT("World data: %d people, %d clues, %d events"), static_cast<int32>(World.People.People.size()),
 		static_cast<int32>(World.Story.Clues.size()), static_cast<int32>(World.Events.Events.size()));
 }
@@ -581,4 +591,124 @@ FRbWorldView URbCampaignSubsystem::GetWorldView() const
 	V.Morale = S.Org.Get(rb::EOrgMetric::EmployeeMorale);
 	V.Reputation = S.Org.Get(rb::EOrgMetric::Reputation);
 	return V;
+}
+
+// ---------------------------------------------------------------- phase 3: growth
+
+TArray<FRbSkillView> URbCampaignSubsystem::GetSkills() const
+{
+	TArray<FRbSkillView> Out;
+	const rb::GameState& S = Game()->GetState();
+	const bool bPoints = rb::SkillPointsAvailable(S) > 0;
+	for (const rb::SkillDef& D : rb::SkillDefs())
+	{
+		FRbSkillView V;
+		V.Id = D.Id;
+		V.Name = D.Name;
+		V.Branch = D.Branch;
+		V.Description = D.Description;
+		if (const rb::SkillDef* Req = D.Requires[0] ? rb::FindSkill(D.Requires) : nullptr) V.RequiresName = Req->Name;
+		V.bLearned = rb::HasSkill(S, D.Id);
+		V.bCanLearn = !V.bLearned && bPoints && (D.Requires[0] == '\0' || rb::HasSkill(S, D.Requires));
+		Out.Add(V);
+	}
+	return Out;
+}
+
+int32 URbCampaignSubsystem::GetSkillPoints() const
+{
+	return rb::SkillPointsAvailable(Game()->GetState());
+}
+
+bool URbCampaignSubsystem::LearnSkill(const FString& SkillId, FString& OutError)
+{
+	const rb::ESkillError E = rb::LearnSkill(Game()->EditState(), ToStd(SkillId));
+	if (E != rb::ESkillError::None)
+	{
+		OutError = ToFString(rb::ToString(E));
+		return false;
+	}
+	OutError.Reset();
+	URbAudioSubsystem::Cue(this, ERbCue::Confirm);
+	Game()->StateCheckpoint();
+	return true;
+}
+
+TArray<FRbBackgroundView> URbCampaignSubsystem::GetBackgrounds() const
+{
+	TArray<FRbBackgroundView> Out;
+	for (const rb::BackgroundDef& B : rb::BackgroundDefs())
+	{
+		FRbBackgroundView V;
+		V.Id = B.Id;
+		V.Name = B.Name;
+		V.Description = B.Description;
+		if (const rb::SkillDef* S = B.StartingSkill[0] ? rb::FindSkill(B.StartingSkill) : nullptr) V.StartingSkill = S->Name;
+		Out.Add(V);
+	}
+	return Out;
+}
+
+FString URbCampaignSubsystem::GetBackgroundName() const
+{
+	const rb::BackgroundDef* B = rb::FindBackground(Game()->GetState().World.Background);
+	return B ? FString(B->Name) : FString();
+}
+
+FRbConversationView URbCampaignSubsystem::NodeView(const rb::ConversationDef& C, const std::string& NodeId) const
+{
+	FRbConversationView V;
+	V.bFound = true;
+	V.Id = ToFString(C.Id);
+	V.PersonName = PersonName(C.Person);
+	if (const rb::CharacterDef* P = World.People.Find(C.Person)) V.PersonRole = ToFString(P->Role);
+	V.Title = ToFString(C.Title);
+	const auto Node = std::find_if(C.Nodes.begin(), C.Nodes.end(), [&](const rb::DialogueNodeDef& N) { return N.Id == NodeId; });
+	if (Node == C.Nodes.end())
+	{
+		V.bEnded = true;
+		return V;
+	}
+	V.NodeId = ToFString(Node->Id);
+	V.Line = ToFString(Node->Line);
+	for (const rb::DialogueResponseDef* R : rb::AvailableResponses(Game()->GetState(), *Node))
+	{
+		FRbDialogueResponseView RV;
+		RV.Id = ToFString(R->Id);
+		RV.Label = ToFString(R->Label);
+		RV.Tone = ToFString(rb::ToString(R->Tone));
+		if (const rb::SkillDef* S = R->RequiresSkill.empty() ? nullptr : rb::FindSkill(R->RequiresSkill)) RV.SkillName = S->Name;
+		V.Responses.Add(RV);
+	}
+	return V;
+}
+
+FRbConversationView URbCampaignSubsystem::StartConversation(const FString& Person, const FString& Trigger) const
+{
+	const rb::ConversationDef* C = rb::ConversationFor(Game()->GetState(), Dialogue, ToStd(Person), ToStd(Trigger));
+	if (!C || C->Nodes.empty()) return FRbConversationView();
+	return NodeView(*C, C->Nodes.front().Id);
+}
+
+FRbConversationView URbCampaignSubsystem::ChooseResponse(const FString& ConversationId, const FString& NodeId, const FString& ResponseId, FString& OutError)
+{
+	std::string Next;
+	const rb::EDialogueError E = rb::ChooseResponse(Game()->EditState(), Dialogue, ToStd(ConversationId), ToStd(NodeId), ToStd(ResponseId), Next);
+	if (E != rb::EDialogueError::None)
+	{
+		OutError = ToFString(rb::ToString(E));
+		return FRbConversationView();
+	}
+	OutError.Reset();
+	Game()->StateEdited();
+	const rb::ConversationDef* C = Dialogue.Find(ToStd(ConversationId));
+	if (!C || Next.empty())
+	{
+		FRbConversationView Ended;
+		Ended.bFound = true;
+		Ended.bEnded = true;
+		Ended.Id = ConversationId;
+		return Ended;
+	}
+	return NodeView(*C, Next);
 }

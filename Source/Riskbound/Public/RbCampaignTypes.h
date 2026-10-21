@@ -215,3 +215,53 @@ struct FRbWorldView
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") double Morale = 0.0;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") double Reputation = 0.0;
 };
+
+// ---- Phase 3: skills, backgrounds, conversations ----
+
+USTRUCT(BlueprintType)
+struct FRbSkillView
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Id;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Name;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Branch;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Description;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString RequiresName; // skill needed first, may be empty
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bLearned = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bCanLearn = false;
+};
+
+USTRUCT(BlueprintType)
+struct FRbBackgroundView
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Id;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Name;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Description;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString StartingSkill; // display name, may be empty
+};
+
+USTRUCT(BlueprintType)
+struct FRbDialogueResponseView
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Id;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Label;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Tone;       // Diplomatic, Direct, Analytical
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString SkillName;  // unlocked by this skill, may be empty
+};
+
+USTRUCT(BlueprintType)
+struct FRbConversationView
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bFound = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bEnded = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Id;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PersonName;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PersonRole;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Title;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString NodeId;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Line;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FRbDialogueResponseView> Responses;
+};

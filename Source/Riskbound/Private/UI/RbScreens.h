@@ -7,6 +7,7 @@
 #include "RbUIStyle.h"
 
 class ARbHUD;
+struct FRbConversationView;
 class SWidget;
 
 struct FRbScreenParts
@@ -26,6 +27,10 @@ FRbScreenParts Credits(ARbHUD* Hud, TFunction<void()> OnBack);
 FRbScreenParts Workstation(ARbHUD* Hud);
 FRbScreenParts Document(const FText& Title, const FText& Subtitle, const FText& Body, TFunction<void()> OnClose);
 FRbScreenParts Dialogue(const FText& Speaker, const FText& Text, TFunction<void()> OnContinue);
+FRbScreenParts BackgroundPicker(ARbHUD* Hud, ERbDifficulty Difficulty);
+FRbScreenParts Skills(ARbHUD* Hud, TFunction<void()> OnBack);
+FRbScreenParts Conversation(ARbHUD* Hud, const FRbConversationView& View, TFunction<void()> OnEnd);
+TSharedRef<SWidget> CeremonyOverlay(const FString& Title, const FString& Subtitle);
 FRbScreenParts Debrief(const FRbDebriefView& Debrief, const FRbCareerView& Career, const TArray<FString>& Achievements, TFunction<void()> OnClose);
 
 FText BriefingText(bool bHints);

@@ -24,7 +24,7 @@ public:
 
 	// ---- Session ----
 	UFUNCTION(BlueprintCallable, Category = "Riskbound")
-	void NewGame(ERbDifficulty Difficulty, const FString& ProfileName = TEXT("Analyst"));
+	void NewGame(ERbDifficulty Difficulty, const FString& ProfileName = TEXT("Analyst"), const FString& Background = TEXT("graduate"));
 
 	// Loads the save slot through URbSaveSubsystem.
 	UFUNCTION(BlueprintCallable, Category = "Riskbound")

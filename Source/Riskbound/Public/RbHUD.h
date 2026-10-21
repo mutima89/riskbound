@@ -27,7 +27,14 @@ public:
 	// ---- Menus ----
 	void ShowMainMenu();
 	void ShowDifficultyPicker();
-	void StartNewGame(ERbDifficulty Difficulty);
+	void StartNewGame(ERbDifficulty Difficulty, const FString& Background = TEXT("graduate"));
+	void ShowBackgroundPicker(ERbDifficulty Difficulty);
+	void OpenSkills(TFunction<void()> OnBack);
+	// A conversation with tone choices (Data/Dialogue.json); OnEnd runs when it is over.
+	void PlayConversation(const struct FRbConversationView& View, TFunction<void()> OnEnd);
+	// Letterboxed title moment over the boardroom (promotion, CRO); skipped by Reduced motion's camera move.
+	void PlayCeremony(const FString& Title, const FString& Subtitle);
+	bool IsCeremonyPlaying() const { return CeremonyRoot.IsValid(); }
 	ERbLoadOutcome ContinueGame(FString& OutMessage);
 	void OpenPauseMenu();
 	void OpenSettings(TFunction<void()> OnBack);
@@ -74,6 +81,11 @@ private:
 	void SetGameInput();
 
 	TSharedPtr<SWidget> Screen;
+	TSharedPtr<SWidget> CeremonyRoot;
+	double CeremonyEnds = 0.0;
+	void EndCeremony();
+	UPROPERTY(Transient)
+	TObjectPtr<class ACameraActor> CeremonyCamera;
 	TSharedPtr<SWidget> OverlayRoot;
 	TSharedPtr<SRbHudOverlay> Overlay;
 	TSharedPtr<FRbAssessmentDraft> Draft;

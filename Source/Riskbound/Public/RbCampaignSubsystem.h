@@ -6,6 +6,7 @@
 #include "RbCampaign.h"
 #include "RbGameState.h"
 #include "RbWorld.h"
+#include "RbGrowth.h"
 #include "RbCampaignTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "RbCampaignSubsystem.generated.h"
@@ -106,6 +107,27 @@ public:
 
 	FString PersonName(const std::string& Id) const;
 
+	// ---- Phase 3: skills, backgrounds, conversations (RbGrowth.h, Data/Dialogue.json) ----
+	UFUNCTION(BlueprintPure, Category = "Riskbound|Growth")
+	TArray<FRbSkillView> GetSkills() const;
+	UFUNCTION(BlueprintPure, Category = "Riskbound|Growth")
+	int32 GetSkillPoints() const;
+	UFUNCTION(BlueprintCallable, Category = "Riskbound|Growth")
+	bool LearnSkill(const FString& SkillId, FString& OutError);
+	UFUNCTION(BlueprintPure, Category = "Riskbound|Growth")
+	TArray<FRbBackgroundView> GetBackgrounds() const;
+	UFUNCTION(BlueprintPure, Category = "Riskbound|Growth")
+	FString GetBackgroundName() const;
+	// The conversation to have now with Person for Trigger ("talk", or "evidence:<mission>/<evidence>").
+	UFUNCTION(BlueprintPure, Category = "Riskbound|Growth")
+	FRbConversationView StartConversation(const FString& Person, const FString& Trigger) const;
+	// Applies a reply; returns the next point (bEnded when the conversation is over).
+	UFUNCTION(BlueprintCallable, Category = "Riskbound|Growth")
+	FRbConversationView ChooseResponse(const FString& ConversationId, const FString& NodeId, const FString& ResponseId, FString& OutError);
+
+	// A ceremony the HUD plays when the screen is free (promotion, the CRO capstone). Cleared when taken.
+	FString TakePendingCeremony() { FString C = PendingCeremony; PendingCeremony.Reset(); return C; }
+
 	// Answers in progress for a mission, kept for the session so a board paper drafted at the
 	// workstation is still there at the boardroom lectern. Cleared on submit or set aside.
 	const TMap<FString, TArray<FString>>* GetDraft(const FString& MissionId) const { return Drafts.Find(MissionId); }
@@ -122,6 +144,9 @@ private:
 	rb::MissionCatalogue Catalogue;
 	rb::WorldContent World;
 	TMap<FString, TMap<FString, TArray<FString>>> Drafts;
+	rb::DialogueCatalogue Dialogue;
+	FString PendingCeremony;
+	FRbConversationView NodeView(const rb::ConversationDef& C, const std::string& NodeId) const;
 	TArray<FString> LoadErrors;
 	std::vector<rb::AchievementDef> Achievements;
 	// Full debriefs from this session, keyed by mission, with the record count they belong to.

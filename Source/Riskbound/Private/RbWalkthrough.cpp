@@ -1104,6 +1104,10 @@ void Build(FDriver& D)
 		D.ExpectScreen(TEXT("Choose difficulty"), true);
 		D.Shot(TEXT("Difficulty"));
 		D.Click(L(TEXT("Professional")));
+		D.ExpectScreen(TEXT("Where do you come from?"), true);
+		D.Shot(TEXT("Background"));
+		D.Audit(TEXT("Background"));
+		D.Click(L(TEXT("Ex-operations")));
 		D.Wait(2.0);
 		AddMission001(D);
 		AddWorkstation(D, {FVector2D(2400, 650), FVector2D(2500, 300), FVector2D(2500, 0), FVector2D(1500, 0), FVector2D(1500, 280), FVector2D(1350, 420), FVector2D(1350, 950), FVector2D(1410, 965)});

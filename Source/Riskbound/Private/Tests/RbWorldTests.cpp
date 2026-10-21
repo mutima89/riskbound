@@ -103,4 +103,29 @@ bool FRbAudioTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRbGrowthTest, "Riskbound.World.BackgroundSkillsAndConversation", WorldFlags)
+bool FRbGrowthTest::RunTest(const FString& Parameters)
+{
+	FWorldSession S;
+	if (!TestNotNull(TEXT("campaign subsystem"), S.Campaign)) return false;
+	S.Game->NewGame(ERbDifficulty::Professional, TEXT("Analyst"), TEXT("operations"));
+	TestEqual(TEXT("background recorded"), S.Campaign->GetBackgroundName(), FString(TEXT("Ex-operations")));
+	const TArray<FRbSkillView> Skills = S.Campaign->GetSkills();
+	TestTrue(TEXT("ten skills"), Skills.Num() == 10);
+	TestTrue(TEXT("starting skill learned"), Skills.ContainsByPredicate([](const FRbSkillView& K) { return K.Id == TEXT("crisis_commander") && K.bLearned; }));
+	TestEqual(TEXT("no points at the start"), S.Campaign->GetSkillPoints(), 0);
+	TestTrue(TEXT("four backgrounds"), S.Campaign->GetBackgrounds().Num() == 4);
+	rb::GameState& G = S.Game->EditState();
+	G.Career.RecordMission("M001", true, 100);
+	G.Career.RecordMission("M002", true, 100);
+	FRbConversationView V = S.Campaign->StartConversation(TEXT("priya"), TEXT("talk"));
+	if (!TestTrue(TEXT("Priya has something to say"), V.bFound && V.Responses.Num() >= 2)) return false;
+	FString Error;
+	int32 Guard = 0;
+	while (!V.bEnded && Guard++ < 10) V = S.Campaign->ChooseResponse(V.Id, V.NodeId, V.Responses[0].Id, Error);
+	TestTrue(TEXT("conversation ends"), V.bEnded && Error.IsEmpty());
+	TestFalse(TEXT("and is not repeated"), S.Campaign->StartConversation(TEXT("priya"), TEXT("talk")).bFound);
+	return true;
+}
+
 #endif
