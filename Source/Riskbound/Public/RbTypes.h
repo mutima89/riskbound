@@ -199,4 +199,10 @@ struct FRbSettingsView
 	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") bool bFullscreen = true;
 	// 0 Low .. 3 Epic (engine scalability presets; Low turns Lumen off).
 	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") int32 GraphicsQuality = 2;
+	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") int32 Upscaling = 0;   // 0 native .. 3 performance (TSR)
+	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") int32 FrameCap = 0;    // 0 unlimited, 30, 60, 120
+	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") bool bVSync = true;
+	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") bool bInvertY = false;
+	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") float GamepadSensitivity = 1.0f;
+	UPROPERTY(BlueprintReadWrite, Category = "Riskbound") bool bColourSafe = false;
 };

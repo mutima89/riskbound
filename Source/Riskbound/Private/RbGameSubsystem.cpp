@@ -439,6 +439,12 @@ FRbSettingsView URbGameSubsystem::GetSettings() const
 	V.bHints = S.bHints;
 	V.bFullscreen = S.bFullscreen;
 	V.GraphicsQuality = S.GraphicsQuality;
+	V.Upscaling = S.Upscaling;
+	V.FrameCap = S.FrameCap;
+	V.bVSync = S.bVSync;
+	V.bInvertY = S.bInvertY;
+	V.GamepadSensitivity = static_cast<float>(S.GamepadSensitivity);
+	V.bColourSafe = S.bColourSafe;
 	return V;
 }
 
@@ -452,6 +458,12 @@ void URbGameSubsystem::SetSettings(const FRbSettingsView& In, bool bApplyWindowM
 	S.bHints = In.bHints;
 	S.bFullscreen = In.bFullscreen;
 	S.GraphicsQuality = In.GraphicsQuality;
+	S.Upscaling = In.Upscaling;
+	S.FrameCap = In.FrameCap;
+	S.bVSync = In.bVSync;
+	S.bInvertY = In.bInvertY;
+	S.GamepadSensitivity = In.GamepadSensitivity;
+	S.bColourSafe = In.bColourSafe;
 	State.Settings = rb::ClampSettings(S);
 	ApplySettings(bApplyWindowMode);
 	OnStateChanged.Broadcast();
@@ -466,8 +478,13 @@ void URbGameSubsystem::ApplySettings(bool bApplyWindowMode) const
 	if (IConsoleVariable* ScreenPct = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ScreenPercentage")))
 	{
 		static const float Percent[] = {50.0f, 60.0f, 70.0f, 100.0f};
-		ScreenPct->Set(Percent[FMath::Clamp(S.GraphicsQuality, 0, 3)], ECVF_SetByGameSetting);
+		static const float Upscale[] = {100.0f, 77.0f, 67.0f, 58.0f}; // TSR quality, balanced, performance
+		const float ByQuality = Percent[FMath::Clamp(S.GraphicsQuality, 0, 3)];
+		ScreenPct->Set(S.Upscaling > 0 ? FMath::Min(ByQuality, Upscale[FMath::Clamp(S.Upscaling, 0, 3)]) : ByQuality, ECVF_SetByGameSetting);
 	}
+	if (IConsoleVariable* MaxFps = IConsoleManager::Get().FindConsoleVariable(TEXT("t.MaxFPS"))) MaxFps->Set(S.FrameCap, ECVF_SetByGameSetting);
+	if (IConsoleVariable* VSync = IConsoleManager::Get().FindConsoleVariable(TEXT("r.VSync"))) VSync->Set(S.bVSync ? 1 : 0, ECVF_SetByGameSetting);
+	RbUI::SetColourSafe(S.bColourSafe);
 	if (IConsoleVariable* MotionBlur = IConsoleManager::Get().FindConsoleVariable(TEXT("r.MotionBlurQuality")))
 	{
 		MotionBlur->Set(S.bReducedMotion ? 0 : 4, ECVF_SetByGameSetting);

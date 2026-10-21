@@ -28,6 +28,13 @@ struct PlayerSettings
 	bool bHints = true;
 	bool bFullscreen = true;
 	int GraphicsQuality = 2;       // 0 low .. 3 epic
+	// Save v9:
+	int Upscaling = 0;             // 0 native, 1 quality (77%), 2 balanced (67%), 3 performance (58%): TSR renders lower and upscales
+	int FrameCap = 0;              // 0 unlimited, else 30 / 60 / 120
+	bool bVSync = true;
+	bool bInvertY = false;
+	double GamepadSensitivity = 1.0; // 0.1..5
+	bool bColourSafe = false;      // blue/orange instead of green/red for good and bad
 };
 
 // The one place settings limits live: out-of-range or non-numeric values are brought into range

@@ -508,6 +508,49 @@ FRbScreenParts Settings(ARbHUD* Hud, TFunction<void()> OnBack)
 		}
 		AddRow(Box, Row);
 	}
+	{
+		// Upscaling: TSR renders fewer pixels and reconstructs the image (more frames on slower GPUs).
+		TSharedRef<SHorizontalBox> Row = SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[SNew(SBox).WidthOverride(220.0f)[MakeBody(LOCTEXT("Upscaling", "Upscaling (TSR)"), 15)]];
+		const FText Names[] = {LOCTEXT("UNative", "Native"), LOCTEXT("UQuality", "Quality"), LOCTEXT("UBalanced", "Balanced"), LOCTEXT("UPerf", "Performance")};
+		for (int32 Q = 0; Q < 4; ++Q)
+		{
+			Row->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space4, 0.0f)
+			[
+				SNew(SCheckBox).Style(&RbUI::RadioStyle())
+				.IsChecked_Lambda([Get, Q]() { return Get().Upscaling == Q ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
+				.OnCheckStateChanged_Lambda([Update, Q](ECheckBoxState) { Update([Q](FRbSettingsView& S) { S.Upscaling = Q; }, false); })
+				[MakeBody(Names[Q], 14)]
+			];
+		}
+		AddRow(Box, Row);
+	}
+	{
+		TSharedRef<SHorizontalBox> Row = SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[SNew(SBox).WidthOverride(220.0f)[MakeBody(LOCTEXT("FrameCap", "Frame rate limit"), 15)]];
+		const int32 Caps[] = {30, 60, 120, 0};
+		const FText CapNames[] = {LOCTEXT("F30", "30"), LOCTEXT("F60", "60"), LOCTEXT("F120", "120"), LOCTEXT("FOff", "Unlimited")};
+		for (int32 i = 0; i < 4; ++i)
+		{
+			const int32 Cap = Caps[i];
+			Row->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space4, 0.0f)
+			[
+				SNew(SCheckBox).Style(&RbUI::RadioStyle())
+				.IsChecked_Lambda([Get, Cap]() { return Get().FrameCap == Cap ? ECheckBoxState::Checked : ECheckBoxState::Unchecked; })
+				.OnCheckStateChanged_Lambda([Update, Cap](ECheckBoxState) { Update([Cap](FRbSettingsView& S) { S.FrameCap = Cap; }, false); })
+				[MakeBody(CapNames[i], 14)]
+			];
+		}
+		AddRow(Box, Row);
+	}
+	AddRow(Box, SettingToggle(LOCTEXT("VSync", "Vertical sync"),
+		[Get]() { return Get().bVSync; }, [Update](bool B) { Update([B](FRbSettingsView& S) { S.bVSync = B; }, false); }));
+	AddRow(Box, SettingSlider(LOCTEXT("PadSensitivity", "Controller look sensitivity"), 0.1f, 5.0f, 0.1f,
+		[Get]() { return Get().GamepadSensitivity; }, [Update](float V) { Update([V](FRbSettingsView& S) { S.GamepadSensitivity = V; }, false); }));
+	AddRow(Box, SettingToggle(LOCTEXT("InvertY", "Invert look up and down"),
+		[Get]() { return Get().bInvertY; }, [Update](bool B) { Update([B](FRbSettingsView& S) { S.bInvertY = B; }, false); }));
+	AddRow(Box, SettingToggle(LOCTEXT("ColourSafe", "Colour-safe palette (blue and orange for good and bad)"),
+		[Get]() { return Get().bColourSafe; }, [Update](bool B) { Update([B](FRbSettingsView& S) { S.bColourSafe = B; }, false); }));
 	AddRow(Box, SettingToggle(LOCTEXT("ReducedMotion", "Reduced motion (no motion blur)"),
 		[Get]() { return Get().bReducedMotion; }, [Update](bool B) { Update([B](FRbSettingsView& S) { S.bReducedMotion = B; }, false); }));
 	AddRow(Box, SettingToggle(LOCTEXT("Hints", "Hints (evidence locations in briefing and journal)"),

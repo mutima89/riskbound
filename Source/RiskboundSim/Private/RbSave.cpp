@@ -833,6 +833,12 @@ std::string SerializeGame(const GameState& S)
 	W.Bool("settings.hints", S.Settings.bHints);
 	W.Bool("settings.fullscreen", S.Settings.bFullscreen);
 	W.Int("settings.gfx", S.Settings.GraphicsQuality);
+	W.Int("settings.upscale", S.Settings.Upscaling);
+	W.Int("settings.fps", S.Settings.FrameCap);
+	W.Bool("settings.vsync", S.Settings.bVSync);
+	W.Bool("settings.invertY", S.Settings.bInvertY);
+	W.Dbl("settings.pad", S.Settings.GamepadSensitivity);
+	W.Bool("settings.colourSafe", S.Settings.bColourSafe);
 	WriteCareer(W, S.Career);
 	WriteOrg(W, S.Org);
 	WriteRegister(W, S.Register);
@@ -1005,6 +1011,12 @@ bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 	S.Settings.bHints = R.Bool("settings.hints", true);
 	S.Settings.bFullscreen = R.Bool("settings.fullscreen", true);
 	S.Settings.GraphicsQuality = static_cast<int>(R.Int("settings.gfx", 2));
+	S.Settings.Upscaling = static_cast<int>(R.Int("settings.upscale", 0)); // v9; older saves: defaults
+	S.Settings.FrameCap = static_cast<int>(R.Int("settings.fps", 0));
+	S.Settings.bVSync = R.Bool("settings.vsync", true);
+	S.Settings.bInvertY = R.Bool("settings.invertY", false);
+	S.Settings.GamepadSensitivity = R.Dbl("settings.pad", 1.0);
+	S.Settings.bColourSafe = R.Bool("settings.colourSafe", false);
 	S.Settings = ClampSettings(S.Settings); // a hand-edited save must not break the UI
 	ReadCareer(R, S.Career);
 	ReadOrg(R, S.Org);
@@ -1036,6 +1048,7 @@ bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 	S.Challenge.Date = R.Str("chal.date");
 	if (S.Challenge.Index < 0 || S.Challenge.Index > static_cast<int>(S.Challenge.Sequence.size())) R.bOk = false;
 	if (Info.LoadedVersion < 8) Info.bMigrated = true;
+	if (Info.LoadedVersion < 9) Info.bMigrated = true;
 	S.Achievements = R.List("achievements");
 	S.LearningHistory = R.List("learning");
 	if (!R.bOk)

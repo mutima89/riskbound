@@ -202,8 +202,17 @@ TSharedRef<SWidget> SRbCaseFiles::BuildList()
 		Box->AddSlot().AutoHeight()[CaseText(TEXT("No case files are installed."), 14, TextMuted)];
 		return Box;
 	}
+	int32 LastGroup = -1;
 	for (const FRbMissionSummary& M : Missions)
 	{
+		// Group headers keep a long list scannable (walkthrough finding #14).
+		const int32 Group = M.bActive ? 0 : (M.bAvailable ? 1 : (M.bPassed ? 2 : 3));
+		if (Group != LastGroup)
+		{
+			LastGroup = Group;
+			static const TCHAR* const Headers[] = {TEXT("In progress"), TEXT("Open to you"), TEXT("Completed"), TEXT("Not yet open")};
+			Box->AddSlot().AutoHeight().Padding(0.0f, Group == 0 ? 0.0f : Space3, 0.0f, Space1)[CaseText(Headers[Group], 13, Accent, EWeight::SemiBold)];
+		}
 		FString State;
 		FLinearColor StateColor = TextMuted;
 		if (M.bActive) { State = TEXT("In progress"); StateColor = Accent; }

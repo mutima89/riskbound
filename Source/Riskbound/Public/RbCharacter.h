@@ -38,6 +38,7 @@ private:
 	void OnJournal();
 	void OnInbox();
 	void OnPhoto();
+	void OnPadLook(const FInputActionValue& Value);
 	void OnShot();
 	virtual void Tick(float DeltaSeconds) override;
 	float StrideDistance = 0.0f;
@@ -58,5 +59,6 @@ private:
 	UPROPERTY(Transient) TObjectPtr<UInputAction> JournalAction;
 	UPROPERTY(Transient) TObjectPtr<UInputAction> InboxAction;
 	UPROPERTY(Transient) TObjectPtr<UInputAction> PhotoAction;
+	UPROPERTY(Transient) TObjectPtr<UInputAction> PadLookAction;
 	UPROPERTY(Transient) TObjectPtr<UInputAction> ShotAction;
 };

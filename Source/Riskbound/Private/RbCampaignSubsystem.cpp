@@ -182,7 +182,7 @@ TArray<FRbMissionSummary> URbCampaignSubsystem::GetMissions(bool bIncludeHidden)
 		const bool bUntriggered = std::any_of(M.RequiresFlags.begin(), M.RequiresFlags.end(), [&S](const std::string& F) { return !S.Org.HasFlag(F); });
 		// Story chapters stay secret until the player has the evidence to open them.
 		const bool bUndiscovered = M.RequiresClues > static_cast<int>(S.World.Clues.size());
-		if (!bIncludeHidden && (bUntriggered || bUndiscovered) && V.Attempts == 0 && !V.bActive) continue; // a surprise, not a to-do
+		if (!bIncludeHidden && (bUntriggered || bUndiscovered) && V.Attempts == 0 && !V.bActive && !V.bAvailable) continue; // a surprise, not a to-do
 		Out.Add(V);
 	}
 	auto Group = [](const FRbMissionSummary& V) { return V.bActive ? 0 : (V.bAvailable ? 1 : (V.bPassed ? 2 : 3)); };

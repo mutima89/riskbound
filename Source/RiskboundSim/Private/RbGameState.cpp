@@ -20,6 +20,9 @@ PlayerSettings ClampSettings(const PlayerSettings& In)
 	Out.TextScale = Clamp(In.TextScale, 0.8, 1.6, Def.TextScale);
 	Out.MasterVolume = Clamp(In.MasterVolume, 0.0, 1.0, Def.MasterVolume);
 	Out.GraphicsQuality = std::max(0, std::min(3, In.GraphicsQuality));
+	Out.Upscaling = std::max(0, std::min(3, Out.Upscaling));
+	if (Out.FrameCap != 0 && Out.FrameCap != 30 && Out.FrameCap != 60 && Out.FrameCap != 120) Out.FrameCap = 0;
+	Out.GamepadSensitivity = std::isfinite(Out.GamepadSensitivity) ? std::max(0.1, std::min(5.0, Out.GamepadSensitivity)) : 1.0;
 	return Out;
 }
 

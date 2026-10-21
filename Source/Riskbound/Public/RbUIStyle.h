@@ -27,9 +27,11 @@ FSlateFontInfo FontW(int32 Size, EWeight Weight);
 extern const FLinearColor Accent;      // Valtren teal #2BA3A8
 extern const FLinearColor TextPrimary; // #ECEEF0
 extern const FLinearColor TextMuted;   // #9AA3AD
-extern const FLinearColor Good;
-extern const FLinearColor Warning;     // amber #E3A33B, risk states only
-extern const FLinearColor Bad;         // red #D9534F, risk states only
+extern FLinearColor Good;              // green, or blue with the colour-safe palette
+extern FLinearColor Warning;           // amber #E3A33B, risk states only
+extern FLinearColor Bad;               // red #D9534F, or orange with the colour-safe palette
+// Colour-safe palette (settings): good and bad stay distinguishable with red-green colour blindness.
+void SetColourSafe(bool bSafe);
 
 // ---- Spacing (4 px grid) ----
 constexpr float Space1 = 4.0f;

@@ -49,6 +49,7 @@ void ARbCharacter::BuildInput()
 	JournalAction = MakeAction(TEXT("IA_Journal"), EInputActionValueType::Boolean);
 	InboxAction = MakeAction(TEXT("IA_Inbox"), EInputActionValueType::Boolean);
 	PhotoAction = MakeAction(TEXT("IA_Photo"), EInputActionValueType::Boolean);
+	PadLookAction = MakeAction(TEXT("IA_PadLook"), EInputActionValueType::Axis2D);
 	ShotAction = MakeAction(TEXT("IA_Shot"), EInputActionValueType::Boolean);
 
 	Mapping = NewObject<UInputMappingContext>(this, TEXT("IMC_Riskbound"));
@@ -90,6 +91,18 @@ void ARbCharacter::BuildInput()
 	Mapping->MapKey(JournalAction, EKeys::Tab);
 	Mapping->MapKey(InboxAction, EKeys::I);
 	Mapping->MapKey(PhotoAction, EKeys::F10);
+	// Controller (Xbox layout; Steam Deck maps the same): left stick moves, right stick looks,
+	// A uses, X inbox, Y journal, Start pauses, B backs out of screens (SRbScreen).
+	{
+		FEnhancedActionKeyMapping& Stick = Mapping->MapKey(MoveAction, EKeys::Gamepad_Left2D);
+		Stick.Modifiers.Add(NewObject<UInputModifierDeadZone>(this));
+		FEnhancedActionKeyMapping& Pad = Mapping->MapKey(PadLookAction, EKeys::Gamepad_Right2D);
+		Pad.Modifiers.Add(NewObject<UInputModifierDeadZone>(this));
+	}
+	Mapping->MapKey(InteractAction, EKeys::Gamepad_FaceButton_Bottom);
+	Mapping->MapKey(InboxAction, EKeys::Gamepad_FaceButton_Left);
+	Mapping->MapKey(JournalAction, EKeys::Gamepad_FaceButton_Top);
+	Mapping->MapKey(PauseAction, EKeys::Gamepad_Special_Right);
 	Mapping->MapKey(ShotAction, EKeys::F12);
 }
 
@@ -105,6 +118,7 @@ void ARbCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Input->BindAction(JournalAction, ETriggerEvent::Started, this, &ARbCharacter::OnJournal);
 	Input->BindAction(InboxAction, ETriggerEvent::Started, this, &ARbCharacter::OnInbox);
 	Input->BindAction(PhotoAction, ETriggerEvent::Started, this, &ARbCharacter::OnPhoto);
+	Input->BindAction(PadLookAction, ETriggerEvent::Triggered, this, &ARbCharacter::OnPadLook);
 	Input->BindAction(ShotAction, ETriggerEvent::Started, this, &ARbCharacter::OnShot);
 }
 
@@ -128,9 +142,22 @@ void ARbCharacter::OnMove(const FInputActionValue& Value)
 	AddMovementInput(FRotationMatrix(Yaw).GetUnitAxis(EAxis::Y), Axis.X);
 }
 
+void ARbCharacter::OnPadLook(const FInputActionValue& Value)
+{
+	// Stick deflection is a rate, not a delta: degrees per second scaled by the controller sensitivity.
+	const URbGameSubsystem* Game = GetGameInstance() ? GetGameInstance()->GetSubsystem<URbGameSubsystem>() : nullptr;
+	const float Rate = 140.0f * (Game ? Game->GetSettings().GamepadSensitivity : 1.0f) * GetWorld()->GetDeltaSeconds();
+	const bool bInvert = Game && Game->GetSettings().bInvertY;
+	const FVector2D Axis = Value.Get<FVector2D>();
+	AddControllerYawInput(Axis.X * Rate);
+	AddControllerPitchInput((bInvert ? Axis.Y : -Axis.Y) * Rate);
+}
+
 void ARbCharacter::OnLook(const FInputActionValue& Value)
 {
-	const FVector2D Axis = Value.Get<FVector2D>() * LookRate * Sensitivity();
+	FVector2D Axis = Value.Get<FVector2D>() * LookRate * Sensitivity();
+	const URbGameSubsystem* G = GetGameInstance() ? GetGameInstance()->GetSubsystem<URbGameSubsystem>() : nullptr;
+	if (G && G->GetSettings().bInvertY) Axis.Y = -Axis.Y;
 	AddControllerYawInput(Axis.X);
 	AddControllerPitchInput(Axis.Y);
 }

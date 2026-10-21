@@ -24,9 +24,17 @@ static bool GReducedMotion = false;
 const FLinearColor Accent = FLinearColor::FromSRGBColor(FColor(0x2B, 0xA3, 0xA8));
 const FLinearColor TextPrimary = FLinearColor::FromSRGBColor(FColor(0xEC, 0xEE, 0xF0));
 const FLinearColor TextMuted = FLinearColor::FromSRGBColor(FColor(0x9A, 0xA3, 0xAD));
-const FLinearColor Good = FLinearColor::FromSRGBColor(FColor(0x5C, 0xC4, 0x8A));
-const FLinearColor Warning = FLinearColor::FromSRGBColor(FColor(0xE3, 0xA3, 0x3B));
-const FLinearColor Bad = FLinearColor::FromSRGBColor(FColor(0xD9, 0x53, 0x4F));
+FLinearColor Good = FLinearColor::FromSRGBColor(FColor(0x5C, 0xC4, 0x8A));
+FLinearColor Warning = FLinearColor::FromSRGBColor(FColor(0xE3, 0xA3, 0x3B));
+FLinearColor Bad = FLinearColor::FromSRGBColor(FColor(0xD9, 0x53, 0x4F));
+
+void SetColourSafe(bool bSafe)
+{
+	// Okabe-Ito blue / vermillion / yellow when safe; the house green / red / amber otherwise.
+	Good = FLinearColor::FromSRGBColor(bSafe ? FColor(0x56, 0xB4, 0xE9) : FColor(0x5C, 0xC4, 0x8A));
+	Bad = FLinearColor::FromSRGBColor(bSafe ? FColor(0xE6, 0x9F, 0x00) : FColor(0xD9, 0x53, 0x4F));
+	Warning = FLinearColor::FromSRGBColor(bSafe ? FColor(0xF0, 0xE4, 0x42) : FColor(0xE3, 0xA3, 0x3B));
+}
 
 static const FLinearColor PanelFill = FLinearColor::FromSRGBColor(FColor(0x0E, 0x11, 0x16, 235));
 static const FLinearColor Hairline(1.0f, 1.0f, 1.0f, 0.08f);
