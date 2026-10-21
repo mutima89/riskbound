@@ -209,7 +209,7 @@ TSharedRef<SWidget> MakeModalFrame(TSharedRef<SWidget> Content, float MaxWidth)
 		+ SOverlay::Slot()
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
-		.Padding(40.0f)
+		.Padding(FMargin(40.0f, ModalTopBand, 40.0f, 24.0f)) // the top band holds notices (SRbHudOverlay)
 		[
 			SNew(SBox)
 			.MaxDesiredWidth(MaxWidth)

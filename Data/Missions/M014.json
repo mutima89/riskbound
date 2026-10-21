@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "id": "M014",
+  "title": "Stress Test the Plan",
+  "kind": "mission",
+  "department": "Finance",
+  "minLevel": 6,
+  "requiresPassed": ["M013"],
+  "passMark": 60,
+  "xp": 210,
+  "weeks": 2,
+  "briefing": [
+    "The three-year plan assumes 6% revenue growth and stable costs. Hollis Varga wants to know whether Valtren survives a bad year before the bank renews its loan facility.",
+    "Run the stress test and tell the executive what it means."
+  ],
+  "context": [
+    {"ifMetric": "Cash", "below": 2500000, "text": "Cash is now below 2.5 million after this year's incidents. The bank will look closely."},
+    {"ifFlag": "appetite_cascaded", "text": "The board's new appetite statement includes a liquidity floor of 1.5 million cash."}
+  ],
+  "evidence": [
+    {"id": "plan", "title": "Plan, year 1", "body": "Revenue 51.0m. Costs 47.2m. Operating margin 3.8m. Opening cash 3.0m. Other cash outflows in the year: fleet replacement 1.2m, loan repayment 1.0m. Planned year-end cash: 4.6m. Loan covenant: cash must stay above 1.0m."},
+    {"id": "scenarios", "title": "Proposed stress scenarios", "body": [
+      "S1 Fuel shock: diesel +35% (fuel is 12% of costs).",
+      "S2 Client loss: the second-largest client (9% of revenue, 4.59m) leaves at the start of the year. Serving it costs 4.25m, of which 60% can be cut within the year.",
+      "S3 Combined: S1 and S2 together."
+    ]},
+    {"id": "levers", "title": "Management actions available", "body": "Fuel surcharge clause (recovers about half of a fuel rise after one quarter). Hiring freeze (saves 0.8m). Defer fleet replacement (frees 1.2m cash)."}
+  ],
+  "questions": [
+    {"id": "fuel_impact", "competency": "QuantitativeAnalysis", "weight": 20,
+     "prompt": "What does S1 (fuel +35%) do to the year's operating margin before any action?",
+     "options": [
+       {"id": "minus_198", "label": "Margin falls by about 1.98m, to about 1.8m", "score": 92, "feedback": "Fuel = 12% x 47.2m = 5.66m; +35% = 1.98m extra cost."},
+       {"id": "minus_165", "label": "Margin falls by 35%", "score": 20, "feedback": "The rise applies to fuel costs, not the margin."},
+       {"id": "minus_566", "label": "Margin falls by 5.66m", "score": 25, "feedback": "That is the whole fuel bill, not the 35% increase."}
+     ]},
+    {"id": "combined", "competency": "QuantitativeAnalysis", "weight": 20,
+     "prompt": "Under S3 (combined), before management action, what happens to the margin?",
+     "options": [
+       {"id": "loss_02", "label": "About -0.2m: the margin is wiped out", "score": 90, "feedback": "Client loss: revenue -4.59m, costs cut 0.6 x 4.25m = 2.55m, net -2.04m. Plus fuel -1.98m: 3.8 - 2.04 - 1.98 = -0.22m."},
+       {"id": "plus_18", "label": "Still +1.8m", "score": 20, "feedback": "That ignores the client loss."},
+       {"id": "minus_46", "label": "-4.6m: the lost revenue", "score": 25, "feedback": "Lost revenue is partly offset by costs that can be cut."}
+     ]},
+    {"id": "survival", "competency": "StrategicThinking", "weight": 20,
+     "prompt": "What is the key conclusion for the executive?",
+     "options": [
+       {"id": "survives_with_actions", "label": "In S3 year-end cash falls to about 0.6m, below the 1.0m covenant, unless Valtren acts early: fuel surcharges and a hiring freeze in the first quarter, with the fleet deferral held in reserve", "score": 92, "feedback": "3.0 - 0.22 - 2.2 = 0.58m. Surcharges (about 0.7m in the year) and the freeze (0.8m) restore about 2.1m; deferral adds 1.2m if needed."},
+       {"id": "fine", "label": "We survive every scenario; no action needed", "score": 15, "feedback": "S3 leaves about 0.6m at year end, below the covenant."},
+       {"id": "doomed", "label": "We breach the covenant in S3 whatever we do; renegotiate the loan now", "score": 40, "feedback": "Too pessimistic: the available actions keep cash above the covenant if taken early."}
+     ]},
+    {"id": "triggers", "competency": "Leadership", "weight": 20,
+     "prompt": "How do you make sure the actions happen in time?",
+     "options": [
+       {"id": "pre_agreed", "label": "Agree trigger points now (e.g. diesel +15% for two months, or formal notice from the client) and named owners for each action", "score": 92, "feedback": "Decisions made in calm are faster and better than decisions made in crisis.",
+        "setsFlags": ["stress_triggers_agreed"], "effects": {"Resilience": 5}},
+       {"id": "decide_later", "label": "Decide when it happens", "score": 25, "feedback": "Delay costs a quarter of recovery, which is the margin of survival here."},
+       {"id": "act_now", "label": "Freeze hiring and defer the fleet now, just in case", "score": 40, "feedback": "Costly insurance against a scenario, not a forecast.",
+        "effects": {"EmployeeMorale": -4, "StrategicProgress": -4}}
+     ]},
+    {"id": "bank", "competency": "Communication", "weight": 20,
+     "prompt": "What do you tell the bank?",
+     "options": [
+       {"id": "share_test", "label": "Share the stress test, including the combined scenario and the pre-agreed actions", "score": 90, "feedback": "Lenders trust borrowers who show they know their downside.",
+        "effects": {"StakeholderTrust": 3}},
+       {"id": "base_only", "label": "Share only the base plan", "score": 30, "feedback": "Banks run their own downside; hiding yours costs credibility."},
+       {"id": "nothing", "label": "Nothing beyond what they ask", "score": 25, "feedback": "A missed chance to build trust before a renewal."}
+     ]}
+  ],
+  "lesson": "Stress tests matter for the decisions they trigger: quantify the downside, agree triggers and owners in advance, and share the result with those who rely on you."
+}

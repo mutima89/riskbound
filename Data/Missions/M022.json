@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "id": "M022",
+  "title": "What People Really Think",
+  "kind": "mission",
+  "department": "HR",
+  "minLevel": 8,
+  "requiresPassed": ["M021"],
+  "passMark": 60,
+  "xp": 250,
+  "weeks": 3,
+  "briefing": [
+    "The first risk culture survey is back. Managers rate culture highly; front-line staff do not. A comment says: 'Raise a problem here and you become the problem.'",
+    "The CEO wants the results 'positioned carefully'."
+  ],
+  "context": [
+    {"ifFlag": "near_miss_reporting_fixed", "text": "Near-miss reporting, which you fixed years ago, is still one of the healthiest signals in the business."},
+    {"ifFlag": "fraud_discovered", "text": "The depot expenses fraud was known to two colleagues who said nothing. This survey is partly why."}
+  ],
+  "evidence": [
+    {"id": "survey", "title": "Survey results", "body": "'I can raise concerns without fear': managers 81% agree, front line 38%. 'Bad news travels up quickly': managers 74%, front line 29%. Response rate 64%."},
+    {"id": "comments", "title": "Selected comments", "body": "'Raise a problem here and you become the problem.' 'Targets matter more than how you hit them.' 'My manager listens, his manager doesn't.'"},
+    {"id": "speak_up", "title": "Speak-up line data", "body": "4 reports in 12 months across 1,240 staff. Benchmark for similar firms: 15-25."}
+  ],
+  "questions": [
+    {"id": "gap", "competency": "Leadership", "weight": 25,
+     "prompt": "What is the most important finding?",
+     "options": [
+       {"id": "manager_gap", "label": "The 40-point gap between managers and front line: leaders believe people speak up; people don't", "score": 92, "feedback": "The gap is the risk: leadership is blind to what the front line knows."},
+       {"id": "response", "label": "The 64% response rate", "score": 25, "feedback": "Respectable; not the headline."},
+       {"id": "managers_high", "label": "Managers' high scores show a strong culture", "score": 10, "feedback": "Self-assessment by those in charge is not the culture of those reporting to them."}
+     ]},
+    {"id": "speak_up_rate", "competency": "Governance", "weight": 20,
+     "prompt": "What does 4 speak-up reports a year suggest?",
+     "options": [
+       {"id": "silence", "label": "Under-use: well below the 15-25 benchmark, consistent with fear of raising concerns", "score": 92, "feedback": "Low reports read with the survey suggest silence, not a lack of issues."},
+       {"id": "few_issues", "label": "Few issues to report", "score": 10, "feedback": "The survey says otherwise."},
+       {"id": "line_broken", "label": "The phone line is broken", "score": 20, "feedback": "Check it, but the survey explains it better."}
+     ]},
+    {"id": "positioning", "competency": "Communication", "weight": 20,
+     "prompt": "How do you respond to 'position it carefully'?",
+     "options": [
+       {"id": "honest_framed", "label": "Present the results in full with context and a plan; careful framing, not careful omission", "score": 92, "feedback": "Honest and constructive.",
+        "setsFlags": ["culture_results_shared"], "effects": {"EmployeeMorale": 3, "StakeholderTrust": 3}},
+       {"id": "managers_only", "label": "Report the managers' scores as 'overall culture'", "score": 5, "feedback": "Misrepresents the results.",
+        "effects": {"StakeholderTrust": -5},
+        "schedules": [
+          {"id": "whistleblower", "description": "A driver goes to the regulator and the press about fatigue rules being ignored at one depot", "delayWeeks": 8, "probability": 0.35,
+           "effects": {"Reputation": -9, "StakeholderTrust": -6, "Cash": -120000}, "flagIfOccurs": "whistleblower"}
+        ]},
+       {"id": "delay", "label": "Hold the results until next year's survey confirms them", "score": 20, "feedback": "Delay tells staff nothing changes.",
+        "schedules": [
+          {"id": "whistleblower_delay", "description": "A driver goes to the regulator and the press about fatigue rules being ignored at one depot", "delayWeeks": 8, "probability": 0.25,
+           "effects": {"Reputation": -9, "StakeholderTrust": -6, "Cash": -120000}, "flagIfOccurs": "whistleblower"}
+        ]}
+     ]},
+    {"id": "actions", "competency": "StrategicThinking", "weight": 20,
+     "prompt": "Which action plan do you propose?",
+     "options": [
+       {"id": "leaders_first", "label": "Senior leaders hold listening sessions at sites, act visibly on three issues raised, protect and thank people who speak up, and re-survey in 12 months", "score": 92, "feedback": "Culture changes when people see leaders act on what they hear."},
+       {"id": "poster", "label": "A poster campaign about speaking up", "score": 20, "feedback": "Words without changed behaviour reinforce cynicism."},
+       {"id": "training", "label": "Mandatory e-learning for all staff", "score": 30, "feedback": "Puts the burden on the people who are afraid, not on those who create the fear."}
+     ]},
+    {"id": "measure", "competency": "Judgement", "weight": 15,
+     "prompt": "How will you know it's working?",
+     "options": [
+       {"id": "indicators", "label": "Speak-up reports rising toward benchmark, near-miss reports holding, the manager/front-line gap narrowing in the re-survey", "score": 92, "feedback": "Several signals, including ones that should rise."},
+       {"id": "fewer_reports", "label": "Fewer speak-up reports", "score": 10, "feedback": "In this situation, more reports is the sign of success."},
+       {"id": "ceo_view", "label": "The CEO feels the culture has improved", "score": 15, "feedback": "The original problem was leaders' perception."}
+     ]}
+  ],
+  "lesson": "Culture risk shows in the gap between how leaders and the front line see the organisation. Share uncomfortable results honestly and let people see leaders act."
+}

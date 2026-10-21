@@ -37,6 +37,8 @@ constexpr float Space2 = 8.0f;
 constexpr float Space3 = 12.0f;
 constexpr float Space4 = 16.0f;
 constexpr float Space6 = 24.0f;
+// Free band above every modal screen where notices appear, so they never cover screen content.
+constexpr float ModalTopBand = 64.0f;
 
 // ---- Surfaces ----
 const FSlateBrush* PanelBrush();     // dark glass panel with hairline border, rounded

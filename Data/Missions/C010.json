@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "id": "C010",
+  "title": "Data Breach",
+  "kind": "crisis",
+  "department": "Legal and Compliance",
+  "minLevel": 5,
+  "requiresFlags": [
+    "data_breach"
+  ],
+  "passMark": 60,
+  "xp": 240,
+  "weeks": 1,
+  "briefing": [
+    "A stolen email password was used to export a customer contact list of 8,400 people (names, emails, delivery addresses). A customer has seen it advertised online.",
+    "You join the response as Risk Team Lead."
+  ],
+  "evidence": [
+    {
+      "id": "data",
+      "title": "What was taken",
+      "body": "8,400 customer contacts. No payment data. The account had no multi-factor login."
+    },
+    {
+      "id": "law",
+      "title": "Legal duty",
+      "body": "Notify the data protection regulator within 72 hours of becoming aware if there is risk to individuals; notify individuals if the risk is high."
+    },
+    {
+      "id": "timeline",
+      "title": "Timeline",
+      "body": "Discovered 9 hours ago."
+    }
+  ],
+  "questions": [
+    {
+      "id": "notify",
+      "competency": "Governance",
+      "weight": 30,
+      "prompt": "Do you notify the regulator?",
+      "options": [
+        {
+          "id": "yes_72h",
+          "label": "Yes, within 72 hours, with what is known and what is still being investigated",
+          "score": 95,
+          "feedback": "The duty applies; partial information is acceptable and expected."
+        },
+        {
+          "id": "wait",
+          "label": "Only once the investigation is complete",
+          "score": 20,
+          "feedback": "May miss the 72-hour deadline."
+        },
+        {
+          "id": "no",
+          "label": "No: no payment data was taken",
+          "score": 15,
+          "feedback": "Addresses and emails still create risk (phishing, fraud)."
+        }
+      ]
+    },
+    {
+      "id": "individuals",
+      "competency": "Judgement",
+      "weight": 25,
+      "prompt": "Do you tell the customers?",
+      "options": [
+        {
+          "id": "tell_guidance",
+          "label": "Yes: what happened, what was taken, how to spot phishing using their data, and a contact point",
+          "score": 92,
+          "feedback": "Gives people what they need to protect themselves.",
+          "setsFlags": [
+            "breach_handled"
+          ],
+          "effects": {
+            "StakeholderTrust": 2
+          }
+        },
+        {
+          "id": "no",
+          "label": "No: it would damage the brand",
+          "score": 15,
+          "feedback": "Hiding it does more damage when it emerges.",
+          "effects": {
+            "Reputation": -5
+          }
+        },
+        {
+          "id": "legal_only",
+          "label": "Only if lawyers insist",
+          "score": 35,
+          "feedback": "Leads with self-protection, not customer protection."
+        }
+      ]
+    },
+    {
+      "id": "cause",
+      "competency": "ControlEvaluation",
+      "weight": 25,
+      "prompt": "What is the control lesson?",
+      "options": [
+        {
+          "id": "mfa",
+          "label": "Password-only access to email: MFA for all staff would have stopped the login",
+          "score": 92,
+          "feedback": "The gap identified earlier, now realised."
+        },
+        {
+          "id": "training",
+          "label": "Staff need phishing training",
+          "score": 40,
+          "feedback": "Helps, but the control gap is MFA."
+        },
+        {
+          "id": "firewall",
+          "label": "A better firewall",
+          "score": 15,
+          "feedback": "The attacker logged in with valid credentials."
+        }
+      ]
+    },
+    {
+      "id": "message",
+      "competency": "Communication",
+      "weight": 20,
+      "prompt": "Which public statement is best?",
+      "options": [
+        {
+          "id": "plain",
+          "label": "\"Someone used a stolen password to copy names, emails and addresses of 8,400 customers. No payment data was involved. We have reported it, secured the account and are adding stronger login checks. Here is how to protect yourself.\"",
+          "score": 95,
+          "feedback": "Plain facts, responsibility, action, help."
+        },
+        {
+          "id": "vague",
+          "label": "\"We take data protection very seriously.\"",
+          "score": 15,
+          "feedback": "Says nothing."
+        },
+        {
+          "id": "sophisticated",
+          "label": "\"We were the victim of a sophisticated attack.\"",
+          "score": 20,
+          "feedback": "A stolen password is not sophisticated."
+        }
+      ]
+    }
+  ],
+  "lesson": "A data breach tests honesty and speed: meet the legal clock, help the people affected, and fix the control that let it happen."
+}

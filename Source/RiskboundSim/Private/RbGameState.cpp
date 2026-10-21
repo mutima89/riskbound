@@ -1,5 +1,10 @@
 #include "RbGameState.h"
 
+#include "RbCampaign.h"
+#include "RbMissionData.h"
+
+#include <set>
+
 #include <algorithm>
 #include <functional>
 
@@ -138,5 +143,186 @@ std::vector<std::string> EvaluateAchievements(GameState& State)
 		}
 	}
 	return New;
+}
+
+// ---------------------------------------------------------------- data-driven achievements
+
+static int CountIf(const std::vector<ResolvedConsequence>& H, bool bMitigated)
+{
+	int N = 0;
+	for (const ResolvedConsequence& R : H) N += bMitigated ? (R.bMitigated ? 1 : 0) : (R.bOccurred ? 0 : 1);
+	return N;
+}
+
+bool IsAchievementMet(const GameState& State, const AchievementDef& Def, const MissionCatalogue& Catalogue)
+{
+	const CampaignState& Camp = State.Campaign;
+	switch (Def.Condition)
+	{
+	case EAchievementCondition::Code:
+		for (const AchievementRule& R : Rules())
+		{
+			if (R.Def.Id == Def.Id) return R.Condition(State);
+		}
+		return false;
+	case EAchievementCondition::PassMission: return State.Career.HasPassed(Def.Target);
+	case EAchievementCondition::ReachLevel: return State.Career.Level >= Def.Value;
+	case EAchievementCondition::MissionsPassed: return static_cast<double>(State.Career.PassedMissions.size()) >= Def.Value;
+	case EAchievementCondition::CrisesPassed:
+	{
+		int N = 0;
+		for (const std::string& Id : State.Career.PassedMissions)
+		{
+			const MissionDef* M = Catalogue.Find(Id);
+			N += M && M->Kind == EMissionKind::Crisis ? 1 : 0;
+		}
+		return N >= Def.Value;
+	}
+	case EAchievementCondition::MissionScoreAtLeast:
+		if (Def.Target == m001::MissionId) return State.Mission001.bSubmitted && State.Mission001.Result.OverallScore >= Def.Value;
+		for (const MissionRecord& R : Camp.Records)
+		{
+			if (R.MissionId == Def.Target && R.Score >= Def.Value) return true;
+		}
+		return false;
+	case EAchievementCondition::AnyScoreAtLeast:
+		for (const MissionRecord& R : Camp.Records)
+		{
+			if (R.Score >= Def.Value) return true;
+		}
+		return false;
+	case EAchievementCondition::ScoreAtLeastCount:
+	{
+		std::set<std::string> Ids;
+		for (const MissionRecord& R : Camp.Records)
+		{
+			if (R.bPassed && R.Score >= Def.Value) Ids.insert(R.MissionId);
+		}
+		return static_cast<int>(Ids.size()) >= Def.Count;
+	}
+	case EAchievementCondition::Flag: return State.Org.HasFlag(Def.Target);
+	case EAchievementCondition::MetricAtLeast:
+	case EAchievementCondition::MetricBelow:
+	{
+		EOrgMetric M;
+		if (!MetricFromName(Def.Target, M)) return false;
+		const double V = State.Org.Get(M);
+		return Def.Condition == EAchievementCondition::MetricAtLeast ? V >= Def.Value : V < Def.Value;
+	}
+	case EAchievementCondition::IncidentsAvoided: return CountIf(State.Org.History, false) >= Def.Value;
+	case EAchievementCondition::IncidentsMitigated: return CountIf(State.Org.History, true) >= Def.Value;
+	case EAchievementCondition::CompetencyAtLeast:
+	{
+		ECompetency C;
+		return CompetencyFromName(Def.Target, C) && State.Career.Get(C).Assessments > 0 && State.Career.Get(C).Score >= Def.Value;
+	}
+	case EAchievementCondition::AllCompetenciesAtLeast:
+		for (int i = 0; i < CompetencyCount; ++i)
+		{
+			const CompetencyRecord& R = State.Career.Competencies[static_cast<size_t>(i)];
+			if (R.Assessments == 0 || R.Score < Def.Value) return false;
+		}
+		return true;
+	case EAchievementCondition::LearningEntries: return static_cast<double>(State.LearningHistory.size()) >= Def.Value;
+	case EAchievementCondition::RetryPassed:
+	{
+		std::set<std::string> Failed, Retried;
+		for (const MissionRecord& R : Camp.Records)
+		{
+			if (!R.bPassed) Failed.insert(R.MissionId);
+			else if (Failed.count(R.MissionId)) Retried.insert(R.MissionId);
+		}
+		return static_cast<double>(Retried.size()) >= Def.Value;
+	}
+	case EAchievementCondition::Escalations:
+	{
+		int N = 0;
+		for (const MissionRecord& R : Camp.Records)
+		{
+			const MissionDef* M = Catalogue.Find(R.MissionId);
+			if (!M) continue;
+			for (const MissionAnswer& A : R.Answers)
+			{
+				for (const MissionQuestionDef& Q : M->Questions)
+				{
+					if (Q.Id != A.QuestionId) continue;
+					for (const MissionOptionDef& O : Q.Options)
+					{
+						const bool bPicked = std::find(A.OptionIds.begin(), A.OptionIds.end(), O.Id) != A.OptionIds.end();
+						if (bPicked && O.bEscalates && O.Cost > LevelDef(R.Level).DecisionAuthority) ++N;
+					}
+				}
+			}
+		}
+		return N >= Def.Value;
+	}
+	}
+	return false;
+}
+
+std::vector<std::string> EvaluateAchievements(GameState& State, const std::vector<AchievementDef>& Defs, const MissionCatalogue& Catalogue)
+{
+	std::vector<std::string> New;
+	for (const AchievementDef& D : Defs)
+	{
+		const bool bHave = std::find(State.Achievements.begin(), State.Achievements.end(), D.Id) != State.Achievements.end();
+		if (!bHave && IsAchievementMet(State, D, Catalogue))
+		{
+			State.Achievements.push_back(D.Id);
+			New.push_back(D.Id);
+		}
+	}
+	return New;
+}
+
+std::vector<std::string> ValidateAchievements(const std::vector<AchievementDef>& Defs, const MissionCatalogue& Catalogue)
+{
+	std::vector<std::string> Out;
+	std::set<std::string> Ids;
+	for (const AchievementDef& D : Defs)
+	{
+		const std::string P = (D.Id.empty() ? std::string("(no id)") : D.Id) + ": ";
+		if (D.Id.empty() || !Ids.insert(D.Id).second) Out.push_back(P + "id missing or duplicated");
+		if (D.Title.empty() || D.Description.empty()) Out.push_back(P + "needs a title and description");
+		switch (D.Condition)
+		{
+		case EAchievementCondition::Code:
+		{
+			const bool bKnown = std::any_of(Rules().begin(), Rules().end(), [&](const AchievementRule& R) { return R.Def.Id == D.Id; });
+			if (!bKnown) Out.push_back(P + "no built-in rule with this id");
+			break;
+		}
+		case EAchievementCondition::PassMission:
+		case EAchievementCondition::MissionScoreAtLeast:
+			if (D.Target != m001::MissionId && !Catalogue.Find(D.Target)) Out.push_back(P + "unknown mission '" + D.Target + "'");
+			break;
+		case EAchievementCondition::MetricAtLeast:
+		case EAchievementCondition::MetricBelow:
+		{
+			EOrgMetric M;
+			if (!MetricFromName(D.Target, M)) Out.push_back(P + "unknown metric '" + D.Target + "'");
+			break;
+		}
+		case EAchievementCondition::CompetencyAtLeast:
+		{
+			ECompetency C;
+			if (!CompetencyFromName(D.Target, C)) Out.push_back(P + "unknown competency '" + D.Target + "'");
+			break;
+		}
+		case EAchievementCondition::Flag:
+			if (D.Target.empty()) Out.push_back(P + "missing flag");
+			break;
+		case EAchievementCondition::ReachLevel:
+			if (D.Value < 2 || D.Value > static_cast<double>(CareerLadder().size())) Out.push_back(P + "level outside 2..10");
+			break;
+		case EAchievementCondition::ScoreAtLeastCount:
+			if (D.Count < 1) Out.push_back(P + "count must be at least 1");
+			break;
+		default:
+			break;
+		}
+		if (D.Value < 0.0) Out.push_back(P + "negative value");
+	}
+	return Out;
 }
 } // namespace rb

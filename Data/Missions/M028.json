@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "id": "M028",
+  "title": "The New Depot",
+  "kind": "mission",
+  "department": "Operations",
+  "minLevel": 5,
+  "requiresPassed": [
+    "M009"
+  ],
+  "passMark": 60,
+  "xp": 180,
+  "weeks": 2,
+  "briefing": [
+    "Optional specialism: project risk. Valtren is building a new pharma depot at Kestrow Park: 18 months, 14 million. At month 4 the project risk log has 9 risks, all 'medium', and contingency is 3%.",
+    "The project board asks for an independent risk review."
+  ],
+  "evidence": [
+    {
+      "id": "log",
+      "title": "Project risk log",
+      "body": "9 risks, all medium, none quantified. No owner for 'GDP certification of the new depot'."
+    },
+    {
+      "id": "schedule",
+      "title": "Schedule",
+      "body": "Pharma clients expect to move volume in month 19. GDP certification takes about 3 months after construction finishes in month 16."
+    },
+    {
+      "id": "benchmarks",
+      "title": "Benchmarks",
+      "body": "Comparable cold-store builds overran cost by 12% on average and time by 4 months."
+    }
+  ],
+  "questions": [
+    {
+      "id": "gaps",
+      "competency": "RiskAssessment",
+      "weight": 25,
+      "prompt": "What is the biggest gap in the project risk log?",
+      "options": [
+        {
+          "id": "certification",
+          "label": "GDP certification has no owner and the schedule leaves no slack: construction ends month 16, certification takes 3 months, clients arrive month 19",
+          "score": 92,
+          "feedback": "A critical-path risk with zero float."
+        },
+        {
+          "id": "all_medium",
+          "label": "Everything is rated medium",
+          "score": 50,
+          "feedback": "A symptom; the certification gap is the critical issue."
+        },
+        {
+          "id": "too_few",
+          "label": "Only 9 risks",
+          "score": 30,
+          "feedback": "Number of risks isn't the problem."
+        }
+      ]
+    },
+    {
+      "id": "contingency",
+      "competency": "QuantitativeAnalysis",
+      "weight": 25,
+      "prompt": "Is 3% contingency adequate against the benchmark?",
+      "options": [
+        {
+          "id": "no_12",
+          "label": "No: benchmarks suggest about 12% (around 1.7m), against 0.42m held",
+          "score": 92,
+          "feedback": "14m x 12% = 1.68m vs 14m x 3% = 0.42m."
+        },
+        {
+          "id": "yes",
+          "label": "Yes: this project is well managed",
+          "score": 20,
+          "feedback": "Optimism bias is why benchmarks exist."
+        },
+        {
+          "id": "no_100",
+          "label": "No: hold 100% contingency",
+          "score": 10,
+          "feedback": "Not credible."
+        }
+      ]
+    },
+    {
+      "id": "recommend",
+      "competency": "Judgement",
+      "weight": 25,
+      "prompt": "What do you recommend to the project board?",
+      "options": [
+        {
+          "id": "reset",
+          "label": "Name a certification owner, start certification work in parallel with fit-out, raise contingency to a benchmark level, and tell clients a realistic go-live",
+          "score": 92,
+          "feedback": "Fixes the critical path and sets honest expectations.",
+          "setsFlags": [
+            "depot_project_derisked"
+          ],
+          "effects": {
+            "StrategicProgress": 3,
+            "Costs": 50000
+          }
+        },
+        {
+          "id": "keep",
+          "label": "Keep the plan; push the contractor",
+          "score": 25,
+          "feedback": "Benchmarks say overruns are likely; the client date is at risk."
+        },
+        {
+          "id": "cancel",
+          "label": "Pause the project",
+          "score": 30,
+          "feedback": "Over-reaction; the risks are manageable."
+        }
+      ]
+    },
+    {
+      "id": "lead",
+      "competency": "Leadership",
+      "weight": 25,
+      "prompt": "The project manager feels criticised by the review. How do you handle it?",
+      "options": [
+        {
+          "id": "partner",
+          "label": "Go through findings with her before the board, credit what works, and agree the actions together",
+          "score": 92,
+          "feedback": "Reviews land better as partnership."
+        },
+        {
+          "id": "board_only",
+          "label": "Present to the board only",
+          "score": 25,
+          "feedback": "Surprises the person who must act."
+        },
+        {
+          "id": "soften",
+          "label": "Water down the findings",
+          "score": 15,
+          "feedback": "Defeats the review."
+        }
+      ]
+    }
+  ],
+  "lesson": "Project risk lives on the critical path. Quantify contingency against benchmarks, give every critical risk an owner, and set honest dates."
+}

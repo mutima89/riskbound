@@ -74,15 +74,51 @@ RB_API RiskRegister MakeDefaultRegister();
 // New game for the given profile and difficulty, with event seed derived from Seed.
 RB_API GameState NewGame(const std::string& ProfileName, EDifficulty Difficulty, uint64_t Seed, const std::string& OrgProfileId = "valtren");
 
-// ---- Achievements (Docs/GameDesign.md) ----
+// ---- Achievements (Docs/GameDesign.md, data: Data/Achievements.json, Docs/MissionData.md) ----
+enum class EAchievementCondition
+{
+	Code,                  // built-in rule with the same id (the seven Mission 001 achievements)
+	PassMission,           // Target = mission id (M001 counts)
+	ReachLevel,            // Value = career level
+	MissionsPassed,        // Value = distinct missions passed (M001 counts)
+	CrisesPassed,          // Value = distinct crisis missions passed
+	MissionScoreAtLeast,   // Target = mission id, Value = best score
+	AnyScoreAtLeast,       // Value = score on any campaign attempt
+	ScoreAtLeastCount,     // Value = score, Count = number of passed missions at or above it
+	Flag,                  // Target = organisation flag
+	MetricAtLeast,         // Target = metric name, Value
+	MetricBelow,           // Target = metric name, Value
+	IncidentsAvoided,      // Value = resolved consequences that did not occur
+	IncidentsMitigated,    // Value = resolved consequences whose mitigating flag was in place
+	CompetencyAtLeast,     // Target = competency name, Value
+	AllCompetenciesAtLeast,// Value = every assessed competency... and all ten assessed
+	LearningEntries,       // Value = learning history entries
+	RetryPassed,           // Value = missions passed after a failed attempt
+	Escalations            // Value = submitted answers that escalated a decision above the player's authority
+};
+
 struct AchievementDef
 {
 	std::string Id;
 	std::string Title;
 	std::string Description;
+	EAchievementCondition Condition = EAchievementCondition::Code;
+	std::string Target;
+	double Value = 0.0;
+	int Count = 0;
 };
 
+struct MissionCatalogue;
+
+// The seven built-in (code) achievements.
 RB_API const std::vector<AchievementDef>& AchievementDefs();
-// Unlocks achievements whose conditions now hold. Returns the ids newly unlocked.
+// Unlocks built-in achievements whose conditions now hold. Returns the ids newly unlocked.
 RB_API std::vector<std::string> EvaluateAchievements(GameState& State);
+// Data-driven: Defs from Data/Achievements.json; Catalogue resolves crises and escalations.
+RB_API bool IsAchievementMet(const GameState& State, const AchievementDef& Def, const MissionCatalogue& Catalogue);
+RB_API std::vector<std::string> EvaluateAchievements(GameState& State, const std::vector<AchievementDef>& Defs, const MissionCatalogue& Catalogue);
+// Parses Data/Achievements.json. Strict like mission files.
+RB_API bool AchievementsFromJson(const std::string& Text, const std::string& SourceName, std::vector<AchievementDef>& Out, std::vector<std::string>& OutErrors);
+// Unique ids, known code ids, mission/metric/competency targets that exist, sensible values.
+RB_API std::vector<std::string> ValidateAchievements(const std::vector<AchievementDef>& Defs, const MissionCatalogue& Catalogue);
 } // namespace rb

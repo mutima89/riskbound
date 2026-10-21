@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "id": "C005",
+  "title": "The A-Road Collision",
+  "kind": "crisis",
+  "department": "Security and Safety",
+  "minLevel": 2,
+  "requiresFlags": [
+    "fatigue_collision"
+  ],
+  "passMark": 60,
+  "xp": 200,
+  "weeks": 1,
+  "briefing": [
+    "A Valtren driver on a 10-hour route clipped a barrier at 02:40. He is unhurt; the load is lost. The tachograph shows he was within legal limits but had worked six nights straight.",
+    "The Fleet Manager asks the risk team to lead the review."
+  ],
+  "evidence": [
+    {
+      "id": "tacho",
+      "title": "Tachograph summary",
+      "body": "Within daily limits. Six consecutive night shifts. Rest periods at the legal minimum each day."
+    },
+    {
+      "id": "routes",
+      "title": "Route data",
+      "body": "Long-route share has stayed amber for four weeks. Night routes over 9 hours: 31% of night shifts."
+    },
+    {
+      "id": "driver",
+      "title": "Driver statement",
+      "body": "\"I was tired. Everyone's covering for the shortage.\""
+    }
+  ],
+  "questions": [
+    {
+      "id": "cause",
+      "competency": "RiskAssessment",
+      "weight": 30,
+      "prompt": "What is the main cause to address?",
+      "options": [
+        {
+          "id": "system_fatigue",
+          "label": "Rostering that keeps drivers legal but fatigued: legal limits are not the same as safe limits",
+          "score": 92,
+          "feedback": "The control (legal limits) was met; the risk (fatigue) wasn't controlled."
+        },
+        {
+          "id": "driver_error",
+          "label": "The driver's error",
+          "score": 15,
+          "feedback": "He told you why: the roster."
+        },
+        {
+          "id": "barrier",
+          "label": "A badly placed barrier",
+          "score": 10,
+          "feedback": "The trigger, not the cause."
+        }
+      ]
+    },
+    {
+      "id": "immediate",
+      "competency": "Judgement",
+      "weight": 30,
+      "prompt": "What do you recommend straight away?",
+      "options": [
+        {
+          "id": "fatigue_rules",
+          "label": "A fatigue rule above the legal minimum (no more than four consecutive nights, no night route over 9 hours) while recruitment catches up",
+          "score": 92,
+          "feedback": "Closes the gap between legal and safe.",
+          "setsFlags": [
+            "fatigue_rules_tightened"
+          ],
+          "effects": {
+            "Costs": 120000,
+            "EmployeeMorale": 4
+          }
+        },
+        {
+          "id": "warning",
+          "label": "A written warning to the driver",
+          "score": 10,
+          "feedback": "Punishes the symptom and silences the next report.",
+          "effects": {
+            "EmployeeMorale": -5
+          }
+        },
+        {
+          "id": "nothing",
+          "label": "Nothing: he was within the law",
+          "score": 15,
+          "feedback": "Legal compliance didn't prevent the collision."
+        }
+      ]
+    },
+    {
+      "id": "kri",
+      "competency": "ControlEvaluation",
+      "weight": 20,
+      "prompt": "The long-route KRI was amber for four weeks. What failed?",
+      "options": [
+        {
+          "id": "no_action",
+          "label": "Nobody acted on the amber: the escalation rule wasn't followed",
+          "score": 92,
+          "feedback": "The indicator worked; the response didn't."
+        },
+        {
+          "id": "bad_kri",
+          "label": "The KRI is wrong",
+          "score": 25,
+          "feedback": "It predicted exactly this."
+        },
+        {
+          "id": "thresholds",
+          "label": "Thresholds were too tight",
+          "score": 15,
+          "feedback": "It was amber, and correctly so."
+        }
+      ]
+    },
+    {
+      "id": "comms",
+      "competency": "Communication",
+      "weight": 20,
+      "prompt": "What do you tell drivers?",
+      "options": [
+        {
+          "id": "listen",
+          "label": "What happened, what changes now, and how to raise fatigue concerns without consequences",
+          "score": 92,
+          "feedback": "Turns an incident into trust."
+        },
+        {
+          "id": "reminder",
+          "label": "A reminder to drive carefully",
+          "score": 20,
+          "feedback": "Puts the burden back on the driver."
+        },
+        {
+          "id": "silence",
+          "label": "Nothing until the review is finished",
+          "score": 25,
+          "feedback": "Rumour fills the silence."
+        }
+      ]
+    }
+  ],
+  "lesson": "Legal limits are a floor, not a safety control. Act on amber indicators, fix the system that made fatigue normal, and protect the people who tell you."
+}

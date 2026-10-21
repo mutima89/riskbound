@@ -148,8 +148,13 @@ bool FRbCampaignDataTest::RunTest(const FString& Parameters)
 	FCampaignSession S;
 	TestTrue(TEXT("no load errors"), S.Campaign->GetLoadErrors().IsEmpty());
 	for (const FString& E : S.Campaign->GetLoadErrors()) AddError(E);
-	const TArray<FRbMissionSummary> List = S.Campaign->GetMissions();
-	TestTrue(TEXT("at least M002-M005"), List.Num() >= 4);
+	const TArray<FRbMissionSummary> List = S.Campaign->GetMissions(true);
+	TestTrue(TEXT("42 data missions (29 missions, 12 crises, capstone)"), List.Num() == 42);
+	const TArray<FRbMissionSummary> Visible = S.Campaign->GetMissions();
+	TestTrue(TEXT("incident crises hidden until triggered"), Visible.Num() == 33 && !Visible.ContainsByPredicate([](const FRbMissionSummary& M) { return M.Id == TEXT("C004"); }));
+	TestTrue(TEXT("lowest level first while all are locked"), Visible.Num() > 0 && Visible[0].Id == TEXT("M002"));
+	TestEqual(TEXT("50 achievements"), static_cast<int32>(S.Campaign->GetAchievementDefs().size()), 50);
+	TestEqual(TEXT("achievement total"), S.Game->GetAchievementTotal(), 50);
 	for (const TCHAR* Id : {TEXT("M002"), TEXT("M003"), TEXT("M004"), TEXT("M005")})
 	{
 		TestTrue(FString::Printf(TEXT("%s present"), Id), S.Campaign->GetMission(Id).bFound);

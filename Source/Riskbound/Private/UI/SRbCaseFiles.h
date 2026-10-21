@@ -19,6 +19,7 @@ public:
 		SLATE_ARGUMENT(TWeakObjectPtr<URbCampaignSubsystem>, Campaign)
 		SLATE_ARGUMENT(TWeakObjectPtr<URbGameSubsystem>, Game)
 		SLATE_ARGUMENT(TFunction<void()>, OnClose)
+		SLATE_ARGUMENT(TFunction<void()>, OnMissionStarted)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -42,6 +43,7 @@ private:
 	TWeakObjectPtr<URbCampaignSubsystem> Campaign;
 	TWeakObjectPtr<URbGameSubsystem> Game;
 	TFunction<void()> OnClose;
+	TFunction<void()> OnMissionStarted;
 	TSharedPtr<SBox> Body;
 	TSharedPtr<SWidget> FirstFocus;
 	EView View = EView::List;

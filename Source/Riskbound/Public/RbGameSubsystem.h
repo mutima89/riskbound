@@ -107,6 +107,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Riskbound")
 	TArray<FString> GetAchievementTitles() const;
 
+	// Number of achievements in the game (50 with Data/Achievements.json loaded).
+	UFUNCTION(BlueprintPure, Category = "Riskbound")
+	int32 GetAchievementTotal() const;
+
 	// ---- Settings (persisted in the save, applied to the engine here) ----
 	UFUNCTION(BlueprintPure, Category = "Riskbound")
 	FRbSettingsView GetSettings() const;
@@ -138,6 +142,7 @@ public:
 
 private:
 	void AfterAction(bool bAutosave);
+	FString AchievementTitle(const std::string& Id) const;
 
 	rb::GameState State;
 	bool bHasGame = false;

@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "id": "CRO",
+  "title": "Chief Risk Officer",
+  "kind": "capstone",
+  "department": "Board",
+  "minLevel": 10,
+  "requiresPassed": ["M026", "C003"],
+  "passMark": 70,
+  "xp": 500,
+  "weeks": 4,
+  "briefing": [
+    "You are Valtren's Chief Risk Officer. In your first board meeting in the role you must present three things: the refreshed risk appetite for the new strategy, your view of the enterprise risk profile, and how you will lead the risk function.",
+    "Everything you have learned since Northgate comes together here."
+  ],
+  "context": [
+    {"ifFlag": "northgate_controls_fixed", "text": "The chair opens by recalling that your first piece of work, the Northgate warning, is still cited in induction training."},
+    {"ifFlag": "m001_warning_ignored", "text": "The chair notes that your first assessment, the Northgate warning, was accepted without action, and asks what you learned."},
+    {"ifFlag": "robust_strategy", "text": "The board approved the staged strategy you shaped; your appetite proposal must support it."},
+    {"ifFlag": "halvern_lost", "text": "Losing Halvern is still raw. Directors want to know it cannot happen again."},
+    {"ifMetric": "Reputation", "atLeast": 70, "text": "Valtren's reputation is the strongest it has been in a decade."}
+  ],
+  "evidence": [
+    {"id": "strategy", "title": "Approved strategy", "body": "Staged growth into pharma (25% then 35% of revenue), electric fleet pilots with signposts, one acquisition only if signposts confirm."},
+    {"id": "profile", "title": "Enterprise risk profile", "body": "Ten enterprise risks. Two outside appetite: people availability; cold-chain integrity on pharma growth lanes. Liquidity buffer above policy."},
+    {"id": "function", "title": "Risk function", "body": "Twelve people across three teams. A culture survey shows the function is respected but seen as 'the department of no'."}
+  ],
+  "questions": [
+    {"id": "appetite", "competency": "StrategicThinking", "weight": 20,
+     "prompt": "What appetite do you propose for the new strategy?",
+     "options": [
+       {"id": "differentiated", "label": "Open to investment and innovation risk in staged pharma and fleet pilots, within capital and liquidity limits; very low appetite for temperature-control and patient-safety failures; triggers tied to the strategy's signposts", "score": 95, "feedback": "Appetite that enables the strategy and protects what clients and regulators care about."},
+       {"id": "cautious_all", "label": "Low appetite for all risks, to protect the business", "score": 30, "feedback": "Blocks the strategy the board just approved."},
+       {"id": "open_all", "label": "Open to risk across the board to support growth", "score": 20, "feedback": "Would allow the very failures that lose pharma clients."}
+     ]},
+    {"id": "outside_appetite", "competency": "Governance", "weight": 20,
+     "prompt": "Two enterprise risks are outside appetite. What do you ask the board for?",
+     "options": [
+       {"id": "decisions", "label": "For each: the owner's plan, the date it returns within appetite, and a decision to fund it, or a decision to accept the risk temporarily, on the record", "score": 95, "feedback": "Breaches end in a decision, never in silence."},
+       {"id": "note", "label": "To note them", "score": 20, "feedback": "Noting is not deciding."},
+       {"id": "raise_appetite", "label": "To raise appetite so they're within it", "score": 10, "feedback": "Moving the line to fit the risk defeats the purpose."}
+     ]},
+    {"id": "leadership", "competency": "Leadership", "weight": 15,
+     "prompt": "How will you change 'the department of no'?",
+     "options": [
+       {"id": "partner", "label": "Risk partners embedded in each business area, involved early in decisions, measured on decisions improved as well as risks found, while keeping the right to challenge and escalate", "score": 92, "feedback": "Partnership without losing independence."},
+       {"id": "say_yes", "label": "Approve more things", "score": 15, "feedback": "Popularity at the cost of independence."},
+       {"id": "rebrand", "label": "Rename the function", "score": 20, "feedback": "A label doesn't change behaviour."}
+     ]},
+    {"id": "independence", "competency": "StakeholderManagement", "weight": 15,
+     "prompt": "The CEO asks you to 'be part of the team' and support decisions once made. How do you define your role?",
+     "options": [
+       {"id": "team_and_independent", "label": "Part of the leadership team in building the strategy, independent in assessing its risks, with direct access to the board risk committee when we disagree", "score": 95, "feedback": "The CRO's two duties, stated plainly."},
+       {"id": "loyal", "label": "Fully aligned with the CEO once decisions are made", "score": 20, "feedback": "Gives up the board's independent view of risk."},
+       {"id": "outsider", "label": "Stay apart from executive decisions to remain independent", "score": 35, "feedback": "Independence without influence."}
+     ]},
+    {"id": "judgement", "competency": "Judgement", "weight": 15,
+     "prompt": "A director asks: \"What keeps you awake at night?\" Your answer:",
+     "options": [
+       {"id": "honest_view", "label": "\"Cold-chain integrity as pharma volumes grow faster than our people and systems. The numbers are inside appetite for now, but the near misses tell me the margin is thin.\"", "score": 95, "feedback": "Specific, evidence-based judgement the board can act on."},
+       {"id": "everything", "label": "\"Everything on the register.\"", "score": 15, "feedback": "No judgement at all."},
+       {"id": "nothing", "label": "\"Nothing: we have it under control.\"", "score": 10, "feedback": "No CRO should say that."}
+     ]},
+    {"id": "legacy", "competency": "Communication", "weight": 15,
+     "prompt": "Your closing statement to the board:",
+     "options": [
+       {"id": "purpose", "label": "\"My job is to help this board take the right risks knowingly, and to tell you early and plainly when we are taking the wrong ones.\"", "score": 95, "feedback": "The purpose of risk management in one sentence."},
+       {"id": "minimise", "label": "\"My job is to minimise risk.\"", "score": 30, "feedback": "Minimising risk also minimises opportunity."},
+       {"id": "compliance", "label": "\"My job is to keep us compliant.\"", "score": 25, "feedback": "Compliance is part of it, not the whole."}
+     ]}
+  ],
+  "lesson": "A CRO helps the organisation take the right risks knowingly: appetite that enables strategy, breaches that end in decisions, independence with influence, and plain, early judgement."
+}

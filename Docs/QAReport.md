@@ -119,3 +119,15 @@ Save format is now v5 (Docs/SaveFormat.md). The shipped game has no campaign con
 | UI capture | `-RbSelfTest=ui` | 24 screens incl. Docs/Screenshots/ui/Ui_21_CaseFiles.jpg, Ui_22_CaseMission.jpg, Ui_23_CaseDebrief.jpg |
 
 Defect found by the packaged self-test and fixed: once a campaign mission moved the save checkpoint (`M002:start`), Mission 001 no longer counted as debriefed, so the objective reverted to "Receive your debrief from Priya Okafor". `IsDebriefed` now also holds when M001 is submitted and the checkpoint has moved past M001; covered by assertions in Riskbound.Campaign.ProgressPromotionAndHiddenRubric.
+
+## 2026-10-21 - Gate 4 scale-up: 30 missions, 12 crises, CRO capstone, 50 achievements
+| Run | Command | Result |
+|---|---|---|
+| Core tests | `Scripts\RunCoreTests.bat` | `67 test cases, 0 failed, 0 failed checks`, no warnings. New: Data_ShippedContentScale (30 missions incl. M001, 12 crises, 1 capstone; every ladder mission exists; ladder crises never flag-gated), Data_FullCampaignBestPlayReachesChiefRiskOfficer (best answers from M001 to CRO: every mission passes, promotion through all ten levels, every ladder mission and crisis passed, achievements unlock, finished save round-trips), Data_AchievementsParseValidateAndNumberFifty, Achievements_ConditionsEvaluateFromState, Data_EveryReferencedFlagCanBeSet, Data_LaterMissionFiguresAreRight (M012, M014, M016, M017, M024, M027, M028, M030 figures) |
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 10/10 `Result={Success}`; ShippedMissionDataLoads now checks 42 data missions, 50 achievements, untriggered crises hidden (33 visible), list order |
+| Package Development | `Scripts\BuildWindows.bat <UE> Development` | `BUILD SUCCESSFUL`; log `Mission data: 42 missions ... (0 problems)`, `Achievement data: 50 achievements` |
+| Packaged self-tests | `-RbSelfTest=play`, `-RbSelfTest=resume` | both PASS (`mission_data: 42 missions, 50 achievements, 0 problems`; M002 passed 93 and restored after reload) |
+| UI capture | `-RbSelfTest=ui` | 24 screens; Ui_07_Journal (promotion gaps, achievements n of 50), Ui_21..23 case files |
+
+Review fixes from the Gate 4 step 1 screenshots: notices no longer overlap screen headers (modal screens keep a 64 px top band; while a screen is open only the newest notice shows there, centred), and stale notices are cleared when Case files opens or a mission starts. Case files now lists work in play order (in progress, available, passed, locked; by level) and hides incident-triggered crises until they are triggered.

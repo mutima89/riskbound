@@ -155,9 +155,9 @@ void CheckFinalState(FReport& R, URbGameSubsystem* Game)
 void CheckCampaign(FReport& R, URbGameSubsystem* Game)
 {
 	URbCampaignSubsystem* Campaign = Game->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
-	const TArray<FRbMissionSummary> Missions = Campaign->GetMissions();
-	R.Check(TEXT("mission_data"), Missions.Num() >= 4 && Campaign->GetLoadErrors().IsEmpty(),
-		FString::Printf(TEXT("%d missions, %d problems"), Missions.Num(), Campaign->GetLoadErrors().Num()));
+	const TArray<FRbMissionSummary> Missions = Campaign->GetMissions(true);
+	R.Check(TEXT("mission_data"), Missions.Num() == 42 && Campaign->GetAchievementDefs().size() == 50 && Campaign->GetLoadErrors().IsEmpty(),
+		FString::Printf(TEXT("%d missions, %d achievements, %d problems"), Missions.Num(), static_cast<int32>(Campaign->GetAchievementDefs().size()), Campaign->GetLoadErrors().Num()));
 	const FRbMissionSummary* M2 = Missions.FindByPredicate([](const FRbMissionSummary& M) { return M.Id == TEXT("M002"); });
 	const FRbMissionDebriefView D = Campaign->GetDebrief(TEXT("M002"));
 	R.Check(TEXT("m002_passed"), M2 && M2->bPassed && D.bAvailable && D.bPassed, FString::Printf(TEXT("score %d, attempts %d"), D.Score, M2 ? M2->Attempts : 0));

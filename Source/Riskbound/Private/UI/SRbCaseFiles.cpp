@@ -44,6 +44,7 @@ void SRbCaseFiles::Construct(const FArguments& InArgs)
 	Campaign = InArgs._Campaign;
 	Game = InArgs._Game;
 	OnClose = InArgs._OnClose;
+	OnMissionStarted = InArgs._OnMissionStarted;
 	TSharedPtr<SButton> Close;
 	ChildSlot
 	[
@@ -101,6 +102,7 @@ void SRbCaseFiles::ShowMission(const FString& InMissionId)
 		return;
 	}
 	if (MissionId != InMissionId) Answers.Reset();
+	if (OnMissionStarted) OnMissionStarted();
 	MissionId = InMissionId;
 	View = EView::Mission;
 	Status = FText::GetEmpty();

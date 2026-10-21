@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "id": "C008",
+  "title": "Ransomware",
+  "kind": "crisis",
+  "department": "IT",
+  "minLevel": 5,
+  "requiresFlags": [
+    "ransomware_outbreak"
+  ],
+  "passMark": 60,
+  "xp": 260,
+  "weeks": 2,
+  "briefing": [
+    "Ransomware has encrypted the depot scanning gateway and parts of route planning. A note demands 400,000 in cryptocurrency. Backups exist but have not been restore-tested.",
+    "You are on the incident team as Risk Team Lead."
+  ],
+  "evidence": [
+    {
+      "id": "scope",
+      "title": "Scope",
+      "body": "Encrypted: depot scanning gateway, route-planning database. Unaffected so far: email (cloud), finance system."
+    },
+    {
+      "id": "backup",
+      "title": "Backups",
+      "body": "Nightly backups, last restore test 18 months ago. Restore estimate: 2-4 days if they work."
+    },
+    {
+      "id": "legal",
+      "title": "Legal note",
+      "body": "Paying may breach sanctions rules if the group is sanctioned; data exfiltration not yet ruled out."
+    }
+  ],
+  "questions": [
+    {
+      "id": "contain",
+      "competency": "Judgement",
+      "weight": 30,
+      "prompt": "What comes first?",
+      "options": [
+        {
+          "id": "isolate",
+          "label": "Isolate affected systems, preserve evidence, reset privileged credentials, and start restore testing from backups in parallel",
+          "score": 92,
+          "feedback": "Stop the spread, keep evidence, start recovery."
+        },
+        {
+          "id": "pay",
+          "label": "Pay the ransom to restore operations fast",
+          "score": 15,
+          "feedback": "May be illegal, funds criminals, and doesn't guarantee recovery.",
+          "cost": 400000,
+          "effects": {
+            "Cash": -400000,
+            "Reputation": -4
+          }
+        },
+        {
+          "id": "rebuild",
+          "label": "Wipe everything and rebuild",
+          "score": 30,
+          "feedback": "Destroys evidence and may restore the attacker's access."
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "competency": "Governance",
+      "weight": 25,
+      "prompt": "Exfiltration hasn't been ruled out. What governance obligation applies?",
+      "options": [
+        {
+          "id": "assess_notify",
+          "label": "Assess whether personal data was taken and prepare to notify the data protection regulator within the statutory window if so",
+          "score": 92,
+          "feedback": "Notification clocks start at awareness."
+        },
+        {
+          "id": "wait",
+          "label": "Wait until certain",
+          "score": 20,
+          "feedback": "Delay can itself be a breach."
+        },
+        {
+          "id": "ignore",
+          "label": "Not relevant: it's an IT problem",
+          "score": 10,
+          "feedback": "Data protection is a legal duty."
+        }
+      ]
+    },
+    {
+      "id": "ops",
+      "competency": "Leadership",
+      "weight": 25,
+      "prompt": "How do you keep deliveries moving?",
+      "options": [
+        {
+          "id": "manual",
+          "label": "Activate manual dispatch, prioritise pharma and perishables, and add staff to depots for paper scanning",
+          "score": 92,
+          "feedback": "Operational resilience while IT recovers.",
+          "setsFlags": [
+            "ransomware_contained"
+          ],
+          "effects": {
+            "Resilience": 4
+          }
+        },
+        {
+          "id": "stop",
+          "label": "Stop deliveries until systems return",
+          "score": 15,
+          "feedback": "Turns a cyber incident into a commercial crisis."
+        },
+        {
+          "id": "business_as_usual",
+          "label": "Carry on as normal",
+          "score": 10,
+          "feedback": "Systems aren't available."
+        }
+      ]
+    },
+    {
+      "id": "lesson",
+      "competency": "Communication",
+      "weight": 20,
+      "prompt": "What do you tell the board afterwards?",
+      "options": [
+        {
+          "id": "candid",
+          "label": "What happened, what it cost, which controls were missing (MFA, patching, tested restore) and the funded plan to close them",
+          "score": 92,
+          "feedback": "Ties the incident to the control gaps."
+        },
+        {
+          "id": "sophisticated",
+          "label": "That it was a sophisticated attack nobody could have stopped",
+          "score": 15,
+          "feedback": "The gaps were known."
+        },
+        {
+          "id": "blame_it",
+          "label": "That IT failed",
+          "score": 20,
+          "feedback": "The decision not to fund the controls was a risk decision."
+        }
+      ]
+    }
+  ],
+  "lesson": "In ransomware: contain, preserve evidence, recover from tested backups, meet your legal duties, and keep operating. Then close the gaps that made it possible."
+}

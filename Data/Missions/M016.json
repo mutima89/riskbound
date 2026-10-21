@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "id": "M016",
+  "title": "Buying Pellmoor",
+  "kind": "mission",
+  "department": "Executive Management",
+  "minLevel": 7,
+  "requiresPassed": ["M015"],
+  "passMark": 60,
+  "xp": 230,
+  "weeks": 3,
+  "briefing": [
+    "Valtren wants to buy Pellmoor Freight, a regional refrigerated haulier with pharma customers, for 9.5 million. The deal team is excited; the board wants the risk view before signing.",
+    "As Senior Risk Manager you lead the risk due diligence."
+  ],
+  "context": [
+    {"ifFlag": "stress_triggers_agreed", "text": "Hollis reminds the deal team that the stress-test triggers you agreed still apply: the acquisition must not push cash below the covenant in the combined scenario."},
+    {"ifFlag": "framework_standardised", "text": "Your standard register method makes it easy to compare Pellmoor's risks with Valtren's."}
+  ],
+  "evidence": [
+    {"id": "financials", "title": "Pellmoor financials", "body": "Revenue 14m, margin 9% (Valtren: 7%). 41% of revenue from one pharma client whose contract renews in 7 months."},
+    {"id": "dd_findings", "title": "Due diligence findings", "body": [
+      "Fleet: average age 9 years (Valtren: 5). Two vehicles failed temperature mapping last year.",
+      "Compliance: Good Distribution Practice licence renewed with 'minor findings'; corrective actions not closed.",
+      "People: the founder runs all client relationships and will leave 6 months after completion."
+    ]},
+    {"id": "deal_terms", "title": "Proposed terms", "body": "9.5m at completion, funded mostly by a new bank loan with 1.5m from Valtren's cash. No earn-out. Standard warranties capped at 10% of price."}
+  ],
+  "questions": [
+    {"id": "key_risks", "kind": "multi", "competency": "StrategicThinking", "weight": 25,
+     "prompt": "Which risks should most shape the deal?",
+     "options": [
+       {"id": "concentration", "label": "41% of revenue from one client renewing in 7 months", "correct": true},
+       {"id": "key_person", "label": "The founder holds every client relationship and leaves in 6 months", "correct": true},
+       {"id": "fleet_gdp", "label": "Old fleet with failed temperature mapping and open GDP findings, in exactly the pharma work Valtren is buying", "correct": true},
+       {"id": "higher_margin", "label": "Pellmoor's higher margin", "feedback": "A reason to buy, not a risk to manage, though it may not survive the client renewal."},
+       {"id": "brand", "label": "Pellmoor's brand colours", "feedback": "Immaterial."}
+     ]},
+    {"id": "structure", "competency": "Judgement", "weight": 25,
+     "prompt": "What do you recommend to the board? (Your authority is 750,000; this decision is the board's.)",
+     "options": [
+       {"id": "restructure", "label": "Proceed only with protections: part of the price as an earn-out tied to the pharma client renewing, a founder transition agreement, fleet and GDP fixes priced into the deal, and higher warranty caps", "score": 92, "cost": 9500000, "escalates": true,
+        "feedback": "Keeps the strategic prize and moves the identified risks back to the seller.",
+        "setsFlags": ["pellmoor_protected"], "effects": {"StrategicProgress": 8, "Revenue": 14000000, "Costs": 12800000, "Cash": -1000000}},
+       {"id": "sign_as_is", "label": "Sign as proposed; the strategic fit is too good to lose", "score": 30, "cost": 9500000, "escalates": true,
+        "feedback": "The board pays full price for risks you identified.",
+        "effects": {"StrategicProgress": 8, "Revenue": 14000000, "Costs": 12800000, "Cash": -1500000},
+        "schedules": [
+          {"id": "pellmoor_client_loss", "description": "Pellmoor's largest pharma client does not renew after the founder leaves", "delayWeeks": 10, "probability": 0.45,
+           "effects": {"Revenue": -5700000, "Reputation": -4, "StrategicProgress": -6}, "flagIfOccurs": "pellmoor_client_lost"}
+        ]},
+       {"id": "walk_away", "label": "Walk away", "score": 55, "escalates": true,
+        "feedback": "Safe, but abandons a strategic route into pharma that protections could have secured."}
+     ]},
+    {"id": "value_at_risk", "competency": "QuantitativeAnalysis", "weight": 15,
+     "prompt": "If the pharma client (41% of 14m revenue) leaves and Pellmoor's 9% margin applies, roughly how much annual margin is at risk?",
+     "options": [
+       {"id": "about_520k", "label": "About 520,000 a year", "score": 92, "feedback": "0.41 x 14m = 5.74m revenue; 9% margin = about 517,000."},
+       {"id": "about_574m", "label": "5.74m a year", "score": 25, "feedback": "That is revenue, not margin."},
+       {"id": "about_126m", "label": "1.26m a year", "score": 20, "feedback": "That is Pellmoor's whole margin."}
+     ]},
+    {"id": "deal_team", "competency": "StakeholderManagement", "weight": 20,
+     "prompt": "The deal team says your findings will 'kill the deal'. How do you work with them?",
+     "options": [
+       {"id": "joint_solutions", "label": "Show them each risk with a deal protection that addresses it, so the findings strengthen the negotiating position", "score": 92, "feedback": "Turns risk findings into negotiating leverage."},
+       {"id": "go_direct", "label": "Bypass them and brief the board alone", "score": 30, "feedback": "The board will hear two stories and trust neither."},
+       {"id": "soften", "label": "Soften the findings to keep relationships good", "score": 15, "feedback": "Your independence is the reason the board asked."}
+     ]},
+    {"id": "integration", "competency": "Leadership", "weight": 15,
+     "prompt": "After signing, what is the first risk action for integration?",
+     "options": [
+       {"id": "client_plan", "label": "A named relationship lead shadowing the founder from day one, with a renewal plan for the pharma client", "score": 92, "feedback": "Addresses the risk with the shortest fuse."},
+       {"id": "rebrand", "label": "Rebrand the trucks", "score": 10, "feedback": "Visible but irrelevant to the main risks."},
+       {"id": "systems", "label": "Migrate Pellmoor to Valtren's IT systems", "score": 45, "feedback": "Needed later; the client renewal comes first."}
+     ]}
+  ],
+  "lesson": "In a deal, risk work earns its keep by changing the terms: price, earn-outs and warranties can move identified risks back to the seller."
+}

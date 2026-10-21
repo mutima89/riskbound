@@ -19,6 +19,7 @@ public:
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
 	void AddNotice(const FString& Message);
+	void ClearNotices();
 
 private:
 	void RebuildNotices();
@@ -30,6 +31,8 @@ private:
 		double ExpiresAt = 0.0;
 	};
 	TArray<FNotice> Notices;
-	TSharedPtr<SVerticalBox> NoticeBox;
+	TSharedPtr<SVerticalBox> NoticeBox;        // top right, during gameplay
+	TSharedPtr<SVerticalBox> CompactNoticeBox; // top centre, in the band modal screens leave free
+	bool bCompact = false;
 	TAttribute<bool> ShowGameplay;
 };

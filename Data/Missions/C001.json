@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "id": "C001",
+  "title": "Heatwave Week",
+  "kind": "crisis",
+  "department": "Operations",
+  "minLevel": 7,
+  "requiresPassed": ["M016"],
+  "passMark": 60,
+  "xp": 260,
+  "weeks": 1,
+  "briefing": [
+    "Day 1 of a five-day heatwave: 38C forecast. Two compressors at Corby Road are running at their limit, a third site reports rising store temperatures, and three pharma loads are due out tonight.",
+    "The COO is abroad. You are the most senior risk person on site and the crisis team is looking at you."
+  ],
+  "context": [
+    {"ifFlag": "coldline2_on_track", "text": "Automated temperature alerting from Coldline 2 is live at four sites: you can see every store in real time."},
+    {"ifFlag": "contractor_visits_verified", "text": "Contractor sign-off records show Corby Road's compressors were serviced last month."},
+    {"ifFlag": "stress_triggers_agreed", "text": "The crisis playbook from your stress-test work names decision owners for exactly this."}
+  ],
+  "evidence": [
+    {"id": "temps", "title": "Store temperatures (live)", "body": "Corby Road chilled: 6.8C rising 0.3C/hour (limit 8C). Eastfield: 5.1C stable. Northgate: 4.2C stable. Harrowgate: 7.4C, door seal damaged."},
+    {"id": "loads", "title": "Tonight's pharma loads", "body": "Three loads, value 1.1m, from Corby Road. Client contract: product above 8C for more than 30 minutes must be quarantined and reported."},
+    {"id": "resources", "title": "Resources", "body": "Two hired mobile cold units available within 4 hours (8,000 a day each). Spare capacity at Northgate for about 40% of Corby Road's stock. Kelvarin's emergency line answers."}
+  ],
+  "questions": [
+    {"id": "first_hour", "competency": "Judgement", "weight": 25,
+     "prompt": "What do you do in the first hour?",
+     "options": [
+       {"id": "stabilise", "label": "Hire both mobile units, start moving high-value pharma stock to Northgate, call Kelvarin to Corby Road, and get Harrowgate's door seal fixed or the store closed", "score": 92, "cost": 50000,
+        "feedback": "Acts on the store about to breach, protects the most valuable stock, and contains the second site.",
+        "setsFlags": ["heatwave_contained"], "effects": {"Cash": -50000, "Resilience": 4}},
+       {"id": "wait_coo", "label": "Wait for the COO to call back before spending money", "score": 15, "feedback": "At 0.3C an hour, Corby Road breaches in about four hours.",
+        "schedules": [
+          {"id": "heatwave_spoilage", "description": "Corby Road chilled store passes 8C overnight; stock quarantined", "delayWeeks": 1, "probability": 0.8,
+           "effects": {"Cash": -700000, "Reputation": -8, "StakeholderTrust": -6}}
+        ]},
+       {"id": "ship_now", "label": "Ship the pharma loads early, before temperatures rise further", "score": 40, "feedback": "Moves the problem onto the road without fixing the store, and the loads may not be ready."}
+     ]},
+    {"id": "client_comms", "competency": "Communication", "weight": 20,
+     "prompt": "What do you tell the pharma client?",
+     "options": [
+       {"id": "proactive", "label": "Call now: the situation, what you're doing, temperature logs for their loads, and when you'll update next", "score": 92, "feedback": "Clients forgive problems; they don't forgive surprises."},
+       {"id": "after", "label": "Tell them afterwards if anything went wrong", "score": 20, "feedback": "If the contract reporting rule is breached, late disclosure compounds it."},
+       {"id": "reassure", "label": "Tell them everything is fine", "score": 5, "feedback": "Untrue, and logged data will show it."}
+     ]},
+    {"id": "roles", "competency": "Leadership", "weight": 20,
+     "prompt": "How do you organise the crisis team?",
+     "options": [
+       {"id": "clear_roles", "label": "One incident lead (you), named owners for stock moves, engineering and client contact, a two-hour update rhythm, and a decision log", "score": 92, "feedback": "Clear roles and rhythm prevent duplicated and dropped tasks."},
+       {"id": "everyone", "label": "Everyone helps wherever they can", "score": 25, "feedback": "Energy without structure misses tasks."},
+       {"id": "do_it_all", "label": "Do the critical tasks yourself", "score": 30, "feedback": "The leader's job is to coordinate, not to drive the forklift."}
+     ]},
+    {"id": "authority", "competency": "Governance", "weight": 15,
+     "prompt": "The response will cost about 50,000 a day for up to five days. Your authority is 750,000. What governance applies?",
+     "options": [
+       {"id": "within_log", "label": "Within your authority: spend, log each decision and its rationale, and inform the COO and CFO with a cost forecast", "score": 92, "feedback": "Use your authority, and keep the record that makes it accountable."},
+       {"id": "ask_each", "label": "Seek approval for each hire", "score": 30, "feedback": "Wastes hours you don't have; the authority exists for this."},
+       {"id": "no_record", "label": "Spend what's needed and sort the paperwork later", "score": 35, "feedback": "Decisions without a record are hard to defend later."}
+     ]},
+    {"id": "after_action", "competency": "StakeholderManagement", "weight": 20,
+     "prompt": "After the heatwave, what do you take to the executive?",
+     "options": [
+       {"id": "review", "label": "A blameless after-action review: what worked, what failed, cost, and three changes (e.g. pre-contracted mobile units, heat-trigger thresholds, door-seal checks)", "score": 92, "feedback": "Turns the crisis into lasting resilience without a witch-hunt."},
+       {"id": "praise", "label": "A thank-you note to the team", "score": 40, "feedback": "Deserved, but not enough."},
+       {"id": "blame", "label": "A report on who caused the problems", "score": 15, "feedback": "Blame drives future problems underground."}
+     ]}
+  ],
+  "lesson": "In a crisis: act on the fastest-moving risk first, organise roles and rhythm, use your authority and log it, tell clients early, and learn without blame."
+}

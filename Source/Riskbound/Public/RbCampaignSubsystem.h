@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "RbCampaign.h"
+#include "RbGameState.h"
 #include "RbCampaignTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "RbCampaignSubsystem.generated.h"
@@ -27,9 +28,13 @@ public:
 	// Returns false and keeps no missions if any file is invalid; problems are logged.
 	bool LoadFromDisk();
 	const TArray<FString>& GetLoadErrors() const { return LoadErrors; }
+	// Achievements from Data/Achievements.json (empty if that file is missing or invalid).
+	const std::vector<rb::AchievementDef>& GetAchievementDefs() const { return Achievements; }
 
+	// Missions in play order: in progress, available, passed, then locked (each by level). Crises that
+	// open only after an incident stay hidden until then, unless bIncludeHidden.
 	UFUNCTION(BlueprintPure, Category = "Riskbound|Campaign")
-	TArray<FRbMissionSummary> GetMissions() const;
+	TArray<FRbMissionSummary> GetMissions(bool bIncludeHidden = false) const;
 
 	UFUNCTION(BlueprintPure, Category = "Riskbound|Campaign")
 	FRbMissionView GetMission(const FString& MissionId) const;
@@ -66,6 +71,7 @@ private:
 
 	rb::MissionCatalogue Catalogue;
 	TArray<FString> LoadErrors;
+	std::vector<rb::AchievementDef> Achievements;
 	// Full debriefs from this session, keyed by mission, with the record count they belong to.
 	TMap<FString, TPair<int32, FRbMissionDebriefView>> SessionDebriefs;
 };

@@ -35,4 +35,4 @@ Code: `RbCampaign.*` (sim), `URbCampaignSubsystem` (UE). Tests: `Campaign_*` in 
 | 10 | Chief Risk Officer | 25m | (top) CRO capstone | - |
 
 Responsibilities, stakeholder expectations and new tools per level are in `BuildLadder()`.
-Mission ids M002+ and crisis ids C001+ are placeholders for Gate 4 content; promotion beyond level 2 is impossible until they exist, which is intended.
+All ladder missions and crises exist as data (Docs/MissionData.md). M000 (a level-1 tutorial) does not: new games start at level 2. Optional specialism missions M027-M030 and incident-triggered crises C004-C012 add evidence but are never required for promotion.

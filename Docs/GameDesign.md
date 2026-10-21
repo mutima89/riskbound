@@ -37,8 +37,8 @@ Treatments: accept and monitor; service compressor + fix alarm escalation (recom
 ## Difficulty
 Analyst (hints on, incidents less likely), Professional, Executive (no hints by default, incidents more likely). Difficulty never changes the rubric.
 
-## Achievements (implemented: 7 of the 50 target)
-first_day, paper_trail, unresolved_no_more, right_owner, value_for_money, sharp_eye, good_call_bad_luck. Conditions in `RbGameState.cpp`; all are verifiable from state.
+## Achievements (50, data-driven)
+`Data/Achievements.json` (Docs/MissionData.md "Achievements file"). The seven Mission 001 achievements keep their built-in rules (`RbGameState.cpp`); the rest cover career levels, missions and crises passed, quality of work, good decisions that stick (flags), outcomes over time (incidents avoided or mitigated, reputation, resilience), competence, retrying a failed mission and escalating above one's authority. All are verifiable from saved state. The journal shows "Achievements (n of 50)".
 
 ## Engagement rules
 No streak penalties, no artificial scarcity, no timers on thinking, manual save plus checkpoint autosave.

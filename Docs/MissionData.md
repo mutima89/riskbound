@@ -50,10 +50,54 @@ Option: `{"id", "label", "feedback", "score" (single), "correct" (multi), "cost"
 - Feedback explains why, for wrong and right answers. The rubric is only shown after submission.
 - A crisis required for promotion (ladder) must not depend on a random flag; flag-triggered crises are optional extras.
 
+## Achievements file
+`Data/Achievements.json`: `{"schema": 1, "achievements": [{"id", "title", "description", "when": {<one condition>}}]}`.
+Conditions: `code` (built-in Mission 001 rule), `passMission`, `reachLevel`, `missionsPassed`, `crisesPassed`, `missionScoreAtLeast` + `mission`, `anyScoreAtLeast`, `scoreAtLeast` + `count`, `flag`, `metricAtLeast` / `metricBelow` + `metric`, `incidentsAvoided`, `incidentsMitigated`, `competencyAtLeast` + `competency`, `allCompetenciesAtLeast`, `learningEntries`, `retryPassed`, `escalations`. All are evaluated from saved state (`IsAchievementMet`), so unlocks survive save/load and can be re-derived. `ValidateAchievements` checks unique ids, code ids, mission/metric/competency targets; `Data_EveryReferencedFlagCanBeSet` checks every flag an achievement or mission reads can be set by some choice or incident.
+
 ## Shipped content
-| Id | Title | Level | Requires | Assesses |
+30 missions (M001 hand-built plus 29 data missions, M027-M030 optional specialisms), 12 crises (C001-C003 required by the career ladder and always reachable; C004-C012 open only when an earlier decision leads to an incident), the CRO capstone, 50 achievements. `Data_FullCampaignBestPlayReachesChiefRiskOfficer` plays the best answer to every question from M001 to the capstone and checks the player is promoted through all ten levels on competence evidence.
+
+| Id | Title | Kind | Level | Requires |
 |---|---|---|---|---|
-| M002 | The Contractor Nobody Checks | 2 | M001 | identification, assessment, control evaluation, judgement, communication |
-| M003 | Reading the Signals | 2 | M002 | identification, assessment, control evaluation, judgement, communication |
-| M004 | What Is It Worth? | 3 | M003 | quantitative analysis (x2), assessment, judgement, communication |
-| M005 | Testing the Control | 3 | M003 | control evaluation, assessment, quantitative analysis, judgement, communication |
+| C001 | Heatwave Week | crisis | 7 | M016 |
+| C002 | The Lights Go Out | crisis | 8 | M020 |
+| C003 | Contract on the Line | crisis | 9 | M024 |
+| C004 | Eastfield Down | crisis | 2 | flag eastfield_breakdown |
+| C005 | The A-Road Collision | crisis | 2 | flag fatigue_collision |
+| C006 | Harrowgate Under Water | crisis | 3 | flag harrowgate_flooded |
+| C007 | The Inspector's Letter | crisis | 3 | flag regulator_finding |
+| C008 | Ransomware | crisis | 5 | flag ransomware_outbreak |
+| C009 | Supplier Collapse | crisis | 7 | flag supplier_insolvency |
+| C010 | Data Breach | crisis | 5 | flag data_breach |
+| C011 | Fraud in the Depot | crisis | 5 | flag fraud_discovered |
+| C012 | The Whistleblower | crisis | 8 | flag whistleblower |
+| CRO | Chief Risk Officer | capstone | 10 | M026, C003 |
+| M002 | The Contractor Nobody Checks | mission | 2 | M001 |
+| M003 | Reading the Signals | mission | 2 | M002 |
+| M004 | What Is It Worth? | mission | 3 | M003 |
+| M005 | Testing the Control | mission | 3 | M003 |
+| M006 | Near Misses | mission | 3 | M004, M005 |
+| M007 | The Tail Matters | mission | 4 | M006 |
+| M008 | Challenge, Not Sign-Off | mission | 4 | M007 |
+| M009 | Reviewing the New Analyst | mission | 4 | M008 |
+| M010 | Too Much Work, Too Few People | mission | 5 | M009 |
+| M011 | The Breach Report | mission | 5 | M010 |
+| M012 | Cyber Hygiene | mission | 5 | M011 |
+| M013 | Setting the Appetite | mission | 6 | M012 |
+| M014 | Stress Test the Plan | mission | 6 | M013 |
+| M015 | The Framework Gap | mission | 6 | M014 |
+| M016 | Buying Pellmoor | mission | 7 | M015 |
+| M017 | One Supplier Away | mission | 7 | M016 |
+| M018 | The Programme Is Slipping | mission | 7 | M017 |
+| M019 | The Enterprise View | mission | 8 | M018, C001 |
+| M020 | Writing for the Board | mission | 8 | M019 |
+| M021 | Over the Horizon | mission | 8 | M020 |
+| M022 | What People Really Think | mission | 8 | M021 |
+| M023 | The Board Risk Committee | mission | 9 | M022, C002 |
+| M024 | Cash Is Oxygen | mission | 9 | M023 |
+| M025 | The Regulator Calls | mission | 9 | M024 |
+| M026 | Strategy Under Uncertainty | mission | 9 | M025 |
+| M027 | Leak Check | mission | 4 | M006 |
+| M028 | The New Depot | mission | 5 | M009 |
+| M029 | Rehearsal | mission | 6 | M012 |
+| M030 | Following the Money | mission | 6 | M010 |

@@ -1,5 +1,6 @@
 #include "RbMissionData.h"
 
+#include "RbGameState.h"
 #include "RbJson.h"
 
 #include <cmath>
@@ -383,6 +384,101 @@ bool LoadMissionCatalogue(const std::vector<std::pair<std::string, std::string>>
 		Out.Missions.push_back(std::move(M));
 	}
 	for (const std::string& E : ValidateCatalogue(Out)) OutErrors.push_back(E);
+	return OutErrors.size() == ErrorsBefore;
+}
+
+bool AchievementsFromJson(const std::string& Text, const std::string& SourceName, std::vector<AchievementDef>& Out, std::vector<std::string>& OutErrors)
+{
+	const size_t ErrorsBefore = OutErrors.size();
+	JsonValue Doc;
+	std::string JsonError;
+	if (!ParseJson(Text, Doc, JsonError))
+	{
+		OutErrors.push_back(SourceName + ": " + JsonError);
+		return false;
+	}
+	struct FKind
+	{
+		const char* Key;
+		EAchievementCondition Condition;
+		bool bString;     // the key's value is a string target, not a number
+		const char* Extra; // second key: target name (for numeric conditions) or count
+	};
+	static const FKind Kinds[] = {
+		{"code", EAchievementCondition::Code, false, nullptr},
+		{"passMission", EAchievementCondition::PassMission, true, nullptr},
+		{"reachLevel", EAchievementCondition::ReachLevel, false, nullptr},
+		{"missionsPassed", EAchievementCondition::MissionsPassed, false, nullptr},
+		{"crisesPassed", EAchievementCondition::CrisesPassed, false, nullptr},
+		{"missionScoreAtLeast", EAchievementCondition::MissionScoreAtLeast, false, "mission"},
+		{"anyScoreAtLeast", EAchievementCondition::AnyScoreAtLeast, false, nullptr},
+		{"scoreAtLeast", EAchievementCondition::ScoreAtLeastCount, false, "count"},
+		{"flag", EAchievementCondition::Flag, true, nullptr},
+		{"metricAtLeast", EAchievementCondition::MetricAtLeast, false, "metric"},
+		{"metricBelow", EAchievementCondition::MetricBelow, false, "metric"},
+		{"incidentsAvoided", EAchievementCondition::IncidentsAvoided, false, nullptr},
+		{"incidentsMitigated", EAchievementCondition::IncidentsMitigated, false, nullptr},
+		{"competencyAtLeast", EAchievementCondition::CompetencyAtLeast, false, "competency"},
+		{"allCompetenciesAtLeast", EAchievementCondition::AllCompetenciesAtLeast, false, nullptr},
+		{"learningEntries", EAchievementCondition::LearningEntries, false, nullptr},
+		{"retryPassed", EAchievementCondition::RetryPassed, false, nullptr},
+		{"escalations", EAchievementCondition::Escalations, false, nullptr},
+	};
+	std::vector<AchievementDef> Defs;
+	{
+		Reader R(Doc, SourceName, OutErrors);
+		int Schema = 0;
+		R.Int("schema", Schema, true);
+		if (Schema != MissionSchemaVersion) R.Error(Doc.Line, "schema must be " + std::to_string(MissionSchemaVersion));
+		const JsonValue* List = R.Get("achievements", true);
+		if (List && !List->IsArray()) R.Error(List->Line, "\"achievements\" must be an array");
+		for (const JsonValue& Item : List && List->IsArray() ? List->Items : std::vector<JsonValue>())
+		{
+			AchievementDef D;
+			Reader AR(Item, SourceName + " achievement", OutErrors);
+			AR.Str("id", D.Id, true);
+			AR.Str("title", D.Title, true);
+			AR.Str("description", D.Description, true);
+			const JsonValue* When = AR.Get("when", true);
+			if (When)
+			{
+				Reader WR(*When, SourceName + " achievement '" + D.Id + "' when", OutErrors);
+				int Found = 0;
+				for (const FKind& K : Kinds)
+				{
+					const JsonValue* V = WR.Get(K.Key, false);
+					if (!V) continue;
+					++Found;
+					D.Condition = K.Condition;
+					if (K.Condition == EAchievementCondition::Code)
+					{
+						if (!V->IsBool() || !V->Bool) WR.Error(V->Line, "\"code\" must be true");
+					}
+					else if (K.bString)
+					{
+						if (V->IsString()) D.Target = V->String;
+						else WR.Error(V->Line, std::string("\"") + K.Key + "\" must be a string");
+					}
+					else if (V->IsNumber())
+					{
+						D.Value = V->Number;
+					}
+					else
+					{
+						WR.Error(V->Line, std::string("\"") + K.Key + "\" must be a number");
+					}
+					if (K.Extra)
+					{
+						if (std::string(K.Extra) == "count") WR.Int("count", D.Count, true);
+						else WR.Str(K.Extra, D.Target, true);
+					}
+				}
+				if (Found != 1) WR.Error(When->Line, "needs exactly one condition");
+			}
+			Defs.push_back(D);
+		}
+	}
+	Out = std::move(Defs);
 	return OutErrors.size() == ErrorsBefore;
 }
 } // namespace rb

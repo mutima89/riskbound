@@ -197,6 +197,14 @@ void ARbHUD::Notice(const FString& Message)
 	}
 }
 
+void ARbHUD::ClearNotices()
+{
+	if (Overlay.IsValid())
+	{
+		Overlay->ClearNotices();
+	}
+}
+
 void ARbHUD::OnSettingsChanged()
 {
 	BuildOverlay();
@@ -360,7 +368,9 @@ TSharedPtr<SRbCaseFiles> ARbHUD::OpenCaseFiles(const FString& MissionId, bool bD
 	TSharedRef<SRbCaseFiles> Files = SNew(SRbCaseFiles)
 		.Campaign(GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
 		.Game(Game())
+		.OnMissionStarted([this]() { ClearNotices(); }) // earlier mission toasts no longer apply
 		.OnClose([this]() { OpenWorkstation(); });
+	ClearNotices();
 	if (!MissionId.IsEmpty())
 	{
 		if (bDebrief) Files->ShowDebrief(MissionId);

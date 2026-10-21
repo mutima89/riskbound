@@ -15,5 +15,6 @@ public class Riskbound : ModuleRules
 		RuntimeDependencies.Add("$(ProjectDir)/Resources/Fonts/OFL.txt", StagedFileType.UFS);
 		// Mission content (Docs/MissionData.md), read and validated at startup by URbCampaignSubsystem.
 		RuntimeDependencies.Add("$(ProjectDir)/Data/Missions/*.json", StagedFileType.UFS);
+		RuntimeDependencies.Add("$(ProjectDir)/Data/Achievements.json", StagedFileType.UFS);
 	}
 }

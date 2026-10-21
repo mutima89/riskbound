@@ -85,6 +85,26 @@ bool URbCampaignSubsystem::LoadFromDisk()
 	}
 	Catalogue = bOk ? MoveTemp(Loaded) : rb::MissionCatalogue();
 	SessionDebriefs.Reset();
+
+	// Achievements reference missions, so they are validated against the catalogue just loaded.
+	Achievements.clear();
+	FString AchievementText;
+	const FString AchievementPath = FPaths::ProjectDir() / TEXT("Data/Achievements.json");
+	if (FFileHelper::LoadFileToString(AchievementText, *AchievementPath))
+	{
+		std::vector<rb::AchievementDef> Defs;
+		std::vector<std::string> AErrors;
+		rb::AchievementsFromJson(ToStd(AchievementText), "Achievements.json", Defs, AErrors);
+		for (const std::string& E : rb::ValidateAchievements(Defs, Catalogue)) AErrors.push_back(E);
+		for (const std::string& E : AErrors) UE_LOG(LogRiskbound, Error, TEXT("Achievement data: %s"), *ToFString(E));
+		LoadErrors.Append(ToFStrings(AErrors));
+		if (AErrors.empty()) Achievements = std::move(Defs);
+	}
+	else
+	{
+		LoadErrors.Add(TEXT("Achievements.json: could not be read"));
+	}
+	UE_LOG(LogRiskbound, Display, TEXT("Achievement data: %d achievements"), static_cast<int32>(Achievements.size()));
 	UE_LOG(LogRiskbound, Display, TEXT("Mission data: %d missions from %s (%d problems)"), static_cast<int32>(Catalogue.Missions.size()), *Dir, LoadErrors.Num());
 	return bOk;
 }
@@ -105,7 +125,7 @@ TArray<FString> URbCampaignSubsystem::SetCatalogue(rb::MissionCatalogue&& NewCat
 	return Problems;
 }
 
-TArray<FRbMissionSummary> URbCampaignSubsystem::GetMissions() const
+TArray<FRbMissionSummary> URbCampaignSubsystem::GetMissions(bool bIncludeHidden) const
 {
 	TArray<FRbMissionSummary> Out;
 	const rb::GameState& S = Game()->GetState();
@@ -128,8 +148,17 @@ TArray<FRbMissionSummary> URbCampaignSubsystem::GetMissions() const
 			++V.Attempts;
 			V.BestScore = FMath::Max(V.BestScore, R.Score);
 		}
+		const bool bUntriggered = std::any_of(M.RequiresFlags.begin(), M.RequiresFlags.end(), [&S](const std::string& F) { return !S.Org.HasFlag(F); });
+		if (!bIncludeHidden && bUntriggered && V.Attempts == 0 && !V.bActive) continue; // a surprise, not a to-do
 		Out.Add(V);
 	}
+	auto Group = [](const FRbMissionSummary& V) { return V.bActive ? 0 : (V.bAvailable ? 1 : (V.bPassed ? 2 : 3)); };
+	Out.StableSort([&Group](const FRbMissionSummary& A, const FRbMissionSummary& B)
+	{
+		if (Group(A) != Group(B)) return Group(A) < Group(B);
+		if (A.MinLevel != B.MinLevel) return A.MinLevel < B.MinLevel;
+		return A.Id < B.Id;
+	});
 	return Out;
 }
 

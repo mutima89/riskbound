@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "id": "M012",
+  "title": "Cyber Hygiene",
+  "kind": "mission",
+  "department": "IT",
+  "minLevel": 5,
+  "requiresPassed": ["M011"],
+  "passMark": 60,
+  "xp": 190,
+  "weeks": 3,
+  "briefing": [
+    "A phishing simulation run by IT had a 19% click rate. 14% of servers are more than 60 days behind on critical patches. The IT Manager, Mei Lin, has a budget request for 120,000 that nobody has approved.",
+    "Your team's assessment of route planning (from last quarter) found no offline fallback. Pull it together into a recommendation."
+  ],
+  "context": [
+    {"ifFlag": "breach_suppressed", "text": "The Risk Committee chair has started asking why the risk team's reports never contain bad news."}
+  ],
+  "evidence": [
+    {"id": "phishing", "title": "Phishing simulation results", "body": "1,240 staff tested. Clicked: 236 (19%). Entered credentials: 61 (5%). Reported the email: 84 (7%). Finance and dispatch had the highest click rates."},
+    {"id": "patching", "title": "Patch status", "body": "Critical patches older than 60 days: 14% of servers, including the depot scanning gateway. Policy target: 0% after 30 days."},
+    {"id": "mfa", "title": "Access controls", "body": "Multi-factor login for administrators only. Email and the route-planning portal use passwords alone. Backups are taken nightly; the last restore test was 18 months ago."},
+    {"id": "it_request", "title": "IT budget request (unapproved)", "body": "120,000: MFA for all staff (35,000), patch automation (40,000), restore testing and an offline dispatch fallback (45,000)."}
+  ],
+  "questions": [
+    {"id": "top_gaps", "kind": "multi", "competency": "ControlEvaluation", "weight": 20,
+     "prompt": "Which gaps most raise the likelihood or impact of a ransomware outage?",
+     "options": [
+       {"id": "no_mfa", "label": "No MFA on email and the route-planning portal while 5% of staff hand over credentials", "correct": true},
+       {"id": "old_patches", "label": "Critical patches 60+ days old on 14% of servers", "correct": true},
+       {"id": "untested_restore", "label": "Backups never test-restored in 18 months, and no offline dispatch", "correct": true},
+       {"id": "click_rate_only", "label": "The 19% click rate on its own", "feedback": "Clicks matter mainly because credentials are then enough to log in: the MFA gap is the root."},
+       {"id": "report_rate", "label": "Only 7% reported the phishing email", "feedback": "Worth improving, but a weaker driver than the three control gaps."}
+     ]},
+    {"id": "decision", "competency": "Judgement", "weight": 25,
+     "prompt": "What do you recommend? Your authority as team lead is 150,000.",
+     "options": [
+       {"id": "fund_all_phased", "label": "Approve the 120,000 package, phased: MFA and the restore test in the first month, patch automation and the offline fallback next", "score": 92, "cost": 120000,
+        "feedback": "Within your authority, ordered by risk reduction per unit of time.",
+        "setsFlags": ["cyber_controls_funded"],
+        "effects": {"Cash": -120000, "ControlEffectiveness": 6, "RiskExposure": -6, "Resilience": 5}},
+       {"id": "training_only", "label": "More phishing training; revisit the budget next year", "score": 25,
+        "feedback": "Training helps a little, but the control gaps remain open.",
+        "effects": {"Costs": 8000},
+        "schedules": [
+          {"id": "ransomware", "description": "Ransomware encrypts the depot scanning gateway and spreads to route planning", "delayWeeks": 6, "probability": 0.3,
+           "effects": {"Cash": -450000, "Reputation": -8, "Resilience": -6}, "flagIfOccurs": "ransomware_outbreak",
+           "mitigatedBy": "cyber_controls_funded", "mitigatedProbabilityFactor": 0.2, "mitigatedSeverityFactor": 0.3}
+        ]},
+       {"id": "accept", "label": "Accept the risk: we have antivirus and nightly backups", "score": 10,
+        "feedback": "Untested backups are a hope, not a control.",
+        "schedules": [
+          {"id": "ransomware_accepted", "description": "Ransomware encrypts the depot scanning gateway and spreads to route planning", "delayWeeks": 6, "probability": 0.35,
+           "effects": {"Cash": -450000, "Reputation": -8, "Resilience": -6}, "flagIfOccurs": "ransomware_outbreak"},
+          {"id": "credential_leak", "description": "Stolen email credentials are used to export a customer contact list", "delayWeeks": 9, "probability": 0.25,
+           "effects": {"Reputation": -6, "Cash": -60000, "StakeholderTrust": -5}, "flagIfOccurs": "data_breach"}
+        ]}
+     ]},
+    {"id": "cost_view", "competency": "QuantitativeAnalysis", "weight": 15,
+     "prompt": "An outage of route planning costs about 450,000. The package is judged to cut the annual probability from 25% to 5%. Over one year, is it worth it?",
+     "options": [
+       {"id": "yes_90k", "label": "Yes: expected loss falls by about 90,000 a year (from 112,500 to 22,500), so it pays back in under two years, before counting reputation", "score": 92, "feedback": "0.25 x 450,000 = 112,500; 0.05 x 450,000 = 22,500; reduction 90,000."},
+       {"id": "no_120", "label": "No: 120,000 is more than the 112,500 expected loss", "score": 35, "feedback": "Compare the reduction over the controls' life, not one year's cost against one year's loss."},
+       {"id": "yes_450", "label": "Yes: it saves 450,000", "score": 20, "feedback": "That treats the worst case as certain."}
+     ]},
+    {"id": "governance", "competency": "Governance", "weight": 20,
+     "prompt": "How do you make sure the gaps actually close?",
+     "options": [
+       {"id": "tracked", "label": "Create tracked actions with owners and dates, add MFA coverage and patch age as KRIs, and report progress monthly to the committee", "score": 92, "feedback": "Actions plus indicators plus oversight."},
+       {"id": "trust_it", "label": "Leave it to Mei Lin; IT knows best", "score": 30, "feedback": "Ownership yes; oversight no."},
+       {"id": "annual", "label": "Check again at the annual review", "score": 25, "feedback": "A year is too long for exposures this live."}
+     ]},
+    {"id": "staff_buy_in", "competency": "StakeholderManagement", "weight": 20,
+     "prompt": "Dispatch supervisors object that MFA will slow them down at shift change. Your response:",
+     "options": [
+       {"id": "pilot", "label": "Pilot it with one depot using app approval, measure the time added, and adjust before rollout", "score": 90, "feedback": "Takes the concern seriously and answers it with evidence."},
+       {"id": "mandate", "label": "Mandate it anyway: security comes first", "score": 45, "feedback": "Probably right on substance, but forced rollouts invite workarounds."},
+       {"id": "exempt", "label": "Exempt dispatch", "score": 15, "feedback": "Dispatch had one of the highest click rates."}
+     ]}
+  ],
+  "lesson": "Fix the controls that turn a click into an outage: MFA, patching and tested recovery. Quantify the reduction, then track the actions until they close."
+}

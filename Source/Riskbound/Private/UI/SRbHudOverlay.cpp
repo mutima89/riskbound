@@ -98,7 +98,8 @@ void SRbHudOverlay::Construct(const FArguments& InArgs)
 				]
 			]
 		]
-		// Notices: one queue, top right, clear of every modal's content area.
+		// Notices: during gameplay a stack at the top right; while a screen is open, the newest one
+		// only, centred in the top band that modal frames keep free (RbUI::MakeModalFrame).
 		+ SOverlay::Slot()
 		.HAlign(HAlign_Right)
 		.VAlign(VAlign_Top)
@@ -110,7 +111,19 @@ void SRbHudOverlay::Construct(const FArguments& InArgs)
 				SAssignNew(NoticeBox, SVerticalBox)
 			]
 		]
+		+ SOverlay::Slot()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Top)
+		.Padding(0.0f, RbUI::Space3, 0.0f, 0.0f)
+		[
+			SNew(SBox)
+			.MaxDesiredWidth(720.0f)
+			[
+				SAssignNew(CompactNoticeBox, SVerticalBox)
+			]
+		]
 	];
+	bCompact = !ShowGameplay.Get();
 }
 
 void SRbHudOverlay::AddNotice(const FString& Message)
@@ -133,12 +146,20 @@ void SRbHudOverlay::AddNotice(const FString& Message)
 	RebuildNotices();
 }
 
+void SRbHudOverlay::ClearNotices()
+{
+	Notices.Reset();
+	RebuildNotices();
+}
+
 void SRbHudOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 	const double Now = FPlatformTime::Seconds();
-	if (Notices.RemoveAll([Now](const FNotice& N) { return N.ExpiresAt < Now; }) > 0)
+	const bool bWantCompact = !ShowGameplay.Get();
+	if (Notices.RemoveAll([Now](const FNotice& N) { return N.ExpiresAt < Now; }) > 0 || bWantCompact != bCompact)
 	{
+		bCompact = bWantCompact;
 		RebuildNotices();
 	}
 }
@@ -159,10 +180,12 @@ float SRbHudOverlay::NoticeAlpha(const FString& Message) const
 void SRbHudOverlay::RebuildNotices()
 {
 	NoticeBox->ClearChildren();
-	for (int32 i = 0; i < Notices.Num(); ++i)
+	CompactNoticeBox->ClearChildren();
+	TSharedPtr<SVerticalBox> Target = bCompact ? CompactNoticeBox : NoticeBox;
+	for (int32 i = bCompact ? FMath::Max(0, Notices.Num() - 1) : 0; i < Notices.Num(); ++i)
 	{
 		const FString Message = Notices[i].Text;
-		NoticeBox->AddSlot()
+		Target->AddSlot()
 		.AutoHeight()
 		.Padding(0.0f, 0.0f, 0.0f, RbUI::Space2)
 		[

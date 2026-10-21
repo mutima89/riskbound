@@ -53,6 +53,7 @@ public:
 	void CloseScreen();
 	bool IsScreenOpen() const { return Screen.IsValid(); }
 	void Notice(const FString& Message);
+	void ClearNotices();
 	void OnSettingsChanged();
 
 	URbGameSubsystem* Game() const;

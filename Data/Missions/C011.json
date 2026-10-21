@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "id": "C011",
+  "title": "Fraud in the Depot",
+  "kind": "crisis",
+  "department": "Finance",
+  "minLevel": 5,
+  "requiresFlags": [
+    "fraud_discovered"
+  ],
+  "passMark": 60,
+  "xp": 240,
+  "weeks": 1,
+  "briefing": [
+    "A depot manager has been claiming the same fuel receipts at two depots for a year. Total about 85,000. Two colleagues noticed and said nothing.",
+    "Finance asks the risk team to lead the control review."
+  ],
+  "evidence": [
+    {
+      "id": "method",
+      "title": "How it worked",
+      "body": "Expense claims were approved by the depot manager's own deputy. No duplicate check across depots. Receipts were scanned images."
+    },
+    {
+      "id": "silence",
+      "title": "The colleagues",
+      "body": "Both say they 'didn't want to cause trouble' and didn't know the speak-up line existed."
+    }
+  ],
+  "questions": [
+    {
+      "id": "controls",
+      "competency": "ControlEvaluation",
+      "weight": 30,
+      "prompt": "Which control failures enabled the fraud?",
+      "options": [
+        {
+          "id": "sod",
+          "label": "Approval by a subordinate (no real segregation of duties)",
+          "correct": true
+        },
+        {
+          "id": "dup",
+          "label": "No duplicate-receipt check across depots",
+          "correct": true
+        },
+        {
+          "id": "speakup",
+          "label": "Colleagues didn't know how to raise concerns",
+          "correct": true
+        },
+        {
+          "id": "fuel_price",
+          "label": "High fuel prices",
+          "feedback": "Context, not a control failure."
+        },
+        {
+          "id": "scans",
+          "label": "Receipts were scanned images",
+          "feedback": "Scans are normal; the missing duplicate check is the gap."
+        }
+      ],
+      "kind": "multi"
+    },
+    {
+      "id": "response",
+      "competency": "Judgement",
+      "weight": 25,
+      "prompt": "What do you recommend?",
+      "options": [
+        {
+          "id": "fix_three",
+          "label": "Independent approval above a threshold, automated duplicate checks, a publicised speak-up channel, and recovery of the money through HR and legal process",
+          "score": 92,
+          "feedback": "Fixes all three gaps and deals with the case properly.",
+          "setsFlags": [
+            "fraud_controls_fixed",
+            "duplicate_check_running"
+          ],
+          "effects": {
+            "ControlEffectiveness": 5
+          }
+        },
+        {
+          "id": "sack_colleagues",
+          "label": "Dismiss the two colleagues who stayed silent",
+          "score": 15,
+          "feedback": "Punishing silence teaches people to stay silent.",
+          "effects": {
+            "EmployeeMorale": -6
+          }
+        },
+        {
+          "id": "one_off",
+          "label": "Treat it as a one-off",
+          "score": 10,
+          "feedback": "The controls that allowed it remain."
+        }
+      ]
+    },
+    {
+      "id": "governance",
+      "competency": "Governance",
+      "weight": 25,
+      "prompt": "Who needs to know?",
+      "options": [
+        {
+          "id": "audit_committee",
+          "label": "The Audit Committee, external auditors and, if required, the police; with the control review",
+          "score": 92,
+          "feedback": "Fraud is a governance matter, not just HR."
+        },
+        {
+          "id": "hr_only",
+          "label": "HR only",
+          "score": 25,
+          "feedback": "Too narrow for a control failure."
+        },
+        {
+          "id": "nobody",
+          "label": "Nobody: avoid embarrassment",
+          "score": 5,
+          "feedback": "Concealment compounds the failure."
+        }
+      ]
+    },
+    {
+      "id": "culture",
+      "competency": "Leadership",
+      "weight": 20,
+      "prompt": "How do you address the colleagues' silence?",
+      "options": [
+        {
+          "id": "learn",
+          "label": "Talk with them, find out what stopped them, and use it to fix the speak-up process",
+          "score": 92,
+          "feedback": "Their answer is the most useful evidence."
+        },
+        {
+          "id": "warn",
+          "label": "Formal warnings",
+          "score": 20,
+          "feedback": "Confirms their fear."
+        },
+        {
+          "id": "ignore",
+          "label": "Ignore it",
+          "score": 15,
+          "feedback": "Misses the cultural cause."
+        }
+      ]
+    }
+  ],
+  "lesson": "Fraud exploits missing segregation, missing checks and silent colleagues. Fix all three, and learn from the silence rather than punish it."
+}

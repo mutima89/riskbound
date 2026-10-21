@@ -179,12 +179,14 @@ void URbGameSubsystem::MarkDebriefReceived()
 
 void URbGameSubsystem::AfterAction(bool bAutosave)
 {
-	for (const std::string& Id : rb::EvaluateAchievements(State))
+	// Data achievements (Data/Achievements.json) when loaded; the built-in Mission 001 set otherwise.
+	const URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	const bool bData = Campaign && !Campaign->GetAchievementDefs().empty();
+	const std::vector<std::string> NewIds = bData ? rb::EvaluateAchievements(State, Campaign->GetAchievementDefs(), Campaign->GetCatalogue())
+		: rb::EvaluateAchievements(State);
+	for (const std::string& Id : NewIds)
 	{
-		for (const rb::AchievementDef& Def : rb::AchievementDefs())
-		{
-			if (Def.Id == Id) Notify(FString::Printf(TEXT("Achievement unlocked: %s"), *ToFString(Def.Title)));
-		}
+		Notify(FString::Printf(TEXT("Achievement unlocked: %s"), *AchievementTitle(Id)));
 	}
 	if (bAutosave)
 	{
@@ -384,12 +386,32 @@ TArray<FString> URbGameSubsystem::GetAchievementTitles() const
 	TArray<FString> Out;
 	for (const std::string& Id : State.Achievements)
 	{
-		for (const rb::AchievementDef& Def : rb::AchievementDefs())
-		{
-			if (Def.Id == Id) Out.Add(ToFString(Def.Title));
-		}
+		Out.Add(AchievementTitle(Id));
 	}
 	return Out;
+}
+
+int32 URbGameSubsystem::GetAchievementTotal() const
+{
+	const URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	return Campaign && !Campaign->GetAchievementDefs().empty() ? static_cast<int32>(Campaign->GetAchievementDefs().size())
+		: static_cast<int32>(rb::AchievementDefs().size());
+}
+
+FString URbGameSubsystem::AchievementTitle(const std::string& Id) const
+{
+	if (const URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+	{
+		for (const rb::AchievementDef& Def : Campaign->GetAchievementDefs())
+		{
+			if (Def.Id == Id) return ToFString(Def.Title);
+		}
+	}
+	for (const rb::AchievementDef& Def : rb::AchievementDefs())
+	{
+		if (Def.Id == Id) return ToFString(Def.Title);
+	}
+	return ToFString(Id);
 }
 
 FRbSettingsView URbGameSubsystem::GetSettings() const

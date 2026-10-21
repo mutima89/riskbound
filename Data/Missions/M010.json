@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "id": "M010",
+  "title": "Too Much Work, Too Few People",
+  "kind": "mission",
+  "department": "Risk",
+  "minLevel": 5,
+  "requiresPassed": ["M009"],
+  "passMark": 60,
+  "xp": 190,
+  "weeks": 3,
+  "briefing": [
+    "You now lead a team of four. The quarter's plan has 11 pieces of work and capacity for about 7. Everyone wants theirs done first.",
+    "Decide what the team does, what waits, and how you explain it."
+  ],
+  "context": [
+    {"ifFlag": "yard_injury", "text": "Health and Safety have asked for a follow-up review of yard controls after the Northgate injury."},
+    {"ifFlag": "kelvarin_renewed_unchanged", "text": "Procurement has asked for a second look at Kelvarin before the next renewal date."}
+  ],
+  "evidence": [
+    {"id": "work_list", "title": "Requested work this quarter", "body": [
+      "A. Annual risk report refresh (Board, required). B. Cyber assessment of route planning (residual unknown, no fallback). C. Depot expense claim review (Finance request; two duplicate payments found last year). D. KRI dashboard redesign (nice to have). E. Insurance renewal input (renewal in 6 weeks). F. Training slides refresh. G. New depot project risk review (go/no-go in 8 weeks). H. Policy wording tidy-up. I. Supplier risk tiering. J. Second fatigue review. K. Committee minutes archive.",
+      "Capacity: about 7 pieces of average size."
+    ]},
+    {"id": "team", "title": "Team", "body": "Sam (graduate, improving fast), Lina (strong quant), Kofi (experienced, overloaded, two sick days last month), Ines (part-time, compliance background)."}
+  ],
+  "questions": [
+    {"id": "priorities", "kind": "multi", "competency": "Judgement", "weight": 25,
+     "prompt": "Which items must be in this quarter's plan?",
+     "options": [
+       {"id": "a_report", "label": "A. Annual risk report (Board requirement)", "correct": true},
+       {"id": "b_cyber", "label": "B. Cyber assessment of route planning (high, unassessed exposure)", "correct": true},
+       {"id": "e_insurance", "label": "E. Insurance renewal input (hard deadline)", "correct": true},
+       {"id": "g_depot", "label": "G. New depot risk review (go/no-go decision)", "correct": true},
+       {"id": "f_training", "label": "F. Training slides refresh", "feedback": "Low risk; can wait a quarter."},
+       {"id": "k_archive", "label": "K. Minutes archive", "feedback": "Administrative; no risk exposure."}
+     ]},
+    {"id": "expense_review", "competency": "Governance", "weight": 15,
+     "prompt": "Finance's expense review (C) doesn't make the cut. What do you do with it?",
+     "options": [
+       {"id": "data_check", "label": "Ask Finance to run an automated duplicate-payment check this quarter and schedule the full review next quarter, recording the decision", "score": 90,
+        "feedback": "A cheap interim control covers the known failure while the full review waits, and the trade-off is on record.",
+        "setsFlags": ["duplicate_check_running"]},
+       {"id": "drop", "label": "Drop it: duplicate payments are small", "score": 25,
+        "feedback": "Duplicates are a symptom; no review means nobody looks for deliberate abuse.",
+        "schedules": [
+          {"id": "depot_fraud", "description": "A depot manager is found to have claimed the same fuel receipts at two depots for a year", "delayWeeks": 8, "probability": 0.3,
+           "effects": {"Cash": -85000, "Reputation": -3, "StakeholderTrust": -4}, "flagIfOccurs": "fraud_discovered",
+           "mitigatedBy": "duplicate_check_running", "mitigatedProbabilityFactor": 0.3, "mitigatedSeverityFactor": 0.4}
+        ]},
+       {"id": "squeeze_in", "label": "Squeeze it in by asking Kofi to take it on as well", "score": 30,
+        "feedback": "Kofi is already overloaded; stretching him risks every item he holds.",
+        "effects": {"EmployeeMorale": -4}}
+     ]},
+    {"id": "allocation", "competency": "Leadership", "weight": 25,
+     "prompt": "How do you allocate the cyber assessment (B), the hardest piece?",
+     "options": [
+       {"id": "pair", "label": "Lina leads with Sam paired to learn; you review at midpoint. Kofi hands two items to Ines to relieve his load", "score": 92, "feedback": "Matches strength to the hardest work, develops Sam, and protects Kofi."},
+       {"id": "kofi", "label": "Kofi: he's the most experienced", "score": 30, "feedback": "Experience matters, but loading him further after two sick days risks burnout and delay."},
+       {"id": "yourself", "label": "Do it yourself so it's right", "score": 40, "feedback": "Leaders who take the hardest work stop leading the team."}
+     ]},
+    {"id": "say_no", "competency": "StakeholderManagement", "weight": 20,
+     "prompt": "How do you tell the requesters whose work waits?",
+     "options": [
+       {"id": "transparent", "label": "Publish the plan with the ranking criteria (exposure, deadline, mandate), tell each requester personally, and offer what interim help you can", "score": 92, "feedback": "Clear criteria make 'not now' fair and predictable."},
+       {"id": "silence", "label": "Don't announce it; deal with complaints when they come", "score": 15, "feedback": "Stakeholders discover it late and lose trust in the team."},
+       {"id": "promise", "label": "Accept everything and work overtime", "score": 20, "feedback": "Overpromising delivers late, low-quality work and burns out the team.",
+        "effects": {"EmployeeMorale": -5}}
+     ]},
+    {"id": "governance_record", "competency": "Governance", "weight": 15,
+     "prompt": "Where should the decision about deferred work be recorded?",
+     "options": [
+       {"id": "committee", "label": "In the Risk Committee pack as the agreed risk work plan, with deferred items and their interim controls", "score": 90, "feedback": "The committee owns the risk appetite for not doing work."},
+       {"id": "team_notes", "label": "In the team's own notes", "score": 30, "feedback": "Decisions to accept risk should be visible to the body that owns appetite."},
+       {"id": "nowhere", "label": "It doesn't need recording", "score": 10, "feedback": "Unrecorded deferrals become unexplained gaps."}
+     ]}
+  ],
+  "lesson": "Prioritise risk work by exposure, deadline and mandate; put the hardest work where the strength is; and make deferrals visible, with interim controls."
+}

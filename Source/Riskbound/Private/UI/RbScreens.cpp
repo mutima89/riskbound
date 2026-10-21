@@ -278,6 +278,14 @@ FRbScreenParts Journal(ARbHUD* Hud)
 		if (E.bViewed || bHints) Line += TEXT("  -  ") + E.Location;
 		AddRow(Box, MakeBody(FText::FromString(Line), 14, E.bViewed ? TextMuted : TextPrimary), 2.0f);
 	}
+	AddRow(Box, SNew(SBox).HeightOverride(10.0f));
+	AddRow(Box, MakeHeading(LOCTEXT("JournalPromotion", "Next promotion"), 16), 4.0f);
+	AddRow(Box, MakeBody(Career.UnmetPromotionGates.IsEmpty() ? LOCTEXT("JournalNoGaps", "You meet every requirement for your level.")
+		: FText::FromString(FString::Join(Career.UnmetPromotionGates, TEXT("\n"))), 14, TextMuted), 2.0f);
+	const TArray<FString> Unlocked = Game->GetAchievementTitles();
+	AddRow(Box, SNew(SBox).HeightOverride(10.0f));
+	AddRow(Box, MakeHeading(FText::Format(LOCTEXT("JournalAchievements", "Achievements ({0} of {1})"), Unlocked.Num(), Game->GetAchievementTotal()), 16), 4.0f);
+	AddRow(Box, MakeBody(Unlocked.IsEmpty() ? LOCTEXT("JournalNoAchievements", "None yet.") : FText::FromString(FString::Join(Unlocked, TEXT(", "))), 14, TextMuted), 2.0f);
 	TSharedRef<SVerticalBox> Root = Column();
 	Root->AddSlot().FillHeight(1.0f)[Scrolling(Box)];
 	Root->AddSlot().AutoHeight().Padding(0.0f, 12.0f, 0.0f, 0.0f).HAlign(HAlign_Right)
