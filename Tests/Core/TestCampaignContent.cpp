@@ -313,3 +313,65 @@ TEST(Data_LaterMissionFiguresAreRight)
 	CHECK_NEAR(14e6 * 0.12, 1.68e6, 1.0);
 	CHECK_NEAR(AnnualisedLossExpectancy(600.0 / 400.0, 45000.0), 67500.0, 1e-6);
 }
+
+// Content lists the best answer first almost everywhere; the display order must not.
+TEST(Content_OptionDisplayOrderHidesTheAnswerPosition)
+{
+	const MissionCatalogue C = ShippedCatalogue();
+	int Singles = 0, BestShownFirst = 0, Multis = 0, MultiCorrectNotAllOnTop = 0;
+	for (uint64_t Seed = 1; Seed <= 20; ++Seed)
+	{
+		for (const MissionDef& M : C.Missions)
+		{
+			for (const MissionQuestionDef& Q : M.Questions)
+			{
+				const int N = static_cast<int>(Q.Options.size());
+				const std::vector<int> Order = OptionDisplayOrder(Seed, M.Id, Q.Id, N);
+				// A permutation of 0..N-1, identical when asked again (save/load, retry).
+				std::vector<int> Sorted = Order;
+				std::sort(Sorted.begin(), Sorted.end());
+				for (int i = 0; i < N; ++i) CHECK_EQ(Sorted[static_cast<size_t>(i)], i);
+				CHECK(OptionDisplayOrder(Seed, M.Id, Q.Id, N) == Order);
+				if (Q.Kind == EQuestionKind::Single)
+				{
+					++Singles;
+					int Best = 0;
+					for (int i = 1; i < N; ++i)
+					{
+						if (Q.Options[static_cast<size_t>(i)].Score > Q.Options[static_cast<size_t>(Best)].Score) Best = i;
+					}
+					BestShownFirst += Order[0] == Best ? 1 : 0;
+				}
+				else
+				{
+					++Multis;
+					// Correct options are not all shown before every incorrect one.
+					int LastCorrect = -1, FirstIncorrect = N;
+					for (int Pos = 0; Pos < N; ++Pos)
+					{
+						const bool bCorrect = Q.Options[static_cast<size_t>(Order[static_cast<size_t>(Pos)])].bCorrect;
+						if (bCorrect) LastCorrect = Pos;
+						else FirstIncorrect = std::min(FirstIncorrect, Pos);
+					}
+					MultiCorrectNotAllOnTop += LastCorrect > FirstIncorrect ? 1 : 0;
+				}
+			}
+		}
+	}
+	REQUIRE(Singles > 0 && Multis > 0);
+	const double FirstRate = static_cast<double>(BestShownFirst) / Singles;
+	std::printf("    best answer shown first in %.1f%% of %d single-choice displays\n", 100.0 * FirstRate, Singles);
+	CHECK(FirstRate > 0.15 && FirstRate < 0.45); // about 1 in 3.4 options; content order would give ~99%
+	CHECK(MultiCorrectNotAllOnTop > Multis / 2);
+	// Different saves see different orders.
+	int Differs = 0;
+	for (const MissionDef& M : C.Missions)
+	{
+		for (const MissionQuestionDef& Q : M.Questions)
+		{
+			const int N = static_cast<int>(Q.Options.size());
+			Differs += OptionDisplayOrder(1, M.Id, Q.Id, N) != OptionDisplayOrder(2, M.Id, Q.Id, N) ? 1 : 0;
+		}
+	}
+	CHECK(Differs > 0);
+}

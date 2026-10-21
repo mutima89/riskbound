@@ -869,6 +869,7 @@ bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 	S.Settings.bHints = R.Bool("settings.hints", true);
 	S.Settings.bFullscreen = R.Bool("settings.fullscreen", true);
 	S.Settings.GraphicsQuality = static_cast<int>(R.Int("settings.gfx", 2));
+	S.Settings = ClampSettings(S.Settings); // a hand-edited save must not break the UI
 	ReadCareer(R, S.Career);
 	ReadOrg(R, S.Org);
 	ReadRegister(R, S.Register);

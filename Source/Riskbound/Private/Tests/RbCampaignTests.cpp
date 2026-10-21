@@ -7,7 +7,10 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "RbCampaignSubsystem.h"
+#include "RbConvert.h"
 #include "RbGameSubsystem.h"
+
+#include <algorithm>
 
 namespace
 {
@@ -162,6 +165,26 @@ bool FRbCampaignDataTest::RunTest(const FString& Parameters)
 	const FRbMissionView M2 = S.Campaign->GetMission(TEXT("M002"));
 	TestTrue(TEXT("M002 has evidence and questions"), M2.Evidence.Num() >= 3 && M2.Questions.Num() >= 4);
 	TestTrue(TEXT("closed before M001"), !List[0].bAvailable);
+
+	// Option display order: never the content order wholesale, and stable between calls.
+	int32 Questions = 0, BestFirst = 0;
+	for (const rb::MissionDef& M : S.Campaign->GetCatalogue().Missions)
+	{
+		const FRbMissionView View = S.Campaign->GetMission(RbConvert::ToFString(M.Id));
+		const FRbMissionView Again = S.Campaign->GetMission(RbConvert::ToFString(M.Id));
+		for (int32 q = 0; q < View.Questions.Num(); ++q)
+		{
+			const rb::MissionQuestionDef& Q = M.Questions[static_cast<size_t>(q)];
+			if (Q.Kind != rb::EQuestionKind::Single) continue;
+			const auto Best = std::max_element(Q.Options.begin(), Q.Options.end(), [](const rb::MissionOptionDef& L, const rb::MissionOptionDef& R) { return L.Score < R.Score; });
+			++Questions;
+			BestFirst += View.Questions[q].Options[0].Id == RbConvert::ToFString(Best->Id) ? 1 : 0;
+			TestTrue(TEXT("stable order"), View.Questions[q].Options[0].Id == Again.Questions[q].Options[0].Id);
+		}
+	}
+	TestTrue(FString::Printf(TEXT("best answer first in %d of %d questions"), BestFirst, Questions), Questions > 100 && BestFirst < Questions / 2);
+	const TArray<FRbOptionView> Treatments = S.Game->GetTreatmentOptions();
+	TestEqual(TEXT("M001 treatments are all listed"), Treatments.Num(), 4);
 	return true;
 }
 

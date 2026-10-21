@@ -2,6 +2,7 @@
 
 #include "RbGameState.h"
 #include "RbQuant.h"
+#include "RbRng.h"
 
 #include <algorithm>
 #include <cctype>
@@ -203,6 +204,31 @@ std::vector<const MissionDef*> AvailableMissions(const GameState& State, const M
 		if (CheckAvailability(State, M).bAvailable) Out.push_back(&M);
 	}
 	return Out;
+}
+
+std::vector<int> OptionDisplayOrder(uint64_t GameSeed, const std::string& MissionId, const std::string& QuestionId, int OptionCount)
+{
+	// FNV-1a over the ids, mixed with the game seed: independent per question, fixed per save.
+	uint64_t H = 1469598103934665603ULL;
+	for (const std::string* S : {&MissionId, &QuestionId})
+	{
+		for (unsigned char C : *S)
+		{
+			H ^= C;
+			H *= 1099511628211ULL;
+		}
+		H ^= 0xFF;
+		H *= 1099511628211ULL;
+	}
+	Rng R(GameSeed ^ H);
+	std::vector<int> Order;
+	for (int i = 0; i < OptionCount; ++i) Order.push_back(i);
+	for (int i = OptionCount - 1; i > 0; --i)
+	{
+		const int j = R.UniformInt(0, i);
+		std::swap(Order[static_cast<size_t>(i)], Order[static_cast<size_t>(j)]);
+	}
+	return Order;
 }
 
 std::vector<std::string> BriefingFor(const GameState& State, const MissionDef& M)

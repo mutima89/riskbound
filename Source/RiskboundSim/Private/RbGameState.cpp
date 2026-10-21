@@ -6,10 +6,23 @@
 #include <set>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 
 namespace rb
 {
+PlayerSettings ClampSettings(const PlayerSettings& In)
+{
+	const PlayerSettings Def;
+	auto Clamp = [](double V, double Lo, double Hi, double Fallback) { return std::isfinite(V) ? std::max(Lo, std::min(Hi, V)) : Fallback; };
+	PlayerSettings Out = In;
+	Out.MouseSensitivity = Clamp(In.MouseSensitivity, 0.1, 5.0, Def.MouseSensitivity);
+	Out.TextScale = Clamp(In.TextScale, 0.8, 1.6, Def.TextScale);
+	Out.MasterVolume = Clamp(In.MasterVolume, 0.0, 1.0, Def.MasterVolume);
+	Out.GraphicsQuality = std::max(0, std::min(3, In.GraphicsQuality));
+	return Out;
+}
+
 RiskRegister MakeDefaultRegister()
 {
 	RiskAppetite Appetite;

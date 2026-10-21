@@ -2,7 +2,7 @@
 
 A first-person, offline, single-player career simulator about risk management, built in Unreal Engine 5 for Windows. Start as a Junior Risk Analyst at a fictional logistics company and work toward Chief Risk Officer by investigating real-feeling risks, using working professional tools and living with the consequences of your decisions.
 
-**Status:** pre-alpha. The simulation core is implemented and unit tested; the Unreal gameplay layer and Windows package are not built yet. See `Docs/Progress.md`.
+**Status:** alpha. The full campaign is playable: 30 missions, 12 crises and a Chief Risk Officer capstone, nine working risk tools, 50 achievements. Windows Development and Shipping packages build and pass automated self-tests; hands-on playtesting is in progress. See `Docs/Progress.md`.
 
 ## Repository
 - `Source/RiskboundSim/` - simulation rules (plain C++17, testable without Unreal)
@@ -20,7 +20,8 @@ Windows (CMake + Visual Studio C++): `Scripts\RunCoreTests.bat`
 1. Install Unreal Engine 5.8 and Visual Studio 2022 (or Build Tools) with the C++ workload.
 2. Compile the editor: `"C:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat" RiskboundEditor Win64 Development -project="%CD%\Riskbound.uproject"`
 3. Automation tests: `Scripts\RunUnrealTests.bat "C:\Program Files\Epic Games\UE_5.8"`
-4. Package: `Scripts\BuildWindows.bat "C:\Program Files\Epic Games\UE_5.8" Development` (output in `Release\Development\Windows\`).
+4. Package: `Scripts\BuildWindows.bat "C:\Program Files\Epic Games\UE_5.8" Development` (or `Shipping`; output in `Release\<Config>\Windows\`).
+5. Portable release zip (no installer): `powershell -ExecutionPolicy Bypass -File Scripts\MakePortableZip.ps1` (output in `Release\`).
 
 Controls: WASD/arrows move, mouse looks, E interacts, J journal, Esc pause. Menus are keyboard navigable (Tab/arrows, Enter/Space, Esc back).
 

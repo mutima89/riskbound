@@ -17,6 +17,7 @@ Last update: 2026-10-21
 - Gate 3 (2026-10-21): campaign missions in the sim (`RbCampaign`) and UE (`URbCampaignSubsystem`): availability gates, hidden-rubric scoring with decision authority, competence-based promotion across missions, consequences and flags that carry between missions, save v5. 56 core tests, 9 Unreal tests.
 - Gate 4 step 1 (2026-10-21): mission content as validated JSON in `Data/Missions` (Docs/MissionData.md); M002-M005 written; case files screen at the workstation; packaged play/resume include M002.
 - Gate 4 scale-up (2026-10-21): 30 missions (M001 + M002-M030, four optional specialisms), 12 crises (3 on the career ladder, 9 triggered by incidents), CRO capstone, 50 data-driven achievements; best play reaches CRO in the core test.
+- Answer-order fix and Gate 5 (2026-10-21): options shown in a per-save shuffled order; save fuzzing, per-file content validation, deterministic campaign replay with save/load at every step, settings persistence; Shipping rebuilt and its self-tests pass; portable zip built and run.
 - Shipping Win64 package builds (2026-10-21); Shipping self-test play, resume and tour PASS (Docs/QAReport.md).
 
 ### Not yet verified
@@ -24,7 +25,7 @@ Last update: 2026-10-21
 - Save/exit/relaunch/resume by hand (verified only through the self-test process pair and automation tests).
 
 ### Next action
-Owner's hands-on review of the build; fix findings. Owner's hands-on review of the campaign; content tuning from playtests (difficulty of distractors, pacing of weeks). Then Gate 5 (broader automated and integration tests) and Gate 6 (installer, release verification).
+Owner's hands-on review of the build; fix findings. Owner's hands-on review of the campaign; content tuning from playtests (difficulty of distractors, pacing of weeks). Gate 6: Inno Setup installer (approved by the owner 2026-10-21), install/launch/uninstall verification, release docs.
 
 ### Open blockers
 - None for building. No full VS IDE installed (Build Tools only); Inno Setup/NSIS/WiX not installed (needed by Gate 6).
@@ -34,5 +35,5 @@ Owner's hands-on review of the build; fix findings. Owner's hands-on review of t
 - [x] Gate 2: remaining risk tools in UI (Monte Carlo, sensitivity, stress, KRI dashboard, reports) - automated tests and UI captures; hands-on review pending
 - [x] Gate 3: career + organisation consequences across missions (sim + UE subsystem, tested; content arrives in Gate 4)
 - [x] Gate 4: campaign content (30 missions, 12 crises, CRO capstone), data-driven missions, 50 achievements (verified by tests and packaged self-tests; hands-on playtest pending)
-- [ ] Gate 5: automated + integration tests
+- [x] Gate 5: automated + integration tests (73 core, 11 Unreal, packaged self-tests on Development and Shipping)
 - [ ] Gate 6: Windows package, installer, release verification

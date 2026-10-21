@@ -9,6 +9,7 @@
 #include "RbCareer.h"
 #include "RbOrganization.h"
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -153,6 +154,11 @@ struct MissionAvailability
 
 RB_API MissionAvailability CheckAvailability(const GameState& State, const MissionDef& M);
 RB_API std::vector<const MissionDef*> AvailableMissions(const GameState& State, const MissionCatalogue& C);
+// The order in which a question's options are shown: a seeded Fisher-Yates shuffle of 0..N-1 keyed
+// by the game seed, mission id and question id. Content lists the best answer anywhere (usually
+// first); players must never be able to win by position. Stable across save/load and retries.
+RB_API std::vector<int> OptionDisplayOrder(uint64_t GameSeed, const std::string& MissionId, const std::string& QuestionId, int OptionCount);
+
 // Briefing paragraphs that apply now (base briefing first, then matching context notes).
 RB_API std::vector<std::string> BriefingFor(const GameState& State, const MissionDef& M);
 

@@ -131,3 +131,16 @@ Defect found by the packaged self-test and fixed: once a campaign mission moved 
 | UI capture | `-RbSelfTest=ui` | 24 screens; Ui_07_Journal (promotion gaps, achievements n of 50), Ui_21..23 case files |
 
 Review fixes from the Gate 4 step 1 screenshots: notices no longer overlap screen headers (modal screens keep a 64 px top band; while a screen is open only the newest notice shows there, centred), and stale notices are cleared when Case files opens or a mission starts. Case files now lists work in play order (in progress, available, passed, locked; by level) and hides incident-triggered crises until they are triggered.
+
+## 2026-10-21 - Answer-order fix and Gate 5 test hardening
+| Run | Command | Result |
+|---|---|---|
+| Core tests | `Scripts\RunCoreTests.bat` | `73 test cases, 0 failed, 0 failed checks`, no warnings. New: Content_OptionDisplayOrderHidesTheAnswerPosition (best answer shown first in 31.7% of 3,660 single-choice displays, down from ~99% in content order; multi-select correct options not grouped on top; order stable per save, different between saves), Save_FuzzedFilesNeverCrashAndNeverLoadInvalidState (4,000 mutated saves: 2,005 rejected incl. every flipped byte, 1,995 benign edits loaded as valid games that save and reload identically), Save_HostileCountsAndVersionsAreRejected, Settings_AccessibilityChoicesPersistAndAreClamped, Content_EveryFileIsValidatedAndABreakInAnyFileIsReported (42/42 files), Campaign_ReplayIsDeterministicWithSaveLoadBetweenEveryStep (random-policy campaigns at all three difficulties, two seeds: identical with and without save/load between every action) |
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 11/11 `Result={Success}`, incl. Riskbound.Settings.AccessibilityPersistsAcrossSessions and the option-order check in ShippedMissionDataLoads |
+| Package Shipping | `Scripts\BuildWindows.bat <UE> Shipping` | `BUILD SUCCESSFUL`, 0 compiler warnings |
+| Shipping self-tests | `-RbSelfTest=play`, `resume`, `tour` | all PASS; tour at 1920x1080 High: average 72.4 fps, rooms 63.0 (corridor, includes warm-up) to 79.3 |
+| Portable zip | `Scripts\MakePortableZip.ps1 -Version 0.5.0-alpha` | `Release\Riskbound-0.5.0-alpha-Win64-Portable.zip` 284.5 MB, SHA-256 8b861ed9038bea638df620fd462299a577945e039c8edb732592b2d525abc167; no .pdb or manifests |
+| Zip check | extract to a new folder, `-RbSelfTest=play` then `resume` from there | both PASS (42 missions, 50 achievements, 0 problems) |
+
+Defect (reported in review): the best answer was the first option in 196 of 198 single-choice questions, and Mission 001's lists put the correct items first, so a player could win by position. Fixed in the sim: `rb::OptionDisplayOrder` shuffles each question's options with a seeded Fisher-Yates keyed by the save's seed, mission id and question id; the UE views use it for campaign questions and Mission 001's lists. Also: settings limits now live in `rb::ClampSettings` and apply on load, so a hand-edited save cannot break the UI.

@@ -12,6 +12,7 @@
 #include "RbSave.h"
 #include "RbSaveSubsystem.h"
 #include "RbSelfTest.h"
+#include "RbUIStyle.h"
 
 namespace
 {
@@ -165,6 +166,51 @@ bool FRbSubmissionGatingTest::RunTest(const FString& Parameters)
 	TestEnum(*this, TEXT("no resubmit"), S.Game->SubmitAssessment(Answer), ERbSubmitResult::AlreadySubmitted);
 	TestEnum(*this, TEXT("manager now debriefs"), S.Game->TalkToManager(), ERbManagerTalk::Debrief);
 	DeleteSlot(Path);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRbSettingsPersistTest, "Riskbound.Settings.AccessibilityPersistsAcrossSessions", TestFlags)
+bool FRbSettingsPersistTest::RunTest(const FString& Parameters)
+{
+	const FString Slot = TEXT("autotest_settings");
+	FString Path;
+	const float SavedTextScale = RbUI::GetTextScale();
+	const bool bSavedReducedMotion = RbUI::IsReducedMotion();
+	{
+		FTestSession S(Slot);
+		if (!TestNotNull(TEXT("game subsystem"), S.Game)) return false;
+		Path = S.Saves->GetSlotPath();
+		DeleteSlot(Path);
+		S.Game->NewGame(ERbDifficulty::Analyst);
+		FRbSettingsView V = S.Game->GetSettings();
+		V.TextScale = 1.5f;
+		V.bReducedMotion = true;
+		V.bHints = false;
+		V.MasterVolume = 0.25f;
+		V.MouseSensitivity = 9.0f; // above the limit: clamped to 5
+		S.Game->SetSettings(V, false);
+		TestEqual(TEXT("clamped on set"), S.Game->GetSettings().MouseSensitivity, 5.0f, 1e-4f);
+		TestEqual(TEXT("applied to the UI text scale"), RbUI::GetTextScale(), 1.5f, 1e-4f);
+		TestTrue(TEXT("applied reduced motion"), RbUI::IsReducedMotion());
+		FString Error;
+		TestTrue(TEXT("save"), S.Saves->Save(Error));
+	}
+	RbUI::SetTextScale(1.0f);
+	RbUI::SetReducedMotion(false);
+	{
+		FTestSession Fresh(Slot);
+		FString Message;
+		TestTrue(TEXT("continue"), Fresh.Game->Continue(Message) == ERbLoadOutcome::Ok);
+		const FRbSettingsView V = Fresh.Game->GetSettings();
+		TestEqual(TEXT("text scale restored"), V.TextScale, 1.5f, 1e-4f);
+		TestTrue(TEXT("reduced motion restored"), V.bReducedMotion);
+		TestFalse(TEXT("hints off restored"), V.bHints);
+		TestEqual(TEXT("volume restored"), V.MasterVolume, 0.25f, 1e-4f);
+		TestEqual(TEXT("re-applied on load"), RbUI::GetTextScale(), 1.5f, 1e-4f);
+	}
+	DeleteSlot(Path);
+	RbUI::SetTextScale(SavedTextScale);
+	RbUI::SetReducedMotion(bSavedReducedMotion);
 	return true;
 }
 

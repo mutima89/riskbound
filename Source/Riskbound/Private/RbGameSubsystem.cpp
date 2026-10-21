@@ -67,11 +67,13 @@ m001::Submission ToSim(const FRbSubmissionInput& In)
 	return S;
 }
 
-TArray<FRbOptionView> ToViews(const std::vector<m001::Option>& Options)
+// Display order is shuffled per save (rb::OptionDisplayOrder) so position never reveals the answer.
+TArray<FRbOptionView> ToViews(const std::vector<m001::Option>& Options, uint64_t Seed, const char* ListId)
 {
 	TArray<FRbOptionView> Out;
-	for (const m001::Option& O : Options)
+	for (int Index : rb::OptionDisplayOrder(Seed, m001::MissionId, ListId, static_cast<int>(Options.size())))
 	{
+		const m001::Option& O = Options[static_cast<size_t>(Index)];
 		Out.Add({ToFString(O.Id), ToFString(O.Label), ToFString(O.Description)});
 	}
 	return Out;
@@ -268,10 +270,10 @@ FRbEvidenceView URbGameSubsystem::GetEvidenceItem(const FString& EvidenceId) con
 	return V;
 }
 
-TArray<FRbOptionView> URbGameSubsystem::GetMissingInfoOptions() const { return ToViews(m001::MissingInfoCandidates()); }
-TArray<FRbOptionView> URbGameSubsystem::GetTreatmentOptions() const { return ToViews(m001::TreatmentOptions()); }
-TArray<FRbOptionView> URbGameSubsystem::GetActionOwnerOptions() const { return ToViews(m001::ActionOwnerOptions()); }
-TArray<FRbOptionView> URbGameSubsystem::GetRationaleTags() const { return ToViews(m001::RationaleTags()); }
+TArray<FRbOptionView> URbGameSubsystem::GetMissingInfoOptions() const { return ToViews(m001::MissingInfoCandidates(), State.Seed, "missing_info"); }
+TArray<FRbOptionView> URbGameSubsystem::GetTreatmentOptions() const { return ToViews(m001::TreatmentOptions(), State.Seed, "treatment"); }
+TArray<FRbOptionView> URbGameSubsystem::GetActionOwnerOptions() const { return ToViews(m001::ActionOwnerOptions(), State.Seed, "action_owner"); }
+TArray<FRbOptionView> URbGameSubsystem::GetRationaleTags() const { return ToViews(m001::RationaleTags(), State.Seed, "rationale"); }
 
 TArray<FString> URbGameSubsystem::GetControlNames() const
 {
@@ -430,14 +432,15 @@ FRbSettingsView URbGameSubsystem::GetSettings() const
 
 void URbGameSubsystem::SetSettings(const FRbSettingsView& In, bool bApplyWindowMode)
 {
-	rb::PlayerSettings& S = State.Settings;
-	S.MouseSensitivity = FMath::Clamp(In.MouseSensitivity, 0.1f, 5.0f);
-	S.TextScale = FMath::Clamp(In.TextScale, 0.8f, 1.6f);
-	S.MasterVolume = FMath::Clamp(In.MasterVolume, 0.0f, 1.0f);
+	rb::PlayerSettings S = State.Settings;
+	S.MouseSensitivity = In.MouseSensitivity;
+	S.TextScale = In.TextScale;
+	S.MasterVolume = In.MasterVolume;
 	S.bReducedMotion = In.bReducedMotion;
 	S.bHints = In.bHints;
 	S.bFullscreen = In.bFullscreen;
-	S.GraphicsQuality = FMath::Clamp(In.GraphicsQuality, 0, 3);
+	S.GraphicsQuality = In.GraphicsQuality;
+	State.Settings = rb::ClampSettings(S);
 	ApplySettings(bApplyWindowMode);
 	OnStateChanged.Broadcast();
 }

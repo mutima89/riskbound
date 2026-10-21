@@ -28,6 +28,10 @@ struct PlayerSettings
 	int GraphicsQuality = 2;       // 0 low .. 3 epic
 };
 
+// The one place settings limits live: out-of-range or non-numeric values are brought into range
+// (non-finite values fall back to defaults). Applied when settings change and when a save loads.
+RB_API PlayerSettings ClampSettings(const PlayerSettings& In);
+
 // A register risk the player has quantified with loss scenarios (Loss Scenarios tool).
 struct QuantifiedRisk
 {
