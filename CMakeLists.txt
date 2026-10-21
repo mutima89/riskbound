@@ -22,3 +22,5 @@ file(GLOB RB_TEST_SOURCES CONFIGURE_DEPENDS Tests/Core/*.cpp)
 add_executable(RiskboundCoreTests ${RB_TEST_SOURCES})
 target_link_libraries(RiskboundCoreTests PRIVATE RiskboundSimCore)
 add_test(NAME RiskboundCoreTests COMMAND RiskboundCoreTests)
+# Content tests read the shipped mission files.
+target_compile_definitions(RiskboundCoreTests PRIVATE RB_DATA_DIR="${CMAKE_SOURCE_DIR}/Data")

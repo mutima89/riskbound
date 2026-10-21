@@ -326,7 +326,7 @@ FRbScreenParts Workstation(ARbHUD* Hud)
 
 	TSharedPtr<SButton> First;
 	TSharedRef<SVerticalBox> Box = Column();
-	AddRow(Box, MakeHeading(LOCTEXT("WorkstationTitle", "Workstation: junior risk analyst")), 4.0f);
+	AddRow(Box, MakeHeading(FText::Format(LOCTEXT("WorkstationTitle", "Workstation: {0}"), FText::FromString(Game->GetCareer().Title.ToLower()))), 4.0f);
 	AddRow(Box, MakeBody(LOCTEXT("WorkstationHelp", "Inbox and the operational risk register. The assessment form for R-014 is filed from here."), 14, TextMuted), 16.0f);
 	AddRow(Box, MakeButton(FText::FromString(TEXT("Inbox: Incident report IR-2291") + Status(TEXT("incident_report"))),
 		Click([Hud, BackHere]() { Hud->OpenEvidence(TEXT("incident_report"), BackHere); }), &First), 8.0f);
@@ -334,8 +334,11 @@ FRbScreenParts Workstation(ARbHUD* Hud)
 		Click([Hud, BackHere]() { Hud->OpenEvidence(TEXT("risk_register_R014"), BackHere); })), 8.0f);
 	AddRow(Box, MakeButton(bSubmitted ? LOCTEXT("FormDone", "Assessment form (submitted)") : LOCTEXT("FormOpen", "Assessment form: R-014"),
 		Click([Hud]() { Hud->OpenAssessment(); }), nullptr, !bSubmitted), 8.0f);
+	const bool bCases = Game->IsDebriefed();
+	AddRow(Box, MakeButton(bCases ? LOCTEXT("CaseFiles", "Case files: your assignments") : LOCTEXT("CaseFilesLocked", "Case files (after your Mission 001 debrief)"),
+		Click([Hud]() { Hud->OpenCaseFiles(); }), nullptr, bCases, bCases), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("RiskTools", "Risk tools: register, KRIs, quantification, actions, report"),
-		Click([Hud]() { Hud->OpenToolHub(0); }), nullptr, true, true), 8.0f);
+		Click([Hud]() { Hud->OpenToolHub(0); }), nullptr, true, !bCases), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("LogOff", "Log off"), Click([Hud]() { Hud->CloseScreen(); })), 0.0f);
 	return {MakeModalFrame(Box, 720.0f), First};
 }

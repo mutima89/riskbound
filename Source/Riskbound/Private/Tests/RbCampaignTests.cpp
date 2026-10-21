@@ -112,6 +112,8 @@ bool FRbCampaignProgressTest::RunTest(const FString& Parameters)
 		State.Career.ApplyAssessment({C, 80});
 	}
 	State.Career.RecordMission("M001", true, 100);
+	State.Mission001.bSubmitted = true;
+	State.Checkpoint = "M001:debriefed";
 	S.Game->StateEdited();
 
 	TestTrue(TEXT("rubric hidden before submission"), !S.Campaign->GetDebrief(TEXT("M002")).bAvailable);
@@ -124,6 +126,10 @@ bool FRbCampaignProgressTest::RunTest(const FString& Parameters)
 	FRbMissionDebriefView D = S.Campaign->GetDebrief(TEXT("M002"));
 	TestTrue(TEXT("debrief after submit"), D.bAvailable && D.bPassed && D.Score == 90 && !D.bPromoted);
 	TestTrue(TEXT("gap names M003"), D.PromotionGaps.Contains(TEXT("Mission M003 not passed")));
+	// Regression: the campaign moves the checkpoint on; Mission 001 must still count as debriefed.
+	TestEqual(TEXT("checkpoint moved"), S.Game->GetCheckpoint(), FString(TEXT("M002:debriefed")));
+	TestTrue(TEXT("M001 still debriefed"), S.Game->IsDebriefed());
+	TestTrue(TEXT("objective points to case files"), S.Game->GetCurrentObjectiveText().Contains(TEXT("Case files")));
 
 	TestTrue(TEXT("start M003"), S.Campaign->StartMission(TEXT("M003")) == ERbMissionResult::Ok);
 	S.Campaign->ViewEvidence(TEXT("M003"), TEXT("memo"));
@@ -133,6 +139,24 @@ bool FRbCampaignProgressTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("career view agrees"), S.Game->GetCareer().Level, 3);
 	List = S.Campaign->GetMissions();
 	TestTrue(TEXT("both passed, closed"), List[0].bPassed && List[1].bPassed && !List[1].bAvailable && List[1].Attempts == 1);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRbCampaignDataTest, "Riskbound.Campaign.ShippedMissionDataLoads", CampaignFlags)
+bool FRbCampaignDataTest::RunTest(const FString& Parameters)
+{
+	FCampaignSession S;
+	TestTrue(TEXT("no load errors"), S.Campaign->GetLoadErrors().IsEmpty());
+	for (const FString& E : S.Campaign->GetLoadErrors()) AddError(E);
+	const TArray<FRbMissionSummary> List = S.Campaign->GetMissions();
+	TestTrue(TEXT("at least M002-M005"), List.Num() >= 4);
+	for (const TCHAR* Id : {TEXT("M002"), TEXT("M003"), TEXT("M004"), TEXT("M005")})
+	{
+		TestTrue(FString::Printf(TEXT("%s present"), Id), S.Campaign->GetMission(Id).bFound);
+	}
+	const FRbMissionView M2 = S.Campaign->GetMission(TEXT("M002"));
+	TestTrue(TEXT("M002 has evidence and questions"), M2.Evidence.Num() >= 3 && M2.Questions.Num() >= 4);
+	TestTrue(TEXT("closed before M001"), !List[0].bAvailable);
 	return true;
 }
 

@@ -13,5 +13,7 @@ public class Riskbound : ModuleRules
 		// Inter UI font (SIL OFL), loaded from loose files at runtime (RbUIStyle).
 		RuntimeDependencies.Add("$(ProjectDir)/Resources/Fonts/*.ttf", StagedFileType.UFS);
 		RuntimeDependencies.Add("$(ProjectDir)/Resources/Fonts/OFL.txt", StagedFileType.UFS);
+		// Mission content (Docs/MissionData.md), read and validated at startup by URbCampaignSubsystem.
+		RuntimeDependencies.Add("$(ProjectDir)/Data/Missions/*.json", StagedFileType.UFS);
 	}
 }

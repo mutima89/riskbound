@@ -1,6 +1,11 @@
 #include "RbCampaignSubsystem.h"
 
 #include "Engine/GameInstance.h"
+#include "HAL/FileManager.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+#include "RbLog.h"
+#include "RbMissionData.h"
 #include "RbConvert.h"
 #include "RbGameSubsystem.h"
 
@@ -49,6 +54,39 @@ void URbCampaignSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	Collection.InitializeDependency<URbGameSubsystem>();
+	LoadFromDisk();
+}
+
+bool URbCampaignSubsystem::LoadFromDisk()
+{
+	const FString Dir = FPaths::ProjectDir() / TEXT("Data/Missions");
+	TArray<FString> Names;
+	IFileManager::Get().FindFiles(Names, *(Dir / TEXT("*.json")), true, false);
+	Names.Sort();
+	std::vector<std::pair<std::string, std::string>> Files;
+	LoadErrors.Reset();
+	for (const FString& Name : Names)
+	{
+		FString Text;
+		if (!FFileHelper::LoadFileToString(Text, *(Dir / Name)))
+		{
+			LoadErrors.Add(Name + TEXT(": could not be read"));
+			continue;
+		}
+		Files.push_back({ToStd(Name), ToStd(Text)});
+	}
+	rb::MissionCatalogue Loaded;
+	std::vector<std::string> Errors;
+	const bool bOk = rb::LoadMissionCatalogue(Files, Loaded, Errors) && LoadErrors.IsEmpty();
+	LoadErrors.Append(ToFStrings(Errors));
+	for (const FString& E : LoadErrors)
+	{
+		UE_LOG(LogRiskbound, Error, TEXT("Mission data: %s"), *E);
+	}
+	Catalogue = bOk ? MoveTemp(Loaded) : rb::MissionCatalogue();
+	SessionDebriefs.Reset();
+	UE_LOG(LogRiskbound, Display, TEXT("Mission data: %d missions from %s (%d problems)"), static_cast<int32>(Catalogue.Missions.size()), *Dir, LoadErrors.Num());
+	return bOk;
 }
 
 URbGameSubsystem* URbCampaignSubsystem::Game() const

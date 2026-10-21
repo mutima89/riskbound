@@ -1,5 +1,7 @@
 #include "RbGameSubsystem.h"
 
+#include "RbCampaignSubsystem.h"
+
 #include "AudioDevice.h"
 #include "Engine/Engine.h"
 #include "GameFramework/GameUserSettings.h"
@@ -203,7 +205,16 @@ void URbGameSubsystem::Notify(const FString& Message)
 FString URbGameSubsystem::GetCurrentObjectiveText() const
 {
 	if (!bHasGame) return FString();
-	if (IsDebriefed()) return TEXT("Mission 001 complete. Further missions arrive in a later build.");
+	if (IsDebriefed())
+	{
+		const URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+		const FString Active = ToFString(State.Campaign.ActiveMissionId);
+		if (Campaign && !Active.IsEmpty())
+		{
+			return FString::Printf(TEXT("Case %s: %s - review the evidence and submit at your workstation"), *Active, *Campaign->GetMission(Active).Title);
+		}
+		return TEXT("Open Case files at your workstation for your next assignment");
+	}
 	if (State.Mission001.bSubmitted) return TEXT("Receive your debrief from Priya Okafor in her office");
 	const int32 Current = State.Mission001.CurrentObjective();
 	if (Current >= m001::ObjectiveCount) return FString();
@@ -351,7 +362,12 @@ FRbRegisterEntryView URbGameSubsystem::GetRegisterEntry(const FString& RiskId) c
 FString URbGameSubsystem::GetCheckpoint() const { return ToFString(State.Checkpoint); }
 bool URbGameSubsystem::HasMetManager() const { return State.Mission001.IsComplete(m001::EObjective::MeetManager); }
 bool URbGameSubsystem::IsSubmitted() const { return State.Mission001.bSubmitted; }
-bool URbGameSubsystem::IsDebriefed() const { return State.Checkpoint == ToStd(CheckpointDebriefed); }
+bool URbGameSubsystem::IsDebriefed() const
+{
+	// Campaign missions move the checkpoint on (M002:start, ...); that only happens after the M001 debrief.
+	const bool bPastMission001 = State.Mission001.bSubmitted && State.Checkpoint.rfind("M001:", 0) != 0;
+	return State.Checkpoint == ToStd(CheckpointDebriefed) || bPastMission001;
+}
 
 ERbDifficulty URbGameSubsystem::GetDifficulty() const
 {

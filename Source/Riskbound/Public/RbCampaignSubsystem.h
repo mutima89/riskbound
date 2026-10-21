@@ -23,6 +23,11 @@ public:
 	TArray<FString> SetCatalogue(rb::MissionCatalogue&& Catalogue);
 	const rb::MissionCatalogue& GetCatalogue() const { return Catalogue; }
 
+	// Reads <project>/Data/Missions/*.json (staged with the game). Called on Initialize.
+	// Returns false and keeps no missions if any file is invalid; problems are logged.
+	bool LoadFromDisk();
+	const TArray<FString>& GetLoadErrors() const { return LoadErrors; }
+
 	UFUNCTION(BlueprintPure, Category = "Riskbound|Campaign")
 	TArray<FRbMissionSummary> GetMissions() const;
 
@@ -60,6 +65,7 @@ private:
 	FRbMissionDebriefView ToView(const rb::MissionDef& M, const rb::MissionDebrief& D, bool bFull) const;
 
 	rb::MissionCatalogue Catalogue;
+	TArray<FString> LoadErrors;
 	// Full debriefs from this session, keyed by mission, with the record count they belong to.
 	TMap<FString, TPair<int32, FRbMissionDebriefView>> SessionDebriefs;
 };

@@ -106,3 +106,16 @@ Screenshots: before `Docs/Screenshots/pass3/before/`, after `Docs/Screenshots/pa
 | Automation tests | `Scripts\RunUnrealTests.bat` | 9/9 `Result={Success}`, incl. Riskbound.Campaign.ProgressPromotionAndHiddenRubric (closed before M001, invalid catalogue rejected, evidence gate, debrief hidden until submit, promotion to Risk Analyst after M003) |
 
 Save format is now v5 (Docs/SaveFormat.md). The shipped game has no campaign content yet: Gate 4 adds data files and the mission screen.
+
+## 2026-10-21 - Gate 4 step 1: data-driven missions (M002-M005), validator, case files screen
+| Run | Command | Result |
+|---|---|---|
+| Core tests | `Scripts\RunCoreTests.bat` | `61 test cases, 0 failed, 0 failed checks`, no warnings. New: Json_ParsesValuesEscapesAndReportsErrorsWithLines, MissionData_StrictKeysTypesAndNames (typo key, wrong type, unknown competency/metric, file-name/id mismatch, malformed JSON all reported with file and line), Data_ShippedMissionsParseAndValidate, Data_BestPlayPromotesThroughTheShippedMissions (M001 -> M002 -> M003 promotes to level 3; M004/M005 open; level 4 blocked on M006), Data_M004FiguresMatchTheQuantEngine (EL 20,800 / 10,800 / 3,300, NPV about -27,000 and -1,100) |
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 10/10 `Result={Success}`, incl. Riskbound.Campaign.ShippedMissionDataLoads and the checkpoint regression below |
+| Package Development | `Scripts\BuildWindows.bat <UE> Development` | `BUILD SUCCESSFUL`; log: `Mission data: 4 missions from ../../../Riskbound/Data/Missions (0 problems)` |
+| Packaged self-test play | `-RbSelfTest=play` | PASS: M001 as before, then M002 through the case files screen: submitted, 4 missions / 0 problems, M002 passed (93), M003 open, objective "Open Case files...", checkpoint M002:debriefed |
+| Packaged self-test resume | `-RbSelfTest=resume` | PASS: same checks after reload (M001, M002 passed; campaign record restored) |
+| UI capture | `-RbSelfTest=ui` | 24 screens incl. Docs/Screenshots/ui/Ui_21_CaseFiles.jpg, Ui_22_CaseMission.jpg, Ui_23_CaseDebrief.jpg |
+
+Defect found by the packaged self-test and fixed: once a campaign mission moved the save checkpoint (`M002:start`), Mission 001 no longer counted as debriefed, so the objective reverted to "Receive your debrief from Priya Okafor". `IsDebriefed` now also holds when M001 is submitted and the checkpoint has moved past M001; covered by assertions in Riskbound.Campaign.ProgressPromotionAndHiddenRubric.

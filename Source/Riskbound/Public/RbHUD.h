@@ -7,6 +7,7 @@
 #include "RbTypes.h"
 #include "RbHUD.generated.h"
 
+class SRbCaseFiles;
 class SRbHudOverlay;
 class SWidget;
 class URbGameSubsystem;
@@ -42,6 +43,8 @@ public:
 	// Opens the risk tool hub on a tab (index of SRbToolHub::ETab).
 	void OpenToolHub(int32 Tab = 0);
 	void OpenAssessment();
+	// Campaign missions after M001. Optionally opens a mission (or its debrief) directly.
+	TSharedPtr<SRbCaseFiles> OpenCaseFiles(const FString& MissionId = FString(), bool bDebrief = false);
 	ERbSubmitResult SubmitAssessment(const FRbSubmissionInput& Input);
 	void OpenDebrief();
 

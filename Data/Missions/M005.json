@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "id": "M005",
+  "title": "Testing the Control",
+  "kind": "mission",
+  "department": "Legal and Compliance",
+  "minLevel": 3,
+  "requiresPassed": ["M003"],
+  "passMark": 60,
+  "xp": 150,
+  "weeks": 3,
+  "briefing": [
+    "The Cold Chain Safety Authority inspects Valtren in eight weeks. Ruth Adeyemi, Compliance Lead, relies on one control to show that temperature excursions are caught: every refrigerated delivery's data logger is downloaded and reviewed within 24 hours.",
+    "She has asked the risk team to test whether the control works before the inspector does."
+  ],
+  "context": [
+    {"ifFlag": "fatigue_kri_live", "text": "Your logger-download indicator from the fleet dashboard already hints that downloads run late at some depots."},
+    {"ifFlag": "eastfield_breakdown", "text": "The Eastfield compressor failure will be in the inspector's file. Ruth needs this control to be solid."}
+  ],
+  "evidence": [
+    {"id": "control_description", "title": "Control description CC-07", "body": [
+      "Owner: depot supervisor. Frequency: every refrigerated delivery. Activity: download the data logger within 24 hours of delivery, review the trace, log any excursion and notify Quality the same day.",
+      "Evidence of operation: download timestamp in the logger system; excursion log."
+    ]},
+    {"id": "test_results", "title": "Your test: random sample of 25 deliveries", "body": [
+      "Downloaded within 24 hours: 19. Downloaded after 48-72 hours: 3. Never downloaded: 3.",
+      "Two excursions were in the sample; both were found late (day 3), after the stock had been sold on.",
+      "Valtren makes about 2,000 refrigerated deliveries a month."
+    ]},
+    {"id": "rota", "title": "Depot rota notes", "body": "All six late or missing downloads fell on the supervisor's days off. There is no named cover. Nothing alerts anyone when a download is late."},
+    {"id": "logger_report", "title": "Logger health report", "body": "All sampled loggers recorded complete traces. No device faults were reported in the period."}
+  ],
+  "questions": [
+    {"id": "conclusion", "competency": "ControlEvaluation", "weight": 25,
+     "prompt": "What is your conclusion on control CC-07?",
+     "options": [
+       {"id": "ineffective_operation", "label": "Designed reasonably but not operating effectively: 6 of 25 (24%) late or missed, against a tolerance of 0 to 1 for a key food-safety control", "score": 92,
+        "feedback": "Design and operation are judged separately; operation fails well beyond any tolerable exception rate."},
+       {"id": "partially", "label": "Partially effective: most downloads are on time", "score": 50, "feedback": "Most is not enough for a key control behind a zero-appetite risk."},
+       {"id": "effective", "label": "Effective: 76% compliance", "score": 15, "feedback": "A 24% failure rate on a key control is a failed test."},
+       {"id": "design_failure", "label": "Badly designed: the control should not exist", "score": 35, "feedback": "The design is sound; the operation is not."}
+     ]},
+    {"id": "root_causes", "kind": "multi", "competency": "RiskAssessment", "weight": 20,
+     "prompt": "Which root causes does the evidence support?",
+     "options": [
+       {"id": "no_cover", "label": "The control depends on one person with no cover for days off", "correct": true},
+       {"id": "no_alert", "label": "Nothing alerts anyone when a download is late", "correct": true},
+       {"id": "faulty_loggers", "label": "The data loggers are faulty", "feedback": "The logger health report shows complete traces and no faults."},
+       {"id": "tampering", "label": "Drivers are tampering with the loggers", "feedback": "There is no evidence of tampering."}
+     ]},
+    {"id": "extrapolate", "competency": "QuantitativeAnalysis", "weight": 15,
+     "prompt": "If the sample is representative, roughly how many deliveries a month are downloaded late or not at all?",
+     "options": [
+       {"id": "about_480", "label": "About 480", "score": 92, "feedback": "24% of 2,000 = 480 a month. A small sample, so treat it as an estimate and say so."},
+       {"id": "about_6", "label": "6", "score": 15, "feedback": "6 is the count in the sample, not the population."},
+       {"id": "about_120", "label": "About 120", "score": 30, "feedback": "That is 6% of 2,000; the exception rate was 24%."},
+       {"id": "about_24", "label": "24", "score": 10, "feedback": "24 is the percentage, not a number of deliveries."}
+     ]},
+    {"id": "remediation", "competency": "Judgement", "weight": 25,
+     "prompt": "What do you recommend before the inspection? Your approval authority is 25,000.",
+     "options": [
+       {"id": "automate", "label": "Automatic download at the dock with an alert to the shift lead if a download is 4 hours late; a named cover on every rota; re-test 30 deliveries in six weeks (18,000)", "score": 92, "cost": 18000,
+        "feedback": "Fixes both root causes, stays within your authority, and the re-test gives Ruth evidence for the inspector.",
+        "setsFlags": ["logger_control_fixed"],
+        "effects": {"Cash": -18000, "ControlEffectiveness": 6, "RiskExposure": -5},
+        "schedules": [
+          {"id": "inspection_fixed", "description": "Cold Chain Safety Authority inspection reviews control CC-07", "delayWeeks": 8, "probability": 0.5,
+           "effects": {"Reputation": -5, "Cash": -40000, "StakeholderTrust": -4}, "flagIfOccurs": "regulator_finding",
+           "mitigatedBy": "logger_control_fixed", "mitigatedProbabilityFactor": 0.1, "mitigatedSeverityFactor": 0.5}
+        ]},
+       {"id": "email_reminder", "label": "Email supervisors a reminder of the 24-hour rule", "score": 30,
+        "feedback": "A reminder does not fix missing cover or the lack of an alert.",
+        "schedules": [
+          {"id": "inspection_reminder", "description": "Cold Chain Safety Authority inspection finds late logger downloads", "delayWeeks": 8, "probability": 0.5,
+           "effects": {"Reputation": -5, "Cash": -40000, "StakeholderTrust": -4}, "flagIfOccurs": "regulator_finding"}
+        ]},
+       {"id": "omit_results", "label": "Leave the test results out of the inspection pack until the fix is in", "score": 0,
+        "feedback": "Withholding known control failures from a regulator is a serious integrity breach, whatever the intent.",
+        "effects": {"StakeholderTrust": -8},
+        "schedules": [
+          {"id": "inspection_concealed", "description": "The inspector finds the test results that were left out of the pack", "delayWeeks": 8, "probability": 0.7,
+           "effects": {"Reputation": -12, "Cash": -150000, "StakeholderTrust": -12}, "flagIfOccurs": "regulator_finding"}
+        ]}
+     ]},
+    {"id": "report", "competency": "Communication", "weight": 15,
+     "prompt": "How do you report the test to Ruth?",
+     "options": [
+       {"id": "structured", "label": "Test performed, sample and method, exceptions found, conclusion, root causes, and each action with its owner and date", "score": 92, "feedback": "A complete, auditable test report."},
+       {"id": "headline", "label": "\"The control mostly works; a few downloads were late.\"", "score": 25, "feedback": "Understates a failed test and gives Ruth nothing to show the inspector."},
+       {"id": "raw_data", "label": "Send the sample spreadsheet", "score": 35, "feedback": "Evidence without a conclusion or actions."}
+     ]}
+  ],
+  "lesson": "Test operation, not just design. Extrapolate with care, fix root causes rather than symptoms, and never hide a control failure from a regulator."
+}

@@ -11,7 +11,10 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Parse.h"
 #include "Misc/Paths.h"
+#include "RbCampaignSubsystem.h"
+#include "RbConvert.h"
 #include "RbGameSubsystem.h"
+#include "UI/SRbCaseFiles.h"
 #include "RbHUD.h"
 #include "RbInteractable.h"
 #include "RbLog.h"
@@ -71,6 +74,47 @@ void PlayMission001(URbGameSubsystem* Game)
 	Game->MarkDebriefReceived();
 }
 
+// Best answers for a campaign mission, read from the content (the self-test may see the rubric).
+TArray<FRbMissionAnswer> BestAnswers(const rb::MissionDef& M)
+{
+	TArray<FRbMissionAnswer> Out;
+	for (const rb::MissionQuestionDef& Q : M.Questions)
+	{
+		FRbMissionAnswer A;
+		A.QuestionId = RbConvert::ToFString(Q.Id);
+		int32 Best = -1;
+		for (const rb::MissionOptionDef& O : Q.Options)
+		{
+			if (Q.Kind == rb::EQuestionKind::Multi)
+			{
+				if (O.bCorrect) A.OptionIds.Add(RbConvert::ToFString(O.Id));
+			}
+			else if (O.Score > Best)
+			{
+				Best = O.Score;
+				A.OptionIds = {RbConvert::ToFString(O.Id)};
+			}
+		}
+		Out.Add(A);
+	}
+	return Out;
+}
+
+// Plays a campaign mission through the case files screen with the best answers.
+ERbMissionResult PlayCaseBest(ARbHUD* Hud, const FString& MissionId)
+{
+	URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	const rb::MissionDef* Def = Campaign->GetCatalogue().Find(RbConvert::ToStd(MissionId));
+	if (!Def) return ERbMissionResult::UnknownMission;
+	TSharedPtr<SRbCaseFiles> Files = Hud->OpenCaseFiles(MissionId); // starts the mission
+	for (const FRbMissionEvidenceView& E : Campaign->GetMission(MissionId).Evidence) Campaign->ViewEvidence(MissionId, E.Id);
+	for (const FRbMissionAnswer& A : BestAnswers(*Def))
+	{
+		for (const FString& O : A.OptionIds) Files->SetAnswer(A.QuestionId, O, A.OptionIds.Num() > 1, true);
+	}
+	return Campaign->SubmitMission(MissionId, Files->CurrentAnswers());
+}
+
 namespace
 {
 struct FReport
@@ -99,13 +143,28 @@ void CheckFinalState(FReport& R, URbGameSubsystem* Game)
 	const FRbCareerView Career = Game->GetCareer();
 	const FRbRegisterEntryView Entry = Game->GetRegisterEntry(TEXT("R-014"));
 	R.Check(TEXT("objective"), Game->IsDebriefed(), Game->GetCurrentObjectiveText());
-	R.Check(TEXT("checkpoint"), Game->GetCheckpoint() == URbGameSubsystem::CheckpointDebriefed, Game->GetCheckpoint());
+	R.Check(TEXT("checkpoint"), Game->IsDebriefed(), Game->GetCheckpoint());
 	R.Check(TEXT("career_level"), Career.Level == 2, FString::Printf(TEXT("%d %s"), Career.Level, *Career.Title));
 	R.Check(TEXT("passed_missions"), Career.PassedMissions.Contains(TEXT("M001")), FString::Join(Career.PassedMissions, TEXT(",")));
 	R.Check(TEXT("r014_treatment"), Entry.bFound && Entry.Treatment == TEXT("Reduce"),
 		FString::Printf(TEXT("%s (owner %s, status %s)"), *Entry.Treatment, *Entry.ActionOwner, *Entry.Status));
 	const FRbDebriefView Debrief = Game->GetDebrief();
 	R.Check(TEXT("debrief"), Debrief.bAvailable && Debrief.bPassed, FString::Printf(TEXT("score %d, passed %d"), Debrief.OverallScore, Debrief.bPassed ? 1 : 0));
+}
+
+void CheckCampaign(FReport& R, URbGameSubsystem* Game)
+{
+	URbCampaignSubsystem* Campaign = Game->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	const TArray<FRbMissionSummary> Missions = Campaign->GetMissions();
+	R.Check(TEXT("mission_data"), Missions.Num() >= 4 && Campaign->GetLoadErrors().IsEmpty(),
+		FString::Printf(TEXT("%d missions, %d problems"), Missions.Num(), Campaign->GetLoadErrors().Num()));
+	const FRbMissionSummary* M2 = Missions.FindByPredicate([](const FRbMissionSummary& M) { return M.Id == TEXT("M002"); });
+	const FRbMissionDebriefView D = Campaign->GetDebrief(TEXT("M002"));
+	R.Check(TEXT("m002_passed"), M2 && M2->bPassed && D.bAvailable && D.bPassed, FString::Printf(TEXT("score %d, attempts %d"), D.Score, M2 ? M2->Attempts : 0));
+	const FRbMissionSummary* M3 = Missions.FindByPredicate([](const FRbMissionSummary& M) { return M.Id == TEXT("M003"); });
+	R.Check(TEXT("m003_open"), M3 && M3->bAvailable, M3 ? FString::Join(M3->Reasons, TEXT(",")) : FString(TEXT("missing")));
+	R.Check(TEXT("objective_next"), Game->GetCurrentObjectiveText().Contains(TEXT("Case files")), Game->GetCurrentObjectiveText());
+	R.Check(TEXT("campaign_checkpoint"), Game->GetCheckpoint() == TEXT("M002:debriefed"), Game->GetCheckpoint());
 }
 
 void RunPlay(FReport& R, ARbHUD* Hud, UWorld* World)
@@ -151,6 +210,12 @@ void RunPlay(FReport& R, ARbHUD* Hud, UWorld* World)
 	Hud->CloseScreen();
 	CheckFinalState(R, Game);
 
+	Workstation->Interact(Hud);
+	const ERbMissionResult Case = PlayCaseBest(Hud, TEXT("M002")); // the case files Submit button
+	R.Check(TEXT("m002_submit"), Case == ERbMissionResult::Ok, URbCampaignSubsystem::ResultText(Case));
+	Hud->CloseScreen();
+	CheckCampaign(R, Game);
+
 	FString SaveMessage;
 	R.Check(TEXT("save"), Hud->SaveNow(SaveMessage), Hud->Saves()->GetSlotPath());
 }
@@ -163,6 +228,7 @@ void RunResume(FReport& R, ARbHUD* Hud)
 	if (Outcome == ERbLoadOutcome::Ok || Outcome == ERbLoadOutcome::RecoveredFromBackup)
 	{
 		CheckFinalState(R, Hud->Game());
+		CheckCampaign(R, Hud->Game());
 	}
 }
 } // namespace
@@ -299,6 +365,9 @@ static void RunUiTour(UWorld* World, ARbHUD* Hud)
 		H->SubmitAssessment(StrongAssessment());
 		H->TalkToManager();
 	}});
+	Steps->Add({TEXT("CaseFiles"), [](ARbHUD* H) { H->CloseScreen(); H->Game()->MarkDebriefReceived(); H->OpenCaseFiles(); }});
+	Steps->Add({TEXT("CaseMission"), [](ARbHUD* H) { H->OpenCaseFiles(TEXT("M002")); }});
+	Steps->Add({TEXT("CaseDebrief"), [](ARbHUD* H) { PlayCaseBest(H, TEXT("M002")); H->OpenCaseFiles(TEXT("M002"), true); }});
 	TSharedRef<int32> Index = MakeShared<int32>(0);
 	TSharedRef<bool> bOpened = MakeShared<bool>(false);
 	TWeakObjectPtr<ARbHUD> WeakHud(Hud);

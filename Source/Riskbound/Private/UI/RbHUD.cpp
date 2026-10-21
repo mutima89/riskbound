@@ -18,6 +18,8 @@
 #include "SRbHudOverlay.h"
 #include "SRbScreen.h"
 #include "SRbToolHub.h"
+#include "SRbCaseFiles.h"
+#include "RbCampaignSubsystem.h"
 #include "Widgets/Layout/SBox.h"
 #include "RbToolsSubsystem.h"
 
@@ -351,6 +353,21 @@ void ARbHUD::OpenToolHub(int32 Tab)
 		.OnClose([this]() { OpenWorkstation(); });
 	Hub->ShowTab(static_cast<SRbToolHub::ETab>(FMath::Clamp(Tab, 0, static_cast<int32>(SRbToolHub::ETab::Count) - 1)));
 	ShowScreen(RbUI::MakeModalFrame(SNew(SBox).MinDesiredWidth(1360.0f).MinDesiredHeight(780.0f)[Hub], 1500.0f), Hub->GetInitialFocus(), [this]() { OpenWorkstation(); }, false);
+}
+
+TSharedPtr<SRbCaseFiles> ARbHUD::OpenCaseFiles(const FString& MissionId, bool bDebrief)
+{
+	TSharedRef<SRbCaseFiles> Files = SNew(SRbCaseFiles)
+		.Campaign(GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+		.Game(Game())
+		.OnClose([this]() { OpenWorkstation(); });
+	if (!MissionId.IsEmpty())
+	{
+		if (bDebrief) Files->ShowDebrief(MissionId);
+		else Files->ShowMission(MissionId);
+	}
+	ShowScreen(RbUI::MakeModalFrame(SNew(SBox).MinDesiredWidth(1100.0f).MinDesiredHeight(780.0f)[Files], 1200.0f), Files->GetInitialFocus(), [this]() { OpenWorkstation(); }, false);
+	return Files;
 }
 
 void ARbHUD::OpenAssessment()
