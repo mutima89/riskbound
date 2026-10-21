@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "id": "M025",
+  "title": "The Regulator Calls",
+  "kind": "mission",
+  "department": "Legal and Compliance",
+  "minLevel": 9,
+  "requiresPassed": ["M024"],
+  "passMark": 60,
+  "xp": 270,
+  "weeks": 3,
+  "briefing": [
+    "The Cold Chain Safety Authority is reviewing pharma distributors' governance. Valtren is in the first group. The lead supervisor, Imogen Raske, asks for a meeting with the Director of Risk and 'evidence that the board knows its risks'.",
+    "Prepare Valtren's approach."
+  ],
+  "context": [
+    {"ifFlag": "regulator_finding", "text": "Valtren already has an open finding from the Authority's earlier inspection. Expect it to come up."},
+    {"ifFlag": "risk_function_independent", "text": "Your direct line to the committee chair is exactly what supervisors look for."},
+    {"ifFlag": "whistleblower", "text": "The whistleblower case is on the supervisor's file."}
+  ],
+  "evidence": [
+    {"id": "request", "title": "Supervisor's request", "body": "Board and committee minutes (12 months); the risk appetite statement; the enterprise risk profile; evidence of how appetite breaches were handled; any open regulatory findings and their status."},
+    {"id": "gaps", "title": "Your own gap check", "body": "Minutes before the committee redesign show little challenge. One open finding is two months overdue. The appetite statement and profile are current and well evidenced."}
+  ],
+  "questions": [
+    {"id": "stance", "competency": "StakeholderManagement", "weight": 25,
+     "prompt": "What stance do you take with the supervisor?",
+     "options": [
+       {"id": "open", "label": "Open and proactive: provide what's asked, point out the known gaps yourself with the plan to close them", "score": 95, "feedback": "Supervisors trust firms that find and tell them their own problems.",
+        "setsFlags": ["regulator_trust"], "effects": {"StakeholderTrust": 5, "Reputation": 2}},
+       {"id": "minimal", "label": "Provide exactly what's asked and nothing more", "score": 40, "feedback": "Legally fine; supervisors will find the gaps and wonder why you didn't mention them."},
+       {"id": "defensive", "label": "Route everything through external lawyers", "score": 20, "feedback": "Signals you have something to hide."}
+     ]},
+    {"id": "overdue", "competency": "Governance", "weight": 20,
+     "prompt": "The open finding is two months overdue. What do you do before the meeting?",
+     "options": [
+       {"id": "close_or_explain", "label": "Get it closed if possible; if not, a board-approved revised date with the reason and interim controls", "score": 92, "feedback": "Shows governance working, even when late."},
+       {"id": "hope", "label": "Hope it doesn't come up", "score": 5, "feedback": "It is on their list."},
+       {"id": "blame_owner", "label": "Name the manager responsible", "score": 20, "feedback": "Accountability is the firm's, not one person's, in front of a regulator."}
+     ]},
+    {"id": "evidence_board", "competency": "Communication", "weight": 20,
+     "prompt": "How do you show 'the board knows its risks'?",
+     "options": [
+       {"id": "trace", "label": "Trace one enterprise risk end to end: profile, deep dive, board challenge in the minutes, decisions, actions and KRIs moving", "score": 92, "feedback": "One clear trail beats a stack of documents."},
+       {"id": "volume", "label": "Send every paper from the last year", "score": 25, "feedback": "Volume obscures evidence."},
+       {"id": "assert", "label": "A letter from the chair saying the board knows its risks", "score": 15, "feedback": "An assertion is not evidence."}
+     ]},
+    {"id": "weak_minutes", "competency": "Judgement", "weight": 20,
+     "prompt": "Older minutes show little challenge. How do you address it?",
+     "options": [
+       {"id": "acknowledge", "label": "Acknowledge it, show the redesign and the recent minutes that record challenge, and offer the supervisor a committee observation", "score": 92, "feedback": "Turns a weakness into evidence of improvement."},
+       {"id": "rewrite", "label": "Ask the company secretary to add more detail to the old minutes", "score": 0, "feedback": "Altering records for a regulator is a serious integrity breach.",
+        "effects": {"StakeholderTrust": -10, "Reputation": -6}},
+       {"id": "ignore", "label": "Say nothing", "score": 25, "feedback": "They will read them."}
+     ]},
+    {"id": "after", "competency": "StrategicThinking", "weight": 15,
+     "prompt": "What longer-term stance should Valtren take with its regulator?",
+     "options": [
+       {"id": "relationship", "label": "A regular, open relationship: periodic updates on the risk profile and major changes, not just responses to requests", "score": 92, "feedback": "Supervisory trust is a strategic asset for a pharma distributor."},
+       {"id": "arms_length", "label": "Keep contact to the legal minimum", "score": 30, "feedback": "Minimises contact and maximises surprise."},
+       {"id": "lobby", "label": "Focus on lobbying for lighter rules", "score": 25, "feedback": "Not a substitute for a credible relationship."}
+     ]}
+  ],
+  "lesson": "With regulators, credibility comes from openness: tell them your own gaps, show governance working with evidence, and never alter the record."
+}

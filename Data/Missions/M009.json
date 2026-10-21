@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "id": "M009",
+  "title": "Reviewing the New Analyst",
+  "kind": "mission",
+  "department": "Risk",
+  "minLevel": 4,
+  "requiresPassed": ["M008"],
+  "passMark": 60,
+  "xp": 170,
+  "weeks": 2,
+  "briefing": [
+    "Priya has hired a graduate, Sam Delacroix, and asked you to review Sam's first assessment before it goes to the Risk Committee: a cyber risk entry for the route-planning system.",
+    "The assessment has real problems. How you review it matters as much as what you find."
+  ],
+  "context": [
+    {"ifFlag": "spoilage_tail_insured", "text": "Hollis has approved a quote request for the spoilage insurance layer you proposed. Your reputation for clear quantitative work is growing."}
+  ],
+  "evidence": [
+    {"id": "sam_draft", "title": "Sam's draft register entry (R-031)", "body": [
+      "Title: Cyber attack. Cause: hackers. Event: cyber attack. Consequence: bad things happen.",
+      "Inherent L5 x I5. Controls: firewall (effective), antivirus (effective). Residual L1 x I2 (Low). Owner: IT."
+    ]},
+    {"id": "it_facts", "title": "IT facts Sam had access to", "body": "Route planning runs on a vendor cloud service. No offline fallback: without it, dispatch takes about 4x longer by hand. Multi-factor login is enabled for admins only. The last restore test was 18 months ago."},
+    {"id": "sam_note", "title": "Note from Sam", "required": false, "body": "I wasn't sure how to rate it so I used what felt right. Happy for any feedback!"}
+  ],
+  "questions": [
+    {"id": "flaws", "kind": "multi", "competency": "RiskAssessment", "weight": 25,
+     "prompt": "Which problems in Sam's entry must be fixed before it goes to committee?",
+     "options": [
+       {"id": "vague_ccc", "label": "Cause, event and consequence are too vague to manage (\"hackers\", \"bad things\")", "correct": true},
+       {"id": "residual_jump", "label": "Residual falls from 25 to 2 with no evidence the controls work", "correct": true},
+       {"id": "wrong_controls", "label": "The controls listed don't address the real exposure: no offline fallback, admin-only MFA, untested restore", "correct": true},
+       {"id": "owner", "label": "Owner 'IT' is a department, not an accountable person", "correct": true},
+       {"id": "too_long", "label": "The entry is too long", "feedback": "It is too vague, not too long."}
+     ]},
+    {"id": "rewrite", "competency": "RiskIdentification", "weight": 15,
+     "prompt": "Which event statement is the best rewrite?",
+     "options": [
+       {"id": "specific", "label": "\"Route-planning service unavailable for more than 24 hours (e.g. ransomware at the vendor or account takeover), forcing manual dispatch\"", "score": 92, "feedback": "Specific, measurable, and links causes to an operational consequence."},
+       {"id": "generic", "label": "\"Cyber attack on Valtren\"", "score": 20, "feedback": "Still generic: what fails and for how long?"},
+       {"id": "cause_only", "label": "\"Hackers target our systems\"", "score": 15, "feedback": "That is a cause, not an event."}
+     ]},
+    {"id": "feedback_style", "competency": "Leadership", "weight": 25,
+     "prompt": "How do you give Sam the feedback?",
+     "options": [
+       {"id": "coach", "label": "Sit down together: ask Sam to talk through the rating, point to the IT facts, rewrite one section together, and let Sam redo the rest", "score": 92, "feedback": "Sam learns the method, keeps ownership, and you check understanding."},
+       {"id": "fix_yourself", "label": "Rewrite it yourself so it's right for committee", "score": 35, "feedback": "Fast, but Sam learns nothing and will make the same mistakes next time."},
+       {"id": "red_pen", "label": "Send back the draft covered in tracked changes", "score": 45, "feedback": "Accurate but impersonal; a first-time analyst needs the reasoning, not just corrections."},
+       {"id": "pass_it", "label": "Let it go to committee so Sam learns from the challenge", "score": 10, "feedback": "Exposes a junior colleague and puts a misleading entry in front of the committee."}
+     ]},
+    {"id": "deadline", "competency": "Judgement", "weight": 20,
+     "prompt": "Committee papers are due tomorrow and the redo won't be ready. What do you do?",
+     "options": [
+       {"id": "defer_entry", "label": "Pull R-031 from this month's pack, tell Priya why, and bring a proper entry next month", "score": 90, "feedback": "Better one month late than wrong in front of the committee."},
+       {"id": "submit_draft", "label": "Submit Sam's draft and correct it next month", "score": 15, "feedback": "A Low rating on an untested restore and no fallback could mislead the committee."},
+       {"id": "all_nighter", "label": "Rewrite it overnight yourself", "score": 45, "feedback": "Meets the deadline, but takes the learning away from Sam."}
+     ]},
+    {"id": "it_owner", "competency": "StakeholderManagement", "weight": 15,
+     "prompt": "Who should own the rewritten risk?",
+     "options": [
+       {"id": "head_logistics_systems", "label": "The Head of Logistics Systems, who owns the vendor contract and dispatch process", "score": 90, "feedback": "The person who can fund and decide the fallback."},
+       {"id": "it_dept", "label": "IT", "score": 20, "feedback": "A department cannot be accountable."},
+       {"id": "sam", "label": "Sam, who wrote it", "score": 10, "feedback": "Risk owners manage the risk; analysts assess it."}
+     ]}
+  ],
+  "lesson": "Review to teach, not just to correct. Specific events, evidenced controls and a named owner make a risk entry useful; vague entries give false comfort."
+}

@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "id": "C012",
+  "title": "The Whistleblower",
+  "kind": "crisis",
+  "department": "Executive Management",
+  "minLevel": 8,
+  "requiresFlags": [
+    "whistleblower"
+  ],
+  "passMark": 60,
+  "xp": 280,
+  "weeks": 1,
+  "briefing": [
+    "A driver has told the regulator and a newspaper that fatigue rules are being ignored at Corby Road. The story runs tomorrow. The CEO wants to 'find out who it was'.",
+    "As Head of Risk you advise the executive."
+  ],
+  "evidence": [
+    {
+      "id": "claim",
+      "title": "The allegation",
+      "body": "Drivers at Corby Road routinely work beyond Valtren's own fatigue rules; supervisors falsify rosters."
+    },
+    {
+      "id": "data",
+      "title": "What your data shows",
+      "body": "Corby Road's fatigue KRI has been amber for 9 weeks; roster edits after shifts are 6x other depots."
+    },
+    {
+      "id": "law",
+      "title": "Legal note",
+      "body": "Whistleblowers are protected by law; retaliation or attempts to identify them create legal liability."
+    }
+  ],
+  "questions": [
+    {
+      "id": "ceo",
+      "competency": "StakeholderManagement",
+      "weight": 30,
+      "prompt": "How do you respond to 'find out who it was'?",
+      "options": [
+        {
+          "id": "protect",
+          "label": "Advise firmly against it: it's unlawful, and the data suggests the allegation is true; focus on the allegation, not the person",
+          "score": 95,
+          "feedback": "Protects the whistleblower, the company and the CEO."
+        },
+        {
+          "id": "quiet_search",
+          "label": "Look discreetly",
+          "score": 0,
+          "feedback": "Unlawful and likely to be discovered.",
+          "effects": {
+            "StakeholderTrust": -10,
+            "Reputation": -6
+          }
+        },
+        {
+          "id": "defer",
+          "label": "Leave it to HR",
+          "score": 20,
+          "feedback": "Doesn't stop a dangerous instruction."
+        }
+      ]
+    },
+    {
+      "id": "investigate",
+      "competency": "Governance",
+      "weight": 25,
+      "prompt": "How should the allegation be investigated?",
+      "options": [
+        {
+          "id": "independent",
+          "label": "An independent investigation reporting to the Audit Committee chair, with roster and tachograph data preserved",
+          "score": 92,
+          "feedback": "Independence is essential when management is implicated."
+        },
+        {
+          "id": "site_manager",
+          "label": "The Corby Road site manager investigates",
+          "score": 10,
+          "feedback": "Implicated parties can't investigate themselves."
+        },
+        {
+          "id": "none",
+          "label": "No investigation: deny it",
+          "score": 5,
+          "feedback": "Your own data supports the claim."
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "competency": "Communication",
+      "weight": 25,
+      "prompt": "What does Valtren say to the newspaper?",
+      "options": [
+        {
+          "id": "take_seriously",
+          "label": "\"We take this seriously, have started an independent investigation, and have taken immediate steps to enforce rest rules at Corby Road. We protect staff who raise concerns.\"",
+          "score": 92,
+          "feedback": "Credible and responsible."
+        },
+        {
+          "id": "deny",
+          "label": "\"The allegations are false.\"",
+          "score": 10,
+          "feedback": "Your data says otherwise."
+        },
+        {
+          "id": "no_comment",
+          "label": "No comment",
+          "score": 30,
+          "feedback": "Looks evasive."
+        }
+      ]
+    },
+    {
+      "id": "fix",
+      "competency": "Judgement",
+      "weight": 20,
+      "prompt": "What immediate action at Corby Road?",
+      "options": [
+        {
+          "id": "enforce",
+          "label": "Enforce rest rules from tonight, audit rosters, and suspend roster edits without second approval",
+          "score": 92,
+          "feedback": "Removes the danger now.",
+          "setsFlags": [
+            "whistleblower_handled"
+          ],
+          "effects": {
+            "EmployeeMorale": 3
+          }
+        },
+        {
+          "id": "wait",
+          "label": "Wait for the investigation",
+          "score": 20,
+          "feedback": "Drivers stay at risk meanwhile."
+        },
+        {
+          "id": "close_depot",
+          "label": "Close the depot",
+          "score": 25,
+          "feedback": "Disproportionate; fix the practice."
+        }
+      ]
+    }
+  ],
+  "lesson": "A whistleblower is a warning system working. Protect the person, investigate independently, fix the danger now, and treat the allegation on its evidence."
+}

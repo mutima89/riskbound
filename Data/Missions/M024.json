@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "id": "M024",
+  "title": "Cash Is Oxygen",
+  "kind": "mission",
+  "department": "Finance",
+  "minLevel": 9,
+  "requiresPassed": ["M023"],
+  "passMark": 60,
+  "xp": 270,
+  "weeks": 2,
+  "briefing": [
+    "The board wants a liquidity stress test before approving the next growth investment: how long Valtren survives if things go badly at once.",
+    "Hollis's team has the data; you design the test and the conclusions."
+  ],
+  "context": [
+    {"ifFlag": "stress_triggers_agreed", "text": "The triggers from your first stress test five years ago are still in the treasury policy."},
+    {"ifMetric": "Cash", "below": 2000000, "text": "Cash is below 2 million. This test is not academic."}
+  ],
+  "evidence": [
+    {"id": "position", "title": "Liquidity position", "body": "Cash 4.0m. Undrawn revolving credit facility 5.0m (can be withdrawn if the leverage covenant is breached). Monthly operating outflow 4.4m; inflow 4.6m on normal terms."},
+    {"id": "scenario", "title": "Severe but plausible scenario", "body": "Top client (14% of revenue) pays 60 days late; a second client fails owing 1.2m; fuel +30% for six months (adds 0.15m a month); the facility is withdrawn in month 3 after a covenant breach."},
+    {"id": "levers", "title": "Actions available", "body": "Invoice financing for other receivables (raises about 2.0m within 4 weeks). Defer capital expenditure (0.4m a month). Supplier term extension (about 1.0m one-off)."}
+  ],
+  "questions": [
+    {"id": "runway", "competency": "QuantitativeAnalysis", "weight": 20,
+     "prompt": "In months 1 and 2 of the scenario, before any action, what is Valtren's net monthly cash flow? (Leave out the one-off 1.2m bad debt.)",
+     "options": [
+       {"id": "minus_059", "label": "About -0.59m a month", "score": 92, "feedback": "Normal surplus +0.2m, less the top client's delayed receipts (14% of 4.6m = 0.64m), less extra fuel 0.15m: 0.2 - 0.64 - 0.15 = -0.59m."},
+       {"id": "plus_02", "label": "+0.2m a month: delayed payments arrive eventually", "score": 15, "feedback": "Cash timing is the whole point of a liquidity test."},
+       {"id": "minus_44", "label": "About -4.4m a month", "score": 10, "feedback": "That is gross outflow, not net."},
+       {"id": "minus_179", "label": "About -1.79m a month", "score": 30, "feedback": "That spreads the one-off 1.2m bad debt into every month."}
+     ]},
+    {"id": "facility", "competency": "Judgement", "weight": 25,
+     "prompt": "What is the most important insight from the scenario?",
+     "options": [
+       {"id": "facility_disappears", "label": "The facility counted on for liquidity disappears exactly when it's needed (covenant breach in month 3), so it must not be treated as available in stress", "score": 92, "feedback": "Wrong-way risk: the backstop fails in the same scenario that needs it."},
+       {"id": "fine_9m", "label": "Total liquidity of 9.0m covers any scenario", "score": 15, "feedback": "Counts the facility that the scenario withdraws."},
+       {"id": "fuel", "label": "Fuel is the biggest driver", "score": 30, "feedback": "It's a contributor, not the key insight."}
+     ]},
+    {"id": "actions", "competency": "StrategicThinking", "weight": 20,
+     "prompt": "What do you recommend before approving the growth investment?",
+     "options": [
+       {"id": "buffer_and_terms", "label": "Set up invoice financing now (so it's ready), renegotiate the covenant with headroom for this scenario, and phase the investment against a minimum cash buffer", "score": 92,
+        "feedback": "Prepares the levers before the stress and links growth to resilience.",
+        "setsFlags": ["liquidity_buffer_set"], "effects": {"Resilience": 6, "Costs": 60000}},
+       {"id": "invest_now", "label": "Invest now: growth is the best defence", "score": 20, "feedback": "Growth funded from the buffer leaves nothing for the downside."},
+       {"id": "cancel", "label": "Cancel the investment", "score": 40, "feedback": "Over-reacts: preparation can make it affordable."}
+     ]},
+    {"id": "board", "competency": "Governance", "weight": 20,
+     "prompt": "What should the board set as policy?",
+     "options": [
+       {"id": "liquidity_appetite", "label": "A liquidity appetite: minimum 3 months' survival in the severe scenario without the facility, reviewed quarterly", "score": 92, "feedback": "A measurable limit that governs future decisions."},
+       {"id": "cash_target", "label": "Keep 'enough cash'", "score": 20, "feedback": "Unmeasurable."},
+       {"id": "cfo_discretion", "label": "Leave it to the CFO's judgement", "score": 30, "feedback": "The board owns appetite."}
+     ]},
+    {"id": "bank", "competency": "StakeholderManagement", "weight": 15,
+     "prompt": "How do you approach the bank about covenant headroom?",
+     "options": [
+       {"id": "early_open", "label": "Approach early, share the stress test and the planned buffer, and negotiate before any breach", "score": 92, "feedback": "Banks negotiate generously with prepared borrowers and harshly with surprised ones."},
+       {"id": "after_breach", "label": "Only if a breach looks likely", "score": 25, "feedback": "Leverage disappears once you need it."},
+       {"id": "switch_bank", "label": "Move to another bank", "score": 30, "feedback": "Same covenant logic everywhere."}
+     ]}
+  ],
+  "lesson": "Liquidity stress must assume the backstop fails when it is needed most. Prepare the levers before the stress and set liquidity appetite as policy."
+}

@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "id": "C006",
+  "title": "Harrowgate Under Water",
+  "kind": "crisis",
+  "department": "Finance",
+  "minLevel": 3,
+  "requiresFlags": [
+    "harrowgate_flooded"
+  ],
+  "passMark": 60,
+  "xp": 200,
+  "weeks": 1,
+  "briefing": [
+    "Overnight rain flooded Harrowgate's loading bays. Stock on the floor is ruined; racking and the main store are dry. The insurer's loss adjuster arrives tomorrow.",
+    "Hollis Varga asks you to manage the claim and the lessons."
+  ],
+  "evidence": [
+    {
+      "id": "damage",
+      "title": "Damage summary",
+      "body": "Floor-level stock lost: about 120,000. Two forklifts water-damaged (about 30,000). Loading bays closed for 3 days."
+    },
+    {
+      "id": "policy",
+      "title": "Insurance",
+      "body": "Flood excess 250,000 per event; cover limit 1,000,000."
+    },
+    {
+      "id": "history",
+      "title": "Earlier decision",
+      "body": "Your flood appraisal recommended a response plan; it was not adopted."
+    }
+  ],
+  "questions": [
+    {
+      "id": "claim",
+      "competency": "QuantitativeAnalysis",
+      "weight": 30,
+      "prompt": "How much will the insurer pay for this event?",
+      "options": [
+        {
+          "id": "nothing",
+          "label": "Nothing: the loss (about 150,000 including forklifts) is below the 250,000 excess",
+          "score": 92,
+          "feedback": "Below the excess, Valtren keeps it all, which is what the 'net' analysis showed."
+        },
+        {
+          "id": "all",
+          "label": "All of it",
+          "score": 10,
+          "feedback": "The excess applies per event."
+        },
+        {
+          "id": "minus_excess",
+          "label": "150,000 minus a small deductible",
+          "score": 20,
+          "feedback": "The excess is 250,000, larger than the loss."
+        }
+      ]
+    },
+    {
+      "id": "next_time",
+      "competency": "Judgement",
+      "weight": 30,
+      "prompt": "What do you recommend now?",
+      "options": [
+        {
+          "id": "plan_now",
+          "label": "Adopt the response plan now (raised racking, sandbag store, stock-move procedure) and ask Brantwell to quote a lower excess",
+          "score": 92,
+          "feedback": "The cheap mitigation is still the right one.",
+          "setsFlags": [
+            "harrowgate_flood_plan"
+          ],
+          "effects": {
+            "Cash": -6000,
+            "Resilience": 4
+          }
+        },
+        {
+          "id": "barriers_now",
+          "label": "Build the barriers now",
+          "score": 50,
+          "feedback": "The appraisal hasn't changed; one flood doesn't change the probability."
+        },
+        {
+          "id": "nothing",
+          "label": "Nothing: floods are rare",
+          "score": 15,
+          "feedback": "One just happened, and Valtren paid all of it."
+        }
+      ]
+    },
+    {
+      "id": "adjuster",
+      "competency": "StakeholderManagement",
+      "weight": 20,
+      "prompt": "How do you deal with the loss adjuster?",
+      "options": [
+        {
+          "id": "evidence",
+          "label": "Provide photos, stock and asset records and repair quotes, and confirm in writing that the loss is below the excess",
+          "score": 92,
+          "feedback": "Accurate records, even when no payment is due, support future claims."
+        },
+        {
+          "id": "inflate",
+          "label": "Add new forklifts to the claim to get above the excess",
+          "score": 0,
+          "feedback": "Inflating a claim is insurance fraud.",
+          "effects": {
+            "StakeholderTrust": -10
+          }
+        },
+        {
+          "id": "wait",
+          "label": "Wait for them to ask",
+          "score": 30,
+          "feedback": "Slows everything down."
+        }
+      ]
+    },
+    {
+      "id": "report",
+      "competency": "Communication",
+      "weight": 20,
+      "prompt": "How do you report the event to Hollis?",
+      "options": [
+        {
+          "id": "candid",
+          "label": "Loss, what insurance covers (nothing), why, and the plan; including that the earlier recommendation wasn't adopted",
+          "score": 92,
+          "feedback": "Candid, without 'I told you so'."
+        },
+        {
+          "id": "told_you",
+          "label": "Remind him you warned about this",
+          "score": 25,
+          "feedback": "Right but unhelpful."
+        },
+        {
+          "id": "minimise",
+          "label": "Describe it as minor",
+          "score": 20,
+          "feedback": "150,000 kept by Valtren is not minor."
+        }
+      ]
+    }
+  ],
+  "lesson": "Insurance protects against the big loss, not the frequent one. Small floods are yours to pay, so cheap mitigation pays. Report candidly, without scoring points."
+}

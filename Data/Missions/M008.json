@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "id": "M008",
+  "title": "Challenge, Not Sign-Off",
+  "kind": "mission",
+  "department": "Operations",
+  "minLevel": 4,
+  "requiresPassed": ["M007"],
+  "passMark": 60,
+  "xp": 170,
+  "weeks": 2,
+  "briefing": [
+    "Warehouse Operations has submitted its annual risk and control self-assessment (RCSA). Every control is rated 'effective' and every risk 'low'. Benedikt Osei, the Warehouse Director, wants risk to sign it off by Friday.",
+    "Your job as the second line is to challenge, not to rubber-stamp."
+  ],
+  "context": [
+    {"ifFlag": "near_miss_reporting_fixed", "text": "The new near-miss reporting is producing data again: 31 reports from warehouses last quarter."},
+    {"ifFlag": "yard_injury", "text": "The yard injury at Northgate happened in a warehouse area this RCSA rates as 'low risk'."}
+  ],
+  "evidence": [
+    {"id": "rcsa", "title": "Warehouse RCSA summary", "body": "14 risks, all rated low. 22 controls, all 'effective'. No control testing evidence attached. Completed in one 40-minute workshop."},
+    {"id": "audit_points", "title": "Open internal audit points (warehouses)", "body": "Three open points: stock counts not reconciled at two sites (raised 9 months ago); forklift licence checks missing for agency staff; fire door alarms disabled in a chilled store."},
+    {"id": "loss_events", "title": "Warehouse loss events, last 12 months", "body": "Stock write-offs 214,000 (up 40%). Two forklift incidents. One fire service visit (false alarm, door alarms disabled)."}
+  ],
+  "questions": [
+    {"id": "inconsistencies", "kind": "multi", "competency": "ControlEvaluation", "weight": 20,
+     "prompt": "Which points contradict the RCSA's 'all effective' ratings?",
+     "options": [
+       {"id": "stock_recon", "label": "Unreconciled stock counts at two sites with write-offs up 40%", "correct": true},
+       {"id": "licences", "label": "No licence checks for agency forklift drivers, and two forklift incidents", "correct": true},
+       {"id": "fire_doors", "label": "Disabled fire door alarms in a chilled store", "correct": true},
+       {"id": "workshop_length", "label": "The workshop took only 40 minutes", "feedback": "A short workshop is a warning sign about process, but not evidence that a specific rating is wrong."},
+       {"id": "director_tone", "label": "The director wants it signed off by Friday", "feedback": "Time pressure is context, not evidence about the controls."}
+     ]},
+    {"id": "approach", "competency": "StakeholderManagement", "weight": 25,
+     "prompt": "How do you approach Benedikt?",
+     "options": [
+       {"id": "evidence_meeting", "label": "Meet him with the three contradicting facts, ask what evidence supports each 'effective' rating, and agree which ratings change", "score": 92, "feedback": "Challenge anchored in facts, framed as questions, ending in agreement."},
+       {"id": "sign_off", "label": "Sign it off and note your concerns in an email", "score": 15, "feedback": "Second-line sign-off without challenge gives false assurance."},
+       {"id": "reject", "label": "Reject the whole RCSA and ask them to redo it", "score": 40, "feedback": "Possibly needed, but a blanket rejection without specifics invites a fight and the same answers."},
+       {"id": "escalate_first", "label": "Escalate straight to the COO", "score": 35, "feedback": "Escalate if he refuses; going over his head first damages the working relationship."}
+     ]},
+    {"id": "rerate", "competency": "Judgement", "weight": 20,
+     "prompt": "Benedikt agrees to re-rate one risk now and test the rest. Which one first?",
+     "options": [
+       {"id": "fire", "label": "Fire safety in the chilled store: disabled alarms create a life-safety exposure today", "score": 92, "feedback": "Life safety first, and it is cheap to fix."},
+       {"id": "stock", "label": "Stock loss: it is the biggest money figure", "score": 55, "feedback": "Important, but money can wait a week; life safety cannot."},
+       {"id": "licences_first", "label": "Agency forklift licences", "score": 70, "feedback": "Serious and urgent, but the disabled fire alarms are the more immediate danger."}
+     ]},
+    {"id": "summary", "competency": "Communication", "weight": 20,
+     "prompt": "Your note to the Risk Committee on the warehouse RCSA says:",
+     "options": [
+       {"id": "balanced", "label": "\"The self-assessment does not reflect three known control failures. Ratings for fire, stock and forklift safety have been changed with the Warehouse Director; testing of the other 19 controls is due by month end.\"", "score": 92, "feedback": "States the problem, what has been agreed, and what happens next."},
+       {"id": "blame", "label": "\"Warehouse Operations submitted an unreliable assessment.\"", "score": 25, "feedback": "True, but it blames without informing and damages the partnership."},
+       {"id": "silent", "label": "Report only the final agreed ratings", "score": 35, "feedback": "Hides the fact that the first-line process failed, which the committee needs to know."}
+     ]},
+    {"id": "fix_process", "competency": "Governance", "weight": 15,
+     "prompt": "To stop this recurring, what evidence will you require with future RCSAs?",
+     "options": [
+       {"id": "test_evidence", "label": "For each key control: a test result (sample, exceptions) and the loss events and audit points mapped to it", "score": 90, "feedback": "Ratings tied to data cannot drift far from reality."},
+       {"id": "longer_workshop", "label": "A two-hour workshop instead of 40 minutes", "score": 30, "feedback": "More time without evidence gives longer opinions."},
+       {"id": "signature", "label": "A signed declaration from the director", "score": 20, "feedback": "A signature adds accountability but not evidence."}
+     ]}
+  ],
+  "lesson": "The second line challenges with evidence and agrees changes with the first line. A self-assessment that contradicts known losses and audit points is not assurance."
+}

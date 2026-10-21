@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "id": "M015",
+  "title": "The Framework Gap",
+  "kind": "mission",
+  "department": "Risk",
+  "minLevel": 6,
+  "requiresPassed": ["M014"],
+  "passMark": 60,
+  "xp": 210,
+  "weeks": 3,
+  "briefing": [
+    "Internal Audit has rated the risk management framework 'needs improvement'. Findings: registers are kept differently in each business unit, risks are rarely re-assessed, and the Risk Committee sees 140 risks with no prioritisation.",
+    "You have to respond to the audit and fix it."
+  ],
+  "context": [
+    {"ifFlag": "breach_suppressed", "text": "Audit also noted that a known appetite breach was missing from a committee report. This finding is about you."},
+    {"ifFlag": "appetite_cascaded", "text": "Audit credited the new appetite cascade as the framework's strongest element."}
+  ],
+  "evidence": [
+    {"id": "audit_report", "title": "Internal Audit report (summary)", "body": [
+      "F1: Five business units use five register formats and scales. F2: 58% of risks have not been reviewed in over 12 months. F3: The Risk Committee receives all 140 risks with no ranking. F4: Three risks have no named owner.",
+      "Management response due in 30 days."
+    ]},
+    {"id": "capacity", "title": "Framework team capacity", "body": "You plus half of Lina's time. A register system licence costs 55,000 a year; a spreadsheet standard costs nothing but time."}
+  ],
+  "questions": [
+    {"id": "root_cause", "competency": "Governance", "weight": 25,
+     "prompt": "What is the root cause behind F1 to F4?",
+     "options": [
+       {"id": "no_standard", "label": "No single standard (method, scales, review cycle, ownership) set and enforced by the second line", "score": 92, "feedback": "Each finding is a symptom of the missing standard."},
+       {"id": "lazy_units", "label": "Business units don't care about risk", "score": 15, "feedback": "Blame without a cause; units fill a vacuum the framework left."},
+       {"id": "no_system", "label": "No register software", "score": 40, "feedback": "A tool helps but would just automate five different methods."}
+     ]},
+    {"id": "response", "competency": "Leadership", "weight": 20,
+     "prompt": "Which management response do you commit to?",
+     "options": [
+       {"id": "phased", "label": "Agree each finding; one method and scale by month 2, owners named immediately, quarterly reviews from month 3, top-15 view to committee from next meeting", "score": 92, "feedback": "Specific, sequenced and realistic for your capacity.",
+        "setsFlags": ["framework_standardised"], "effects": {"ControlEffectiveness": 5, "StakeholderTrust": 3}},
+       {"id": "dispute", "label": "Dispute F2: many risks don't change", "score": 25, "feedback": "Arguing with evidence weakens credibility; agree and fix."},
+       {"id": "everything_now", "label": "Commit to fixing all findings in 30 days", "score": 35, "feedback": "Over-promising with half a team guarantees a follow-up finding."}
+     ]},
+    {"id": "prioritise", "competency": "StrategicThinking", "weight": 20,
+     "prompt": "How should the committee's top risks be chosen?",
+     "options": [
+       {"id": "residual_appetite_strategy", "label": "Rank by residual rating against appetite, plus risks to strategic objectives, with the full register available on request", "score": 92, "feedback": "Focuses the committee where decisions are needed."},
+       {"id": "largest_inherent", "label": "The 15 largest inherent risks", "score": 40, "feedback": "Inherent ratings ignore controls already working."},
+       {"id": "each_unit", "label": "Three risks from each business unit", "score": 30, "feedback": "Fair, but not risk-based."}
+     ]},
+    {"id": "tool", "competency": "Judgement", "weight": 20,
+     "prompt": "Buy the 55,000-a-year register system now? Your authority is 300,000.",
+     "options": [
+       {"id": "standard_first", "label": "Not yet: standardise the method in a shared template first, then choose a system that fits it next year", "score": 90, "feedback": "Fix the process before automating it."},
+       {"id": "buy_now", "label": "Buy it now: software will force consistency", "score": 45, "cost": 55000, "feedback": "Within authority, but tools don't fix an undefined method.",
+        "effects": {"Costs": 55000}},
+       {"id": "never", "label": "Never: spreadsheets are fine forever", "score": 40, "feedback": "Fine for now; not forever at 140 risks and growing."}
+     ]},
+    {"id": "own_finding", "competency": "Communication", "weight": 15,
+     "prompt": "How do you present the response to the Audit Committee?",
+     "options": [
+       {"id": "own_it", "label": "Own the findings openly, present the plan and dates, and offer progress reporting each quarter", "score": 92, "feedback": "Ownership plus a plan rebuilds confidence."},
+       {"id": "defend", "label": "Explain why each finding happened", "score": 30, "feedback": "Explanations without a plan sound like excuses."},
+       {"id": "delegate", "label": "Ask Internal Audit to present it", "score": 10, "feedback": "Management responds to audit, not the other way round."}
+     ]}
+  ],
+  "lesson": "Audit findings usually share a root cause. Agree, fix the standard before the tool, prioritise for the committee, and report progress until closed."
+}

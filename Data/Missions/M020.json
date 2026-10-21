@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "id": "M020",
+  "title": "Writing for the Board",
+  "kind": "mission",
+  "department": "Executive Management",
+  "minLevel": 8,
+  "requiresPassed": ["M019"],
+  "passMark": 60,
+  "xp": 250,
+  "weeks": 2,
+  "briefing": [
+    "The quarterly risk report goes to the board in two weeks. Last quarter's ran to 46 pages; the chair, Dame Helen Oyelaran (non-executive, ex-regulator), said she couldn't find what mattered.",
+    "Rebuild the report."
+  ],
+  "context": [
+    {"ifFlag": "breach_suppressed", "text": "The chair knows about the breach that was once left out of a committee report. She will read this one closely."},
+    {"ifFlag": "transition_risk_on_profile", "text": "The refrigerant transition risk you added is now the chair's favourite question."}
+  ],
+  "evidence": [
+    {"id": "last_report", "title": "Last quarter's report", "body": "46 pages. Section order: methodology, unit registers, KRIs (82 charts), actions (114 rows). The two appetite breaches were on pages 31 and 38."},
+    {"id": "this_quarter", "title": "This quarter's position", "body": "Two enterprise risks deteriorated (people; cold-chain integrity). One appetite breach (driver hours). Coldline 2 back on track. One near-miss involving a pharma load."},
+    {"id": "chair_note", "title": "Chair's note", "body": "\"Tell me what has changed, what is outside appetite, what you need us to decide, and what you are worried about that isn't in the numbers.\""}
+  ],
+  "questions": [
+    {"id": "structure", "competency": "Communication", "weight": 25,
+     "prompt": "What should page one say?",
+     "options": [
+       {"id": "exec_summary", "label": "What changed, what's outside appetite, decisions needed from the board, and your judgement on emerging concerns, each in a few lines", "score": 95, "feedback": "Exactly what the chair asked for."},
+       {"id": "methodology", "label": "The methodology, so the board trusts the numbers", "score": 20, "feedback": "Put it in an appendix."},
+       {"id": "good_news", "label": "Achievements this quarter", "score": 25, "feedback": "Good news belongs in the report but not at the top."}
+     ]},
+    {"id": "breach_placement", "competency": "Governance", "weight": 20,
+     "prompt": "Where does the driver-hours appetite breach go?",
+     "options": [
+       {"id": "front", "label": "On page one, with the owner's plan and expected return date", "score": 95, "feedback": "Breaches are the board's business; they lead."},
+       {"id": "kri_section", "label": "In the KRI section where it belongs", "score": 25, "feedback": "Last time that put breaches on page 31."},
+       {"id": "verbal", "label": "Mention it verbally at the meeting", "score": 15, "feedback": "Breaches must be on the record."}
+     ]},
+    {"id": "worries", "competency": "StrategicThinking", "weight": 20,
+     "prompt": "What do you put under 'what we're worried about that isn't in the numbers'?",
+     "options": [
+       {"id": "judgement", "label": "The pharma near miss as a signal of cold-chain fragility as volumes grow, and engineer shortages that KRIs don't capture yet", "score": 92, "feedback": "Judgement the board can't get from charts."},
+       {"id": "nothing", "label": "Leave it blank: stick to the facts", "score": 20, "feedback": "The chair asked explicitly for your judgement."},
+       {"id": "everything", "label": "A list of every conceivable risk", "score": 25, "feedback": "Shows nothing about what you actually think."}
+     ]},
+    {"id": "decisions", "competency": "Leadership", "weight": 20,
+     "prompt": "Which decision do you put to the board?",
+     "options": [
+       {"id": "engineer_programme", "label": "Approve a 0.6m engineer apprenticeship programme to address the people risk on the enterprise profile", "score": 90, "cost": 600000, "escalates": true,
+        "feedback": "A clear, costed decision tied to a deteriorating enterprise risk.",
+        "setsFlags": ["apprenticeships_approved"], "effects": {"Costs": 600000, "EmployeeMorale": 4, "Resilience": 3}},
+       {"id": "none", "label": "None: the report is for information", "score": 25, "feedback": "Boards are there to decide; give them the decision."},
+       {"id": "approve_all", "label": "Ask the board to approve all 114 actions", "score": 15, "feedback": "Rubber-stamping lists is not governance."}
+     ]},
+    {"id": "length", "competency": "Judgement", "weight": 15,
+     "prompt": "How long should the main report be?",
+     "options": [
+       {"id": "short_appendix", "label": "About 6-8 pages, with registers, KRI detail and methodology in appendices", "score": 92, "feedback": "Short enough to read, complete enough to trust."},
+       {"id": "two_lines", "label": "Two lines", "score": 25, "feedback": "Too thin for the board to discharge its oversight."},
+       {"id": "same", "label": "Keep 46 pages; it's complete", "score": 15, "feedback": "Complete and unread."}
+     ]}
+  ],
+  "lesson": "Board reporting leads with change, breaches, decisions and judgement. Detail goes to appendices; the board's time goes to what it must decide."
+}

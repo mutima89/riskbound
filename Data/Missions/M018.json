@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "id": "M018",
+  "title": "The Programme Is Slipping",
+  "kind": "mission",
+  "department": "Operations",
+  "minLevel": 7,
+  "requiresPassed": ["M017"],
+  "passMark": 60,
+  "xp": 230,
+  "weeks": 3,
+  "briefing": [
+    "You lead 'Coldline 2', a 14-month controls programme across six sites: automated temperature alerting, logger downloads, contractor sign-off and driver fatigue rules. At month 7 it is 40% complete, and three site managers say they 'don't have time'.",
+    "The steering group meets on Thursday."
+  ],
+  "context": [
+    {"ifFlag": "logger_control_fixed", "text": "The logger fix from your control test is the one workstream already delivered."},
+    {"ifFlag": "liners_dual_sourced", "text": "The supplier criticality review you started has been folded into this programme, adding scope."}
+  ],
+  "evidence": [
+    {"id": "status", "title": "Programme status", "body": "Planned 58% complete by month 7; actual 40%. Northgate and Harrowgate on track; Eastfield, Corby Road and two others behind. Budget spent 52%."},
+    {"id": "site_feedback", "title": "Site managers' feedback", "body": "'We get eleven programme emails a week.' 'Training clashes with peak shifts.' 'Nobody told us what's in it for the site.'"},
+    {"id": "sponsor", "title": "Sponsor", "body": "The COO sponsors the programme but has missed the last two steering groups."}
+  ],
+  "questions": [
+    {"id": "diagnosis", "competency": "Leadership", "weight": 25,
+     "prompt": "What is the main reason for the slip?",
+     "options": [
+       {"id": "engagement", "label": "The sites don't own the change: too much noise, training at the wrong times, no visible benefit, and an absent sponsor", "score": 92, "feedback": "Adoption problems, not technical ones."},
+       {"id": "lazy", "label": "The lagging site managers aren't committed", "score": 20, "feedback": "Blames people for a design problem; two sites are on track with the same programme."},
+       {"id": "budget", "label": "Not enough budget", "score": 25, "feedback": "Spend (52%) is ahead of progress (40%): money isn't the constraint."}
+     ]},
+    {"id": "sponsor_action", "competency": "StakeholderManagement", "weight": 20,
+     "prompt": "What do you ask of the COO?",
+     "options": [
+       {"id": "visible_sponsor", "label": "Attend Thursday, visit the two slowest sites with you, and make the programme a standing item in site managers' reviews", "score": 92, "feedback": "Specific, visible sponsorship that changes priorities on site."},
+       {"id": "email", "label": "Send an email to all sites supporting the programme", "score": 35, "feedback": "Another email adds to the noise."},
+       {"id": "nothing", "label": "Nothing: he's busy", "score": 15, "feedback": "A programme without an active sponsor loses to day-to-day pressure."}
+     ]},
+    {"id": "replan", "competency": "Judgement", "weight": 25,
+     "prompt": "How do you replan?",
+     "options": [
+       {"id": "focus", "label": "Prioritise the two workstreams with the biggest risk reduction (alerting, fatigue rules), move the rest by a quarter, cut communications to one weekly site note, and schedule training around peaks", "score": 92,
+        "feedback": "Protects the risk outcomes, reduces load, and resets an achievable plan.",
+        "setsFlags": ["coldline2_on_track"], "effects": {"ControlEffectiveness": 5, "EmployeeMorale": 3}},
+       {"id": "push", "label": "Keep the plan and escalate the lagging sites", "score": 35, "feedback": "Pushing harder on a plan the sites can't absorb deepens the slip.",
+        "effects": {"EmployeeMorale": -4}},
+       {"id": "extend_all", "label": "Extend every workstream by six months", "score": 40, "feedback": "Avoids the hard choices; the highest-risk gaps stay open longer.",
+        "effects": {"StrategicProgress": -3}}
+     ]},
+    {"id": "report", "competency": "Communication", "weight": 15,
+     "prompt": "How do you report status to the steering group?",
+     "options": [
+       {"id": "honest_rag", "label": "Red overall, with the reasons, the replan, the risk impact of each delay, and the decisions you need from them", "score": 92, "feedback": "Honest status plus decisions requested."},
+       {"id": "amber", "label": "Amber: we're recovering", "score": 25, "feedback": "Watermelon reporting (green outside, red inside) destroys trust when it's found."},
+       {"id": "detail", "label": "A 30-slide task-level update", "score": 30, "feedback": "Detail without decisions."}
+     ]},
+    {"id": "measure", "competency": "Governance", "weight": 15,
+     "prompt": "How will you measure success from now on?",
+     "options": [
+       {"id": "outcomes", "label": "By risk outcomes: excursions caught before delivery, fatigue breaches, contractor visits verified, alongside milestones", "score": 92, "feedback": "Programmes exist to reduce risk, not to finish tasks."},
+       {"id": "tasks", "label": "Tasks completed", "score": 35, "feedback": "Activity, not outcome."},
+       {"id": "budget_only", "label": "Budget spent against plan", "score": 20, "feedback": "Spending is not progress."}
+     ]}
+  ],
+  "lesson": "Control programmes fail on adoption more than on design: active sponsorship, less noise, a focused replan and outcome measures recover them."
+}

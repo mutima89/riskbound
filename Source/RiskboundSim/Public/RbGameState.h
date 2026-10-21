@@ -1,0 +1,128 @@
+// Everything that persists between sessions. Serialised by RbSave. Format: Docs/SaveFormat.md.
+#pragma once
+
+#include "RbApi.h"
+
+#include "RbActions.h"
+#include "RbCampaign.h"
+#include "RbCareer.h"
+#include "RbKri.h"
+#include "RbMission001.h"
+#include "RbOrganization.h"
+#include "RbRiskModel.h"
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+namespace rb
+{
+struct PlayerSettings
+{
+	double MouseSensitivity = 1.0; // 0.1..5
+	double TextScale = 1.0;        // 0.8..1.6
+	double MasterVolume = 0.8;     // 0..1
+	bool bReducedMotion = false;
+	bool bHints = true;
+	bool bFullscreen = true;
+	int GraphicsQuality = 2;       // 0 low .. 3 epic
+};
+
+// The one place settings limits live: out-of-range or non-numeric values are brought into range
+// (non-finite values fall back to defaults). Applied when settings change and when a save loads.
+RB_API PlayerSettings ClampSettings(const PlayerSettings& In);
+
+// A register risk the player has quantified with loss scenarios (Loss Scenarios tool).
+struct QuantifiedRisk
+{
+	std::string RiskId;
+	std::vector<LossScenario> Scenarios;
+};
+
+struct GameState
+{
+	std::string ProfileName = "Analyst";
+	EDifficulty Difficulty = EDifficulty::Professional;
+	uint64_t Seed = 20261020;
+	CareerState Career;
+	OrganizationState Org;
+	RiskRegister Register;
+	m001::MissionState Mission001;
+	std::vector<std::string> Achievements;
+	std::vector<std::string> LearningHistory;
+	std::string Checkpoint = "M001:start";
+	PlayerSettings Settings;
+	ActionTracker Actions;                  // corrective actions (save v3)
+	KriMonitor Kris;                        // KRI history (save v3)
+	std::vector<QuantifiedRisk> Quantified; // player-entered loss scenarios (save v3)
+	CampaignState Campaign;                 // missions after M001 (save v5)
+};
+
+constexpr int KriHistoryWeeksAtStart = 12;
+
+// Mission 001 submission at game level: MissionState::Submit plus the corrective actions
+// for the chosen treatment. Returns the submit error; actions are only created on success.
+RB_API m001::ESubmitError SubmitMission001(GameState& State, const m001::Submission& S);
+
+// Advances organisation time: resolves due consequences and records a KRI reading per week.
+RB_API std::vector<ResolvedConsequence> AdvanceGameWeeks(GameState& State, int Weeks);
+
+// Stores (or replaces) the player's loss scenarios for a risk. False if the risk is unknown
+// or the scenarios are invalid (ValidateScenarios, mutually exclusive).
+RB_API bool SetQuantification(GameState& State, const std::string& RiskId, const std::vector<LossScenario>& Scenarios);
+
+// Default operational-risk register for an organisation profile: 5x5 matrix,
+// appetite limits by category, seeded with the stale R-014 entry Mission 001 investigates.
+RB_API RiskRegister MakeDefaultRegister();
+
+// New game for the given profile and difficulty, with event seed derived from Seed.
+RB_API GameState NewGame(const std::string& ProfileName, EDifficulty Difficulty, uint64_t Seed, const std::string& OrgProfileId = "valtren");
+
+// ---- Achievements (Docs/GameDesign.md, data: Data/Achievements.json, Docs/MissionData.md) ----
+enum class EAchievementCondition
+{
+	Code,                  // built-in rule with the same id (the seven Mission 001 achievements)
+	PassMission,           // Target = mission id (M001 counts)
+	ReachLevel,            // Value = career level
+	MissionsPassed,        // Value = distinct missions passed (M001 counts)
+	CrisesPassed,          // Value = distinct crisis missions passed
+	MissionScoreAtLeast,   // Target = mission id, Value = best score
+	AnyScoreAtLeast,       // Value = score on any campaign attempt
+	ScoreAtLeastCount,     // Value = score, Count = number of passed missions at or above it
+	Flag,                  // Target = organisation flag
+	MetricAtLeast,         // Target = metric name, Value
+	MetricBelow,           // Target = metric name, Value
+	IncidentsAvoided,      // Value = resolved consequences that did not occur
+	IncidentsMitigated,    // Value = resolved consequences whose mitigating flag was in place
+	CompetencyAtLeast,     // Target = competency name, Value
+	AllCompetenciesAtLeast,// Value = every assessed competency... and all ten assessed
+	LearningEntries,       // Value = learning history entries
+	RetryPassed,           // Value = missions passed after a failed attempt
+	Escalations            // Value = submitted answers that escalated a decision above the player's authority
+};
+
+struct AchievementDef
+{
+	std::string Id;
+	std::string Title;
+	std::string Description;
+	EAchievementCondition Condition = EAchievementCondition::Code;
+	std::string Target;
+	double Value = 0.0;
+	int Count = 0;
+};
+
+struct MissionCatalogue;
+
+// The seven built-in (code) achievements.
+RB_API const std::vector<AchievementDef>& AchievementDefs();
+// Unlocks built-in achievements whose conditions now hold. Returns the ids newly unlocked.
+RB_API std::vector<std::string> EvaluateAchievements(GameState& State);
+// Data-driven: Defs from Data/Achievements.json; Catalogue resolves crises and escalations.
+RB_API bool IsAchievementMet(const GameState& State, const AchievementDef& Def, const MissionCatalogue& Catalogue);
+RB_API std::vector<std::string> EvaluateAchievements(GameState& State, const std::vector<AchievementDef>& Defs, const MissionCatalogue& Catalogue);
+// Parses Data/Achievements.json. Strict like mission files.
+RB_API bool AchievementsFromJson(const std::string& Text, const std::string& SourceName, std::vector<AchievementDef>& Out, std::vector<std::string>& OutErrors);
+// Unique ids, known code ids, mission/metric/competency targets that exist, sensible values.
+RB_API std::vector<std::string> ValidateAchievements(const std::vector<AchievementDef>& Defs, const MissionCatalogue& Catalogue);
+} // namespace rb

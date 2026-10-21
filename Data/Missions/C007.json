@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "id": "C007",
+  "title": "The Inspector's Letter",
+  "kind": "crisis",
+  "department": "Legal and Compliance",
+  "minLevel": 3,
+  "requiresFlags": [
+    "regulator_finding"
+  ],
+  "passMark": 60,
+  "xp": 200,
+  "weeks": 1,
+  "briefing": [
+    "The Cold Chain Safety Authority has issued a formal finding: late data-logger downloads breach good distribution practice. Valtren has 28 days to submit a corrective action plan.",
+    "Ruth Adeyemi asks you to help write it."
+  ],
+  "evidence": [
+    {
+      "id": "finding",
+      "title": "The finding",
+      "body": "Logger downloads late or missed at four depots; excursions detected after delivery. Severity: major. Repeat findings may lead to licence conditions."
+    },
+    {
+      "id": "status",
+      "title": "Current status",
+      "body": "Your control test identified the causes (no cover, no alert). Some depots have improved; two have not."
+    }
+  ],
+  "questions": [
+    {
+      "id": "plan",
+      "competency": "Governance",
+      "weight": 30,
+      "prompt": "What must the corrective action plan contain?",
+      "options": [
+        {
+          "id": "full_plan",
+          "label": "Root causes, specific actions with owners and dates, how effectiveness will be tested, and interim controls until then",
+          "score": 92,
+          "feedback": "What regulators look for: causes, actions, proof."
+        },
+        {
+          "id": "promise",
+          "label": "A commitment to do better",
+          "score": 10,
+          "feedback": "Not a plan."
+        },
+        {
+          "id": "training",
+          "label": "Training for all depot staff",
+          "score": 30,
+          "feedback": "Treats a design gap as a knowledge gap."
+        }
+      ]
+    },
+    {
+      "id": "interim",
+      "competency": "ControlEvaluation",
+      "weight": 25,
+      "prompt": "What interim control do you add while automation is built?",
+      "options": [
+        {
+          "id": "daily_check",
+          "label": "Daily central check of every depot's downloads, with escalation to the depot manager by 10:00",
+          "score": 92,
+          "feedback": "Detective control with a clear owner and time limit.",
+          "setsFlags": [
+            "logger_control_fixed"
+          ],
+          "effects": {
+            "ControlEffectiveness": 4
+          }
+        },
+        {
+          "id": "monthly",
+          "label": "Monthly review",
+          "score": 25,
+          "feedback": "Too slow to catch excursions."
+        },
+        {
+          "id": "none",
+          "label": "None: automation will fix it",
+          "score": 15,
+          "feedback": "The regulator expects protection now."
+        }
+      ]
+    },
+    {
+      "id": "tone",
+      "competency": "StakeholderManagement",
+      "weight": 25,
+      "prompt": "What tone do you take with the Authority?",
+      "options": [
+        {
+          "id": "accept",
+          "label": "Accept the finding, explain the causes you already found, and offer a progress meeting at 8 weeks",
+          "score": 92,
+          "feedback": "Shows a firm that knows and fixes its problems."
+        },
+        {
+          "id": "challenge",
+          "label": "Challenge the severity rating",
+          "score": 20,
+          "feedback": "Disputing a well-evidenced finding damages trust."
+        },
+        {
+          "id": "silent",
+          "label": "Submit the plan and nothing more",
+          "score": 40,
+          "feedback": "Adequate but misses a chance to build trust."
+        }
+      ]
+    },
+    {
+      "id": "lesson_learnt",
+      "competency": "Judgement",
+      "weight": 20,
+      "prompt": "What does this finding teach the business?",
+      "options": [
+        {
+          "id": "act_on_tests",
+          "label": "Control test results need to be acted on quickly: the problem was known before the inspector found it",
+          "score": 92,
+          "feedback": "The cost of delay is now a formal finding."
+        },
+        {
+          "id": "regulator_harsh",
+          "label": "That the regulator is harsh",
+          "score": 10,
+          "feedback": "The control was failing."
+        },
+        {
+          "id": "hide_tests",
+          "label": "That control tests create evidence against us",
+          "score": 0,
+          "feedback": "The opposite lesson; testing is how firms fix things before regulators find them."
+        }
+      ]
+    }
+  ],
+  "lesson": "A regulator's finding is a test of governance. Accept it, fix the causes with owners and dates, protect in the meantime, and act on your own test results sooner next time."
+}

@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "id": "M002",
+  "title": "The Contractor Nobody Checks",
+  "kind": "mission",
+  "department": "Procurement",
+  "minLevel": 2,
+  "requiresPassed": ["M001"],
+  "passMark": 60,
+  "xp": 120,
+  "weeks": 3,
+  "briefing": [
+    "Priya Okafor has a follow-up from Northgate. Kelvarin Refrigeration Services maintains the compressors at all six Valtren sites, and the contract renews automatically in ten weeks.",
+    "Tomasz Brennan, Head of Procurement, wants a risk view before he lets it roll over. Review the file and recommend what Valtren should do."
+  ],
+  "context": [
+    {"ifFlag": "m001_warning_ignored", "text": "Since R-014 was accepted without action, Priya wants this one done properly: \"Show me the evidence, not the contract.\""},
+    {"ifFlag": "northgate_controls_fixed", "text": "The Northgate repair you recommended was carried out by Kelvarin. Operations want to know whether they can rely on the contractor for the other sites."},
+    {"ifMetric": "StakeholderTrust", "below": 50, "text": "Procurement is wary of the risk team after recent events. Expect your recommendation to be challenged."}
+  ],
+  "evidence": [
+    {"id": "sla_extract", "title": "Maintenance contract - service levels (extract)", "body": [
+      "Kelvarin will service every compressor quarterly and respond to breakdowns within 4 hours, 24/7.",
+      "Service visits are recorded by Kelvarin's engineer in the site service log. Kelvarin certifies completion in its monthly invoice.",
+      "Term: 24 months, renewing automatically for 12 months unless either party gives 60 days' notice. No service credits."
+    ]},
+    {"id": "service_log", "title": "Service log summary, last four quarters", "body": [
+      "Northgate: Q1 done, Q2 not recorded, Q3 done, Q4 not recorded.",
+      "Eastfield: Q1 done, Q2 done, Q3 not recorded, Q4 done.",
+      "Every entry is signed by a Kelvarin engineer. No Valtren signature or check appears on any visit. All four quarters were invoiced as complete."
+    ]},
+    {"id": "supplier_questionnaire", "title": "Supplier questionnaire (self-assessment)", "body": [
+      "Kelvarin rates itself 'fully compliant' on safety, quality and continuity.",
+      "Attached F-gas handling certificate expired eight months ago. No business continuity plan was provided ('available on request')."
+    ]},
+    {"id": "procurement_note", "title": "Procurement note", "body": [
+      "Kelvarin is the only approved refrigeration contractor for all six sites. Spend last year: 410,000.",
+      "Switching would take about four months including site surveys. Procurement has had no complaint logged against Kelvarin."
+    ]},
+    {"id": "priya_email", "title": "Email from Priya Okafor", "required": false, "body": "Keep it practical. Tomasz needs a recommendation he can act on before the notice date, not a lecture on third-party risk."}
+  ],
+  "questions": [
+    {"id": "risks", "kind": "multi", "competency": "RiskIdentification", "weight": 20,
+     "prompt": "Which of these are genuine risks from the Kelvarin arrangement, based on the evidence?",
+     "options": [
+       {"id": "concentration", "label": "One contractor maintains every site, so a Kelvarin failure hits all six at once", "correct": true},
+       {"id": "unverified_service", "label": "Missed services go unnoticed because Kelvarin records and certifies its own visits", "correct": true},
+       {"id": "lapsed_certificate", "label": "Refrigerant handling by staff whose certification has lapsed", "correct": true},
+       {"id": "auto_renewal", "label": "Automatic renewal locks Valtren into terms with no service credits", "correct": true},
+       {"id": "fuel_prices", "label": "Diesel price rises increase Kelvarin's call-out charges", "feedback": "Nothing in the file links Kelvarin's charges to fuel prices: that is speculation, not a risk from the evidence."},
+       {"id": "no_complaints", "label": "Procurement has logged no complaints, so the relationship is low risk", "feedback": "No complaints is not evidence of good service: nobody at Valtren checks the visits."}
+     ]},
+    {"id": "rating", "competency": "RiskAssessment", "weight": 20,
+     "prompt": "How would you rate the residual risk that Kelvarin fails to maintain the compressors (5x5 matrix)?",
+     "options": [
+       {"id": "l4i4", "label": "Likelihood 4, impact 4 (High): two sites already missed services and every site depends on Kelvarin", "score": 90, "feedback": "Missed visits at two sites in a year make failure likely; the impact spans all six sites."},
+       {"id": "l2i4", "label": "Likelihood 2, impact 4: the contract requires quarterly servicing", "score": 40, "feedback": "A contract clause is not a control that operates: the log shows it is not being met."},
+       {"id": "l4i2", "label": "Likelihood 4, impact 2: a late service is an inconvenience", "score": 35, "feedback": "Northgate showed what a missed service can lead to: spoiled stock and client penalties."},
+       {"id": "l5i5", "label": "Likelihood 5, impact 5 (Critical): stop using Kelvarin today", "score": 55, "feedback": "The evidence supports High, not certain catastrophe; stopping today would leave every site without cover."}
+     ]},
+    {"id": "control", "competency": "ControlEvaluation", "weight": 20,
+     "prompt": "How effective is the current control: 'Kelvarin records each visit in the service log and certifies completion on its invoice'?",
+     "options": [
+       {"id": "ineffective", "label": "Ineffective: the same party performs and checks the work, and nobody at Valtren reconciles visits to invoices", "score": 90, "feedback": "Right: there is no independent check, and invoices for missed quarters were paid."},
+       {"id": "partial", "label": "Partially effective: a log exists, so gaps can be found", "score": 45, "feedback": "Gaps can be found only if someone looks. Nobody does, so the log detects nothing."},
+       {"id": "effective", "label": "Effective: the contract requires the log and the invoice certification", "score": 15, "feedback": "A requirement on paper is not an operating control."}
+     ]},
+    {"id": "recommendation", "competency": "Judgement", "weight": 25,
+     "prompt": "What do you recommend to Procurement before the notice date? Your approval authority is shown at the top of the screen.",
+     "options": [
+       {"id": "renew_unchanged", "label": "Let it renew; raise performance at the next quarterly meeting", "score": 20,
+        "feedback": "This leaves unverified servicing in place for another year at every site.",
+        "setsFlags": ["kelvarin_renewed_unchanged"],
+        "effects": {"StakeholderTrust": 1},
+        "schedules": [
+          {"id": "eastfield_breakdown", "description": "Unserviced compressor fails at Eastfield during a delivery peak", "delayWeeks": 5, "probability": 0.4,
+           "effects": {"Cash": -120000, "Reputation": -4, "RiskExposure": 6}, "flagIfOccurs": "eastfield_breakdown",
+           "mitigatedBy": "northgate_controls_fixed", "mitigatedProbabilityFactor": 0.75, "mitigatedSeverityFactor": 0.5}
+        ]},
+       {"id": "renew_conditions", "label": "Renew for 12 months only with service credits, Valtren site sign-off for every visit, a current certificate within 30 days, and a second approved contractor by Q3", "score": 92,
+        "feedback": "Keeps cover in place while fixing the control (independent sign-off) and the concentration (second contractor).",
+        "setsFlags": ["contractor_visits_verified", "second_contractor_planned"],
+        "effects": {"ControlEffectiveness": 5, "RiskExposure": -4, "Costs": 18000}},
+       {"id": "terminate_now", "label": "Terminate Kelvarin and move all sites to a new contractor now (60,000 transition cost)", "score": 45, "cost": 60000,
+        "feedback": "Switching all six sites in a hurry creates its own gap in cover, and it is not your spend to approve.",
+        "effects": {"Cash": -60000, "EmployeeMorale": -2},
+        "schedules": [
+          {"id": "transition_gap", "description": "No contractor on call at two sites during the changeover", "delayWeeks": 3, "probability": 0.3,
+           "effects": {"Cash": -50000, "Reputation": -3}}
+        ]},
+       {"id": "escalate_exit", "label": "Escalate a business case to exit Kelvarin to the Head of Procurement, with interim site sign-off of visits", "score": 70, "cost": 60000, "escalates": true,
+        "feedback": "Escalating is right for a decision above your authority, but exit is a bigger step than the evidence needs while conditions could fix it.",
+        "setsFlags": ["contractor_visits_verified"],
+        "effects": {"ControlEffectiveness": 3}}
+     ]},
+    {"id": "message", "competency": "Communication", "weight": 15,
+     "prompt": "How do you put this to Tomasz Brennan?",
+     "options": [
+       {"id": "decision_first", "label": "Lead with the decision and the deadline (notice in 10 weeks), the evidence (missed quarters paid as complete), the recommended conditions and who owns them", "score": 92, "feedback": "Decision, deadline, evidence, owner: everything he needs to act."},
+       {"id": "full_analysis", "label": "Send the full questionnaire analysis and let him draw conclusions", "score": 40, "feedback": "Detail without a recommendation pushes the work back to him."},
+       {"id": "register_only", "label": "Mark the risk red in the register and wait for Procurement to ask", "score": 15, "feedback": "A colour in a register nobody reads before the notice date changes nothing."},
+       {"id": "ceo_direct", "label": "Email the CEO directly so it gets attention", "score": 30, "feedback": "Bypassing the accountable owner damages trust and skips the people who can fix it."}
+     ]}
+  ],
+  "lesson": "A control performed and checked by the same party is not a control. Third-party risk needs independent evidence, and contract dates are risk dates."
+}

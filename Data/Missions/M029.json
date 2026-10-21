@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "id": "M029",
+  "title": "Rehearsal",
+  "kind": "mission",
+  "department": "Executive Management",
+  "minLevel": 6,
+  "requiresPassed": [
+    "M012"
+  ],
+  "passMark": 60,
+  "xp": 180,
+  "weeks": 2,
+  "briefing": [
+    "Optional specialism: business continuity. Valtren's business continuity plan was written three years ago and never exercised. You are asked to run a tabletop exercise for the executive.",
+    "Design it and run the debrief."
+  ],
+  "evidence": [
+    {
+      "id": "plan",
+      "title": "Current BCP",
+      "body": "62 pages. Contact list 40% out of date. Recovery time objectives set for IT systems but not for business services."
+    },
+    {
+      "id": "services",
+      "title": "Critical services",
+      "body": "Pharma deliveries, temperature monitoring, food retail deliveries, invoicing."
+    },
+    {
+      "id": "scenario_ideas",
+      "title": "Scenario ideas",
+      "body": "Loss of Northgate site for a week; regional power cut; key supplier failure."
+    }
+  ],
+  "questions": [
+    {
+      "id": "design",
+      "competency": "Governance",
+      "weight": 25,
+      "prompt": "What should the exercise test?",
+      "options": [
+        {
+          "id": "services",
+          "label": "Whether critical services can be delivered within tolerable outage times, not just whether IT recovers",
+          "score": 92,
+          "feedback": "Business services are what clients feel."
+        },
+        {
+          "id": "it_only",
+          "label": "IT recovery times",
+          "score": 35,
+          "feedback": "Necessary but not sufficient."
+        },
+        {
+          "id": "contacts",
+          "label": "Whether people answer their phones",
+          "score": 25,
+          "feedback": "One small part."
+        }
+      ]
+    },
+    {
+      "id": "scenario",
+      "competency": "StrategicThinking",
+      "weight": 25,
+      "prompt": "Which scenario do you choose for the first exercise?",
+      "options": [
+        {
+          "id": "northgate",
+          "label": "Loss of Northgate for a week: it tests pharma, temperature monitoring and relocation together",
+          "score": 92,
+          "feedback": "Severe, plausible and exercises the most critical services."
+        },
+        {
+          "id": "asteroid",
+          "label": "A meteor strike",
+          "score": 5,
+          "feedback": "Implausible exercises aren't taken seriously."
+        },
+        {
+          "id": "printer",
+          "label": "A printer failure",
+          "score": 10,
+          "feedback": "Too trivial to test anything."
+        }
+      ]
+    },
+    {
+      "id": "gaps",
+      "competency": "RiskIdentification",
+      "weight": 25,
+      "prompt": "Which gaps did the exercise most likely reveal?",
+      "options": [
+        {
+          "id": "contacts",
+          "label": "Out-of-date contacts slow the first hour",
+          "correct": true
+        },
+        {
+          "id": "no_rto_services",
+          "label": "No outage tolerances for business services",
+          "correct": true
+        },
+        {
+          "id": "roles",
+          "label": "Unclear decision rights between site and head office",
+          "correct": true
+        },
+        {
+          "id": "too_short",
+          "label": "The plan is too short",
+          "feedback": "At 62 pages it is too long to use under pressure."
+        }
+      ],
+      "kind": "multi"
+    },
+    {
+      "id": "follow",
+      "competency": "Leadership",
+      "weight": 25,
+      "prompt": "What follows the exercise?",
+      "options": [
+        {
+          "id": "actions",
+          "label": "A short action plan: owners, dates, a two-page crisis card, and the next exercise booked in six months",
+          "score": 92,
+          "feedback": "Exercises only matter if they change the plan.",
+          "setsFlags": [
+            "bcp_exercised"
+          ],
+          "effects": {
+            "Resilience": 6
+          }
+        },
+        {
+          "id": "report",
+          "label": "A long report filed with the BCP",
+          "score": 25,
+          "feedback": "Filed reports change nothing."
+        },
+        {
+          "id": "done",
+          "label": "Nothing: the exercise was the point",
+          "score": 10,
+          "feedback": "The point is learning."
+        }
+      ]
+    }
+  ],
+  "lesson": "Plans that are never exercised fail. Test business services against tolerable outage times, fix what the exercise reveals, and exercise again."
+}

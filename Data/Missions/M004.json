@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "id": "M004",
+  "title": "What Is It Worth?",
+  "kind": "mission",
+  "department": "Finance",
+  "minLevel": 3,
+  "requiresPassed": ["M003"],
+  "passMark": 60,
+  "xp": 150,
+  "weeks": 2,
+  "briefing": [
+    "Congratulations on the promotion. Your first piece of work as a Risk Analyst comes from Hollis Varga, Finance Director.",
+    "Harrowgate warehouse sits in a flood zone. A supplier has quoted for flood barriers and Operations want them. Hollis wants to know what the flood risk is worth to Valtren and whether the barriers pay for themselves. Use the Loss Scenarios and Cost-Benefit tools at your workstation if it helps."
+  ],
+  "context": [
+    {"ifFlag": "fatigue_kri_live", "text": "Hollis mentions the fleet indicators you designed: \"That is the kind of thing I want: numbers that change a decision.\""},
+    {"ifMetric": "Cash", "below": 3000000, "text": "Cash is tighter than at the start of the year after recent incidents. Hollis will look hard at any spend."}
+  ],
+  "evidence": [
+    {"id": "flood_scenarios", "title": "Insurer's flood loss scenarios for Harrowgate", "body": [
+      "Minor flood (water in the loading bays, some stock lost): annual probability 4%, loss 120,000.",
+      "Major flood (warehouse inundated, four weeks closed): annual probability 1%, loss 1,600,000.",
+      "The two scenarios are mutually exclusive in any one year."
+    ]},
+    {"id": "insurance", "title": "Property insurance schedule (flood section)", "body": [
+      "Insurer: Brantwell Mutual. Flood excess: 250,000 per event. Flood cover limit: 1,000,000 per event.",
+      "Valtren pays the first 250,000 of any flood loss, and anything above 1,250,000."
+    ]},
+    {"id": "barrier_quote", "title": "Flood barrier quote", "body": [
+      "Demountable barriers and a sump pump: 45,000 installed, then 3,000 a year for storage, testing and maintenance.",
+      "With barriers in place the insurer's engineer estimates: minor flood loss falls to 20,000; major flood loss falls to 600,000. Probabilities are unchanged."
+    ]},
+    {"id": "finance_policy", "title": "Finance policy (extract)", "body": "Projects are appraised over 5 years at an 8% discount rate. Spend above an analyst's approval authority goes to the Finance Director."}
+  ],
+  "questions": [
+    {"id": "el_gross", "competency": "QuantitativeAnalysis", "weight": 25,
+     "prompt": "What is Harrowgate's expected annual flood loss today, before insurance?",
+     "options": [
+       {"id": "el_20800", "label": "20,800 a year", "score": 92, "feedback": "4% x 120,000 + 1% x 1,600,000 = 4,800 + 16,000 = 20,800."},
+       {"id": "el_16000", "label": "16,000 a year", "score": 40, "feedback": "That is the major flood only; the minor flood adds 4,800."},
+       {"id": "el_1720000", "label": "1,720,000", "score": 10, "feedback": "That adds the losses without weighting by probability. Expected loss is a probability-weighted average."},
+       {"id": "el_1600000", "label": "1,600,000 (the worst case)", "score": 10, "feedback": "That is the worst case, not the expected loss. Report the two separately."}
+     ]},
+    {"id": "el_net", "competency": "QuantitativeAnalysis", "weight": 20,
+     "prompt": "What expected annual loss does Valtren keep after insurance (excess 250,000, limit 1,000,000)?",
+     "options": [
+       {"id": "net_10800", "label": "10,800 a year", "score": 92, "feedback": "Minor floods are below the excess, so Valtren keeps all 120,000 (4,800 a year). For a major flood the insurer pays 1,000,000 and Valtren keeps 600,000 (6,000 a year)."},
+       {"id": "net_20800", "label": "20,800 a year: insurance doesn't change it", "score": 35, "feedback": "Insurance pays most of a major flood; the loss Valtren keeps is lower."},
+       {"id": "net_4800", "label": "4,800 a year: insurance covers the major flood", "score": 40, "feedback": "The cover limit is 1,000,000 and the excess applies: Valtren still keeps 600,000 of a major flood."},
+       {"id": "net_0", "label": "Nothing: we are insured", "score": 5, "feedback": "Excess and limits mean insurance never covers everything."}
+     ]},
+    {"id": "appraisal", "competency": "RiskAssessment", "weight": 20,
+     "prompt": "With barriers the loss Valtren keeps falls to 3,300 a year. What does the 5-year appraisal at 8% show?",
+     "options": [
+       {"id": "npv_negative", "label": "NPV about -27,000 on the losses Valtren keeps: the barriers are not justified on money alone", "score": 90,
+        "feedback": "Benefit 7,500 a year for 5 years at 8% is worth about 29,900; cost is 45,000 plus 3,000 a year (about 57,000). NPV about -27,000."},
+       {"id": "npv_gross", "label": "NPV about -1,100 on gross losses: close to break-even, so build them", "score": 45,
+        "feedback": "The gross figure counts savings the insurer would make, not Valtren. Unless the premium falls, Valtren does not get that benefit."},
+       {"id": "npv_worst", "label": "Clearly positive: one major flood costs 1,600,000", "score": 15, "feedback": "Comparing a certain cost with a worst case ignores how unlikely that worst case is."},
+       {"id": "cannot", "label": "It cannot be appraised without knowing when the next flood will happen", "score": 10, "feedback": "Expected loss exists precisely to appraise risks whose timing is unknown."}
+     ]},
+    {"id": "decision", "competency": "Judgement", "weight": 20,
+     "prompt": "What do you do? Your approval authority as a Risk Analyst is 25,000.",
+     "options": [
+       {"id": "approve_barriers", "label": "Approve the barriers (45,000) yourself: Operations want them", "score": 60, "cost": 45000,
+        "feedback": "Above your authority, and the appraisal does not support it.",
+        "effects": {"Cash": -45000, "Costs": 3000, "Resilience": 3}},
+       {"id": "flood_plan", "label": "Recommend no barriers for now; fund a 6,000 flood response plan (raised racking for high-value stock, sandbag store, a 4-hour stock-move procedure) and ask Brantwell to quote a lower flood excess", "score": 90, "cost": 6000,
+        "feedback": "Cheap, within your authority, and it cuts the loss you keep. The excess quote tests the other lever.",
+        "setsFlags": ["harrowgate_flood_plan"],
+        "effects": {"Cash": -6000, "Resilience": 4},
+        "schedules": [
+          {"id": "flood_with_plan", "description": "Heavy rain floods Harrowgate's loading bays", "delayWeeks": 6, "probability": 0.05,
+           "effects": {"Cash": -120000, "Reputation": -2}, "mitigatedBy": "harrowgate_flood_plan", "mitigatedProbabilityFactor": 1.0, "mitigatedSeverityFactor": 0.3}
+        ]},
+       {"id": "escalate_barriers", "label": "Escalate the barrier business case to Hollis with the appraisal and how the answer changes if flood probability doubles", "score": 75, "cost": 45000, "escalates": true,
+        "feedback": "Properly escalated, and the sensitivity is useful. The appraisal itself still argues against the barriers today.",
+        "setsFlags": ["harrowgate_barriers_proposed"]},
+       {"id": "do_nothing", "label": "Do nothing: 10,800 a year is small", "score": 30,
+        "feedback": "The average is small but a major flood would cost Valtren 600,000 in one year. Cheap mitigations were available.",
+        "schedules": [
+          {"id": "flood_unprepared", "description": "Heavy rain floods Harrowgate's loading bays; stock is still on the floor", "delayWeeks": 6, "probability": 0.05,
+           "effects": {"Cash": -120000, "Reputation": -3, "StakeholderTrust": -3}, "flagIfOccurs": "harrowgate_flooded"}
+        ]}
+     ]},
+    {"id": "statement", "competency": "Communication", "weight": 15,
+     "prompt": "Which sentence belongs in your paper to Hollis?",
+     "options": [
+       {"id": "el_and_worst", "label": "\"On average floods cost us 10,800 a year after insurance, but a major flood would cost us 600,000 in a single year.\"", "score": 95, "feedback": "Expected loss and worst case side by side, neither mistaken for the other."},
+       {"id": "el_only", "label": "\"Our flood risk is 10,800 a year.\"", "score": 30, "feedback": "Presenting the average alone hides the 600,000 year."},
+       {"id": "worst_only", "label": "\"A flood could cost us 1.6 million.\"", "score": 30, "feedback": "Gross worst case alone overstates what Valtren keeps and says nothing about likelihood."},
+       {"id": "low_risk", "label": "\"Flood risk is low, so no action is needed.\"", "score": 10, "feedback": "Low likelihood is not low risk when the impact is severe."}
+     ]}
+  ],
+  "lesson": "Quantify what the organisation actually keeps after insurance, appraise treatments on that, and always report the worst case next to the expected loss."
+}

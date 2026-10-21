@@ -1,0 +1,56 @@
+RISKBOUND - LICENCE AND CREDITS
+===============================
+
+Riskbound is created by M A Almahlaki
+  Email: m.awwadh.k@gmail.com
+  LinkedIn: https://www.linkedin.com/in/mohammed-almahlaki001/
+
+All companies, people and events in the game are fictional.
+
+
+1. RISKBOUND'S OWN CODE (MIT licence)
+
+Copyright (c) 2026 M A Almahlaki
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+2. UNREAL ENGINE
+
+Riskbound is built with Unreal Engine. Unreal(R) is a trademark or registered
+trademark of Epic Games, Inc. The engine components in this build are
+distributed under the Unreal Engine End User License Agreement
+(https://www.unrealengine.com/eula). Third-party notices for engine components
+are in NOTICES.txt in the installation folder.
+
+
+3. THIRD-PARTY ASSETS
+
+3D models, textures and the sky HDRI are CC0 (public domain) assets from Poly
+Haven and others; the full list with authors and sources is in
+Licences\AssetCredits.md in the installation folder. The Inter typeface is used
+under the SIL Open Font License 1.1 (Licences\Inter-font-OFL.txt).
+
+
+4. DEVELOPMENT ASSISTANCE
+
+Developed with the help of Claude Code by Anthropic.
+
+
+By installing you accept these terms. The game is offline: it does not connect
+to the internet, create accounts or collect data.

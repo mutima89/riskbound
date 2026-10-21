@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "id": "C003",
+  "title": "Contract on the Line",
+  "kind": "crisis",
+  "department": "Commercial",
+  "minLevel": 9,
+  "requiresPassed": ["M024"],
+  "passMark": 60,
+  "xp": 300,
+  "weeks": 2,
+  "briefing": [
+    "Friday 17:40. Valtren's largest pharma client, Halvern Biologics (11% of revenue), has found a vaccine shipment that spent 50 minutes above 8C in transit and was delivered without the excursion being reported. Their head of quality writes: 'We are considering terminating the contract under clause 14.'",
+    "The CEO asks you to lead the response."
+  ],
+  "context": [
+    {"ifFlag": "regulator_trust", "text": "Your open relationship with the regulator means you can call Imogen Raske directly."},
+    {"ifFlag": "coldline2_on_track", "text": "Coldline 2's alerting should have caught this. Find out why it didn't."}
+  ],
+  "evidence": [
+    {"id": "logger", "title": "Data logger trace", "body": "Shipment peaked at 9.4C for 50 minutes during a 70-minute unplanned stop. The in-cab alert sounded; the driver acknowledged it; no escalation followed."},
+    {"id": "process", "title": "Excursion procedure", "body": "Any excursion must be reported to the client within 2 hours and the load quarantined pending the client's decision. The driver was not trained on the pharma procedure; he was an agency driver covering a shortage."},
+    {"id": "contract", "title": "Clause 14", "body": "Halvern may terminate for 'a material breach of temperature control or reporting obligations' with 30 days' notice. Annual contract value 5.6m."},
+    {"id": "regulation", "title": "Regulatory duty", "body": "Distributors must notify the Authority of excursions affecting medicinal products that reached a patient-facing site."}
+  ],
+  "questions": [
+    {"id": "first_steps", "competency": "Judgement", "weight": 25,
+     "prompt": "What do you do tonight?",
+     "options": [
+       {"id": "contain", "label": "Confirm where the affected vaccine is and support Halvern's recall decision, notify the Authority as required, and check every other pharma load this week for unreported alerts", "score": 95, "feedback": "Patient safety, legal duty and the extent of the problem first."},
+       {"id": "negotiate", "label": "Call Halvern's commercial director to save the contract", "score": 30, "feedback": "Commercial talks before patient safety and regulatory duty is the wrong order."},
+       {"id": "investigate_first", "label": "Investigate fully before telling anyone else", "score": 20, "feedback": "The regulatory duty and patient safety don't wait for your investigation."}
+     ]},
+    {"id": "root_cause", "competency": "Governance", "weight": 20,
+     "prompt": "What is the root cause?",
+     "options": [
+       {"id": "people_process", "label": "Agency drivers placed on pharma loads without pharma training, and alerts that end with the driver instead of escalating to a control centre", "score": 92, "feedback": "Two control design gaps, not one driver's mistake."},
+       {"id": "driver", "label": "The driver ignored the alert", "score": 20, "feedback": "The system relied on one untrained person."},
+       {"id": "heat", "label": "The unplanned stop", "score": 25, "feedback": "The trigger, not the cause of the failure to report."}
+     ]},
+    {"id": "client", "competency": "StakeholderManagement", "weight": 20,
+     "prompt": "How do you approach Halvern on Monday?",
+     "options": [
+       {"id": "own_and_fix", "label": "Meet their head of quality in person: full facts, root cause, what's already fixed, and their right to audit the fix", "score": 92, "feedback": "Ownership and transparency are the only route to keeping a quality-driven client.",
+        "setsFlags": ["halvern_retained"], "effects": {"StakeholderTrust": 4}},
+       {"id": "discount", "label": "Offer a 10% discount to stay", "score": 20, "feedback": "Price doesn't fix a quality failure; it looks like buying silence."},
+       {"id": "dispute", "label": "Argue the breach wasn't 'material'", "score": 15, "feedback": "Legal argument loses the relationship either way.",
+        "schedules": [
+          {"id": "halvern_terminates", "description": "Halvern Biologics serves notice under clause 14", "delayWeeks": 2, "probability": 0.7,
+           "effects": {"Revenue": -5600000, "Reputation": -8, "StrategicProgress": -6}, "flagIfOccurs": "halvern_lost"}
+        ]}
+     ]},
+    {"id": "fix", "competency": "StrategicThinking", "weight": 20,
+     "prompt": "Which fix do you commit to?",
+     "options": [
+       {"id": "system_fix", "label": "Pharma-trained drivers only on pharma loads, alerts routed to a 24/7 control desk with a 15-minute escalation rule, and weekly audit of alerts against reports", "score": 92, "feedback": "Fixes both causes and adds a detective control."},
+       {"id": "retrain_one", "label": "Retrain the driver", "score": 20, "feedback": "Fixes one person, not the system."},
+       {"id": "ban_agency", "label": "Ban agency drivers entirely", "score": 40, "feedback": "Over-reaction that worsens the driver shortage; training and allocation solve it."}
+     ]},
+    {"id": "board_comms", "competency": "Communication", "weight": 15,
+     "prompt": "What do you tell the board?",
+     "options": [
+       {"id": "full", "label": "Same day: what happened, patient-safety status, regulator notified, client position, root cause and fix, and the revenue at risk (5.6m a year)", "score": 95, "feedback": "Boards must hear bad news fast and whole."},
+       {"id": "after_outcome", "label": "Wait until you know whether Halvern stays", "score": 20, "feedback": "The board needs to know before the outcome, not after."},
+       {"id": "ceo_only", "label": "Leave it to the CEO", "score": 30, "feedback": "You lead the response; the board will want to hear from you."}
+     ]}
+  ],
+  "lesson": "In a client crisis: patient safety and legal duties first, then root cause in the system, then ownership and transparency with the client and board."
+}

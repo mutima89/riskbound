@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "id": "M027",
+  "title": "Leak Check",
+  "kind": "mission",
+  "department": "Security and Safety",
+  "minLevel": 4,
+  "requiresPassed": [
+    "M006"
+  ],
+  "passMark": 60,
+  "xp": 180,
+  "weeks": 2,
+  "briefing": [
+    "Optional specialism: environmental risk. Valtren's refrigeration plant lost 310 kg of refrigerant last year to leaks. The refrigerant has a high global warming potential, and leak records are incomplete.",
+    "Grace Mbeki asks for an environmental risk assessment before the next permit review."
+  ],
+  "evidence": [
+    {
+      "id": "leaks",
+      "title": "Leak records",
+      "body": "310 kg topped up across six sites. Leak checks recorded at four sites; two sites have no records for 14 months."
+    },
+    {
+      "id": "rules",
+      "title": "Regulation (summary)",
+      "body": "Systems above a size threshold need periodic leak checks with records; operators must repair leaks promptly; the phase-down restricts supply of this refrigerant from 2027."
+    },
+    {
+      "id": "cost",
+      "title": "Costs",
+      "body": "Refrigerant price up 140% in two years. Leak detection sensors: 9,000 per site."
+    }
+  ],
+  "questions": [
+    {
+      "id": "exposure",
+      "competency": "RiskIdentification",
+      "weight": 25,
+      "prompt": "Which exposures does this create?",
+      "options": [
+        {
+          "id": "compliance",
+          "label": "Non-compliance: missing leak-check records at two sites",
+          "correct": true
+        },
+        {
+          "id": "climate",
+          "label": "Climate impact and reputational exposure from high-GWP leaks",
+          "correct": true
+        },
+        {
+          "id": "supply",
+          "label": "Rising cost and future supply restrictions of the refrigerant",
+          "correct": true
+        },
+        {
+          "id": "noise",
+          "label": "Noise complaints from compressors",
+          "feedback": "Not supported by this evidence."
+        }
+      ],
+      "kind": "multi"
+    },
+    {
+      "id": "records",
+      "competency": "ControlEvaluation",
+      "weight": 25,
+      "prompt": "How do you rate leak-check controls?",
+      "options": [
+        {
+          "id": "ineffective_two",
+          "label": "Ineffective at two sites (no records in 14 months), unproven elsewhere until checks are sampled",
+          "score": 92,
+          "feedback": "Evidence-based and site-specific."
+        },
+        {
+          "id": "effective",
+          "label": "Effective: checks happen at most sites",
+          "score": 20,
+          "feedback": "Two sites with no evidence is a control failure."
+        },
+        {
+          "id": "unknown",
+          "label": "Can't be rated",
+          "score": 30,
+          "feedback": "Missing records are themselves evidence."
+        }
+      ]
+    },
+    {
+      "id": "cost_benefit",
+      "competency": "QuantitativeAnalysis",
+      "weight": 25,
+      "prompt": "Sensors cost 54,000 for six sites. If they cut leaks by half and refrigerant costs about 120 per kg, what is the annual saving from refrigerant alone?",
+      "options": [
+        {
+          "id": "about_18600",
+          "label": "About 18,600 a year (155 kg x 120)",
+          "score": 92,
+          "feedback": "Half of 310 kg = 155 kg; x 120 = 18,600. Payback about 3 years before counting compliance and climate benefits."
+        },
+        {
+          "id": "about_37200",
+          "label": "About 37,200 a year",
+          "score": 30,
+          "feedback": "That assumes all leaks stop."
+        },
+        {
+          "id": "about_54000",
+          "label": "54,000 a year",
+          "score": 15,
+          "feedback": "That is the sensor cost."
+        }
+      ]
+    },
+    {
+      "id": "recommend",
+      "competency": "Judgement",
+      "weight": 25,
+      "prompt": "What do you recommend?",
+      "options": [
+        {
+          "id": "sensors_and_plan",
+          "label": "Fix records at the two sites now, install sensors at the two largest plants first, and include refrigerant transition in the capital plan",
+          "score": 92,
+          "feedback": "Compliance first, then the best-value investment, then the long-term exposure.",
+          "setsFlags": [
+            "refrigerant_leaks_controlled"
+          ],
+          "effects": {
+            "Costs": 27000,
+            "Reputation": 2,
+            "RiskExposure": -2
+          }
+        },
+        {
+          "id": "nothing",
+          "label": "Nothing until the permit review",
+          "score": 15,
+          "feedback": "The review will find the missing records."
+        },
+        {
+          "id": "replace_all",
+          "label": "Replace all plant with low-GWP systems now",
+          "score": 40,
+          "feedback": "Right direction, wrong timing and cost without a plan."
+        }
+      ]
+    }
+  ],
+  "lesson": "Environmental risk combines compliance, climate impact and cost. Fix the records first, invest where payback is clearest, and plan the transition."
+}

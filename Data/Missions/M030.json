@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "id": "M030",
+  "title": "Following the Money",
+  "kind": "mission",
+  "department": "Finance",
+  "minLevel": 6,
+  "requiresPassed": [
+    "M010"
+  ],
+  "passMark": 60,
+  "xp": 180,
+  "weeks": 2,
+  "briefing": [
+    "Optional specialism: fraud risk. After recent cases, the Audit Committee asks for a fraud risk assessment across Valtren.",
+    "Map where fraud could happen and which controls would stop it."
+  ],
+  "evidence": [
+    {
+      "id": "processes",
+      "title": "Key processes",
+      "body": "Supplier payments (2,400 a month), expenses, fuel cards, payroll, customer credit notes."
+    },
+    {
+      "id": "controls",
+      "title": "Existing controls",
+      "body": "Payment approval by budget holder; no check of supplier bank-detail changes; fuel cards without vehicle matching; credit notes approved by the sales team that raised them."
+    },
+    {
+      "id": "cases",
+      "title": "Industry cases",
+      "body": "Most losses in similar firms come from supplier bank-detail fraud (fake emails changing payee details) and credit-note abuse."
+    }
+  ],
+  "questions": [
+    {
+      "id": "hotspots",
+      "competency": "RiskIdentification",
+      "weight": 25,
+      "prompt": "Which are the fraud hotspots?",
+      "options": [
+        {
+          "id": "bank_details",
+          "label": "Supplier bank-detail changes without verification",
+          "correct": true
+        },
+        {
+          "id": "credit_notes",
+          "label": "Credit notes approved by the team that raised them",
+          "correct": true
+        },
+        {
+          "id": "fuel_cards",
+          "label": "Fuel cards without vehicle matching",
+          "correct": true
+        },
+        {
+          "id": "payroll",
+          "label": "Payroll (with HR and finance checks in place)",
+          "feedback": "Lower risk given existing segregation."
+        }
+      ],
+      "kind": "multi"
+    },
+    {
+      "id": "priority",
+      "competency": "Judgement",
+      "weight": 25,
+      "prompt": "Which control do you implement first?",
+      "options": [
+        {
+          "id": "callback",
+          "label": "Call-back verification of every supplier bank-detail change, using contact details already on file",
+          "score": 92,
+          "feedback": "Cheap, fast, and stops the most common large fraud.",
+          "setsFlags": [
+            "payment_fraud_controlled"
+          ],
+          "effects": {
+            "ControlEffectiveness": 4
+          }
+        },
+        {
+          "id": "audit",
+          "label": "An annual fraud audit",
+          "score": 30,
+          "feedback": "Detects after the loss."
+        },
+        {
+          "id": "training",
+          "label": "Fraud awareness e-learning",
+          "score": 40,
+          "feedback": "Useful, but weaker than a hard control on payments."
+        }
+      ]
+    },
+    {
+      "id": "quant",
+      "competency": "QuantitativeAnalysis",
+      "weight": 25,
+      "prompt": "Industry data: about 1 in 400 bank-detail change requests is fraudulent; Valtren gets about 600 a year; average fraudulent payment 45,000. Expected annual loss without verification?",
+      "options": [
+        {
+          "id": "about_67500",
+          "label": "About 67,500 a year (1.5 frauds x 45,000)",
+          "score": 92,
+          "feedback": "600 / 400 = 1.5 expected frauds; x 45,000 = 67,500."
+        },
+        {
+          "id": "about_27m",
+          "label": "27 million",
+          "score": 5,
+          "feedback": "That multiplies every request by the loss."
+        },
+        {
+          "id": "about_45000",
+          "label": "45,000",
+          "score": 40,
+          "feedback": "One fraud; the expected number is 1.5."
+        }
+      ]
+    },
+    {
+      "id": "governance",
+      "competency": "Governance",
+      "weight": 25,
+      "prompt": "How should fraud risk be governed?",
+      "options": [
+        {
+          "id": "owner_committee",
+          "label": "A named fraud risk owner in Finance, the assessment refreshed annually, and incidents and control testing reported to the Audit Committee",
+          "score": 92,
+          "feedback": "Ownership plus oversight."
+        },
+        {
+          "id": "risk_team",
+          "label": "The risk team owns fraud",
+          "score": 30,
+          "feedback": "Second line advises; Finance owns the controls."
+        },
+        {
+          "id": "police",
+          "label": "Leave it to the police",
+          "score": 10,
+          "feedback": "Police act after the fact."
+        }
+      ]
+    }
+  ],
+  "lesson": "Fraud risk concentrates where money moves with weak verification. Fix the highest-loss control first, quantify it, and give fraud an owner."
+}

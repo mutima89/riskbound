@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "id": "M019",
+  "title": "The Enterprise View",
+  "kind": "mission",
+  "department": "Executive Management",
+  "minLevel": 8,
+  "requiresPassed": ["M018", "C001"],
+  "passMark": 60,
+  "xp": 250,
+  "weeks": 3,
+  "briefing": [
+    "As Head of Risk you own the enterprise risk profile. The executive sees 140 operational risks and no picture of what could actually stop Valtren meeting its strategy.",
+    "Build the enterprise view: the handful of risks that matter at board level."
+  ],
+  "context": [
+    {"ifFlag": "framework_standardised", "text": "Because every unit now uses one method, you can aggregate their registers for the first time."},
+    {"ifFlag": "pellmoor_client_lost", "text": "Losing Pellmoor's pharma client has hit the strategic plan; the board wants to know what else could."}
+  ],
+  "evidence": [
+    {"id": "objectives", "title": "Strategic objectives", "body": "1. Pharma to 25% of revenue in three years. 2. Margin from 7% to 9%. 3. Net-zero fleet by 2035. 4. Keep top-3 client retention."},
+    {"id": "unit_risks", "title": "Aggregated unit risks (examples)", "body": "Six sites each list 'compressor failure'. Four list 'driver shortage'. Three list cyber outage of route planning. Two list refrigerant regulation."},
+    {"id": "external", "title": "External scan", "body": "Refrigerant phase-down regulation tightening in 2027; electric refrigerated trucks two years from viable range; pharma clients consolidating suppliers."}
+  ],
+  "questions": [
+    {"id": "aggregation", "competency": "StrategicThinking", "weight": 25,
+     "prompt": "What does an enterprise risk look like compared with a unit risk?",
+     "options": [
+       {"id": "objective_linked", "label": "It threatens a strategic objective and often aggregates many unit risks, e.g. 'Cold-chain integrity failure loses pharma accreditation', built from compressor, logger and fleet risks", "score": 92, "feedback": "Aggregation plus link to strategy."},
+       {"id": "biggest_unit", "label": "It is the unit risk with the largest score", "score": 30, "feedback": "Size alone misses aggregation and strategic relevance."},
+       {"id": "all_units", "label": "It appears in every unit's register", "score": 35, "feedback": "Frequency is a clue, not a definition."}
+     ]},
+    {"id": "top_risks", "kind": "multi", "competency": "Governance", "weight": 20,
+     "prompt": "Which belong on the enterprise profile?",
+     "options": [
+       {"id": "cold_chain", "label": "Cold-chain integrity failure loses pharma accreditation or a key client", "correct": true},
+       {"id": "people", "label": "Driver and engineer shortage constrains growth and safety", "correct": true},
+       {"id": "cyber", "label": "Critical system outage (route planning, alerting)", "correct": true},
+       {"id": "transition", "label": "Refrigerant and fleet transition outpaces Valtren's plan", "correct": true},
+       {"id": "stationery", "label": "Office stationery costs", "feedback": "Immaterial at enterprise level."}
+     ]},
+    {"id": "presentation", "competency": "Communication", "weight": 20,
+     "prompt": "How do you present the profile to the executive?",
+     "options": [
+       {"id": "one_page", "label": "One page: 8-10 enterprise risks, each with owner, trend, appetite status, link to objectives and the key actions", "score": 92, "feedback": "A view an executive can use in one meeting."},
+       {"id": "all_140", "label": "All 140 risks, sorted by score", "score": 20, "feedback": "The problem the profile was meant to solve."},
+       {"id": "heatmap_only", "label": "A heat map with no text", "score": 40, "feedback": "Shows position but not owners, trend or actions."}
+     ]},
+    {"id": "owners", "competency": "Leadership", "weight": 20,
+     "prompt": "Who should own the enterprise risks?",
+     "options": [
+       {"id": "executives", "label": "Individual executives, each accountable for one or two, reporting to the board risk committee", "score": 92, "feedback": "Enterprise risks need owners with enterprise authority."},
+       {"id": "risk_team", "label": "The risk team", "score": 15, "feedback": "The second line oversees; it doesn't own business risks."},
+       {"id": "unit_heads", "label": "The unit heads who reported the underlying risks", "score": 35, "feedback": "They own the parts, not the aggregate."}
+     ]},
+    {"id": "emerging", "competency": "Judgement", "weight": 15,
+     "prompt": "The refrigerant regulation is three years out. Include it now?",
+     "options": [
+       {"id": "yes_long_lead", "label": "Yes: fleet and plant decisions made now determine whether Valtren complies in 2027", "score": 92, "feedback": "Long-lead risks belong on the profile when today's decisions shape them.",
+        "setsFlags": ["transition_risk_on_profile"], "effects": {"StrategicProgress": 3}},
+       {"id": "later", "label": "No: wait until it's closer", "score": 25, "feedback": "Then it's too late to change the investment cycle."},
+       {"id": "watchlist", "label": "Put it on a watch list only", "score": 55, "feedback": "Better than nothing, but it needs an owner and actions now."}
+     ]}
+  ],
+  "lesson": "An enterprise risk profile aggregates unit risks around strategic objectives, gives each risk an executive owner, and fits on one page."
+}

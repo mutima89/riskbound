@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "id": "M006",
+  "title": "Near Misses",
+  "kind": "mission",
+  "department": "Security and Safety",
+  "minLevel": 3,
+  "requiresPassed": ["M004", "M005"],
+  "passMark": 60,
+  "xp": 150,
+  "weeks": 3,
+  "briefing": [
+    "Valtren's yard safety record looks excellent: one reportable injury in two years. Grace Mbeki, Head of Health and Safety, is not convinced. Near-miss reports dropped by 70% after supervisors' bonuses were linked to 'incident-free months'.",
+    "She has asked the risk team to look at the data and tell the Operations Board what it really says."
+  ],
+  "context": [
+    {"ifFlag": "fatigue_collision", "text": "The A-road collision is still under investigation. The board is sensitive to anything that looks like hidden risk."},
+    {"ifFlag": "logger_control_fixed", "text": "Your control test on data loggers impressed Ruth Adeyemi; she has told Grace you can be trusted with awkward findings."}
+  ],
+  "evidence": [
+    {"id": "near_miss_trend", "title": "Near-miss reports by quarter", "body": [
+      "Eight quarters: 41, 38, 44, 40 | bonus scheme starts | 14, 11, 12, 9.",
+      "Yard movements per quarter were stable at about 52,000 throughout."
+    ]},
+    {"id": "bonus_scheme", "title": "Supervisor bonus scheme (extract)", "body": "Supervisors receive 1,500 for each 'incident-free month' at their depot. Near misses logged on the system count as incidents for this purpose."},
+    {"id": "cctv_review", "title": "Sample CCTV review (Health and Safety)", "body": "A review of 20 random yard shifts after the scheme started found 17 events that met the near-miss definition (reversing without a banksman, pedestrians in vehicle lanes). Two of them were logged."},
+    {"id": "injury_stats", "title": "Injury statistics", "body": "One reportable injury in 24 months (a forklift strike, month 22). Industry benchmark for comparable yards: about one per 400,000 movements."}
+  ],
+  "questions": [
+    {"id": "reading", "competency": "RiskAssessment", "weight": 20,
+     "prompt": "What does the fall in near-miss reports most likely show?",
+     "options": [
+       {"id": "underreporting", "label": "Under-reporting caused by the bonus scheme, not safer yards", "score": 92, "feedback": "Activity was flat, CCTV shows near misses still happening, and the drop starts exactly when the bonus did."},
+       {"id": "safer", "label": "Yards became safer after the scheme focused attention", "score": 10, "feedback": "The CCTV sample contradicts this: 17 near misses in 20 shifts, 2 logged."},
+       {"id": "noise", "label": "Random variation", "score": 25, "feedback": "A 70% step change at a known date, with stable activity, is not noise."}
+     ]},
+    {"id": "estimate", "competency": "QuantitativeAnalysis", "weight": 20,
+     "prompt": "Using the CCTV sample, roughly what share of near misses now gets reported?",
+     "options": [
+       {"id": "about_12", "label": "About 12% (2 of 17)", "score": 92, "feedback": "2 / 17 = 12%. A small sample, so quote it as an indication."},
+       {"id": "about_85", "label": "About 85% (17 of 20 shifts had events)", "score": 15, "feedback": "That is the share of shifts with events, not the reporting rate."},
+       {"id": "about_30", "label": "About 30%, the drop in reports", "score": 30, "feedback": "Reports fell by 70%; that does not tell you the reporting rate."}
+     ]},
+    {"id": "control_view", "competency": "ControlEvaluation", "weight": 20,
+     "prompt": "How do you rate near-miss reporting as a detective control today?",
+     "options": [
+       {"id": "ineffective_incentive", "label": "Ineffective: the incentive punishes the behaviour the control depends on", "score": 92, "feedback": "A control that depends on self-reporting fails when reporting is penalised."},
+       {"id": "effective_low", "label": "Effective: few near misses means few hazards", "score": 10, "feedback": "Few reports, not few hazards."},
+       {"id": "partially", "label": "Partially effective: some events are still reported", "score": 45, "feedback": "12% capture is not partially effective for a safety control."}
+     ]},
+    {"id": "recommend", "competency": "Judgement", "weight": 25,
+     "prompt": "What do you recommend to the Operations Board? Your authority is 25,000.",
+     "options": [
+       {"id": "change_scheme", "label": "Stop counting near misses against the bonus, reward reporting quality instead, and run monthly CCTV sampling as an independent check", "score": 92,
+        "feedback": "Removes the perverse incentive and adds an independent detective control.",
+        "setsFlags": ["near_miss_reporting_fixed"],
+        "effects": {"EmployeeMorale": 3, "ControlEffectiveness": 4, "RiskExposure": -3}},
+       {"id": "discipline", "label": "Discipline supervisors whose depots under-report", "score": 30,
+        "feedback": "The scheme created the behaviour; punishing people for responding to it will drive reporting further underground.",
+        "effects": {"EmployeeMorale": -6, "StakeholderTrust": -3}},
+       {"id": "keep", "label": "Keep the scheme; the injury rate is better than the industry benchmark", "score": 20,
+        "feedback": "One injury in 24 months is too few events to prove safety, and the leading indicator is broken.",
+        "schedules": [
+          {"id": "yard_injury", "description": "A pedestrian is struck by a reversing trailer in the Northgate yard", "delayWeeks": 6, "probability": 0.25,
+           "effects": {"Reputation": -6, "EmployeeMorale": -8, "Cash": -60000}, "flagIfOccurs": "yard_injury"}
+        ]}
+     ]},
+    {"id": "board_conversation", "competency": "StakeholderManagement", "weight": 15,
+     "prompt": "The Operations Director designed the bonus scheme and is proud of it. How do you handle him before the board?",
+     "options": [
+       {"id": "pre_brief", "label": "Brief him privately first with the data, acknowledge the scheme's intent, and agree a joint recommendation", "score": 92, "feedback": "No surprises in the board room, and the owner of the problem co-owns the fix."},
+       {"id": "ambush", "label": "Present the findings at the board without warning so the evidence speaks for itself", "score": 25, "feedback": "Surprising a director in public makes him defend the scheme instead of fixing it."},
+       {"id": "soften", "label": "Leave the bonus scheme out of the paper to avoid conflict", "score": 15, "feedback": "Omitting the root cause leaves the board unable to fix it."}
+     ]}
+  ],
+  "lesson": "Low incident numbers can mean hidden risk. Incentives shape reporting: check whether a control relies on people reporting against their own interest."
+}
