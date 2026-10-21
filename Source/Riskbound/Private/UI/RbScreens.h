@@ -31,6 +31,7 @@ FRbScreenParts BackgroundPicker(ARbHUD* Hud, ERbDifficulty Difficulty);
 FRbScreenParts Challenges(ARbHUD* Hud);
 FRbScreenParts ChallengeResults(ARbHUD* Hud);
 FRbScreenParts Glossary(ARbHUD* Hud, TFunction<void()> OnBack);
+FRbScreenParts AiChat(ARbHUD* Hud, const FString& PersonId, const FString& Status);
 FRbScreenParts Review(ARbHUD* Hud, bool bEnding, TFunction<void()> OnBack);
 FRbScreenParts Skills(ARbHUD* Hud, TFunction<void()> OnBack);
 FRbScreenParts Conversation(ARbHUD* Hud, const FRbConversationView& View, TFunction<void()> OnEnd);

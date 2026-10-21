@@ -152,3 +152,37 @@ TEST(Learning_LeaderboardKeepsTheBestAndSurvivesBadLines)
 	CHECK_EQ(Top->Points, 24);
 	CHECK(DeserializeLeaderboard("not a leaderboard").empty());
 }
+
+#include "RbAiPrompt.h"
+#include "RbJson.h"
+
+TEST(Ai_PromptRequestAndResponseParsing)
+{
+	GameState G = AfterM001();
+	CharacterDef P;
+	P.Id = "priya";
+	P.Name = "Priya Okafor";
+	P.Role = "Risk Manager";
+	P.Bio = "Your first manager.";
+	const MissionCatalogue C = TestCatalogue();
+	const std::string Sys = ColleagueSystemPrompt(G, P, C.Find("M002"));
+	CHECK(Sys.find("Priya Okafor") != std::string::npos);
+	CHECK(Sys.find("Do not give the player the answer") != std::string::npos);
+	CHECK(Sys.find("Title M002") != std::string::npos);
+	std::vector<AiTurn> Turns = {{false, "Hello"}, {true, "What worries you about \"Kelvarin\"?\nBe honest."}};
+	const std::string Body = ColleagueRequestJson(Sys, Turns);
+	JsonValue Doc;
+	std::string Err;
+	REQUIRE(ParseJson(Body, Doc, Err));
+	CHECK(Doc.Find("model")->String == "claude-opus-5-5");
+	REQUIRE(Doc.Find("messages")->Items.size() == size_t(1)); // starts with the player
+	CHECK(Doc.Find("messages")->Items[0].Find("content")->String.find("\"Kelvarin\"") != std::string::npos);
+
+	std::string Text, Error;
+	CHECK(ParseColleagueResponse(R"({"type":"message","content":[{"type":"thinking","thinking":""},{"type":"text","text":"Start with the service log."}],"stop_reason":"end_turn"})", Text, Error));
+	CHECK(Text == "Start with the service log.");
+	CHECK(!ParseColleagueResponse(R"({"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}})", Text, Error));
+	CHECK(Error == "invalid x-api-key");
+	CHECK(!ParseColleagueResponse(R"({"content":[],"stop_reason":"refusal"})", Text, Error));
+	CHECK(!ParseColleagueResponse("not json", Text, Error));
+}

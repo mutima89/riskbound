@@ -316,6 +316,12 @@ void ARbHUD::ShowChallengeResults()
 	ShowScreen(Parts.Widget, Parts.Focus, [this]() { CloseScreen(); ShowMainMenu(); }, true);
 }
 
+void ARbHUD::OpenAiChat(const FString& PersonId, const FString& Status)
+{
+	const FRbScreenParts Parts = RbScreens::AiChat(this, PersonId, Status);
+	ShowScreen(Parts.Widget, Parts.Focus, [this]() { CloseScreen(); OpenJournal(); }, false);
+}
+
 void ARbHUD::OpenGlossary(TFunction<void()> OnBack)
 {
 	const FRbScreenParts Parts = RbScreens::Glossary(this, OnBack);

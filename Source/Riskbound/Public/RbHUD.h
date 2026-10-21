@@ -33,6 +33,8 @@ public:
 	void StartChallenge(int32 Mode); // 1 survival, 2 daily
 	void ShowChallengeResults();
 	void OpenGlossary(TFunction<void()> OnBack);
+	// Optional AI colleagues: free-typed chat with one person (needs the player's key, off by default).
+	void OpenAiChat(const FString& PersonId, const FString& Status = FString());
 	void OpenReview(bool bEnding, TFunction<void()> OnBack);
 	// Photo mode: hides the HUD; F12 takes a screenshot (Saved/Screenshots).
 	void TogglePhotoMode();

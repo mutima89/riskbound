@@ -29,7 +29,7 @@ The player rises from Graduate Trainee to Chief Risk Officer by doing real risk 
 ## Rules
 - Never claim a build, test or package passed without real output from this session. Record results in Docs/Progress.md.
 - No destructive git operations or deleting user saves without explicit approval.
-- No network services, accounts, or external AI at runtime.
+- No network services, accounts, or external AI at runtime, except the owner-approved opt-in AI colleagues (off by default, player's own key; Docs/AiColleagues.md).
 - Start each task: read Docs/Progress.md, then only the docs and files relevant to the task, then `git diff`.
 
 ## Skills (.claude/skills)
