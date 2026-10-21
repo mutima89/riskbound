@@ -82,3 +82,18 @@ Graphics quality presets: Low 50%, Medium 60%, High 70%, Epic 100% internal reso
 | Shipping tour, 1920x1080, default High | `Riskbound.exe -RbSelfTest=tour -ResX=1920 -ResY=1080` | PASS, average 71.7 fps; rooms 62.1 (corridor, includes warm-up) to 81.3 fps, GPU 11.7-15.3 ms |
 | Editor compile after the rename | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
 | Automation tests | `Scripts\RunUnrealTests.bat` | 8/8 `Result={Success}` |
+
+## 2026-10-21 - Visual pass 3 (ceiling grid, monitoring room, polished concrete)
+| Run | Command | Result |
+|---|---|---|
+| Textures | `python Scripts\GenerateTextures.py` | adds `T_PolishedConcrete` (own, tileable, 2.4 m slabs) and `T_ScreenKriTicker` (invented KRIs, not Mission 001 figures) |
+| Editor compile | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` |
+| Asset import | `Scripts\ImportAssets.bat` | `done: 13 meshes, 7 materials, 0 errors`; new `MI_FloorPolished`, `MI_CeilingGrid`, `MI_ScreenKriTicker` |
+| Package Development | `Scripts\BuildWindows.bat <UE> Development` | `BUILD SUCCESSFUL` |
+| Packaged tour, 1920x1080, default High | `Riskbound.exe -RbSelfTest=tour -ResX=1920 -ResY=1080` | PASS, average 74.3 fps; rooms 66.5 (corridor, includes warm-up) to 81.4 fps; new reverse view "Risk monitoring room (operators)" 75.2 fps; 0 `missing usage flag` lines in the game log |
+
+Changes: ceiling T-bars 0.8 cm (was 1.5 cm) in a self-lit light grey instead of unlit paper that read black; monitoring room gets a second operator row facing the video wall, a KRI status rail under the wall, a wall clock, five acoustic panels, two plants; monitoring room and corridor floors use clean polished concrete (the old scanned texture was brown and stained). Screen textures are now never-streamed: the thin ticker otherwise rendered from a 4-pixel-high mip.
+
+Defect found and fixed: the KRI ticker first rendered as an unreadable dark strip because texture streaming kept a tiny mip for a 35 cm-high screen. Fixed by `never_stream` on generated screen textures (Scripts/ImportAssets.py).
+
+Screenshots: before `Docs/Screenshots/pass3/before/`, after `Docs/Screenshots/pass3/after/`.

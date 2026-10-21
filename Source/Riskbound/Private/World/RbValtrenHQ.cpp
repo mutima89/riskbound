@@ -84,6 +84,8 @@ void ARbValtrenHQ::GetTourViewpoints(TArray<FString>& OutNames, TArray<FTransfor
 		Add(Room.Name, FVector(C.X - 0.36f * S.X, DoorY + Dir * 90.0f, Eye),
 			FVector(C.X + 0.2f * S.X, C.Y + Dir * 0.2f * S.Y, 90.0f));
 	}
+	// Reverse view of the monitoring room: operator rows, acoustic panels, door wall.
+	Add(TEXT("Risk monitoring room (operators)"), FVector(1950.0f, -1120.0f, Eye), FVector(1150.0f, -380.0f, 100.0f));
 }
 
 // ---------------------------------------------------------------------------- primitives
@@ -320,12 +322,12 @@ void ARbValtrenHQ::BuildShell()
 {
 	const float Width = BuildingMaxX - BuildingMinX;
 	// Structural slab, ceiling, and a floor finish per room.
-	AddBox(FVector(Width * 0.5f, 0.0f, -10.0f), FVector(Width + 60.0f, 2.0f * BuildingHalfY + 60.0f, 20.0f), Mat(TEXT("MI_FloorConcrete")));
+	AddBox(FVector(Width * 0.5f, 0.0f, -10.0f), FVector(Width + 60.0f, 2.0f * BuildingHalfY + 60.0f, 20.0f), Mat(TEXT("MI_FloorPolished")));
 	AddBox(FVector(Width * 0.5f, 0.0f, CeilingHeight + 5.0f), FVector(Width + 60.0f, 2.0f * BuildingHalfY + 60.0f, 10.0f), Mat(TEXT("MI_CeilingSoft")));
 	const TMap<FString, const TCHAR*> Floors = {
 		{TEXT("Reception"), TEXT("MI_FloorTerrazzo")}, {TEXT("Junior analyst workspace"), TEXT("MI_Carpet")},
 		{TEXT("Manager's office"), TEXT("MI_FloorParquet")}, {TEXT("Meeting room"), TEXT("MI_Carpet")},
-		{TEXT("Training area"), TEXT("MI_Carpet")}, {TEXT("Risk monitoring room"), TEXT("MI_FloorConcrete")},
+		{TEXT("Training area"), TEXT("MI_Carpet")}, {TEXT("Risk monitoring room"), TEXT("MI_FloorPolished")},
 		{TEXT("Executive boardroom"), TEXT("MI_FloorParquet")}};
 
 	TArray<float> NorthDoors;
@@ -368,14 +370,15 @@ void ARbValtrenHQ::BuildShell()
 	AddFacadeY(BuildingMinX, -BuildingHalfY, BuildingHalfY);
 	AddFacadeY(BuildingMaxX, -BuildingHalfY, BuildingHalfY);
 
-	// Suspended ceiling grid: slim graphite T-bars every 120 cm read as acoustic tiles.
+	// Suspended ceiling grid: thin T-bars every 120 cm, a shade darker than the self-lit tiles so the grid reads softly.
+	UMaterialInterface* GridMat = Mat(TEXT("MI_CeilingGrid"));
 	for (float X = 60.0f; X < Width; X += 120.0f)
 	{
-		AddBox(FVector(X, 0.0f, CeilingHeight - 0.3f), FVector(1.5f, 2.0f * BuildingHalfY, 0.6f), Mat(TEXT("MI_Paper")), 0.0f, false);
+		AddBox(FVector(X, 0.0f, CeilingHeight - 0.2f), FVector(0.8f, 2.0f * BuildingHalfY, 0.4f), GridMat, 0.0f, false);
 	}
 	for (float Y = -BuildingHalfY + 60.0f; Y < BuildingHalfY; Y += 120.0f)
 	{
-		AddBox(FVector(Width * 0.5f, Y, CeilingHeight - 0.3f), FVector(Width, 1.5f, 0.6f), Mat(TEXT("MI_Paper")), 0.0f, false);
+		AddBox(FVector(Width * 0.5f, Y, CeilingHeight - 0.2f), FVector(Width, 0.8f, 0.4f), GridMat, 0.0f, false);
 	}
 	// Feature: acoustic panels in the meeting room and boardroom, a teal strip along the corridor.
 	AddBox(FVector(3000.0f + WallThickness * 0.5f + 2.0f, 700.0f, 150.0f), FVector(4.0f, 600.0f, 180.0f), Mat(TEXT("MI_AcousticPanel")), 0.0f, false);
@@ -765,6 +768,27 @@ void ARbValtrenHQ::FurnishRooms()
 	TaskChair(FVector(1500.0f, -950.0f, 0.0f), -90.0f);
 	AddInstance(Cylinder, FVector(1630.0f, -1040.0f, DeskHeight + 5.0f), 0.0f, FVector(0.08f, 0.08f, 0.1f), Mat(TEXT("MI_Ceramic")), false);
 	SmallProps(FVector(1080.0f, -300.0f, 0.0f), 0.0f, 0);
+	// Second operator row facing the video wall.
+	Workplace(FVector(1700.0f, -570.0f, 0.0f), 0.0f, Dash, false, 1);
+	Workplace(FVector(1700.0f, -750.0f, 0.0f), 0.0f, Sheet, false, 2);
+	Plant(FVector(1340.0f, -1045.0f, DeskHeight), false);
+	// KRI status rail under the video wall, status clock beside it.
+	{
+		const FVector P(2000.0f - WallThickness * 0.5f - 3.0f, -710.0f, 80.0f);
+		AddBox(P, FVector(4.0f, 568.0f, 40.0f), Mat(TEXT("MI_DeviceBlack")), 0.0f, false);
+		AddBox(P - FVector(2.2f, 0, 0), FVector(0.4f, 560.0f, 35.0f), Mat(TEXT("MI_ScreenKriTicker")), 180.0f, false);
+	}
+	AddInstance(Model(TEXT("wall_clock")), FVector(2000.0f - WallThickness * 0.5f - 3.0f, -330.0f, 230.0f), 180.0f + ModelYawOffset, FVector(1.0f), nullptr, false);
+	// Acoustic panels: west wall bays and either side of the door.
+	for (float Y : {-420.0f, -700.0f, -980.0f})
+	{
+		AddBox(FVector(1000.0f + WallThickness * 0.5f + 2.0f, Y, 165.0f), FVector(4.0f, 200.0f, 150.0f), Mat(TEXT("MI_AcousticPanel")), 0.0f, false);
+	}
+	for (float X : {1200.0f, 1800.0f})
+	{
+		AddBox(FVector(X, -CorridorHalfY - WallThickness * 0.5f - 2.0f, 165.0f), FVector(240.0f, 4.0f, 150.0f), Mat(TEXT("MI_AcousticPanel")), 0.0f, false);
+	}
+	Plant(FVector(1930.0f, -1130.0f, 0.0f), true);
 
 	// Executive boardroom: long walnut table on a rug, ten chairs, warm pendants, display, art, credenza.
 	AddBox(FVector(3000.0f, -700.0f, 0.7f), FVector(860.0f, 360.0f, 1.4f), Mat(TEXT("MI_Rug")), 0.0f, false);

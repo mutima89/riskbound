@@ -1,4 +1,4 @@
-"""Draws Riskbound's own textures: fictional screen UIs, a whiteboard sketch and abstract wall prints.
+"""Draws Riskbound's own textures: fictional screen UIs, a whiteboard sketch, abstract wall prints and a polished concrete floor.
 
 All names and figures are invented (Docs/GameDesign.md "Fictional names"). Output: Data/Assets/generated/*.png,
 imported by Scripts/ImportAssets.py. Deterministic: same output every run. Needs Pillow.
@@ -170,10 +170,56 @@ def art(seed):
     return im
 
 
+def polished_concrete():
+    """Clean, light polished concrete: soft tileable mottling, fine aggregate, one saw-cut joint per repeat."""
+    import math
+    w = h = 1024
+    rnd = random.Random(7)
+    waves = [(rnd.randint(-5, 5), rnd.randint(-5, 5), rnd.uniform(0, 6.28), rnd.uniform(0.8, 1.8)) for _ in range(14)]
+    im = Image.new("RGB", (w, h))
+    px = im.load()
+    for y in range(h):
+        for x in range(w):
+            # integer frequencies keep the pattern seamless across repeats
+            v = sum(a * math.sin(2 * math.pi * (fx * x / w + fy * y / h) + ph) for fx, fy, ph, a in waves)
+            g = int(184 + v)
+            px[x, y] = (g, g + 1, g + 3)
+    d = ImageDraw.Draw(im)
+    for _ in range(9000):  # exposed fine aggregate
+        x, y = rnd.randrange(w), rnd.randrange(h)
+        g = rnd.randint(150, 215)
+        d.point((x, y), fill=(g, g, g + 2))
+    for i in range(2):  # saw-cut joints on two edges, so the repeat reads as slabs
+        d.line([(0, i), (w, i)], fill=(140, 142, 145))
+        d.line([(i, 0), (i, h)], fill=(140, 142, 145))
+    return im
+
+
+def kri_ticker():
+    """Status rail under the monitoring wall: invented company-wide KRIs (not Mission 001 figures)."""
+    w, h = 2048, 128
+    im = Image.new("RGB", (w, h), (8, 11, 16))
+    d = ImageDraw.Draw(im)
+    items = [("On-time delivery", "96.2%", GREEN), ("Service backlog", "12", AMBER), ("Hours breaches", "2", RED)]
+    x = 36
+    d.text((x, 34), "KRI", font=font(50, "Bold"), fill=TEAL)
+    x += 150
+    for name, value, col in items:
+        d.ellipse([x, 52, x + 24, 76], fill=col)
+        d.text((x + 40, 34), name, font=font(46), fill=MUTED)
+        x += 54 + int(d.textlength(name, font=font(46)))
+        d.text((x, 34), value, font=font(46, "SemiBold"), fill=TEXT)
+        x += int(d.textlength(value, font=font(46, "SemiBold"))) + 64
+    assert x <= w, "ticker text overflows"
+    centred = Image.new("RGB", (w, h), (8, 11, 16))
+    centred.paste(im.crop((0, 0, x, h)), ((w - x + 64) // 2, 0))
+    return centred
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     items = {"T_ScreenDashboard": dashboard(), "T_ScreenSheet": spreadsheet(), "T_ScreenEmail": email(), "T_ScreenAlarm": alarm(),
-             "T_Whiteboard": whiteboard(), "T_ArtPrintA": art(11), "T_ArtPrintB": art(29), "T_ArtPrintC": art(53)}
+             "T_Whiteboard": whiteboard(), "T_ArtPrintA": art(11), "T_ArtPrintB": art(29), "T_ArtPrintC": art(53),
+             "T_PolishedConcrete": polished_concrete(), "T_ScreenKriTicker": kri_ticker()}
     for name, im in items.items():
         im.save(os.path.join(OUT, name + ".png"))
         print("wrote", name)

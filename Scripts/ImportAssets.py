@@ -409,6 +409,8 @@ instance("MI_ScreenAlert", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Inten
 instance("MI_Highlight", unreal.load_asset(MAT + "/M_RbHighlight"))
 # Ceiling: faintly self-lit so it reads as bounce-lit white rather than black between panels.
 instance("MI_CeilingSoft", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 13.0}, {"Color": (0.9, 0.9, 0.89, 1)})
+# Ceiling T-bars: a touch darker than the tiles so the grid reads softly instead of as black lines.
+instance("MI_CeilingGrid", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 10.5}, {"Color": (0.82, 0.83, 0.84, 1)})
 instance("MI_LampWarm", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 45.0}, {"Color": (1.0, 0.78, 0.5, 1)})
 instance("MI_ReceptionGlow", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 30.0}, {"Color": (0.17, 0.64, 0.66, 1)})
 instance("MI_LedStrip", unreal.load_asset(MAT + "/M_RbEmissive"), {}, {"Intensity": 70.0}, {"Color": (0.95, 0.97, 1.0, 1)})
@@ -421,14 +423,22 @@ for f in sorted(os.listdir(GEN)) if os.path.isdir(GEN) else []:
         name = os.path.splitext(f)[0]
         import_file(os.path.join(GEN, f), GAME + "/Textures/Generated", name)
         gen[name] = setup_texture(GAME + "/Textures/Generated/" + name, "color")
+        if name.startswith("T_Screen"):  # small on screen but must stay legible: keep every mip resident
+            gen[name].set_editor_property("never_stream", True)
+            EAL.save_asset(gen[name].get_path_name(), only_if_is_dirty=False)
 screen = build_screen(defaults)
 for mi, tex, inten in [("MI_ScreenDashboard", "T_ScreenDashboard", 14.0), ("MI_ScreenSheet", "T_ScreenSheet", 7.0),
-                       ("MI_ScreenEmail", "T_ScreenEmail", 14.0), ("MI_ScreenAlarmUI", "T_ScreenAlarm", 14.0)]:
+                       ("MI_ScreenEmail", "T_ScreenEmail", 14.0), ("MI_ScreenAlarmUI", "T_ScreenAlarm", 14.0),
+                       ("MI_ScreenKriTicker", "T_ScreenKriTicker", 12.0)]:
     if tex in gen:
         instance(mi, screen, {"ScreenTexture": gen[tex]}, {"Intensity": inten})
 for mi, tex in [("MI_Whiteboard", "T_Whiteboard"), ("MI_ArtPrintA", "T_ArtPrintA"), ("MI_ArtPrintB", "T_ArtPrintB"), ("MI_ArtPrintC", "T_ArtPrintC")]:
     if tex in gen:
         instance(mi, SURFACE, {"BaseColorMap": gen[tex]}, {"RoughnessScale": 1.5, "MetallicScale": 0.0})
+# Clean polished concrete (monitoring room, corridor): our own texture, low roughness, 2.4 m slabs.
+if "T_PolishedConcrete" in gen:
+    instance("MI_FloorPolished", WORLD, {"BaseColorMap": gen["T_PolishedConcrete"]}, {"MetallicScale": 0.0, "RoughnessScale": 0.62},
+             {"Tint": (0.8, 0.8, 0.8, 1), "TileSize": (240, 240, 240, 0)})
 if EAL.does_asset_exist(MAT + "/M_RbSky"):
     instance("MI_Sky", unreal.load_asset(MAT + "/M_RbSky"), {}, {"Intensity": 14.0})
 

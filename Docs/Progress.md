@@ -13,6 +13,7 @@ Last update: 2026-10-21
 - Development Win64 package builds; packaged self-test play + resume PASS; packaged game starts to the main menu (Docs/Screenshots/01_main_menu.png).
 - Fictional business names everywhere (save v4 migrates old names); CC0/OFL asset pipeline (Docs/AssetCredits.md); UI restyle and visual polish round 2 (60+ fps packaged at 1080p High); credits screen and README credits; three easter eggs.
 - Gate 2 workstation tool hub: risk register (add/edit/filter/search), 5x5 matrix, KRI dashboard with history, loss scenarios, cost-benefit, sensitivity tornado, stress presets, seeded Monte Carlo with histogram, action tracker with weeks, executive report export. 46 core tests, 8 Unreal automation tests.
+- Visual pass 3 (2026-10-21): lighter, thinner ceiling grid; busier risk monitoring room; clean polished concrete (Docs/Screenshots/pass3).
 - Shipping Win64 package builds (2026-10-21); Shipping self-test play, resume and tour PASS (Docs/QAReport.md).
 
 ### Not yet verified
@@ -20,7 +21,7 @@ Last update: 2026-10-21
 - Save/exit/relaunch/resume by hand (verified only through the self-test process pair and automation tests).
 
 ### Next action
-Owner's hands-on review of the build; fix findings. Visual pass queued: lighter/thinner ceiling grid, denser risk monitoring room (second desk row, wall clock/KRI ticker, acoustic panels, plant), clean polished concrete floor. Then Gate 3.
+Owner's hands-on review of the build; fix findings. Gate 3: career and organisation consequences across missions. Then Gate 4 (data-driven missions).
 
 ### Open blockers
 - None for building. No full VS IDE installed (Build Tools only); Inno Setup/NSIS/WiX not installed (needed by Gate 6).
