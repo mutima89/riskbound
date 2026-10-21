@@ -8,7 +8,7 @@ A first-person career simulator about risk management. Single-player and fully o
 
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-0b6e79)
 ![Engine](https://img.shields.io/badge/Unreal%20Engine-5.8-1f2933)
-![Version](https://img.shields.io/badge/version-0.5.0--alpha-e0a526)
+![Version](https://img.shields.io/badge/version-0.5.1--alpha-e0a526)
 ![Tests](https://img.shields.io/badge/tests-73%20core%20%2B%2011%20Unreal-2f855a)
 ![License](https://img.shields.io/badge/license-MIT-4a5568)
 
@@ -68,7 +68,7 @@ Passing missions isn't enough on its own. Each promotion also needs minimum comp
 
 ## Install and play
 
-1. Get `Riskbound-Setup-0.5.0-alpha.exe` (installer, no admin rights needed) or `Riskbound-0.5.0-alpha-Win64-Portable.zip` (unzip and run `Riskbound.exe`). Check it against the `.sha256` file next to each download.
+1. Get `Riskbound-Setup-0.5.1-alpha.exe` (installer, no admin rights needed) or `Riskbound-0.5.1-alpha-Win64-Portable.zip` (unzip and run `Riskbound.exe`). Check it against the `.sha256` file next to each download.
 2. **Windows SmartScreen will warn "Unknown publisher"**, because the build isn't code-signed. Choose **More info, then Run anyway**. See `UNSIGNED-BUILD.txt` for details.
 3. Uninstalling keeps your saves in `%LOCALAPPDATA%\Riskbound`.
 
@@ -105,7 +105,7 @@ set UE="C:\Program Files\Epic Games\UE_5.8"
 %UE%\Engine\Build\BatchFiles\Build.bat RiskboundEditor Win64 Development -project="%CD%\Riskbound.uproject"
 Scripts\RunUnrealTests.bat %UE%                     :: automation tests
 Scripts\BuildWindows.bat %UE% Shipping              :: -> Release\Shipping\Windows\Riskbound.exe
-Scripts\BuildInstaller.bat 0.5.0-alpha 0.5.0.0      :: installer + zip (needs Inno Setup 6)
+Scripts\BuildInstaller.bat 0.5.1-alpha 0.5.1.0      :: installer + zip (needs Inno Setup 6)
 ```
 
 Packaged self-tests: `Riskbound.exe -RbSelfTest=play`, then `-RbSelfTest=resume`. Release checklist: [Docs/Release.md](Docs/Release.md).

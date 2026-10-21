@@ -1,6 +1,6 @@
 # Progress
 
-## Status: Gate 1 verified by tests (hands-on playtest pending); Gate 2 tools in the UI; Shipping package verified
+## Status: 0.5.1-alpha built and verified locally (not yet published); whole game walked through the real UI by a scripted driver; hands-on playtest by a person pending
 Last update: 2026-10-21
 
 ### Done
@@ -20,13 +20,15 @@ Last update: 2026-10-21
 - Answer-order fix and Gate 5 (2026-10-21): options shown in a per-save shuffled order; save fuzzing, per-file content validation, deterministic campaign replay with save/load at every step, settings persistence; Shipping rebuilt and its self-tests pass; portable zip built and run.
 - Gate 6 (2026-10-21): Inno Setup installer and portable zip for 0.5.0-alpha; silent install, run from the installed folder, uninstall keeping saves verified; release docs (Docs/Release.md, release notes, known issues).
 - Shipping Win64 package builds (2026-10-21); Shipping self-test play, resume and tour PASS (Docs/QAReport.md).
+- Walkthrough (2026-10-21, Docs/WalkthroughReport.md): `-RbSelfTest=walkthrough`/`walkthrough2` drive the Shipping build through real Slate and Enhanced Input events, new game to the CRO capstone with save, quit and Continue. Fixed: campaign dead end (passed cases reopen as reviews when stuck), longest-answer tell (634 labels rewritten, test-guarded), active tool tab, register clipping and appetite colour, assessment form header and hint, Fullscreen state, top-of-ladder text. 75 core tests, 11 Unreal tests.
+- 0.5.1-alpha (2026-10-21): installer and portable zip from the walkthrough commit; install, run, uninstall verified. Not published on GitHub yet (owner stopped the push, 2026-10-21).
 
 ### Not yet verified
-- A full hands-on playthrough by a person (movement feel, every screen with mouse and keyboard, text readability at all text sizes, fullscreen toggle, volume). The self-test drives the same HUD/interactable calls but not real key presses.
-- Save/exit/relaunch/resume by hand (verified only through the self-test process pair and automation tests).
+- A hands-on playthrough by a person (movement feel, mouse sensitivity, readability at all text sizes, volume). The walkthrough sends real UI input but its timing and judgement are not a person's.
+- Gamepad (unsupported), resolutions other than 1920x1080, Analyst and Executive difficulty through the UI (covered by core replay tests).
 
 ### Next action
-Owner's hands-on review of the build; fix findings. Owner's hands-on review of the campaign; content tuning from playtests (difficulty of distractors, pacing of weeks). Owner's hands-on review of 0.5.0-alpha (installer or zip); then fixes, audio, and a release tag when the owner approves.
+Owner's hands-on review of 0.5.1-alpha. Open walkthrough findings (Docs/KnownIssues.md): incident frequency for weak choices, crisis briefings naming their cause, binder interaction target, case list grouping, audio.
 
 ### Open blockers
 - None for building. No full VS IDE installed (Build Tools only); Inno Setup 6.7.3 installed per user (owner-approved, 2026-10-21).
@@ -36,5 +38,5 @@ Owner's hands-on review of the build; fix findings. Owner's hands-on review of t
 - [x] Gate 2: remaining risk tools in UI (Monte Carlo, sensitivity, stress, KRI dashboard, reports) - automated tests and UI captures; hands-on review pending
 - [x] Gate 3: career + organisation consequences across missions (sim + UE subsystem, tested; content arrives in Gate 4)
 - [x] Gate 4: campaign content (30 missions, 12 crises, CRO capstone), data-driven missions, 50 achievements (verified by tests and packaged self-tests; hands-on playtest pending)
-- [x] Gate 5: automated + integration tests (73 core, 11 Unreal, packaged self-tests on Development and Shipping)
+- [x] Gate 5: automated + integration tests (75 core, 11 Unreal, packaged self-tests on Development and Shipping, UI walkthrough on Shipping)
 - [x] Gate 6: Windows package, installer, release verification (unsigned; hands-on wizard check and all-users install pending)
