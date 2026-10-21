@@ -190,6 +190,11 @@ TSharedRef<SWidget> SRbCaseFiles::BuildList()
 		else if (M.bPassed) { State = FString::Printf(TEXT("Passed (best %d)"), M.BestScore); StateColor = Good; }
 		else if (M.bAvailable && M.bReview) { State = FString::Printf(TEXT("Review available (best %d): practice to build evidence"), M.BestScore); StateColor = Warning; }
 		else if (M.bAvailable) { State = M.Attempts ? FString::Printf(TEXT("Retry available (best %d)"), M.BestScore) : FString(TEXT("Available")); StateColor = Accent; }
+		if (M.WeeksToEscalate >= 0 && !M.bPassed)
+		{
+			State += M.WeeksToEscalate == 0 ? FString(TEXT("  |  Escalates this week")) : FString::Printf(TEXT("  |  Escalates in %d week%s"), M.WeeksToEscalate, M.WeeksToEscalate == 1 ? TEXT("") : TEXT("s"));
+			StateColor = Bad;
+		}
 		else { State = FString::Join(M.Reasons, TEXT("; ")); }
 
 		TSharedRef<SHorizontalBox> Buttons = SNew(SHorizontalBox);
@@ -410,6 +415,23 @@ TSharedRef<SWidget> SRbCaseFiles::BuildDebrief()
 		CBox->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space1)[CaseText(TEXT("While you worked"), 15, TextPrimary, EWeight::SemiBold)];
 		for (const FString& C : D.Consequences) CBox->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[CaseText(C, 13)];
 		Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)[CaseCard(CBox)];
+	}
+	if (!D.Fallout.IsEmpty() || !D.Escalated.IsEmpty() || D.bBurnout || D.NewMessages > 0)
+	{
+		TSharedRef<SVerticalBox> WBox = SNew(SVerticalBox);
+		WBox->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space1)[CaseText(TEXT("What happens next"), 15, TextPrimary, EWeight::SemiBold)];
+		for (const FString& F : D.Fallout)
+		{
+			WBox->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[CaseText(TEXT("Loose end: a weak call here may come back as an incident in the coming weeks."), 13, Warning)];
+			break; // one line: the incident itself will name the decision when it happens
+		}
+		for (const FString& E : D.Escalated) WBox->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[CaseText(FString(TEXT("Escalated without you: ")) + E, 13, Bad)];
+		if (D.bBurnout) WBox->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[CaseText(TEXT("You burned out and took two weeks off. The organisation carried on without you."), 13, Bad)];
+		if (D.NewMessages > 0)
+		{
+			WBox->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[CaseText(FString::Printf(TEXT("%d new message%s in your inbox."), D.NewMessages, D.NewMessages == 1 ? TEXT("") : TEXT("s")), 13, Accent)];
+		}
+		Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)[CaseCard(WBox)];
 	}
 	TSharedRef<SVerticalBox> Tail = SNew(SVerticalBox);
 	if (!D.Lesson.IsEmpty()) Tail->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)[CaseText(FString(TEXT("Lesson: ")) + D.Lesson, 14, Accent)];

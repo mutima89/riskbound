@@ -75,12 +75,42 @@ void ReadQuestion(const JsonValue& V, const std::string& Where, MissionQuestionD
 	R.Str("kind", Kind, false);
 	if (Kind == "single") Q.Kind = EQuestionKind::Single;
 	else if (Kind == "multi") Q.Kind = EQuestionKind::Multi;
-	else R.Error(V.Line, "kind must be \"single\" or \"multi\"");
+	else if (Kind == "numeric") Q.Kind = EQuestionKind::Numeric;
+	else if (Kind == "rating") Q.Kind = EQuestionKind::Rating;
+	else R.Error(V.Line, "kind must be \"single\", \"multi\", \"numeric\" or \"rating\"");
+	const bool bOptions = Q.Kind == EQuestionKind::Single || Q.Kind == EQuestionKind::Multi;
+	R.Text("explanation", Q.Explanation, !bOptions);
+	if (Q.Kind == EQuestionKind::Numeric)
+	{
+		R.Dbl("answer", Q.Answer, true);
+		R.Dbl("tolerance", Q.Tolerance, false);
+		R.Str("unit", Q.Unit, false);
+		if (const JsonValue* Ms = R.Get("mistakes", false))
+		{
+			if (!Ms->IsArray()) R.Error(Ms->Line, "\"mistakes\" must be an array");
+			else
+			{
+				for (const JsonValue& Item : Ms->Items)
+				{
+					NumericMistake Mk;
+					Reader MR(Item, Where + " mistake", Errors);
+					MR.Dbl("value", Mk.Value, true);
+					MR.Text("feedback", Mk.Feedback, true);
+					Q.Mistakes.push_back(Mk);
+				}
+			}
+		}
+	}
+	if (Q.Kind == EQuestionKind::Rating)
+	{
+		R.Int("likelihood", Q.TargetLikelihood, true);
+		R.Int("impact", Q.TargetImpact, true);
+	}
 	std::string Comp;
 	R.Str("competency", Comp, true);
 	if (!Comp.empty() && !CompetencyFromName(Comp, Q.Competency)) R.Error(V.Line, "unknown competency \"" + Comp + "\"");
 	R.Int("weight", Q.Weight, true);
-	if (const JsonValue* Opts = R.Get("options", true))
+	if (const JsonValue* Opts = R.Get("options", bOptions))
 	{
 		if (!Opts->IsArray()) R.Error(Opts->Line, "\"options\" must be an array");
 		else

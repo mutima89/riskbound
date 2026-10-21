@@ -29,9 +29,29 @@ RB_API const char* ToString(EMissionKind K);
 
 enum class EQuestionKind
 {
-	Single, // pick one option; the option's Score is the result
-	Multi   // pick all that apply; scored against the options marked bCorrect
+	Single,  // pick one option; the option's Score is the result
+	Multi,   // pick all that apply; scored against the options marked bCorrect
+	Numeric, // type a figure (usually worked out in a workstation tool); scored by how close it is
+	Rating   // place the risk on the 5x5 matrix (likelihood, impact); scored by distance from the target
 };
+
+RB_API const char* ToString(EQuestionKind K); // "single", "multi", "numeric", "rating"
+
+// A wrong figure players commonly reach, with feedback that explains it (e.g. the worst case
+// offered as expected loss).
+struct NumericMistake
+{
+	double Value = 0.0;
+	std::string Feedback;
+};
+
+// Numeric scoring bands, by relative error |value - answer| / max(|answer|, 1).
+constexpr int NumericScoreExact = 100; // within Tolerance
+constexpr int NumericScoreClose = 70;  // within 3 x Tolerance
+constexpr int NumericScoreNear = 35;   // within 10 x Tolerance
+constexpr int NumericScoreMistake = 10;
+// Rating: each step of distance in likelihood or impact costs this much.
+constexpr int RatingStepPenalty = 30;
 
 // A consequence a choice schedules for later (resolved by OrganizationState::AdvanceWeeks).
 struct ConsequenceDef
@@ -70,8 +90,24 @@ struct MissionQuestionDef
 	EQuestionKind Kind = EQuestionKind::Single;
 	ECompetency Competency = ECompetency::RiskAssessment;
 	int Weight = 0; // percent; a mission's weights sum to 100
-	std::vector<MissionOptionDef> Options;
+	std::vector<MissionOptionDef> Options;   // Single and Multi only
+	// Numeric
+	double Answer = 0.0;
+	double Tolerance = 0.02;                 // relative
+	std::string Unit;                        // shown next to the input, e.g. "a year"
+	std::vector<NumericMistake> Mistakes;
+	// Rating
+	int TargetLikelihood = 0;
+	int TargetImpact = 0;
+	// Numeric and Rating: the worked answer, shown in the debrief only.
+	std::string Explanation;
 };
+
+// The answer a perfect player gives (best option, every correct option, the exact figure or the
+// target rating). For tests, the self-test and the scripted walkthrough.
+RB_API struct MissionAnswer BestAnswer(const MissionQuestionDef& Q);
+// Numeric answers are carried as one option string ("20800"); parsing is strict (finite, no junk).
+RB_API bool ParseNumericAnswer(const std::string& Text, double& Out);
 
 struct MissionEvidenceDef
 {

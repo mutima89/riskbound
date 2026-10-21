@@ -29,6 +29,21 @@ Assets under the Fab Standard License or Epic template content are not stored in
 | [Canary Wharf](https://polyhaven.com/a/canary_wharf) | Business-district view through the windows, sky light | Poly Haven | Andreas Mischok | CC0 1.0 |
 | [Inter 4.1](https://rsms.me/inter/) | UI typeface | rsms/inter (Rasmus Andersson) | Rasmus Andersson | SIL Open Font License 1.1 |
 
+## Audio
+Sources: Data/AudioManifest.json (URL, SHA-256, licence), built by Scripts/BuildAudio.py and imported by Scripts/ImportAudio.py to /Game/Riskbound/Audio.
+
+| Asset | Use in Riskbound | Source | Author | Licence |
+|---|---|---|---|---|
+| "Clean Soul" | Main menu music | incompetech.com | Kevin MacLeod | CC BY 4.0 |
+| "Thinking Music" | Everyday work music | incompetech.com | Kevin MacLeod | CC BY 4.0 |
+| "Lightless Dawn" | Tension music | incompetech.com | Kevin MacLeod | CC BY 4.0 |
+| "Hitman" | Crisis music | incompetech.com | Kevin MacLeod | CC BY 4.0 |
+| [Interface Sounds](https://kenney.nl/assets/interface-sounds) | UI click, confirm, back, notice | Kenney | Kenney | CC0 1.0 |
+| [Impact Sounds](https://kenney.nl/assets/impact-sounds) | Carpet footsteps | Kenney | Kenney | CC0 1.0 |
+| Ambience (room tone, air handling, servers, typing), inbox ping, stingers (promotion, pass, fail, incident, burnout) | Throughout | Original Riskbound sound design (synthesised in Scripts/BuildAudio.py) | Riskbound | Project licence |
+
+CC BY 4.0 attribution, shown on the in-game Credits screen and in the README: "Clean Soul", "Thinking Music", "Lightless Dawn" and "Hitman" by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/.
+
 ## Original Riskbound textures
 Screen UIs (dashboard, spreadsheet, inbox, alarm console), the training whiteboard sketch and the three abstract wall prints are drawn by `Scripts/GenerateTextures.py` for this project (all names invented; no Mission 001 figures). Office task chairs, desks, monitors, shelving, lamps and small props are built from engine shapes in `ARbValtrenHQ`.
 

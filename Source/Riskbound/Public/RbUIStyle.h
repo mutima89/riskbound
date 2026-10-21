@@ -45,10 +45,14 @@ const FSlateBrush* PanelBrush();     // dark glass panel with hairline border, r
 const FSlateBrush* BackdropBrush();  // full-screen dim behind modal screens
 const FSlateBrush* CardBrush();      // section card inside a panel
 const FSlateBrush* FocusBrush();     // teal outline drawn around the focused control
+const FSlateBrush* VignetteBrush();  // soft dark frame around the screen edge (tinted by the caller)
 
 // 20 px check boxes and radio buttons: clear outline when off, teal fill when on.
 const struct FCheckBoxStyle& CheckStyle();
 const struct FCheckBoxStyle& RadioStyle();
+
+// Sound every button plays when pressed (set once the audio assets are loaded; null for silence).
+void SetClickSound(UObject* Sound);
 
 // Focusable text button. bPrimary uses the accent fill. OutButton (optional) receives the widget for initial focus.
 TSharedRef<SWidget> MakeButton(const FText& Label, FOnClicked OnClicked, TSharedPtr<SButton>* OutButton = nullptr,

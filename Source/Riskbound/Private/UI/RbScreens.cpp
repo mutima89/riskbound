@@ -4,6 +4,7 @@
 
 #include "HAL/PlatformProcess.h"
 #include "RbCredits.h"
+#include "RbCampaignSubsystem.h"
 #include "RbGameSubsystem.h"
 #include "RbHUD.h"
 #include "RbSaveSubsystem.h"
@@ -292,6 +293,43 @@ FRbScreenParts Journal(ARbHUD* Hud)
 	AddRow(Box, MakeBody(Career.UnmetPromotionGates.IsEmpty() ? LOCTEXT("JournalNoGaps", "You meet every requirement for your level.")
 		: (bTop ? LOCTEXT("JournalTop", "You are at the top of the career ladder.") : FText::FromString(FString::Join(Career.UnmetPromotionGates, TEXT("\n")))), 14, TextMuted), 2.0f);
 	const TArray<FString> Unlocked = Game->GetAchievementTitles();
+	if (const URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+	{
+		const FRbWorldView W = Campaign->GetWorldView();
+		AddRow(Box, SNew(SBox).HeightOverride(10.0f));
+		AddRow(Box, MakeHeading(LOCTEXT("JournalWellbeing", "You"), 16), 4.0f);
+		const FString StressWord = W.Stress >= 70 ? TEXT("running on empty") : (W.Stress >= 45 ? TEXT("stretched") : TEXT("steady"));
+		AddRow(Box, MakeBody(FText::Format(LOCTEXT("JournalStress", "Stress {0} of 100 ({1}). Crises and overtime raise it; weeks pass and time at home bring it down. At 90 you are sent home for two weeks."),
+			W.Stress, FText::FromString(StressWord)), 14, W.Stress >= 70 ? Bad : TextMuted), 2.0f);
+		AddRow(Box, SNew(SBox).HeightOverride(10.0f));
+		AddRow(Box, MakeHeading(LOCTEXT("JournalPeople", "People"), 16), 4.0f);
+		for (const FRbPersonView& P : Campaign->GetPeople())
+		{
+			const FLinearColor C = P.Relation >= 20 ? Good : (P.Relation <= -20 ? Bad : TextMuted);
+			AddRow(Box, MakeBody(FText::FromString(FString::Printf(TEXT("%s, %s  -  %s"), *P.Name, *P.Role, *P.RelationLabel)), 14, C), 2.0f);
+		}
+		const TArray<FRbClueView> Clues = Campaign->GetClues();
+		if (!Clues.IsEmpty())
+		{
+			AddRow(Box, SNew(SBox).HeightOverride(10.0f));
+			AddRow(Box, MakeHeading(FText::Format(LOCTEXT("JournalStory", "{0}: case board ({1} of {2})"), FText::FromString(W.StoryTitle), W.CluesFound, W.CluesTotal), 16), 4.0f);
+			for (const FRbClueView& Cl : Clues)
+			{
+				AddRow(Box, MakeBody(FText::FromString(Cl.Title), 14, TextPrimary), 1.0f);
+				AddRow(Box, MakeBody(FText::FromString(Cl.Summary), 13, TextMuted), 6.0f);
+			}
+		}
+		if (!W.News.IsEmpty())
+		{
+			AddRow(Box, SNew(SBox).HeightOverride(10.0f));
+			AddRow(Box, MakeHeading(LOCTEXT("JournalNews", "Headlines"), 16), 4.0f);
+			for (int32 i = 0; i < FMath::Min(6, W.News.Num()); ++i)
+			{
+				const FRbNewsView& N = W.News[i];
+				AddRow(Box, MakeBody(FText::FromString(FString::Printf(TEXT("Week %d: %s"), N.Week, *N.Text)), 13, N.Tone < 0 ? Bad : (N.Tone > 0 ? Good : TextMuted)), 2.0f);
+			}
+		}
+	}
 	AddRow(Box, SNew(SBox).HeightOverride(10.0f));
 	AddRow(Box, MakeHeading(FText::Format(LOCTEXT("JournalAchievements", "Achievements ({0} of {1})"), Unlocked.Num(), Game->GetAchievementTotal()), 16), 4.0f);
 	AddRow(Box, MakeBody(Unlocked.IsEmpty() ? LOCTEXT("JournalNoAchievements", "None yet.") : FText::FromString(FString::Join(Unlocked, TEXT(", "))), 14, TextMuted), 2.0f);
@@ -352,6 +390,14 @@ FRbScreenParts Workstation(ARbHUD* Hud)
 	AddRow(Box, MakeButton(bSubmitted ? LOCTEXT("FormDone", "Assessment form (submitted)") : LOCTEXT("FormOpen", "Assessment form: R-014"),
 		Click([Hud]() { Hud->OpenAssessment(); }), nullptr, !bSubmitted), 8.0f);
 	const bool bCases = Game->IsDebriefed();
+	if (const URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+	{
+		const FRbWorldView W = Campaign->GetWorldView();
+		const FText Label = W.AwaitingReply > 0
+			? FText::Format(LOCTEXT("MailWithReplies", "Messages: {0} unread, {1} awaiting your reply"), W.Unread, W.AwaitingReply)
+			: FText::Format(LOCTEXT("Mail", "Messages: {0} unread"), W.Unread);
+		AddRow(Box, MakeButton(Label, Click([Hud]() { Hud->OpenInbox(); }), nullptr, true, W.AwaitingReply > 0), 8.0f);
+	}
 	AddRow(Box, MakeButton(bCases ? LOCTEXT("CaseFiles", "Case files: your assignments") : LOCTEXT("CaseFilesLocked", "Case files (after your Mission 001 debrief)"),
 		Click([Hud]() { Hud->OpenCaseFiles(); }), nullptr, bCases, bCases), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("RiskTools", "Risk tools: register, KRIs, quantification, actions, report"),

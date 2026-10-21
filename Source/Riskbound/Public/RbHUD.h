@@ -32,6 +32,8 @@ public:
 	void OpenPauseMenu();
 	void OpenSettings(TFunction<void()> OnBack);
 	void OpenJournal();
+	// Messages from colleagues, incidents, the regulator and home (I key, or the workstation).
+	TSharedPtr<class SRbInbox> OpenInbox(const FString& MessageId = FString());
 	void OpenCredits(TFunction<void()> OnBack);
 	bool SaveNow(FString& OutMessage);
 	void QuitToDesktop();

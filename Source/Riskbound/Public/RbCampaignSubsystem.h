@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "RbCampaign.h"
 #include "RbGameState.h"
+#include "RbWorld.h"
 #include "RbCampaignTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "RbCampaignSubsystem.generated.h"
@@ -70,11 +71,46 @@ public:
 
 	static FString ResultText(ERbMissionResult Result);
 
+	// ---- Living world: people, inbox, story, news and shares (Data/People|Story|Events.json) ----
+	const rb::WorldContent& GetWorldContent() const { return World; }
+	// Relationship start values for a new or loaded game (rb::InitWorld).
+	void InitWorldFor(rb::GameState& State) const;
+	// Runs rb::UpdateWorld after time passed outside a campaign mission (Mission 001), with notices.
+	void RunWorldUpdate(const std::vector<rb::ResolvedConsequence>& Resolved, int32 Weeks);
+
+	// Newest first.
+	UFUNCTION(BlueprintPure, Category = "Riskbound|World")
+	TArray<FRbInboxMessageView> GetInbox() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Riskbound|World")
+	bool ReplyToMessage(const FString& MessageId, const FString& ChoiceId, FString& OutError);
+
+	UFUNCTION(BlueprintCallable, Category = "Riskbound|World")
+	void MarkMessageRead(const FString& MessageId);
+
+	// Work colleagues first (executives, then others), personal contacts last.
+	UFUNCTION(BlueprintPure, Category = "Riskbound|World")
+	TArray<FRbPersonView> GetPeople() const;
+
+	// Clues found so far, in chapter order.
+	UFUNCTION(BlueprintPure, Category = "Riskbound|World")
+	TArray<FRbClueView> GetClues() const;
+
+	UFUNCTION(BlueprintPure, Category = "Riskbound|World")
+	FRbWorldView GetWorldView() const;
+
+	FString PersonName(const std::string& Id) const;
+
 private:
 	URbGameSubsystem* Game() const;
 	FRbMissionDebriefView ToView(const rb::MissionDef& M, const rb::MissionDebrief& D, bool bFull) const;
 
+	void LoadWorld();
+	void AnnounceWorldUpdate(const std::vector<std::string>& NewMessages, const std::vector<std::string>& Escalated, bool bBurnout);
+	FRbInboxMessageView ToView(const rb::InboxMessage& M) const;
+
 	rb::MissionCatalogue Catalogue;
+	rb::WorldContent World;
 	TArray<FString> LoadErrors;
 	std::vector<rb::AchievementDef> Achievements;
 	// Full debriefs from this session, keyed by mission, with the record count they belong to.

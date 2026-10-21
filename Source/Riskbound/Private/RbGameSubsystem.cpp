@@ -113,6 +113,7 @@ void URbGameSubsystem::NewGame(ERbDifficulty Difficulty, const FString& ProfileN
 		State.Settings.bHints = false; // Executive: no hints by default (Docs/GameDesign.md)
 	}
 	State.Checkpoint = ToStd(CheckpointStart);
+	if (const URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>()) Campaign->InitWorldFor(State);
 	bHasGame = true;
 	AfterAction(false);
 }
@@ -126,6 +127,8 @@ ERbLoadOutcome URbGameSubsystem::Continue(FString& OutMessage)
 void URbGameSubsystem::SetLoadedState(rb::GameState&& Loaded)
 {
 	State = MoveTemp(Loaded);
+	// Saves from before the living world (v5 and older) get relationship start values here.
+	if (const URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>()) Campaign->InitWorldFor(State);
 	bHasGame = true;
 	OnStateChanged.Broadcast();
 }
@@ -167,6 +170,8 @@ ERbSubmitResult URbGameSubsystem::SubmitAssessment(const FRbSubmissionInput& Inp
 	if (Result == ERbSubmitResult::Ok)
 	{
 		State.Checkpoint = ToStd(CheckpointSubmitted);
+		// The first inbox messages arrive once Mission 001 is in (Data/Events.json).
+		if (URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>()) Campaign->RunWorldUpdate({}, 0);
 		AfterAction(true);
 	}
 	return Result;

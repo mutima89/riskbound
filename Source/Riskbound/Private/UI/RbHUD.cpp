@@ -19,6 +19,7 @@
 #include "SRbScreen.h"
 #include "SRbToolHub.h"
 #include "SRbCaseFiles.h"
+#include "SRbInbox.h"
 #include "RbCampaignSubsystem.h"
 #include "Widgets/Layout/SBox.h"
 #include "RbToolsSubsystem.h"
@@ -85,6 +86,26 @@ void ARbHUD::BuildOverlay()
 			const APlayerController* PC = WeakThis.IsValid() ? WeakThis->PlayerOwner.Get() : nullptr;
 			const ARbCharacter* Pawn = PC ? Cast<ARbCharacter>(PC->GetPawn()) : nullptr;
 			return Pawn ? Pawn->GetInteraction()->GetPromptText() : FText::GetEmpty();
+		})
+		.Status_Lambda([WeakThis]()
+		{
+			const URbCampaignSubsystem* Campaign = WeakThis.IsValid() ? WeakThis->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>() : nullptr;
+			const FRbWorldView W = Campaign ? Campaign->GetWorldView() : FRbWorldView();
+			if (!W.bValid) return FText::GetEmpty();
+			FNumberFormattingOptions One;
+			One.MinimumFractionalDigits = 1;
+			One.MaximumFractionalDigits = 1;
+			const FString Arrow = W.ShareChange > 0.05 ? TEXT("\u25B2") : (W.ShareChange < -0.05 ? TEXT("\u25BC") : TEXT("\u25C6"));
+			FString Mail = FString::Printf(TEXT("[I]  Inbox %d"), W.Unread);
+			if (W.AwaitingReply > 0) Mail += FString::Printf(TEXT(" (%d to reply)"), W.AwaitingReply);
+			return FText::Format(LOCTEXT("HudStatus", "{0}      Stress {1}      VLT {2} {3}      Week {4}"), FText::FromString(Mail), W.Stress,
+				FText::AsNumber(W.ShareIndex, &One), FText::FromString(Arrow), W.Week);
+		})
+		.StressLevel_Lambda([WeakThis]()
+		{
+			const URbCampaignSubsystem* Campaign = WeakThis.IsValid() ? WeakThis->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>() : nullptr;
+			const FRbWorldView W = Campaign ? Campaign->GetWorldView() : FRbWorldView();
+			return W.bValid ? W.Stress / 100.0f : 0.0f;
 		})
 		.ShowGameplay_Lambda([WeakThis]()
 		{
@@ -378,6 +399,24 @@ TSharedPtr<SRbCaseFiles> ARbHUD::OpenCaseFiles(const FString& MissionId, bool bD
 	}
 	ShowScreen(RbUI::MakeModalFrame(SNew(SBox).MinDesiredWidth(1100.0f).MinDesiredHeight(780.0f)[Files], 1200.0f), Files->GetInitialFocus(), [this]() { OpenWorkstation(); }, false);
 	return Files;
+}
+
+TSharedPtr<SRbInbox> ARbHUD::OpenInbox(const FString& MessageId)
+{
+	if (!Game()->HasGame()) return nullptr;
+	const bool bFromGameplay = !IsScreenOpen();
+	auto Back = [this, bFromGameplay]()
+	{
+		if (bFromGameplay) CloseScreen();
+		else OpenWorkstation();
+	};
+	TSharedRef<SRbInbox> Inbox = SNew(SRbInbox)
+		.Campaign(GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+		.OpenMessageId(MessageId)
+		.OnClose(Back);
+	ClearNotices();
+	ShowScreen(RbUI::MakeModalFrame(SNew(SBox).MinDesiredWidth(1100.0f).MinDesiredHeight(760.0f)[Inbox], 1200.0f), Inbox->GetInitialFocus(), Back, false);
+	return Inbox;
 }
 
 void ARbHUD::OpenAssessment()

@@ -13,6 +13,7 @@
 #include "RbGameSubsystem.h"
 #include "RbHUD.h"
 #include "RbInteractionComponent.h"
+#include "RbAudioSubsystem.h"
 
 ARbCharacter::ARbCharacter()
 {
@@ -27,6 +28,7 @@ ARbCharacter::ARbCharacter()
 	Camera->SetFieldOfView(80.0f);
 
 	Interaction = CreateDefaultSubobject<URbInteractionComponent>(TEXT("Interaction"));
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ARbCharacter::BuildInput()
@@ -44,6 +46,7 @@ void ARbCharacter::BuildInput()
 	InteractAction = MakeAction(TEXT("IA_Interact"), EInputActionValueType::Boolean);
 	PauseAction = MakeAction(TEXT("IA_Pause"), EInputActionValueType::Boolean);
 	JournalAction = MakeAction(TEXT("IA_Journal"), EInputActionValueType::Boolean);
+	InboxAction = MakeAction(TEXT("IA_Inbox"), EInputActionValueType::Boolean);
 
 	Mapping = NewObject<UInputMappingContext>(this, TEXT("IMC_Riskbound"));
 
@@ -82,6 +85,7 @@ void ARbCharacter::BuildInput()
 	Mapping->MapKey(PauseAction, EKeys::P);
 	Mapping->MapKey(JournalAction, EKeys::J);
 	Mapping->MapKey(JournalAction, EKeys::Tab);
+	Mapping->MapKey(InboxAction, EKeys::I);
 }
 
 void ARbCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -94,6 +98,7 @@ void ARbCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Input->BindAction(InteractAction, ETriggerEvent::Started, this, &ARbCharacter::OnInteract);
 	Input->BindAction(PauseAction, ETriggerEvent::Started, this, &ARbCharacter::OnPause);
 	Input->BindAction(JournalAction, ETriggerEvent::Started, this, &ARbCharacter::OnJournal);
+	Input->BindAction(InboxAction, ETriggerEvent::Started, this, &ARbCharacter::OnInbox);
 }
 
 void ARbCharacter::PawnClientRestart()
@@ -148,4 +153,28 @@ void ARbCharacter::OnPause()
 void ARbCharacter::OnJournal()
 {
 	if (ARbHUD* Hud = HudFor(this)) Hud->OpenJournal();
+}
+
+void ARbCharacter::OnInbox()
+{
+	ARbHUD* Hud = HudFor(this);
+	if (Hud && !Hud->IsScreenOpen()) Hud->OpenInbox();
+}
+
+void ARbCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	// Footsteps: one every stride while walking on the floor.
+	const float Speed = GetVelocity().Size2D();
+	if (Speed < 40.0f || !GetCharacterMovement()->IsMovingOnGround())
+	{
+		StrideDistance = StrideLength * 0.6f; // the first step comes soon after starting to walk
+		return;
+	}
+	StrideDistance += Speed * DeltaSeconds;
+	if (StrideDistance >= StrideLength)
+	{
+		StrideDistance = 0.0f;
+		URbAudioSubsystem::Cue(this, ERbCue::Footstep);
+	}
 }

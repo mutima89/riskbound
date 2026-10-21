@@ -7,6 +7,8 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdio>
+#include <cstdlib>
 #include <cmath>
 #include <set>
 
@@ -21,6 +23,42 @@ const char* ToString(EMissionKind K)
 	case EMissionKind::Capstone: return "Capstone";
 	}
 	return "?";
+}
+
+const char* ToString(EQuestionKind K)
+{
+	switch (K)
+	{
+	case EQuestionKind::Single: return "single";
+	case EQuestionKind::Multi: return "multi";
+	case EQuestionKind::Numeric: return "numeric";
+	case EQuestionKind::Rating: return "rating";
+	}
+	return "?";
+}
+
+bool ParseNumericAnswer(const std::string& Text, double& Out)
+{
+	std::string Clean;
+	for (char Ch : Text)
+	{
+		if (Ch == ',' || Ch == ' ') continue; // thousands separators as players type them
+		Clean += Ch;
+	}
+	if (Clean.empty() || Clean.size() > 32) return false;
+	char* End = nullptr;
+	const double V = std::strtod(Clean.c_str(), &End);
+	if (End == Clean.c_str() || *End != '\0' || !std::isfinite(V)) return false;
+	Out = V;
+	return true;
+}
+
+static std::string FormatFigure(double V)
+{
+	char Buf[64];
+	if (std::fabs(V - std::round(V)) < 1e-9) return FormatMoney(V);
+	std::snprintf(Buf, sizeof(Buf), "%.2f", V);
+	return Buf;
 }
 
 const char* ToString(EMissionError E)
@@ -65,6 +103,38 @@ static void ValidateEffects(const std::vector<MetricEffect>& Effects, const std:
 		else if (!std::isfinite(E.Delta)) Out.push_back(Where + ": effect is not a number");
 		else if (IsIndexMetric(E.Metric) && std::fabs(E.Delta) > 50.0) Out.push_back(Where + ": index effect above 50 points");
 	}
+}
+
+MissionAnswer BestAnswer(const MissionQuestionDef& Q)
+{
+	MissionAnswer A{Q.Id, {}};
+	switch (Q.Kind)
+	{
+	case EQuestionKind::Multi:
+		for (const MissionOptionDef& O : Q.Options)
+		{
+			if (O.bCorrect) A.OptionIds.push_back(O.Id);
+		}
+		break;
+	case EQuestionKind::Numeric:
+	{
+		char Buf[64];
+		std::snprintf(Buf, sizeof(Buf), "%.10g", Q.Answer);
+		A.OptionIds.push_back(Buf);
+		break;
+	}
+	case EQuestionKind::Rating:
+		A.OptionIds = {std::to_string(Q.TargetLikelihood), std::to_string(Q.TargetImpact)};
+		break;
+	case EQuestionKind::Single:
+		if (!Q.Options.empty())
+		{
+			A.OptionIds.push_back(std::max_element(Q.Options.begin(), Q.Options.end(),
+				[](const MissionOptionDef& L, const MissionOptionDef& R) { return L.Score < R.Score; })->Id);
+		}
+		break;
+	}
+	return A;
 }
 
 std::vector<std::string> ValidateMission(const MissionDef& M)
@@ -116,6 +186,29 @@ std::vector<std::string> ValidateMission(const MissionDef& M)
 		if (Q.Id.empty() || !QuestionIds.insert(Q.Id).second) Err(QP + ": id missing or duplicated");
 		if (Q.Prompt.empty()) Err(QP + ": missing prompt");
 		if (Q.Weight <= 0) Err(QP + ": weight must be positive");
+		if (Q.Kind == EQuestionKind::Numeric || Q.Kind == EQuestionKind::Rating)
+		{
+			const int C = static_cast<int>(Q.Competency);
+			if (C < 0 || C >= CompetencyCount) Err(QP + ": unknown competency");
+			WeightSum += Q.Weight;
+			if (!Q.Options.empty()) Err(QP + ": numeric and rating questions have no options");
+			if (Q.Explanation.empty()) Err(QP + ": needs an explanation for the debrief");
+			if (Q.Kind == EQuestionKind::Numeric)
+			{
+				if (!std::isfinite(Q.Answer)) Err(QP + ": answer is not a number");
+				if (!(Q.Tolerance > 0.0 && Q.Tolerance <= 0.5)) Err(QP + ": tolerance outside (0, 0.5]");
+				for (const NumericMistake& Mk : Q.Mistakes)
+				{
+					if (!std::isfinite(Mk.Value) || Mk.Feedback.empty()) Err(QP + ": a mistake needs a value and feedback");
+					else if (std::fabs(Mk.Value - Q.Answer) <= Q.Tolerance * std::max(std::fabs(Q.Answer), 1.0)) Err(QP + ": a mistake is within tolerance of the answer");
+				}
+			}
+			else if (Q.TargetLikelihood < 1 || Q.TargetLikelihood > 5 || Q.TargetImpact < 1 || Q.TargetImpact > 5)
+			{
+				Err(QP + ": rating targets must be 1..5");
+			}
+			continue;
+		}
 		const int C = static_cast<int>(Q.Competency);
 		if (C < 0 || C >= CompetencyCount) Err(QP + ": unknown competency");
 		WeightSum += Q.Weight;
@@ -371,10 +464,28 @@ EMissionError ValidateAnswers(const GameState& State, const MissionDef& M, const
 	{
 		const MissionAnswer* A = FindAnswer(Answers, Q.Id);
 		if (!A || A->OptionIds.empty()) return EMissionError::UnansweredQuestion;
-		std::set<std::string> Unique;
-		for (const std::string& O : A->OptionIds)
+		if (Q.Kind == EQuestionKind::Single || Q.Kind == EQuestionKind::Multi)
 		{
-			if (!FindOption(Q, O) || !Unique.insert(O).second) return EMissionError::UnknownOption;
+			std::set<std::string> Unique;
+			for (const std::string& O : A->OptionIds)
+			{
+				if (!FindOption(Q, O) || !Unique.insert(O).second) return EMissionError::UnknownOption;
+			}
+		}
+		if (Q.Kind == EQuestionKind::Numeric)
+		{
+			double V = 0.0;
+			if (A->OptionIds.size() != 1 || !ParseNumericAnswer(A->OptionIds[0], V)) return EMissionError::UnknownOption;
+			continue;
+		}
+		if (Q.Kind == EQuestionKind::Rating)
+		{
+			if (A->OptionIds.size() != 2) return EMissionError::UnknownOption;
+			for (const std::string& S : A->OptionIds)
+			{
+				if (S.size() != 1 || S[0] < '1' || S[0] > '5') return EMissionError::UnknownOption;
+			}
+			continue;
 		}
 		if (Q.Kind == EQuestionKind::Single && A->OptionIds.size() != 1) return EMissionError::SingleNeedsOneOption;
 	}
@@ -414,6 +525,32 @@ MissionDebrief ScoreMission(const MissionDef& M, const std::vector<MissionAnswer
 						". It needed escalating to someone who can approve it.");
 				}
 			}
+		}
+		else if (Q.Kind == EQuestionKind::Numeric)
+		{
+			double V = 0.0;
+			ParseNumericAnswer(Picked.empty() ? std::string() : Picked.front(), V);
+			const double Scale = std::max(std::fabs(Q.Answer), 1.0);
+			const double Rel = std::fabs(V - Q.Answer) / Scale;
+			C.Score = Rel <= Q.Tolerance ? NumericScoreExact : (Rel <= 3 * Q.Tolerance ? NumericScoreClose : (Rel <= 10 * Q.Tolerance ? NumericScoreNear : 0));
+			C.Feedback.push_back("You entered " + FormatFigure(V) + (Q.Unit.empty() ? std::string() : " " + Q.Unit) + ".");
+			for (const NumericMistake& Mk : Q.Mistakes)
+			{
+				if (C.Score < NumericScoreExact && std::fabs(V - Mk.Value) <= Q.Tolerance * std::max(std::fabs(Mk.Value), 1.0))
+				{
+					C.Score = std::min(C.Score, NumericScoreMistake);
+					C.Feedback.push_back(Mk.Feedback);
+				}
+			}
+			C.Feedback.push_back("Answer: " + FormatFigure(Q.Answer) + (Q.Unit.empty() ? std::string() : " " + Q.Unit) + ". " + Q.Explanation);
+		}
+		else if (Q.Kind == EQuestionKind::Rating)
+		{
+			const int L = Picked.size() == 2 ? Picked[0][0] - '0' : 0;
+			const int I = Picked.size() == 2 ? Picked[1][0] - '0' : 0;
+			C.Score = std::max(0, 100 - RatingStepPenalty * (std::abs(L - Q.TargetLikelihood) + std::abs(I - Q.TargetImpact)));
+			C.Feedback.push_back("You rated likelihood " + std::to_string(L) + ", impact " + std::to_string(I) + ". The evidence supports likelihood " +
+				std::to_string(Q.TargetLikelihood) + ", impact " + std::to_string(Q.TargetImpact) + ". " + Q.Explanation);
 		}
 		else
 		{
@@ -468,7 +605,7 @@ static void ScheduleFallout(GameState& State, const MissionDef& M, const std::ve
 			P = FalloutMaxProbability * (FalloutScoreThreshold - O->Score) / FalloutScoreThreshold;
 			Choice = O->Label;
 		}
-		else
+		else if (Q.Kind == EQuestionKind::Multi)
 		{
 			for (const std::string& Id : A->OptionIds)
 			{
@@ -477,6 +614,18 @@ static void ScheduleFallout(GameState& State, const MissionDef& M, const std::ve
 			}
 			if (Choice.empty()) continue;
 			P = FalloutMultiProbability;
+		}
+		else
+		{
+			const MissionDebrief Scored = ScoreMission(M, Answers, State.Career.Level);
+			int Score = 100;
+			for (const MissionCriterion& Cr : Scored.Criteria)
+			{
+				if (Cr.QuestionId == Q.Id) Score = Cr.Score;
+			}
+			if (Score >= FalloutScoreThreshold) continue;
+			P = FalloutMaxProbability * (FalloutScoreThreshold - Score) / FalloutScoreThreshold;
+			Choice = Q.Kind == EQuestionKind::Numeric ? "your figure for " + Q.Prompt : "your rating for " + Q.Prompt;
 		}
 		std::string Text = T->Description;
 		const std::pair<std::string, std::string> Subs[] = {{"{mission}", M.Title}, {"{choice}", Choice}};

@@ -29,6 +29,12 @@ TArray<FSection> Sections()
 	AssetSection.Lines.Add(TEXT("Screen interfaces, whiteboard and wall prints: original Riskbound artwork."));
 	AssetSection.Lines.Add(TEXT("Mannequin body for Priya Okafor: Epic Games template content."));
 	Out.Add(AssetSection);
+	// Music is CC BY 4.0: the attribution below is required wherever the music is used (Docs/AssetCredits.md "Audio").
+	Out.Add({TEXT("Music and sound"),
+		{TEXT("\"Clean Soul\", \"Thinking Music\", \"Lightless Dawn\" and \"Hitman\" by Kevin MacLeod (incompetech.com)"),
+		 TEXT("Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/"),
+		 TEXT("Interface sounds and footsteps: Kenney (www.kenney.nl), CC0 1.0"),
+		 TEXT("Ambience, alerts and stingers: original Riskbound sound design")}});
 	Out.Add({TEXT("Development assistance"), {TEXT("Claude Code by Anthropic")}});
 	Out.Add({TEXT("Fictional names"), {TEXT("All companies, people and products in Riskbound are invented. Any resemblance to real organisations is coincidental.")}});
 	return Out;

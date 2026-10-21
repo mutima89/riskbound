@@ -12,6 +12,7 @@
 #include "Misc/Parse.h"
 #include "Misc/Paths.h"
 #include "RbCampaignSubsystem.h"
+#include "RbAudioSubsystem.h"
 #include "RbConvert.h"
 #include "RbGameSubsystem.h"
 #include "RbWalkthrough.h"
@@ -81,21 +82,10 @@ TArray<FRbMissionAnswer> BestAnswers(const rb::MissionDef& M)
 	TArray<FRbMissionAnswer> Out;
 	for (const rb::MissionQuestionDef& Q : M.Questions)
 	{
+		const rb::MissionAnswer Best = rb::BestAnswer(Q);
 		FRbMissionAnswer A;
 		A.QuestionId = RbConvert::ToFString(Q.Id);
-		int32 Best = -1;
-		for (const rb::MissionOptionDef& O : Q.Options)
-		{
-			if (Q.Kind == rb::EQuestionKind::Multi)
-			{
-				if (O.bCorrect) A.OptionIds.Add(RbConvert::ToFString(O.Id));
-			}
-			else if (O.Score > Best)
-			{
-				Best = O.Score;
-				A.OptionIds = {RbConvert::ToFString(O.Id)};
-			}
-		}
+		A.OptionIds = RbConvert::ToFStrings(Best.OptionIds);
 		Out.Add(A);
 	}
 	return Out;
@@ -157,7 +147,7 @@ void CheckCampaign(FReport& R, URbGameSubsystem* Game)
 {
 	URbCampaignSubsystem* Campaign = Game->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
 	const TArray<FRbMissionSummary> Missions = Campaign->GetMissions(true);
-	R.Check(TEXT("mission_data"), Missions.Num() == 42 && Campaign->GetAchievementDefs().size() == 50 && Campaign->GetLoadErrors().IsEmpty(),
+	R.Check(TEXT("mission_data"), Missions.Num() == 46 && Campaign->GetAchievementDefs().size() == 50 && Campaign->GetLoadErrors().IsEmpty(),
 		FString::Printf(TEXT("%d missions, %d achievements, %d problems"), Missions.Num(), static_cast<int32>(Campaign->GetAchievementDefs().size()), Campaign->GetLoadErrors().Num()));
 	const FRbMissionSummary* M2 = Missions.FindByPredicate([](const FRbMissionSummary& M) { return M.Id == TEXT("M002"); });
 	const FRbMissionDebriefView D = Campaign->GetDebrief(TEXT("M002"));
@@ -166,6 +156,14 @@ void CheckCampaign(FReport& R, URbGameSubsystem* Game)
 	R.Check(TEXT("m003_open"), M3 && M3->bAvailable, M3 ? FString::Join(M3->Reasons, TEXT(",")) : FString(TEXT("missing")));
 	R.Check(TEXT("objective_next"), Game->GetCurrentObjectiveText().Contains(TEXT("Case files")), Game->GetCurrentObjectiveText());
 	R.Check(TEXT("campaign_checkpoint"), Game->GetCheckpoint() == TEXT("M002:debriefed"), Game->GetCheckpoint());
+	// The living world: content loaded, the first inbox messages delivered and kept across save/load, sound present.
+	const FRbWorldView W = Campaign->GetWorldView();
+	const TArray<FRbInboxMessageView> Inbox = Campaign->GetInbox();
+	R.Check(TEXT("world_content"), Campaign->GetPeople().Num() >= 12 && W.CluesTotal == 10, FString::Printf(TEXT("%d people, %d clues"), Campaign->GetPeople().Num(), W.CluesTotal));
+	R.Check(TEXT("inbox"), Inbox.Num() >= 2 && Inbox.ContainsByPredicate([](const FRbInboxMessageView& M) { return M.Subject == TEXT("Welcome to the team"); }),
+		FString::Printf(TEXT("%d messages, %d awaiting reply, stress %d, share %.1f"), Inbox.Num(), W.AwaitingReply, W.Stress, W.ShareIndex));
+	const URbAudioSubsystem* Audio = Game->GetGameInstance()->GetSubsystem<URbAudioSubsystem>();
+	R.Check(TEXT("audio"), Audio && Audio->LoadedSoundCount() >= 20, FString::Printf(TEXT("%d sounds"), Audio ? Audio->LoadedSoundCount() : 0));
 }
 
 void RunPlay(FReport& R, ARbHUD* Hud, UWorld* World)

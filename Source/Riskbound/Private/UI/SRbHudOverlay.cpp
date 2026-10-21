@@ -7,6 +7,7 @@
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/SOverlay.h"
 #include "Widgets/Text/STextBlock.h"
+#include "Widgets/Notifications/SProgressBar.h"
 
 #define LOCTEXT_NAMESPACE "Riskbound"
 
@@ -19,6 +20,13 @@ void SRbHudOverlay::Construct(const FArguments& InArgs)
 	ShowGameplay = InArgs._ShowGameplay;
 	const TAttribute<FText> Prompt = InArgs._Prompt;
 	auto GameplayVisibility = [this]() { return ShowGameplay.Get() ? EVisibility::HitTestInvisible : EVisibility::Collapsed; };
+	const TAttribute<FText> Status = InArgs._Status;
+	const TAttribute<float> Stress = InArgs._StressLevel;
+	auto StressColor = [Stress]()
+	{
+		const float S = Stress.Get();
+		return S >= 0.7f ? RbUI::Bad : (S >= 0.45f ? RbUI::Warning : RbUI::Accent);
+	};
 
 	SetVisibility(EVisibility::HitTestInvisible);
 	ChildSlot
@@ -50,6 +58,45 @@ void SRbHudOverlay::Construct(const FArguments& InArgs)
 						.Font(RbUI::FontW(16, RbUI::EWeight::Medium))
 						.ColorAndOpacity(RbUI::TextPrimary)
 						.AutoWrapText(true)
+					]
+				]
+			]
+		]
+		// High stress narrows the world a little: a soft red vignette above 70.
+		+ SOverlay::Slot()
+		[
+			SNew(SBorder)
+			.Visibility_Lambda([GameplayVisibility, Stress]() { return Stress.Get() >= 0.7f ? GameplayVisibility() : EVisibility::Collapsed; })
+			.BorderImage(RbUI::VignetteBrush())
+			.BorderBackgroundColor_Lambda([Stress]()
+			{
+				const float Pulse = RbUI::IsReducedMotion() ? 1.0f : 0.5f + 0.5f * FMath::Sin(static_cast<float>(FPlatformTime::Seconds()) * 1.4f);
+				return FSlateColor(FLinearColor(0.55f, 0.05f, 0.05f, (Stress.Get() - 0.7f) * 1.6f * (0.7f + 0.3f * Pulse)));
+			})
+		]
+		// Status strip, bottom right: inbox, stress, share index, week.
+		+ SOverlay::Slot()
+		.HAlign(HAlign_Right)
+		.VAlign(VAlign_Bottom)
+		.Padding(RbUI::Space6)
+		[
+			SNew(SBorder)
+			.Visibility_Lambda([GameplayVisibility, Status]() { return Status.Get().IsEmpty() ? EVisibility::Collapsed : GameplayVisibility(); })
+			.BorderImage(RbUI::PanelBrush())
+			.Padding(FMargin(RbUI::Space4, RbUI::Space2))
+			[
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot().AutoHeight()
+				[
+					SNew(STextBlock).Text(Status).Font(RbUI::FontW(14, RbUI::EWeight::Medium)).ColorAndOpacity(RbUI::TextPrimary)
+				]
+				+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, RbUI::Space1, 0.0f, 0.0f)
+				[
+					SNew(SBox).HeightOverride(3.0f)
+					[
+						SNew(SProgressBar)
+						.Percent_Lambda([Stress]() { return TOptional<float>(Stress.Get()); })
+						.FillColorAndOpacity_Lambda([StressColor]() { return FSlateColor(StressColor()); })
 					]
 				]
 			]

@@ -13,6 +13,8 @@ public:
 		SLATE_ATTRIBUTE(FText, Objective)
 		SLATE_ATTRIBUTE(FText, Prompt)
 		SLATE_ATTRIBUTE(bool, ShowGameplay) // objective, crosshair and prompt
+		SLATE_ATTRIBUTE(FText, Status)      // inbox, stress, share index, week (bottom right)
+		SLATE_ATTRIBUTE(float, StressLevel) // 0..1, tints the stress bar and the screen edge
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);

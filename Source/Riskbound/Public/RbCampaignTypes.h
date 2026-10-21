@@ -37,6 +37,7 @@ struct FRbMissionSummary
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Attempts = 0;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 BestScore = 0;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FString> Reasons; // why it is closed
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 WeeksToEscalate = -1; // open crisis with a deadline
 };
 
 USTRUCT(BlueprintType)
@@ -124,4 +125,84 @@ struct FRbMissionDebriefView
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Level = 0;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString LevelTitle;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FString> PromotionGaps;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FString> Fallout;   // weak answers that may cause an incident
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FString> Escalated; // crisis titles that escalated
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 NewMessages = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bBurnout = false;
+};
+
+// ---- Living world (Docs/GameDesign.md "Living world") ----
+
+USTRUCT(BlueprintType)
+struct FRbInboxMessageView
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Id;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Category;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString FromName;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString FromRole;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Subject;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Body;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Week = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bRead = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bNeedsReply = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 WeeksLeft = -1; // to reply; 0 = due this week
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FRbMissionOptionView> Choices; // replies (never the default "no reply")
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString ChosenLabel;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Outcome;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bAutoResolved = false;
+};
+
+USTRUCT(BlueprintType)
+struct FRbPersonView
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Id;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Name;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Role;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Bio;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Relation = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString RelationLabel;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bExecutive = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bPersonal = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Faction;
+};
+
+USTRUCT(BlueprintType)
+struct FRbClueView
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Title;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Summary;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Chapter = 1;
+};
+
+USTRUCT(BlueprintType)
+struct FRbNewsView
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Week = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Text;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Tone = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FRbWorldView
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bValid = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Week = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Stress = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Burnouts = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") double ShareIndex = 100.0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") double ShareChange = 0.0; // since the previous point
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<float> ShareHistory;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FRbNewsView> News; // newest first
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Unread = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 AwaitingReply = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString StoryTitle;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 CluesFound = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 CluesTotal = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") double Morale = 0.0;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") double Reputation = 0.0;
 };

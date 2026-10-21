@@ -1,0 +1,89 @@
+{
+ "version": 1,
+ "downloads": [
+  {
+   "id": "kenney_interface_sounds",
+   "name": "Interface Sounds",
+   "authors": [
+    "Kenney (www.kenney.nl)"
+   ],
+   "licence": "CC0 1.0",
+   "page": "https://kenney.nl/assets/interface-sounds",
+   "url": "https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip",
+   "file": "kenney_interface-sounds.zip",
+   "role": "UI click, confirm, back and notice sounds",
+   "sha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+   "size": 834536
+  },
+  {
+   "id": "kenney_impact_sounds",
+   "name": "Impact Sounds",
+   "authors": [
+    "Kenney (www.kenney.nl)"
+   ],
+   "licence": "CC0 1.0",
+   "page": "https://kenney.nl/assets/impact-sounds",
+   "url": "https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+   "file": "kenney_impact-sounds.zip",
+   "role": "Carpet footsteps",
+   "sha256": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8",
+   "size": 800850
+  },
+  {
+   "id": "macleod_clean_soul",
+   "name": "Clean Soul",
+   "authors": [
+    "Kevin MacLeod (incompetech.com)"
+   ],
+   "licence": "CC BY 4.0",
+   "page": "https://incompetech.com/music/royalty-free/",
+   "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Clean%20Soul.mp3",
+   "file": "Clean Soul.mp3",
+   "role": "Main menu music",
+   "sha256": "458868c225cf8f6dbaf17300aa2e0839386991be8581d0218554699297d7581c",
+   "size": 12271405
+  },
+  {
+   "id": "macleod_thinking_music",
+   "name": "Thinking Music",
+   "authors": [
+    "Kevin MacLeod (incompetech.com)"
+   ],
+   "licence": "CC BY 4.0",
+   "page": "https://incompetech.com/music/royalty-free/",
+   "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Thinking%20Music.mp3",
+   "file": "Thinking Music.mp3",
+   "role": "Everyday work music (focus)",
+   "sha256": "891d3ea47e443e590a6562a1e2bff37c8830817b3cdf604091f92bfe87e5cc4f",
+   "size": 6270785
+  },
+  {
+   "id": "macleod_lightless_dawn",
+   "name": "Lightless Dawn",
+   "authors": [
+    "Kevin MacLeod (incompetech.com)"
+   ],
+   "licence": "CC BY 4.0",
+   "page": "https://incompetech.com/music/royalty-free/",
+   "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Lightless%20Dawn.mp3",
+   "file": "Lightless Dawn.mp3",
+   "role": "Tension music (open crisis, unread incident, high stress)",
+   "sha256": "59fd69e4432c95887d626e8055113da8fb0da9a8ccac85c6b7da6a6031c4f325",
+   "size": 15197957
+  },
+  {
+   "id": "macleod_hitman",
+   "name": "Hitman",
+   "authors": [
+    "Kevin MacLeod (incompetech.com)"
+   ],
+   "licence": "CC BY 4.0",
+   "page": "https://incompetech.com/music/royalty-free/",
+   "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hitman.mp3",
+   "file": "Hitman.mp3",
+   "role": "Crisis music (crisis or capstone in progress)",
+   "sha256": "005d6e28345e3c50a0715f5cf887c4cf02c3fa70910cdacc312bf348a3f2a647",
+   "size": 8035387
+  }
+ ]
+}

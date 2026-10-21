@@ -43,7 +43,17 @@ private:
 	UStaticMeshComponent* AddMesh(UStaticMesh* Mesh, const FVector& Location, float Yaw, const FVector& Scale, UMaterialInterface* Override = nullptr, bool bCollision = true);
 	bool AddInstance(UStaticMesh* Mesh, const FVector& Location, float Yaw, const FVector& Scale, UMaterialInterface* Override = nullptr, bool bCollision = true);
 	UStaticMeshComponent* AddBox(const FVector& Center, const FVector& Size, UMaterialInterface* Material, float Yaw = 0.0f, bool bCollision = true);
-	void AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color, float Roll = 0.0f, float Pitch = 0.0f);
+	class UTextRenderComponent* AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color, float Roll = 0.0f, float Pitch = 0.0f);
+	// The office reacts to the career: share price board and headline in reception, a news crawl in the
+	// monitoring room, ambience (Docs/GameDesign.md "Living world"). Refreshed on a timer.
+	void BuildLivingWorld();
+	void UpdateLivingWorld();
+	UPROPERTY(Transient) TObjectPtr<class UTextRenderComponent> ShareBoard;
+	UPROPERTY(Transient) TObjectPtr<class UTextRenderComponent> ShareChange;
+	UPROPERTY(Transient) TObjectPtr<class UTextRenderComponent> ReceptionHeadline;
+	UPROPERTY(Transient) TObjectPtr<class UTextRenderComponent> NewsCrawl;
+	FTimerHandle LivingTimer;
+	int32 CrawlOffset = 0;
 	void AddPanelLight(const FVector& Location, float Lumens, bool bShadows, const FLinearColor& Tint = FLinearColor(0.92f, 0.96f, 1.0f));
 
 	// Architecture

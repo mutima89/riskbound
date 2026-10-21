@@ -1,6 +1,8 @@
 #include "RbUIStyle.h"
 
 #include "Brushes/SlateColorBrush.h"
+#include "Engine/Texture2D.h"
+#include "TextureResource.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Fonts/CompositeFont.h"
 #include "HAL/FileManager.h"
@@ -95,6 +97,42 @@ const FSlateBrush* FocusBrush()
 	return &Brush;
 }
 
+const FSlateBrush* VignetteBrush()
+{
+	// White with alpha rising towards the edges (smoothstep from 55% to 100% of the half-diagonal);
+	// a transient texture kept alive for the session.
+	static FSlateBrush Brush;
+	static bool bInit = false;
+	if (!bInit)
+	{
+		bInit = true;
+		constexpr int32 N = 256;
+		UTexture2D* Tex = UTexture2D::CreateTransient(N, N, PF_B8G8R8A8);
+		if (Tex)
+		{
+			Tex->AddToRoot();
+			Tex->SRGB = false;
+			FColor* Px = static_cast<FColor*>(Tex->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+			for (int32 Y = 0; Y < N; ++Y)
+			{
+				for (int32 X = 0; X < N; ++X)
+				{
+					const float Dx = (X + 0.5f) / N * 2.0f - 1.0f, Dy = (Y + 0.5f) / N * 2.0f - 1.0f;
+					const float D = FMath::Sqrt(Dx * Dx + Dy * Dy) / 1.4142f;
+					const float T = FMath::Clamp((D - 0.55f) / 0.45f, 0.0f, 1.0f);
+					Px[Y * N + X] = FColor(255, 255, 255, static_cast<uint8>(255.0f * T * T * (3.0f - 2.0f * T)));
+				}
+			}
+			Tex->GetPlatformData()->Mips[0].BulkData.Unlock();
+			Tex->UpdateResource();
+			Brush.SetResourceObject(Tex);
+			Brush.ImageSize = FVector2D(N, N);
+			Brush.DrawAs = ESlateBrushDrawType::Image;
+		}
+	}
+	return &Brush;
+}
+
 static FCheckBoxStyle MakeToggleStyle(float Radius)
 {
 	const FVector2f Size(20.0f, 20.0f);
@@ -124,7 +162,7 @@ const FCheckBoxStyle& RadioStyle()
 	return S;
 }
 
-static const FButtonStyle& ButtonStyle(bool bPrimary)
+static FButtonStyle& ButtonStyle(bool bPrimary)
 {
 	static FButtonStyle Normal;
 	static FButtonStyle Primary;
@@ -144,6 +182,14 @@ static const FButtonStyle& ButtonStyle(bool bPrimary)
 			.SetHovered(FSlateRoundedBoxBrush(Accent, 6.0f, FLinearColor::White * FLinearColor(1, 1, 1, 0.5f), 1.0f));
 	}
 	return bPrimary ? Primary : Normal;
+}
+
+void SetClickSound(UObject* Sound)
+{
+	FSlateSound Click;
+	Click.SetResourceObject(Sound);
+	ButtonStyle(false).SetPressedSound(Click);
+	ButtonStyle(true).SetPressedSound(Click);
 }
 
 TSharedRef<SWidget> MakeButton(const FText& Label, FOnClicked OnClicked, TSharedPtr<SButton>* OutButton, TAttribute<bool> IsEnabled, bool bPrimary)

@@ -17,6 +17,9 @@
 #include "RbCredits.h"
 #include "RbInteractable.h"
 #include "RbLog.h"
+#include "RbAudioSubsystem.h"
+#include "RbCampaignSubsystem.h"
+#include "TimerManager.h"
 
 namespace
 {
@@ -156,7 +159,7 @@ UStaticMeshComponent* ARbValtrenHQ::AddBox(const FVector& Center, const FVector&
 	return nullptr;
 }
 
-void ARbValtrenHQ::AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color, float Roll, float Pitch)
+UTextRenderComponent* ARbValtrenHQ::AddLabel(const FString& Text, const FVector& Location, float Yaw, float Size, const FColor& Color, float Roll, float Pitch)
 {
 	UTextRenderComponent* Label = NewObject<UTextRenderComponent>(this, NAME_None);
 	Label->SetupAttachment(RootComponent);
@@ -170,6 +173,7 @@ void ARbValtrenHQ::AddLabel(const FString& Text, const FVector& Location, float 
 	Label->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Label->RegisterComponent();
 	++ComponentCount;
+	return Label;
 }
 
 void ARbValtrenHQ::AddPanelLight(const FVector& Location, float Lumens, bool bShadows, const FLinearColor& Tint)
@@ -218,6 +222,7 @@ void ARbValtrenHQ::Build()
 	FurnishRooms();
 	AddEasterEggs();
 	PlaceInteractables();
+	BuildLivingWorld();
 	UE_LOG(LogRiskbound, Display, TEXT("Valtren HQ built: %d components, %d instances, %d lights, %d rooms, art %s"), ComponentCount, InstanceCount, LightCount, Rooms().Num(),
 		bHasArt ? TEXT("yes") : TEXT("missing"));
 }
@@ -899,4 +904,61 @@ void ARbValtrenHQ::PlaceInteractables()
 	// Alarm terminal: centre monitor of the operator desk, showing an alert.
 	Monitor(FVector(1500.0f, -1080.0f, DeskHeight), 90.0f, nullptr);
 	SpawnInteractable<ARbEvidenceProp>(TEXT("alarm_log"), FVector(1500.0f, -1078.2f, DeskHeight + 38.5f), 90.0f, Cube, FVector(0.004f, 0.58f, 0.33f), Mat(TEXT("MI_ScreenAlarmUI")));
+}
+
+// ---------------------------------------------------------------- living world
+
+void ARbValtrenHQ::BuildLivingWorld()
+{
+	// Reception: under the VALTREN logo, a share board and the latest headline.
+	AddBox(FVector(500.0f, 1182.0f, 128.0f), FVector(330.0f, 2.0f, 46.0f), Mat(TEXT("MI_DeviceBlack")), 0.0f, false);
+	ShareBoard = AddLabel(TEXT("VLT 100.0"), FVector(455.0f, 1180.4f, 136.0f), -90.0f, 13.0f, FColor(236, 238, 240));
+	ShareChange = AddLabel(TEXT(""), FVector(590.0f, 1180.4f, 136.0f), -90.0f, 11.0f, FColor(120, 200, 140));
+	ReceptionHeadline = AddLabel(TEXT(""), FVector(500.0f, 1180.4f, 115.0f), -90.0f, 4.2f, FColor(200, 230, 232));
+	// Monitoring room: a news crawl under the KRI rail.
+	{
+		const FVector P(2000.0f - WallThickness * 0.5f - 3.0f, -710.0f, 48.0f);
+		AddBox(P, FVector(4.0f, 568.0f, 16.0f), Mat(TEXT("MI_DeviceBlack")), 0.0f, false);
+		NewsCrawl = AddLabel(TEXT(""), P - FVector(2.6f, 0.0f, 0.0f), 180.0f, 6.0f, FColor(232, 196, 120));
+	}
+	// Ambience: servers behind the monitoring room's video wall, air handling in the corridor, typing in the workspace.
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (URbAudioSubsystem* Audio = GI->GetSubsystem<URbAudioSubsystem>())
+		{
+			Audio->SpawnAmbience(GetWorld(), TEXT("AMB_Servers"), FVector(1900.0f, -710.0f, 120.0f), 900.0f, 0.5f);
+			Audio->SpawnAmbience(GetWorld(), TEXT("AMB_Hvac"), FVector(2000.0f, 0.0f, 280.0f), 1600.0f, 0.35f);
+			Audio->SpawnAmbience(GetWorld(), TEXT("AMB_Office"), FVector(1500.0f, 700.0f, 120.0f), 1000.0f, 0.45f);
+		}
+	}
+	UpdateLivingWorld();
+	GetWorldTimerManager().SetTimer(LivingTimer, this, &ARbValtrenHQ::UpdateLivingWorld, 0.25f, true);
+}
+
+void ARbValtrenHQ::UpdateLivingWorld()
+{
+	const UGameInstance* GI = GetGameInstance();
+	const URbCampaignSubsystem* Campaign = GI ? GI->GetSubsystem<URbCampaignSubsystem>() : nullptr;
+	const FRbWorldView W = Campaign ? Campaign->GetWorldView() : FRbWorldView();
+	if (ShareBoard) ShareBoard->SetText(FText::FromString(FString::Printf(TEXT("VLT %.1f"), W.bValid ? W.ShareIndex : 100.0)));
+	if (ShareChange)
+	{
+		const double C = W.ShareChange;
+		ShareChange->SetText(FText::FromString(FMath::Abs(C) < 0.05 ? FString(TEXT("0.0")) : FString::Printf(TEXT("%+.1f"), C)));
+		ShareChange->SetTextRenderColor(C > 0.05 ? FColor(120, 210, 150) : (C < -0.05 ? FColor(230, 110, 100) : FColor(170, 176, 184)));
+	}
+	const FString Latest = W.News.IsEmpty() ? FString(TEXT("Valtren Coldline Logistics  -  temperature-controlled logistics you can trust")) : W.News[0].Text;
+	if (ReceptionHeadline) ReceptionHeadline->SetText(FText::FromString(Latest));
+	if (NewsCrawl)
+	{
+		// A fixed-width window sliding over the joined headlines, four characters a second.
+		FString Joined;
+		for (int32 i = 0; i < FMath::Min(5, W.News.Num()); ++i) Joined += W.News[i].Text + TEXT("   +++   ");
+		if (Joined.IsEmpty()) Joined = TEXT("No incidents reported   +++   All sites operating normally   +++   ");
+		constexpr int32 Window = 72;
+		while (Joined.Len() < Window * 2) Joined += Joined;
+		CrawlOffset = (CrawlOffset + 1) % Joined.Len();
+		const FString Doubled = Joined + Joined;
+		NewsCrawl->SetText(FText::FromString(Doubled.Mid(CrawlOffset, Window)));
+	}
 }

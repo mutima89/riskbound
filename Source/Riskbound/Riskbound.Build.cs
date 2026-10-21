@@ -16,5 +16,9 @@ public class Riskbound : ModuleRules
 		// Mission content (Docs/MissionData.md), read and validated at startup by URbCampaignSubsystem.
 		RuntimeDependencies.Add("$(ProjectDir)/Data/Missions/*.json", StagedFileType.UFS);
 		RuntimeDependencies.Add("$(ProjectDir)/Data/Achievements.json", StagedFileType.UFS);
+		// Living world content (Docs/WorldData.md): people, story clues, inbox events and fallout.
+		RuntimeDependencies.Add("$(ProjectDir)/Data/People.json", StagedFileType.UFS);
+		RuntimeDependencies.Add("$(ProjectDir)/Data/Story.json", StagedFileType.UFS);
+		RuntimeDependencies.Add("$(ProjectDir)/Data/Events.json", StagedFileType.UFS);
 	}
 }

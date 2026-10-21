@@ -36,6 +36,10 @@ private:
 	void OnInteract();
 	void OnPause();
 	void OnJournal();
+	void OnInbox();
+	virtual void Tick(float DeltaSeconds) override;
+	float StrideDistance = 0.0f;
+	static constexpr float StrideLength = 150.0f;
 	float Sensitivity() const;
 
 	UPROPERTY(VisibleAnywhere, Category = "Riskbound")
@@ -50,4 +54,5 @@ private:
 	UPROPERTY(Transient) TObjectPtr<UInputAction> InteractAction;
 	UPROPERTY(Transient) TObjectPtr<UInputAction> PauseAction;
 	UPROPERTY(Transient) TObjectPtr<UInputAction> JournalAction;
+	UPROPERTY(Transient) TObjectPtr<UInputAction> InboxAction;
 };

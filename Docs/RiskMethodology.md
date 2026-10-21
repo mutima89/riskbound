@@ -95,3 +95,7 @@ Built only from `GameState`; no figures are computed in the report beyond calls 
 - Decisions: each decision with its quality score and outcome ("Pending" until its consequence resolves); quality and outcome are reported separately.
 - `ReportToMarkdown` renders the same content as Markdown tables (cell text cannot contain `|`).
 Tests: `Report_*`.
+
+## 15. Share index (`RbQuant::ShareIndex`)
+A presentation index of how the market would see Valtren, not a valuation. 100 at the organisation profile's starting metrics:
+`index = 100 x (1 + sum_i w_i x (m_i - m0_i) + 0.5 x (cash - cash0) / revenue0)`, clamped to [20, 300], with weights per index point: reputation +0.004, stakeholder trust +0.003, strategic progress +0.003, control effectiveness +0.002, resilience +0.002, employee morale +0.001, risk exposure -0.003. Example: +10 reputation is 104.0; cash down by 10% of annual revenue is -5 points. A point is recorded after every world update (`WorldState::Shares`, capped at 104). Tests: `World_ShareIndexAndNews`.
