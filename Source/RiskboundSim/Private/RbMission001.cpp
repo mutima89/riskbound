@@ -110,11 +110,11 @@ static bool IsTrulyMissing(const std::string& Id)
 const std::vector<Option>& TreatmentOptions()
 {
 	static const std::vector<Option> O = {
-		{"accept_monitor", "Accept and monitor", "Keep current controls, review again next quarter."},
+		{"accept_monitor", "Accept and monitor", "Keep the current controls, re-review R-014 next quarter, and ask the site to report any further excursion the same day."},
 		{"repair_and_escalation", "Service compressor and fix alarm escalation",
 			"Overdue service now, 24/7 on-call engineer rota, alarms cannot be silenced without a logged action."},
-		{"replace_plant", "Replace the Bay 3 refrigeration plant", "New plant with remote monitoring."},
-		{"increase_insurance", "Increase insurance cover", "Raise cover limits with the current insurer."},
+		{"replace_plant", "Replace the Bay 3 refrigeration plant", "New plant with remote monitoring and a five-year maintenance contract; about twelve weeks to install."},
+		{"increase_insurance", "Increase insurance cover", "Raise stock and liability limits with the current insurer so that a major excursion is fully covered."},
 	};
 	return O;
 }

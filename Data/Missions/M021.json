@@ -5,7 +5,9 @@
   "kind": "mission",
   "department": "Executive Management",
   "minLevel": 8,
-  "requiresPassed": ["M020"],
+  "requiresPassed": [
+    "M020"
+  ],
   "passMark": 60,
   "xp": 250,
   "weeks": 3,
@@ -14,51 +16,168 @@
     "You have the external scan, client interviews and the strategy team's assumptions."
   ],
   "context": [
-    {"ifFlag": "transition_risk_on_profile", "text": "The refrigerant transition is already on the enterprise profile; the board wants to know what else is coming."}
+    {
+      "ifFlag": "transition_risk_on_profile",
+      "text": "The refrigerant transition is already on the enterprise profile; the board wants to know what else is coming."
+    }
   ],
   "evidence": [
-    {"id": "scan", "title": "External scan", "body": "Refrigerant phase-down (2027); electric refrigerated trucks viable by about 2029; pharma clients halving supplier panels; heatwaves twice as frequent as a decade ago; data-sharing requirements in pharma contracts."},
-    {"id": "interviews", "title": "Client interviews", "body": "Three of the top five clients plan to require live temperature data feeds by 2027. Two will score suppliers on emissions."},
-    {"id": "assumptions", "title": "Strategy assumptions", "body": "Diesel fleet to 2032. Heatwave days: flat. Client panels: stable."}
+    {
+      "id": "scan",
+      "title": "External scan",
+      "body": "Refrigerant phase-down (2027); electric refrigerated trucks viable by about 2029; pharma clients halving supplier panels; heatwaves twice as frequent as a decade ago; data-sharing requirements in pharma contracts."
+    },
+    {
+      "id": "interviews",
+      "title": "Client interviews",
+      "body": "Three of the top five clients plan to require live temperature data feeds by 2027. Two will score suppliers on emissions."
+    },
+    {
+      "id": "assumptions",
+      "title": "Strategy assumptions",
+      "body": "Diesel fleet to 2032. Heatwave days: flat. Client panels: stable."
+    }
   ],
   "questions": [
-    {"id": "challenge_assumptions", "kind": "multi", "competency": "StrategicThinking", "weight": 25,
-     "prompt": "Which strategy assumptions does the evidence challenge?",
-     "options": [
-       {"id": "diesel", "label": "Diesel fleet to 2032, against emissions scoring and EV viability by about 2029", "correct": true},
-       {"id": "heat", "label": "Flat heatwave days, against a doubling over a decade", "correct": true},
-       {"id": "panels", "label": "Stable client panels, against pharma clients halving supplier panels", "correct": true},
-       {"id": "revenue_growth", "label": "Revenue growth of 6% a year", "feedback": "Not directly challenged by this evidence."}
-     ]},
-    {"id": "biggest", "competency": "Judgement", "weight": 20,
-     "prompt": "Which emerging risk is most urgent for Valtren?",
-     "options": [
-       {"id": "panel_data", "label": "Losing panel places at pharma clients that will require live data feeds by 2027: it combines shrinking panels with a capability Valtren lacks", "score": 92, "feedback": "Nearest deadline and highest revenue at stake."},
-       {"id": "ev", "label": "EV trucks: the technology change", "score": 55, "feedback": "Important but further out."},
-       {"id": "heat_only", "label": "Heatwaves alone", "score": 50, "feedback": "Real and growing, but partly addressed by Coldline 2."}
-     ]},
-    {"id": "response", "competency": "Leadership", "weight": 20,
-     "prompt": "How should Valtren respond to emerging risks generally?",
-     "options": [
-       {"id": "owners_signposts", "label": "Name an executive owner for each, define signposts that would trigger action, and review them twice a year", "score": 92, "feedback": "Ownership and signposts turn speculation into managed uncertainty.",
-        "setsFlags": ["emerging_risk_process"], "effects": {"StrategicProgress": 4}},
-       {"id": "big_bets", "label": "Invest heavily now in every one", "score": 30, "feedback": "Spends before the uncertainty narrows."},
-       {"id": "wait", "label": "Wait until they become current risks", "score": 20, "feedback": "Too late to shape them."}
-     ]},
-    {"id": "governance", "competency": "Governance", "weight": 15,
-     "prompt": "Where do emerging risks sit in governance?",
-     "options": [
-       {"id": "board_annual", "label": "A standing emerging-risk section in the board risk report, with a deep dive once a year", "score": 92, "feedback": "Keeps them visible without swamping current risks."},
-       {"id": "strategy_only", "label": "Only in the strategy team's papers", "score": 35, "feedback": "Separates risk from the strategy it threatens."},
-       {"id": "nowhere", "label": "Nowhere formal", "score": 10, "feedback": "Unowned risks surprise boards."}
-     ]},
-    {"id": "message", "competency": "Communication", "weight": 20,
-     "prompt": "How do you frame this for a sceptical CEO who calls it 'crystal-ball gazing'?",
-     "options": [
-       {"id": "client_evidence", "label": "Lead with the client interviews: three of the top five clients told us what they'll require by 2027", "score": 92, "feedback": "Evidence from customers, not predictions."},
-       {"id": "trends", "label": "Lead with global megatrends", "score": 35, "feedback": "Confirms the 'crystal ball' view."},
-       {"id": "fear", "label": "Warn that Valtren could go bust", "score": 20, "feedback": "Alarmism without evidence loses the room."}
-     ]}
+    {
+      "id": "challenge_assumptions",
+      "kind": "multi",
+      "competency": "StrategicThinking",
+      "weight": 25,
+      "prompt": "Which strategy assumptions does the evidence challenge?",
+      "options": [
+        {
+          "id": "diesel",
+          "label": "Diesel fleet to 2032, against emissions scoring and EV viability by about 2029",
+          "correct": true
+        },
+        {
+          "id": "heat",
+          "label": "Flat heatwave days, against a doubling over a decade",
+          "correct": true
+        },
+        {
+          "id": "panels",
+          "label": "Stable client panels, against pharma clients halving supplier panels",
+          "correct": true
+        },
+        {
+          "id": "revenue_growth",
+          "label": "Revenue growth of 6% a year",
+          "feedback": "Not directly challenged by this evidence."
+        }
+      ]
+    },
+    {
+      "id": "biggest",
+      "competency": "Judgement",
+      "weight": 20,
+      "prompt": "Which emerging risk is most urgent for Valtren?",
+      "options": [
+        {
+          "id": "panel_data",
+          "label": "Losing pharma panel places to clients requiring live data feeds by 2027, a capability Valtren lacks",
+          "score": 92,
+          "feedback": "Nearest deadline and highest revenue at stake."
+        },
+        {
+          "id": "ev",
+          "label": "The switch to electric refrigerated trucks, which will change the cost and range economics of the whole fleet",
+          "score": 55,
+          "feedback": "Important but further out."
+        },
+        {
+          "id": "heat_only",
+          "label": "More frequent heatwaves, which put every store and vehicle under strain",
+          "score": 50,
+          "feedback": "Real and growing, but partly addressed by Coldline 2."
+        }
+      ]
+    },
+    {
+      "id": "response",
+      "competency": "Leadership",
+      "weight": 20,
+      "prompt": "How should Valtren respond to emerging risks generally?",
+      "options": [
+        {
+          "id": "owners_signposts",
+          "label": "An executive owner for each, signposts that would trigger action, and a review twice a year",
+          "score": 92,
+          "feedback": "Ownership and signposts turn speculation into managed uncertainty.",
+          "setsFlags": [
+            "emerging_risk_process"
+          ],
+          "effects": {
+            "StrategicProgress": 4
+          }
+        },
+        {
+          "id": "big_bets",
+          "label": "Invest early in each of them, so Valtren is ahead of competitors when they arrive and can set the standard",
+          "score": 30,
+          "feedback": "Spends before the uncertainty narrows."
+        },
+        {
+          "id": "wait",
+          "label": "Monitor them through the horizon scan and act when they become current risks",
+          "score": 20,
+          "feedback": "Too late to shape them."
+        }
+      ]
+    },
+    {
+      "id": "governance",
+      "competency": "Governance",
+      "weight": 15,
+      "prompt": "Where do emerging risks sit in governance?",
+      "options": [
+        {
+          "id": "board_annual",
+          "label": "A standing emerging-risk section in the board report, with a yearly deep dive",
+          "score": 92,
+          "feedback": "Keeps them visible without swamping current risks."
+        },
+        {
+          "id": "strategy_only",
+          "label": "In the strategy team's papers, since emerging risks are really strategic questions",
+          "score": 35,
+          "feedback": "Separates risk from the strategy it threatens."
+        },
+        {
+          "id": "nowhere",
+          "label": "In the risk team's working files until a risk is concrete enough to register",
+          "score": 10,
+          "feedback": "Unowned risks surprise boards."
+        }
+      ]
+    },
+    {
+      "id": "message",
+      "competency": "Communication",
+      "weight": 20,
+      "prompt": "How do you frame this for a sceptical CEO who calls it 'crystal-ball gazing'?",
+      "options": [
+        {
+          "id": "client_evidence",
+          "label": "Lead with the client interviews: three of the top five told us what they will require by 2027",
+          "score": 92,
+          "feedback": "Evidence from customers, not predictions."
+        },
+        {
+          "id": "trends",
+          "label": "Lead with the global trends (regulation, technology, climate) and what our main peers are already doing about them",
+          "score": 35,
+          "feedback": "Confirms the 'crystal ball' view."
+        },
+        {
+          "id": "fear",
+          "label": "Lead with the worst case: losing pharma panels could undo the whole growth strategy",
+          "score": 20,
+          "feedback": "Alarmism without evidence loses the room."
+        }
+      ]
+    }
   ],
   "lesson": "Emerging risks become manageable with evidence, an owner and signposts. Challenge the strategy's assumptions, not just its execution."
 }

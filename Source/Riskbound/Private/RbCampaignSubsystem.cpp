@@ -137,8 +137,9 @@ TArray<FRbMissionSummary> URbCampaignSubsystem::GetMissions(bool bIncludeHidden)
 		V.Kind = ToFString(rb::ToString(M.Kind));
 		V.Department = ToFString(M.Department);
 		V.MinLevel = M.MinLevel;
-		const rb::MissionAvailability A = rb::CheckAvailability(S, M);
+		const rb::MissionAvailability A = rb::CheckAvailability(S, M, &Catalogue);
 		V.bAvailable = A.bAvailable;
+		V.bReview = A.bReview;
 		V.Reasons = ToFStrings(A.Reasons);
 		V.bActive = S.Campaign.ActiveMissionId == M.Id;
 		V.bPassed = S.Career.HasPassed(M.Id);
@@ -198,6 +199,11 @@ FRbMissionView URbCampaignSubsystem::GetMission(const FString& MissionId) const
 	return V;
 }
 
+bool URbCampaignSubsystem::IsStuck() const
+{
+	return !Catalogue.Missions.empty() && rb::IsCampaignStuck(Game()->GetState(), Catalogue);
+}
+
 FString URbCampaignSubsystem::GetActiveMissionId() const
 {
 	return ToFString(Game()->GetState().Campaign.ActiveMissionId);
@@ -207,7 +213,7 @@ ERbMissionResult URbCampaignSubsystem::StartMission(const FString& MissionId)
 {
 	const rb::MissionDef* M = Catalogue.Find(ToStd(MissionId));
 	if (!M) return ERbMissionResult::UnknownMission;
-	const ERbMissionResult R = FromSimError(rb::StartMission(Game()->EditState(), *M));
+	const ERbMissionResult R = FromSimError(rb::StartMission(Game()->EditState(), *M, &Catalogue));
 	if (R == ERbMissionResult::Ok) Game()->StateCheckpoint();
 	return R;
 }
@@ -277,6 +283,7 @@ FRbMissionDebriefView URbCampaignSubsystem::ToView(const rb::MissionDef& M, cons
 	}
 	V.XpAwarded = D.XpAwarded;
 	V.Lesson = ToFString(D.Lesson);
+	V.bReview = D.bReview;
 	if (bFull)
 	{
 		for (const rb::ResolvedConsequence& R : D.Resolved) V.Consequences.Add(ConsequenceText(R));

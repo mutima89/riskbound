@@ -5,7 +5,9 @@
   "kind": "mission",
   "department": "Executive Management",
   "minLevel": 9,
-  "requiresPassed": ["M025"],
+  "requiresPassed": [
+    "M025"
+  ],
   "passMark": 60,
   "xp": 270,
   "weeks": 3,
@@ -14,51 +16,170 @@
     "Bring scenarios, not a forecast."
   ],
   "context": [
-    {"ifFlag": "emerging_risk_process", "text": "Your emerging-risk signposts give the scenarios a ready-made set of indicators."},
-    {"ifFlag": "liquidity_buffer_set", "text": "The liquidity buffer you set gives the board room to take strategic risk."}
+    {
+      "ifFlag": "emerging_risk_process",
+      "text": "Your emerging-risk signposts give the scenarios a ready-made set of indicators."
+    },
+    {
+      "ifFlag": "liquidity_buffer_set",
+      "text": "The liquidity buffer you set gives the board room to take strategic risk."
+    }
   ],
   "evidence": [
-    {"id": "forecast", "title": "Strategy team forecast", "body": "Revenue doubles in five years: pharma 35%, electric fleet by 2030, two acquisitions."},
-    {"id": "drivers", "title": "Key uncertainties", "body": "Speed of pharma supplier consolidation; electric truck cost and range; regulation of refrigerants; availability of drivers and engineers; climate impacts on cold-chain demand."},
-    {"id": "board_style", "title": "Board dynamics", "body": "Two directors are strongly committed to the forecast; one is openly sceptical. The CEO wants approval in one meeting."}
+    {
+      "id": "forecast",
+      "title": "Strategy team forecast",
+      "body": "Revenue doubles in five years: pharma 35%, electric fleet by 2030, two acquisitions."
+    },
+    {
+      "id": "drivers",
+      "title": "Key uncertainties",
+      "body": "Speed of pharma supplier consolidation; electric truck cost and range; regulation of refrigerants; availability of drivers and engineers; climate impacts on cold-chain demand."
+    },
+    {
+      "id": "board_style",
+      "title": "Board dynamics",
+      "body": "Two directors are strongly committed to the forecast; one is openly sceptical. The CEO wants approval in one meeting."
+    }
   ],
   "questions": [
-    {"id": "scenario_set", "competency": "StrategicThinking", "weight": 25,
-     "prompt": "Which scenario approach do you use?",
-     "options": [
-       {"id": "four_scenarios", "label": "Four scenarios built from the two most uncertain, most impactful drivers (pharma consolidation speed x electric fleet economics), each with signposts", "score": 92, "feedback": "Structured, plausible and decision-useful."},
-       {"id": "plus_minus", "label": "The forecast plus and minus 10%", "score": 30, "feedback": "Sensitivity, not scenarios: same world, different numbers."},
-       {"id": "worst", "label": "One worst case", "score": 35, "feedback": "Useful for resilience, not for strategy choices."}
-     ]},
-    {"id": "robust", "competency": "Judgement", "weight": 25,
-     "prompt": "What should the board look for in the strategy?",
-     "options": [
-       {"id": "no_regret", "label": "No-regret moves that work in every scenario, options to scale up when signposts confirm, and limits on irreversible bets", "score": 92, "feedback": "Robust strategy under uncertainty.",
-        "setsFlags": ["robust_strategy"], "effects": {"StrategicProgress": 6, "Resilience": 4}},
-       {"id": "best_forecast", "label": "The plan that does best in the most likely scenario", "score": 35, "feedback": "Optimises for one future and breaks in others."},
-       {"id": "defer", "label": "Delay strategy until uncertainty clears", "score": 20, "feedback": "Uncertainty never clears."}
-     ]},
-    {"id": "board_dynamics", "competency": "StakeholderManagement", "weight": 20,
-     "prompt": "How do you work with the committed directors and the CEO's one-meeting goal?",
-     "options": [
-       {"id": "pre_meetings", "label": "Walk the committed directors and the sceptic through the scenarios individually beforehand, and propose two sessions: explore, then decide", "score": 92, "feedback": "No surprises, and space for real challenge before commitment."},
-       {"id": "meeting_only", "label": "Present everything in the meeting", "score": 35, "feedback": "Committed directors defend positions in public."},
-       {"id": "side_with_sceptic", "label": "Brief only the sceptic to strengthen the challenge", "score": 20, "feedback": "Partisan; undermines your independence."}
-     ]},
-    {"id": "appetite_link", "competency": "Governance", "weight": 15,
-     "prompt": "How should the strategy connect to risk appetite?",
-     "options": [
-       {"id": "appetite_check", "label": "Test each strategic move against the appetite statement and propose appetite changes explicitly where the strategy needs them", "score": 92, "feedback": "Strategy and appetite set together, not separately."},
-       {"id": "after", "label": "Update appetite after the strategy is approved", "score": 30, "feedback": "Then appetite just ratifies whatever was decided."},
-       {"id": "separate", "label": "Keep them separate: appetite is about controls", "score": 15, "feedback": "Appetite is about how much risk to take in pursuit of objectives."}
-     ]},
-    {"id": "message", "competency": "Communication", "weight": 15,
-     "prompt": "Your closing line to the board:",
-     "options": [
-       {"id": "eyes_open", "label": "\"Under all four scenarios these three moves pay off; these two only pay if pharma consolidates fast, so we fund them in stages and watch these signposts.\"", "score": 95, "feedback": "Clear, decision-ready, honest about uncertainty."},
-       {"id": "forecast", "label": "\"The forecast is achievable.\"", "score": 20, "feedback": "Not your role, and not what you found."},
-       {"id": "dont", "label": "\"The future is too uncertain to commit.\"", "score": 15, "feedback": "Unhelpful to a board that must decide."}
-     ]}
+    {
+      "id": "scenario_set",
+      "competency": "StrategicThinking",
+      "weight": 25,
+      "prompt": "Which scenario approach do you use?",
+      "options": [
+        {
+          "id": "four_scenarios",
+          "label": "Four scenarios from the two most uncertain, most impactful drivers, each with signposts",
+          "score": 92,
+          "feedback": "Structured, plausible and decision-useful."
+        },
+        {
+          "id": "plus_minus",
+          "label": "The forecast plus and minus 10% on revenue and costs, presented as a sensitivity range",
+          "score": 30,
+          "feedback": "Sensitivity, not scenarios: same world, different numbers."
+        },
+        {
+          "id": "worst",
+          "label": "One severe downside scenario to test whether the strategy survives",
+          "score": 35,
+          "feedback": "Useful for resilience, not for strategy choices."
+        }
+      ]
+    },
+    {
+      "id": "robust",
+      "competency": "Judgement",
+      "weight": 25,
+      "prompt": "What should the board look for in the strategy?",
+      "options": [
+        {
+          "id": "no_regret",
+          "label": "No-regret moves that work in every scenario, options to scale on signposts, limits on irreversible bets",
+          "score": 92,
+          "feedback": "Robust strategy under uncertainty.",
+          "setsFlags": [
+            "robust_strategy"
+          ],
+          "effects": {
+            "StrategicProgress": 6,
+            "Resilience": 4
+          }
+        },
+        {
+          "id": "best_forecast",
+          "label": "The plan that delivers the most value in the most likely scenario, with a contingency reserve",
+          "score": 35,
+          "feedback": "Optimises for one future and breaks in others."
+        },
+        {
+          "id": "defer",
+          "label": "Commit to as little as possible until the uncertainties resolve",
+          "score": 20,
+          "feedback": "Uncertainty never clears."
+        }
+      ]
+    },
+    {
+      "id": "board_dynamics",
+      "competency": "StakeholderManagement",
+      "weight": 20,
+      "prompt": "How do you work with the committed directors and the CEO's one-meeting goal?",
+      "options": [
+        {
+          "id": "pre_meetings",
+          "label": "Walk the committed directors and the sceptic through it beforehand, and propose two sessions: explore, then decide",
+          "score": 92,
+          "feedback": "No surprises, and space for real challenge before commitment."
+        },
+        {
+          "id": "meeting_only",
+          "label": "Present everything in the meeting, so all directors hear it together",
+          "score": 35,
+          "feedback": "Committed directors defend positions in public."
+        },
+        {
+          "id": "side_with_sceptic",
+          "label": "Brief the sceptical director in depth beforehand so the challenge in the meeting is well prepared",
+          "score": 20,
+          "feedback": "Partisan; undermines your independence."
+        }
+      ]
+    },
+    {
+      "id": "appetite_link",
+      "competency": "Governance",
+      "weight": 15,
+      "prompt": "How should the strategy connect to risk appetite?",
+      "options": [
+        {
+          "id": "appetite_check",
+          "label": "Test each move against the appetite statement and propose appetite changes explicitly where needed",
+          "score": 92,
+          "feedback": "Strategy and appetite set together, not separately."
+        },
+        {
+          "id": "after",
+          "label": "Update the appetite statement once the strategy is approved",
+          "score": 30,
+          "feedback": "Then appetite just ratifies whatever was decided."
+        },
+        {
+          "id": "separate",
+          "label": "Keep them separate: appetite is about controls and compliance, strategy is about growth and markets",
+          "score": 15,
+          "feedback": "Appetite is about how much risk to take in pursuit of objectives."
+        }
+      ]
+    },
+    {
+      "id": "message",
+      "competency": "Communication",
+      "weight": 15,
+      "prompt": "Your closing line to the board:",
+      "options": [
+        {
+          "id": "eyes_open",
+          "label": "\"Three moves pay off in all four scenarios; two only pay if pharma consolidates fast, so we fund those in stages.\"",
+          "score": 95,
+          "feedback": "Clear, decision-ready, honest about uncertainty."
+        },
+        {
+          "id": "forecast",
+          "label": "\"The forecast is ambitious but achievable if we execute well and watch our risks.\"",
+          "score": 20,
+          "feedback": "Not your role, and not what you found."
+        },
+        {
+          "id": "dont",
+          "label": "\"The uncertainty is too great to commit capital now; we recommend a one-year holding strategy and a review next year.\"",
+          "score": 15,
+          "feedback": "Unhelpful to a board that must decide."
+        }
+      ]
+    }
   ],
   "lesson": "Strategy under uncertainty needs scenarios, not forecasts: find no-regret moves, stage the bets with signposts, and set appetite with the strategy."
 }

@@ -41,13 +41,13 @@
       "options": [
         {
           "id": "protect",
-          "label": "Advise firmly against it: it's unlawful, and the data suggests the allegation is true; focus on the allegation, not the person",
+          "label": "Advise firmly against it: it is unlawful, and the data suggests the claim is true; focus on the allegation",
           "score": 95,
           "feedback": "Protects the whistleblower, the company and the CEO."
         },
         {
           "id": "quiet_search",
-          "label": "Look discreetly",
+          "label": "Review roster access logs quietly to understand who raised it, without taking any action against them",
           "score": 0,
           "feedback": "Unlawful and likely to be discovered.",
           "effects": {
@@ -57,7 +57,7 @@
         },
         {
           "id": "defer",
-          "label": "Leave it to HR",
+          "label": "Pass the request to HR, who handle employee relations and know the legal position",
           "score": 20,
           "feedback": "Doesn't stop a dangerous instruction."
         }
@@ -77,13 +77,13 @@
         },
         {
           "id": "site_manager",
-          "label": "The Corby Road site manager investigates",
+          "label": "The Corby Road site manager investigates, since he knows the rosters and the drivers best and can act quickly",
           "score": 10,
           "feedback": "Implicated parties can't investigate themselves."
         },
         {
           "id": "none",
-          "label": "No investigation: deny it",
+          "label": "Issue a firm denial: the company's fatigue rules are clear and published",
           "score": 5,
           "feedback": "Your own data supports the claim."
         }
@@ -97,19 +97,19 @@
       "options": [
         {
           "id": "take_seriously",
-          "label": "\"We take this seriously, have started an independent investigation, and have taken immediate steps to enforce rest rules at Corby Road. We protect staff who raise concerns.\"",
+          "label": "\"We take this seriously, have started an independent investigation, are enforcing rest rules at Corby Road, and protect staff who raise concerns.\"",
           "score": 92,
           "feedback": "Credible and responsible."
         },
         {
           "id": "deny",
-          "label": "\"The allegations are false.\"",
+          "label": "\"Valtren's fatigue rules exceed legal requirements, every roster is checked by a supervisor, and we have no evidence that they are being breached.\"",
           "score": 10,
           "feedback": "Your data says otherwise."
         },
         {
           "id": "no_comment",
-          "label": "No comment",
+          "label": "\"We do not comment on matters under internal review.\"",
           "score": 30,
           "feedback": "Looks evasive."
         }
@@ -123,7 +123,7 @@
       "options": [
         {
           "id": "enforce",
-          "label": "Enforce rest rules from tonight, audit rosters, and suspend roster edits without second approval",
+          "label": "Enforce rest rules tonight, audit rosters, and require a second approval for roster edits",
           "score": 92,
           "feedback": "Removes the danger now.",
           "setsFlags": [
@@ -135,13 +135,13 @@
         },
         {
           "id": "wait",
-          "label": "Wait for the investigation",
+          "label": "Keep operations unchanged until the investigation reports, to avoid acting on an unproven claim",
           "score": 20,
           "feedback": "Drivers stay at risk meanwhile."
         },
         {
           "id": "close_depot",
-          "label": "Close the depot",
+          "label": "Close Corby Road temporarily until the investigation is complete",
           "score": 25,
           "feedback": "Disproportionate; fix the practice."
         }

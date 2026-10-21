@@ -5,7 +5,9 @@
   "kind": "crisis",
   "department": "IT",
   "minLevel": 8,
-  "requiresPassed": ["M020"],
+  "requiresPassed": [
+    "M020"
+  ],
   "passMark": 60,
   "xp": 280,
   "weeks": 1,
@@ -14,51 +16,169 @@
     "You chair the crisis team."
   ],
   "context": [
-    {"ifFlag": "cyber_controls_funded", "text": "The offline dispatch fallback funded in your cyber work exists, though it has only been rehearsed once."},
-    {"ifFlag": "coldline2_on_track", "text": "Coldline 2's local temperature alarms still sound on site even without the central system."}
+    {
+      "ifFlag": "cyber_controls_funded",
+      "text": "The offline dispatch fallback funded in your cyber work exists, though it has only been rehearsed once."
+    },
+    {
+      "ifFlag": "coldline2_on_track",
+      "text": "Coldline 2's local temperature alarms still sound on site even without the central system."
+    }
   ],
   "evidence": [
-    {"id": "status", "title": "Systems status", "body": "Down: route planning, central temperature alerting, email. Up: telephones, site alarms, the backup laptop kit at Northgate (dispatch fallback, if funded)."},
-    {"id": "priorities", "title": "Today's deliveries", "body": "900 deliveries: 120 pharma (strict windows), 600 food retail, 180 other. Manual dispatch capacity: about 40% of normal."},
-    {"id": "contracts", "title": "Contract notes", "body": "Pharma: missed window costs 2,000 per delivery and counts toward termination rights. Retail: 300 per missed slot. Force majeure covers the provider's failure but not Valtren's lack of a fallback."}
+    {
+      "id": "status",
+      "title": "Systems status",
+      "body": "Down: route planning, central temperature alerting, email. Up: telephones, site alarms, the backup laptop kit at Northgate (dispatch fallback, if funded)."
+    },
+    {
+      "id": "priorities",
+      "title": "Today's deliveries",
+      "body": "900 deliveries: 120 pharma (strict windows), 600 food retail, 180 other. Manual dispatch capacity: about 40% of normal."
+    },
+    {
+      "id": "contracts",
+      "title": "Contract notes",
+      "body": "Pharma: missed window costs 2,000 per delivery and counts toward termination rights. Retail: 300 per missed slot. Force majeure covers the provider's failure but not Valtren's lack of a fallback."
+    }
   ],
   "questions": [
-    {"id": "triage", "competency": "Judgement", "weight": 25,
-     "prompt": "With 40% capacity, what do you deliver?",
-     "options": [
-       {"id": "pharma_first", "label": "All 120 pharma loads first, then the retail slots with the highest penalties and perishability; agree revised slots for the rest", "score": 92, "feedback": "Protects the contracts with termination rights and the most perishable product."},
-       {"id": "fifo", "label": "In the original schedule order until capacity runs out", "score": 30, "feedback": "Ignores very different consequences."},
-       {"id": "cancel", "label": "Cancel everything until systems return", "score": 15, "feedback": "Turns a partial outage into a total one."}
-     ]},
-    {"id": "temperature", "competency": "Governance", "weight": 20,
-     "prompt": "Central temperature alerting is down. What control do you put in place?",
-     "options": [
-       {"id": "manual_rounds", "label": "Manual temperature rounds every 30 minutes at every store, logged on paper and photographed, with site alarms as backup", "score": 92, "feedback": "A documented compensating control keeps food safety evidenced."},
-       {"id": "trust_alarms", "label": "Rely on site alarms only", "score": 45, "feedback": "Alarms catch failures but leave no record for clients and regulators."},
-       {"id": "none", "label": "Nothing: it's only 36 hours", "score": 10, "feedback": "Thirty-six hours is plenty of time for a store to fail unseen."}
-     ]},
-    {"id": "comms", "competency": "Communication", "weight": 20,
-     "prompt": "Email is down. How do you run communications?",
-     "options": [
-       {"id": "phone_tree", "label": "A phone cascade with set times (every two hours), a single status message for clients read by account managers, and an SMS line for drivers", "score": 92, "feedback": "Rhythm, one message, and channels that work."},
-       {"id": "wait_email", "label": "Wait for email to return", "score": 10, "feedback": "Clients will hear rumours first."},
-       {"id": "everyone_calls", "label": "Everyone calls whoever they think needs to know", "score": 30, "feedback": "Inconsistent messages make things worse."}
-     ]},
-    {"id": "leadership", "competency": "Leadership", "weight": 20,
-     "prompt": "Hour 20: the team is exhausted and the provider slips to 48 hours. What do you do?",
-     "options": [
-       {"id": "shifts", "label": "Split the team into two shifts with clear handovers, bring in the second-line deputies, and reset the plan for 48 hours", "score": 92, "feedback": "Sustainable effort for a longer incident.",
-        "setsFlags": ["outage_managed"], "effects": {"Resilience": 5}},
-       {"id": "push_on", "label": "Push on: it's nearly over", "score": 20, "feedback": "Tired teams make mistakes in the hardest hours."},
-       {"id": "hand_over", "label": "Hand over to the provider", "score": 10, "feedback": "The provider fixes systems, not Valtren's operations."}
-     ]},
-    {"id": "afterwards", "competency": "StrategicThinking", "weight": 15,
-     "prompt": "What is the main strategic lesson for the board?",
-     "options": [
-       {"id": "resilience_design", "label": "Critical services need a tested way to keep operating without their systems; the provider's force majeure doesn't protect our contracts", "score": 92, "feedback": "Operational resilience is ours, whatever the provider's contract says."},
-       {"id": "sue", "label": "Sue the provider", "score": 20, "feedback": "Recovery of some costs at best; doesn't fix the exposure."},
-       {"id": "new_provider", "label": "Change provider", "score": 35, "feedback": "Any provider can fail; the lesson is about our fallback."}
-     ]}
+    {
+      "id": "triage",
+      "competency": "Judgement",
+      "weight": 25,
+      "prompt": "With 40% capacity, what do you deliver?",
+      "options": [
+        {
+          "id": "pharma_first",
+          "label": "All 120 pharma loads first, then the retail slots with the highest penalties and perishability; re-book the rest",
+          "score": 92,
+          "feedback": "Protects the contracts with termination rights and the most perishable product."
+        },
+        {
+          "id": "fifo",
+          "label": "Work through the original schedule in order, so every customer is treated the same and nobody can claim they were skipped",
+          "score": 30,
+          "feedback": "Ignores very different consequences."
+        },
+        {
+          "id": "cancel",
+          "label": "Cancel today's deliveries and re-plan them properly once route planning is back, instead of improvising",
+          "score": 15,
+          "feedback": "Turns a partial outage into a total one."
+        }
+      ]
+    },
+    {
+      "id": "temperature",
+      "competency": "Governance",
+      "weight": 20,
+      "prompt": "Central temperature alerting is down. What control do you put in place?",
+      "options": [
+        {
+          "id": "manual_rounds",
+          "label": "Manual temperature rounds every 30 minutes at every store, logged on paper and photographed",
+          "score": 92,
+          "feedback": "A documented compensating control keeps food safety evidenced."
+        },
+        {
+          "id": "trust_alarms",
+          "label": "Rely on the site alarms, which still work locally and sound if any store goes above its limit",
+          "score": 45,
+          "feedback": "Alarms catch failures but leave no record for clients and regulators."
+        },
+        {
+          "id": "none",
+          "label": "Nothing extra: stores are stable, the outage is 36 hours, and staff are needed for manual dispatch",
+          "score": 10,
+          "feedback": "Thirty-six hours is plenty of time for a store to fail unseen."
+        }
+      ]
+    },
+    {
+      "id": "comms",
+      "competency": "Communication",
+      "weight": 20,
+      "prompt": "Email is down. How do you run communications?",
+      "options": [
+        {
+          "id": "phone_tree",
+          "label": "A phone cascade at fixed two-hour times, one status message for clients via account managers, and an SMS line for drivers",
+          "score": 92,
+          "feedback": "Rhythm, one message, and channels that work."
+        },
+        {
+          "id": "wait_email",
+          "label": "Hold client updates until email is back so every customer gets the same written statement",
+          "score": 10,
+          "feedback": "Clients will hear rumours first."
+        },
+        {
+          "id": "everyone_calls",
+          "label": "Ask each manager to phone the customers and staff they know best, so everyone hears it from a familiar and trusted voice",
+          "score": 30,
+          "feedback": "Inconsistent messages make things worse."
+        }
+      ]
+    },
+    {
+      "id": "leadership",
+      "competency": "Leadership",
+      "weight": 20,
+      "prompt": "Hour 20: the team is exhausted and the provider slips to 48 hours. What do you do?",
+      "options": [
+        {
+          "id": "shifts",
+          "label": "Split the team into two shifts with clear handovers, bring in the deputies, and reset the plan for 48 hours",
+          "score": 92,
+          "feedback": "Sustainable effort for a longer incident.",
+          "setsFlags": [
+            "outage_managed"
+          ],
+          "effects": {
+            "Resilience": 5
+          }
+        },
+        {
+          "id": "push_on",
+          "label": "Keep the same team going: they know the situation, and the provider's estimate may still come in earlier than feared",
+          "score": 20,
+          "feedback": "Tired teams make mistakes in the hardest hours."
+        },
+        {
+          "id": "hand_over",
+          "label": "Stand the crisis team down and let the provider's incident manager lead until systems are back",
+          "score": 10,
+          "feedback": "The provider fixes systems, not Valtren's operations."
+        }
+      ]
+    },
+    {
+      "id": "afterwards",
+      "competency": "StrategicThinking",
+      "weight": 15,
+      "prompt": "What is the main strategic lesson for the board?",
+      "options": [
+        {
+          "id": "resilience_design",
+          "label": "Critical services need a tested way to run without their systems; the provider's force majeure does not protect our contracts",
+          "score": 92,
+          "feedback": "Operational resilience is ours, whatever the provider's contract says."
+        },
+        {
+          "id": "sue",
+          "label": "Pursue the provider for the costs under the service agreement and make that the lesson for every other critical supplier we use",
+          "score": 20,
+          "feedback": "Recovery of some costs at best; doesn't fix the exposure."
+        },
+        {
+          "id": "new_provider",
+          "label": "Move to a hosting provider with a better uptime record and a faster recovery commitment",
+          "score": 35,
+          "feedback": "Any provider can fail; the lesson is about our fallback."
+        }
+      ]
+    }
   ],
   "lesson": "Operational resilience means delivering the most important services through a disruption: triage by consequence, compensate for lost controls, keep a rhythm, and pace the team."
 }

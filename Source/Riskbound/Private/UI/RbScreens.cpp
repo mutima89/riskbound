@@ -1,4 +1,6 @@
 #include "RbScreens.h"
+#include "Engine/GameViewportClient.h"
+#include "Widgets/SWindow.h"
 
 #include "HAL/PlatformProcess.h"
 #include "RbCredits.h"
@@ -250,7 +252,13 @@ FRbScreenParts Settings(ARbHUD* Hud, TFunction<void()> OnBack)
 	AddRow(Box, SettingToggle(LOCTEXT("Hints", "Hints (evidence locations in briefing and journal)"),
 		[Get]() { return Get().bHints; }, [Update](bool B) { Update([B](FRbSettingsView& S) { S.bHints = B; }, false); }));
 	AddRow(Box, SettingToggle(LOCTEXT("Fullscreen", "Fullscreen (off = windowed)"),
-		[Get]() { return Get().bFullscreen; }, [Update](bool B) { Update([B](FRbSettingsView& S) { S.bFullscreen = B; }, true); }));
+		// Shows the window as it is (a -windowed launch is windowed whatever the save says).
+		[Get]()
+		{
+			const TSharedPtr<SWindow> W = GEngine && GEngine->GameViewport ? GEngine->GameViewport->GetWindow() : nullptr;
+			return W.IsValid() ? W->GetWindowMode() != EWindowMode::Windowed : Get().bFullscreen;
+		},
+		[Update](bool B) { Update([B](FRbSettingsView& S) { S.bFullscreen = B; }, true); }));
 	AddRow(Box, MakeBody(LOCTEXT("SettingsNote", "Settings are stored with your save. Text size applies to screens opened after this one. Left/Right adjust a focused slider."), 12, TextMuted), 12.0f);
 	AddRow(Box, MakeButton(LOCTEXT("SettingsBack", "Back"), Click(OnBack), &Back), 0.0f);
 	return {MakeModalFrame(Box, 760.0f), Back};
@@ -280,8 +288,9 @@ FRbScreenParts Journal(ARbHUD* Hud)
 	}
 	AddRow(Box, SNew(SBox).HeightOverride(10.0f));
 	AddRow(Box, MakeHeading(LOCTEXT("JournalPromotion", "Next promotion"), 16), 4.0f);
+	const bool bTop = Career.UnmetPromotionGates.Num() == 1 && Career.UnmetPromotionGates[0].StartsWith(TEXT("Already at the top"));
 	AddRow(Box, MakeBody(Career.UnmetPromotionGates.IsEmpty() ? LOCTEXT("JournalNoGaps", "You meet every requirement for your level.")
-		: FText::FromString(FString::Join(Career.UnmetPromotionGates, TEXT("\n"))), 14, TextMuted), 2.0f);
+		: (bTop ? LOCTEXT("JournalTop", "You are at the top of the career ladder.") : FText::FromString(FString::Join(Career.UnmetPromotionGates, TEXT("\n")))), 14, TextMuted), 2.0f);
 	const TArray<FString> Unlocked = Game->GetAchievementTitles();
 	AddRow(Box, SNew(SBox).HeightOverride(10.0f));
 	AddRow(Box, MakeHeading(FText::Format(LOCTEXT("JournalAchievements", "Achievements ({0} of {1})"), Unlocked.Num(), Game->GetAchievementTotal()), 16), 4.0f);

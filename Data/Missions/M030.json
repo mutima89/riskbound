@@ -82,13 +82,13 @@
         },
         {
           "id": "audit",
-          "label": "An annual fraud audit",
+          "label": "An annual fraud audit by Internal Audit, sampling payments across all processes and sites",
           "score": 30,
           "feedback": "Detects after the loss."
         },
         {
           "id": "training",
-          "label": "Fraud awareness e-learning",
+          "label": "Fraud-awareness training for Finance and depot staff, refreshed every year",
           "score": 40,
           "feedback": "Useful, but weaker than a hard control on payments."
         }
@@ -108,13 +108,13 @@
         },
         {
           "id": "about_27m",
-          "label": "27 million",
+          "label": "About 27 million (600 requests x 45,000)",
           "score": 5,
           "feedback": "That multiplies every request by the loss."
         },
         {
           "id": "about_45000",
-          "label": "45,000",
+          "label": "About 45,000 (one fraudulent payment a year)",
           "score": 40,
           "feedback": "One fraud; the expected number is 1.5."
         }
@@ -128,19 +128,19 @@
       "options": [
         {
           "id": "owner_committee",
-          "label": "A named fraud risk owner in Finance, the assessment refreshed annually, and incidents and control testing reported to the Audit Committee",
+          "label": "A named fraud owner in Finance, the assessment refreshed yearly, and results reported to the Audit Committee",
           "score": 92,
           "feedback": "Ownership plus oversight."
         },
         {
           "id": "risk_team",
-          "label": "The risk team owns fraud",
+          "label": "The risk team owns fraud risk, since it already owns the risk register and the framework",
           "score": 30,
           "feedback": "Second line advises; Finance owns the controls."
         },
         {
           "id": "police",
-          "label": "Leave it to the police",
+          "label": "Report confirmed frauds to the police and let them lead investigations",
           "score": 10,
           "feedback": "Police act after the fact."
         }

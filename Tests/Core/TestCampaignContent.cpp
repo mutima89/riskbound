@@ -375,3 +375,35 @@ TEST(Content_OptionDisplayOrderHidesTheAnswerPosition)
 	}
 	CHECK(Differs > 0);
 }
+
+// Found in the walkthrough review: the best answer was the longest option in 97% of single-choice
+// questions (a median 3.6 times longer), so length gave it away even with shuffled order.
+TEST(Content_AnswerLengthDoesNotGiveAwayTheBest)
+{
+	const MissionCatalogue C = ShippedCatalogue();
+	int Singles = 0, BestLongest = 0;
+	std::vector<double> Ratios;
+	for (const MissionDef& M : C.Missions)
+	{
+		for (const MissionQuestionDef& Q : M.Questions)
+		{
+			if (Q.Kind != EQuestionKind::Single) continue;
+			++Singles;
+			const auto Best = std::max_element(Q.Options.begin(), Q.Options.end(), [](const MissionOptionDef& L, const MissionOptionDef& R) { return L.Score < R.Score; });
+			size_t Longest = 0;
+			double Others = 0.0;
+			for (const MissionOptionDef& O : Q.Options)
+			{
+				Longest = std::max(Longest, O.Label.size());
+				if (&O != &*Best) Others += static_cast<double>(O.Label.size());
+			}
+			BestLongest += Best->Label.size() == Longest ? 1 : 0;
+			Ratios.push_back(Best->Label.size() / (Others / static_cast<double>(Q.Options.size() - 1)));
+		}
+	}
+	std::sort(Ratios.begin(), Ratios.end());
+	const double Median = Ratios[Ratios.size() / 2];
+	std::printf("    best answer is the longest in %d of %d questions; median length ratio %.2f\n", BestLongest, Singles, Median);
+	CHECK(BestLongest * 100 < Singles * 45);
+	CHECK(Median < 1.25);
+}

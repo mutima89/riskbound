@@ -76,13 +76,13 @@
         },
         {
           "id": "effective",
-          "label": "Effective: checks happen at most sites",
+          "label": "Effective overall: four of six sites have records, and the leaks are being found and topped up",
           "score": 20,
           "feedback": "Two sites with no evidence is a control failure."
         },
         {
           "id": "unknown",
-          "label": "Can't be rated",
+          "label": "Not rateable: missing records mean there is no evidence either way",
           "score": 30,
           "feedback": "Missing records are themselves evidence."
         }
@@ -102,13 +102,13 @@
         },
         {
           "id": "about_37200",
-          "label": "About 37,200 a year",
+          "label": "About 37,200 a year (310 kg x 120)",
           "score": 30,
           "feedback": "That assumes all leaks stop."
         },
         {
           "id": "about_54000",
-          "label": "54,000 a year",
+          "label": "About 54,000 a year (the sensors pay back in one year)",
           "score": 15,
           "feedback": "That is the sensor cost."
         }
@@ -122,7 +122,7 @@
       "options": [
         {
           "id": "sensors_and_plan",
-          "label": "Fix records at the two sites now, install sensors at the two largest plants first, and include refrigerant transition in the capital plan",
+          "label": "Fix records at two sites now, sensors at the two largest plants first, transition in the capital plan",
           "score": 92,
           "feedback": "Compliance first, then the best-value investment, then the long-term exposure.",
           "setsFlags": [
@@ -136,13 +136,13 @@
         },
         {
           "id": "nothing",
-          "label": "Nothing until the permit review",
+          "label": "Wait for the permit review and respond to whatever the regulator requires",
           "score": 15,
           "feedback": "The review will find the missing records."
         },
         {
           "id": "replace_all",
-          "label": "Replace all plant with low-GWP systems now",
+          "label": "Replace all plant with low-GWP systems now, ahead of the 2027 restrictions, to avoid future supply problems",
           "score": 40,
           "feedback": "Right direction, wrong timing and cost without a plan."
         }

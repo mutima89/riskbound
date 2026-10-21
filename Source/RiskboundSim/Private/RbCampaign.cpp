@@ -172,7 +172,7 @@ std::vector<std::string> ValidateCatalogue(const MissionCatalogue& C)
 
 // ---------------------------------------------------------------- availability
 
-MissionAvailability CheckAvailability(const GameState& State, const MissionDef& M)
+static MissionAvailability CheckNew(const GameState& State, const MissionDef& M)
 {
 	MissionAvailability A;
 	if (State.Career.HasPassed(M.Id)) A.Reasons.push_back("Already passed");
@@ -196,12 +196,36 @@ MissionAvailability CheckAvailability(const GameState& State, const MissionDef& 
 	return A;
 }
 
+bool IsCampaignStuck(const GameState& State, const MissionCatalogue& C)
+{
+	if (State.Career.Level >= static_cast<int>(CareerLadder().size())) return false;
+	if (State.Career.CheckPromotion().bEligible) return false;
+	for (const MissionDef& M : C.Missions)
+	{
+		if (CheckNew(State, M).bAvailable) return false;
+	}
+	return true;
+}
+
+MissionAvailability CheckAvailability(const GameState& State, const MissionDef& M, const MissionCatalogue* Catalogue)
+{
+	MissionAvailability A = CheckNew(State, M);
+	if (!A.bAvailable && Catalogue && State.Career.HasPassed(M.Id) && M.Kind == EMissionKind::Mission && M.MinLevel == State.Career.Level &&
+		IsCampaignStuck(State, *Catalogue))
+	{
+		A.bAvailable = true;
+		A.bReview = true;
+		A.Reasons.clear();
+	}
+	return A;
+}
+
 std::vector<const MissionDef*> AvailableMissions(const GameState& State, const MissionCatalogue& C)
 {
 	std::vector<const MissionDef*> Out;
 	for (const MissionDef& M : C.Missions)
 	{
-		if (CheckAvailability(State, M).bAvailable) Out.push_back(&M);
+		if (CheckAvailability(State, M, &C).bAvailable) Out.push_back(&M);
 	}
 	return Out;
 }
@@ -250,12 +274,12 @@ std::vector<std::string> BriefingFor(const GameState& State, const MissionDef& M
 
 // ---------------------------------------------------------------- play
 
-EMissionError StartMission(GameState& State, const MissionDef& M)
+EMissionError StartMission(GameState& State, const MissionDef& M, const MissionCatalogue* Catalogue)
 {
 	CampaignState& C = State.Campaign;
 	if (C.ActiveMissionId == M.Id) return EMissionError::None; // resume
 	if (!C.ActiveMissionId.empty()) return EMissionError::AnotherMissionActive;
-	if (!CheckAvailability(State, M).bAvailable) return EMissionError::Unavailable;
+	if (!CheckAvailability(State, M, Catalogue).bAvailable) return EMissionError::Unavailable;
 	C.ActiveMissionId = M.Id;
 	C.ViewedEvidence.clear();
 	State.Checkpoint = M.Id + ":start";
@@ -398,8 +422,30 @@ EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::ve
 	if (Err != EMissionError::None) return Err;
 
 	MissionDebrief D = ScoreMission(M, Answers, State.Career.Level);
+	D.bReview = State.Career.HasPassed(M.Id);
 	for (const AssessmentResult& A : D.CompetencyEvidence) State.Career.ApplyAssessment(A);
-	State.Career.RecordMission(M.Id, D.bPassed, D.XpAwarded);
+	State.Career.RecordMission(M.Id, D.bPassed, D.bReview ? 0 : D.XpAwarded);
+	if (D.bReview)
+	{
+		// Practice: the organisation already lived with this decision once.
+		D.XpAwarded = 0;
+		MissionRecord Record;
+		Record.MissionId = M.Id;
+		Record.Week = State.Org.Week;
+		Record.Level = State.Career.Level;
+		Record.Score = D.Score;
+		Record.bPassed = D.bPassed;
+		Record.Answers = Answers;
+		State.Campaign.Records.push_back(Record);
+		State.Campaign.ActiveMissionId.clear();
+		State.Campaign.ViewedEvidence.clear();
+		State.Checkpoint = M.Id + ":reviewed";
+		D.bPromoted = State.Career.TryPromote();
+		D.Level = State.Career.Level;
+		D.PromotionGaps = State.Career.CheckPromotion().UnmetGates;
+		if (OutDebrief) *OutDebrief = D;
+		return EMissionError::None;
+	}
 
 	int Attempt = 1;
 	for (const MissionRecord& R : State.Campaign.Records) Attempt += R.MissionId == M.Id ? 1 : 0;

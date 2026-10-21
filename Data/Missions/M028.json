@@ -41,19 +41,19 @@
       "options": [
         {
           "id": "certification",
-          "label": "GDP certification has no owner and the schedule leaves no slack: construction ends month 16, certification takes 3 months, clients arrive month 19",
+          "label": "GDP certification has no owner and no slack: construction ends month 16, it takes 3 months, clients arrive month 19",
           "score": 92,
           "feedback": "A critical-path risk with zero float."
         },
         {
           "id": "all_medium",
-          "label": "Everything is rated medium",
+          "label": "Every risk is rated medium, which suggests the ratings were never thought through properly",
           "score": 50,
           "feedback": "A symptom; the certification gap is the critical issue."
         },
         {
           "id": "too_few",
-          "label": "Only 9 risks",
+          "label": "Only nine risks for a 14 million build, so the log is clearly incomplete",
           "score": 30,
           "feedback": "Number of risks isn't the problem."
         }
@@ -73,13 +73,13 @@
         },
         {
           "id": "yes",
-          "label": "Yes: this project is well managed",
+          "label": "Yes: the project is well managed and 3% is typical for a fixed-price build contract",
           "score": 20,
           "feedback": "Optimism bias is why benchmarks exist."
         },
         {
           "id": "no_100",
-          "label": "No: hold 100% contingency",
+          "label": "No: hold contingency equal to the full benchmark overrun on both cost and time",
           "score": 10,
           "feedback": "Not credible."
         }
@@ -93,7 +93,7 @@
       "options": [
         {
           "id": "reset",
-          "label": "Name a certification owner, start certification work in parallel with fit-out, raise contingency to a benchmark level, and tell clients a realistic go-live",
+          "label": "Name a certification owner, run certification alongside fit-out, raise contingency, and give clients a realistic date",
           "score": 92,
           "feedback": "Fixes the critical path and sets honest expectations.",
           "setsFlags": [
@@ -106,13 +106,13 @@
         },
         {
           "id": "keep",
-          "label": "Keep the plan; push the contractor",
+          "label": "Keep the plan and press the contractor to finish early, protecting the client date with incentives",
           "score": 25,
           "feedback": "Benchmarks say overruns are likely; the client date is at risk."
         },
         {
           "id": "cancel",
-          "label": "Pause the project",
+          "label": "Pause the project until the risk log is complete and re-approved",
           "score": 30,
           "feedback": "Over-reaction; the risks are manageable."
         }
@@ -126,19 +126,19 @@
       "options": [
         {
           "id": "partner",
-          "label": "Go through findings with her before the board, credit what works, and agree the actions together",
+          "label": "Go through the findings with her before the board, credit what works, and agree the actions together",
           "score": 92,
           "feedback": "Reviews land better as partnership."
         },
         {
           "id": "board_only",
-          "label": "Present to the board only",
+          "label": "Present the findings to the board as they stand, since the review must stay independent",
           "score": 25,
           "feedback": "Surprises the person who must act."
         },
         {
           "id": "soften",
-          "label": "Water down the findings",
+          "label": "Present the findings as observations rather than issues, to keep her engaged",
           "score": 15,
           "feedback": "Defeats the review."
         }

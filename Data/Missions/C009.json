@@ -41,7 +41,7 @@
       "options": [
         {
           "id": "pharma_priority",
-          "label": "Reserve liners for pharma loads, switch food loads to Fennick food-grade liners within 5 days, and bid for Corvane's remaining stock",
+          "label": "Reserve liners for pharma, switch food loads to Fennick food-grade liners within 5 days, and bid for Corvane's stock",
           "score": 92,
           "feedback": "Protects the strictest contracts while alternatives come in.",
           "setsFlags": [
@@ -54,13 +54,13 @@
         },
         {
           "id": "first_come",
-          "label": "Use them as normal until they run out",
+          "label": "Keep normal allocation so no client is singled out, while Procurement searches the market for replacement supply",
           "score": 15,
           "feedback": "Pharma runs out in 11 days with no alternative qualified."
         },
         {
           "id": "stop_food",
-          "label": "Stop food deliveries",
+          "label": "Suspend food deliveries so every remaining liner goes to pharma until supply is restored",
           "score": 30,
           "feedback": "Unnecessary: food-grade alternatives exist."
         }
@@ -74,19 +74,19 @@
       "options": [
         {
           "id": "joint",
-          "label": "Work with the pharma clients' quality teams on an expedited, risk-based qualification with extra temperature monitoring",
+          "label": "Work with the pharma clients' quality teams on an expedited, risk-based qualification with extra monitoring",
           "score": 92,
           "feedback": "Clients share the problem; involve them."
         },
         {
           "id": "skip",
-          "label": "Skip qualification",
+          "label": "Use Fennick's food-grade liners on pharma loads now and complete the qualification paperwork in parallel",
           "score": 5,
           "feedback": "Breaches GDP and client contracts."
         },
         {
           "id": "wait",
-          "label": "Wait the full 8 weeks",
+          "label": "Run the full 8-week qualification and source overseas stock to bridge the gap",
           "score": 30,
           "feedback": "Stock runs out at day 11."
         }
@@ -100,19 +100,19 @@
       "options": [
         {
           "id": "early",
-          "label": "Tell them now: the situation, stock cover, the plan, and ask them to help with qualification",
+          "label": "Tell them now: the situation, stock cover, the plan, and ask for help with qualification",
           "score": 92,
           "feedback": "Early honesty buys cooperation."
         },
         {
           "id": "later",
-          "label": "Only if supply actually runs out",
+          "label": "Wait until the supply plan is firm, so clients hear a solution rather than a problem",
           "score": 15,
           "feedback": "They will find out from the news."
         },
         {
           "id": "blame",
-          "label": "That Corvane let everyone down",
+          "label": "Explain that Corvane's failure is outside Valtren's control and that alternatives are being sought",
           "score": 25,
           "feedback": "True, but they chose Valtren, not Corvane."
         }
@@ -132,13 +132,13 @@
         },
         {
           "id": "blame_procurement",
-          "label": "Discipline Procurement",
+          "label": "Require Procurement to justify every single-source contract to the executive committee in future",
           "score": 20,
           "feedback": "The exclusive deal was a risk decision, not just a procurement one."
         },
         {
           "id": "nothing",
-          "label": "Nothing: it's rare",
+          "label": "Treat it as a rare event: supplier insolvency at this scale happens once in a decade",
           "score": 10,
           "feedback": "It happened once already."
         }

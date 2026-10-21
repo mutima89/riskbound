@@ -99,11 +99,11 @@ void SRbAssessmentForm::Construct(const FArguments& InArgs)
 	ChildSlot
 	[
 		SNew(SVerticalBox)
-		+ SVerticalBox::Slot().AutoHeight()[RbUI::MakeEyebrow(LOCTEXT("FormEyebrow", "Mission 001  /  Assessment"))]
 		+ SVerticalBox::Slot().AutoHeight()
 		[
+			// Progress sits on the eyebrow line, so it never collides with a long title.
 			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().FillWidth(1.0f)[RbUI::MakeHeading(LOCTEXT("FormTitle", "Risk assessment: R-014 cold-store temperature excursion"))]
+			+ SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center)[RbUI::MakeEyebrow(LOCTEXT("FormEyebrow", "Mission 001  /  Assessment"))]
 			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
 			[
 				SNew(STextBlock)
@@ -112,6 +112,7 @@ void SRbAssessmentForm::Construct(const FArguments& InArgs)
 				.ColorAndOpacity_Lambda([this]() { return FSlateColor(CompletedSections() == SectionCount ? RbUI::Good : RbUI::TextMuted); })
 			]
 		]
+		+ SVerticalBox::Slot().AutoHeight()[RbUI::MakeHeading(LOCTEXT("FormTitle", "Risk assessment: R-014 cold-store temperature excursion"))]
 		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, 4.0f, 0.0f, 12.0f)
 		[
 			RbUI::MakeBody(LOCTEXT("FormIntro", "Your answers are kept if you close the form. Submitting is final. Tab and the arrow keys move between fields; Space selects."), 13, RbUI::TextMuted)
@@ -128,7 +129,8 @@ void SRbAssessmentForm::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.Text_Lambda([this]() { return StatusText.IsEmpty() ? MissingReason() : StatusText; })
-				.ColorAndOpacity_Lambda([this]() { return FSlateColor(bStatusIsError ? RbUI::Bad : RbUI::Good); })
+				.ColorAndOpacity_Lambda([this]() { return FSlateColor(!StatusText.IsEmpty() ? (bStatusIsError ? RbUI::Bad : RbUI::Good)
+					: (CompletedSections() == SectionCount ? RbUI::Good : RbUI::TextMuted)); })
 				.Font(RbUI::Font(14, true))
 				.AutoWrapText(true)
 			]

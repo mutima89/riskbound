@@ -5,7 +5,10 @@
   "kind": "mission",
   "department": "Executive Management",
   "minLevel": 9,
-  "requiresPassed": ["M022", "C002"],
+  "requiresPassed": [
+    "M022",
+    "C002"
+  ],
   "passMark": 60,
   "xp": 270,
   "weeks": 2,
@@ -14,51 +17,169 @@
     "Propose how the committee should operate."
   ],
   "context": [
-    {"ifFlag": "culture_results_shared", "text": "Dame Helen has said publicly that your culture report was the most useful paper the board read last year."},
-    {"ifFlag": "whistleblower", "text": "After the whistleblower story, the regulator has asked to see the committee's minutes for the last year."}
+    {
+      "ifFlag": "culture_results_shared",
+      "text": "Dame Helen has said publicly that your culture report was the most useful paper the board read last year."
+    },
+    {
+      "ifFlag": "whistleblower",
+      "text": "After the whistleblower story, the regulator has asked to see the committee's minutes for the last year."
+    }
   ],
   "evidence": [
-    {"id": "agendas", "title": "Last four agendas", "body": "On average: 11 items, 9 'for noting', 2 'for decision'. 70% of time spent on updates. Two decisions deferred twice."},
-    {"id": "terms", "title": "Committee terms of reference", "body": "Oversee the risk framework and appetite; review the enterprise risk profile; approve the risk appetite statement; review major incidents; satisfy itself on the independence of the risk function."},
-    {"id": "independence", "title": "Reporting lines", "body": "The Director of Risk reports to the CFO. No private session with the committee chair is scheduled."}
+    {
+      "id": "agendas",
+      "title": "Last four agendas",
+      "body": "On average: 11 items, 9 'for noting', 2 'for decision'. 70% of time spent on updates. Two decisions deferred twice."
+    },
+    {
+      "id": "terms",
+      "title": "Committee terms of reference",
+      "body": "Oversee the risk framework and appetite; review the enterprise risk profile; approve the risk appetite statement; review major incidents; satisfy itself on the independence of the risk function."
+    },
+    {
+      "id": "independence",
+      "title": "Reporting lines",
+      "body": "The Director of Risk reports to the CFO. No private session with the committee chair is scheduled."
+    }
   ],
   "questions": [
-    {"id": "agenda", "competency": "Governance", "weight": 25,
-     "prompt": "How should the agenda change?",
-     "options": [
-       {"id": "decisions_first", "label": "Decisions and appetite breaches first; one deep dive per meeting on an enterprise risk; updates taken as read with questions only", "score": 92, "feedback": "Time follows the committee's purpose: decide and challenge."},
-       {"id": "more_meetings", "label": "Add more meetings", "score": 30, "feedback": "More time spent on updates doesn't fix the balance."},
-       {"id": "shorter_papers", "label": "Shorter papers, same agenda", "score": 45, "feedback": "Helps, but the agenda still favours noting over deciding."}
-     ]},
-    {"id": "independence_fix", "competency": "StakeholderManagement", "weight": 20,
-     "prompt": "What do you propose on independence?",
-     "options": [
-       {"id": "dual_line", "label": "A direct reporting line to the committee chair alongside the CFO line, and a private session at each meeting", "score": 92, "feedback": "Standard good practice that protects the function's challenge.",
-        "setsFlags": ["risk_function_independent"], "effects": {"StakeholderTrust": 4}},
-       {"id": "nothing", "label": "Nothing: the CFO has never interfered", "score": 30, "feedback": "Independence is about structure, not current goodwill."},
-       {"id": "report_ceo", "label": "Report to the CEO instead", "score": 45, "feedback": "Better than the CFO for some, but without a committee line it still lacks independence."}
-     ]},
-    {"id": "cfo", "competency": "Judgement", "weight": 20,
-     "prompt": "The CFO, your line manager, sees the proposal as a vote of no confidence. How do you handle it?",
-     "options": [
-       {"id": "explain_principle", "label": "Speak to him first: it's about the role, not him; he stays your line manager; it protects him too when risk challenges finance decisions", "score": 92, "feedback": "Honest, respectful, and frames the benefit to him."},
-       {"id": "go_around", "label": "Take it to the chair without telling him", "score": 20, "feedback": "Confirms his fear and damages the relationship."},
-       {"id": "drop", "label": "Drop the proposal", "score": 20, "feedback": "Gives up a governance principle to avoid discomfort."}
-     ]},
-    {"id": "deep_dives", "competency": "StrategicThinking", "weight": 20,
-     "prompt": "Which deep dive should come first?",
-     "options": [
-       {"id": "pharma_integrity", "label": "Cold-chain integrity for pharma growth: the strategy depends on it and it deteriorated last quarter", "score": 92, "feedback": "Strategic weight plus a negative trend."},
-       {"id": "stationery", "label": "Office procurement", "score": 5, "feedback": "Not a board risk."},
-       {"id": "oldest", "label": "Whichever risk has been on the register longest", "score": 30, "feedback": "Age isn't importance."}
-     ]},
-    {"id": "minutes", "competency": "Communication", "weight": 15,
-     "prompt": "What should minutes record?",
-     "options": [
-       {"id": "challenge_decisions", "label": "Decisions, the challenge the committee raised, and actions with owners and dates", "score": 92, "feedback": "Evidence that the committee oversees, not just receives."},
-       {"id": "verbatim", "label": "A verbatim transcript", "score": 25, "feedback": "Unreadable and discourages open debate."},
-       {"id": "attendance", "label": "Attendance and items noted", "score": 20, "feedback": "Shows no oversight."}
-     ]}
+    {
+      "id": "agenda",
+      "competency": "Governance",
+      "weight": 25,
+      "prompt": "How should the agenda change?",
+      "options": [
+        {
+          "id": "decisions_first",
+          "label": "Decisions and breaches first, one deep dive per meeting, updates taken as read",
+          "score": 92,
+          "feedback": "Time follows the committee's purpose: decide and challenge."
+        },
+        {
+          "id": "more_meetings",
+          "label": "Add two meetings a year so updates and decisions both get enough time",
+          "score": 30,
+          "feedback": "More time spent on updates doesn't fix the balance."
+        },
+        {
+          "id": "shorter_papers",
+          "label": "Shorter papers on the same agenda, so directors arrive better prepared to challenge",
+          "score": 45,
+          "feedback": "Helps, but the agenda still favours noting over deciding."
+        }
+      ]
+    },
+    {
+      "id": "independence_fix",
+      "competency": "StakeholderManagement",
+      "weight": 20,
+      "prompt": "What do you propose on independence?",
+      "options": [
+        {
+          "id": "dual_line",
+          "label": "A direct line to the committee chair alongside the CFO line, and a private session each meeting",
+          "score": 92,
+          "feedback": "Standard good practice that protects the function's challenge.",
+          "setsFlags": [
+            "risk_function_independent"
+          ],
+          "effects": {
+            "StakeholderTrust": 4
+          }
+        },
+        {
+          "id": "nothing",
+          "label": "No change: the CFO has never interfered, and a new reporting line could look like distrust",
+          "score": 30,
+          "feedback": "Independence is about structure, not current goodwill."
+        },
+        {
+          "id": "report_ceo",
+          "label": "Move the reporting line from the CFO to the CEO, so risk is not under Finance",
+          "score": 45,
+          "feedback": "Better than the CFO for some, but without a committee line it still lacks independence."
+        }
+      ]
+    },
+    {
+      "id": "cfo",
+      "competency": "Judgement",
+      "weight": 20,
+      "prompt": "The CFO, your line manager, sees the proposal as a vote of no confidence. How do you handle it?",
+      "options": [
+        {
+          "id": "explain_principle",
+          "label": "Speak to him first: it is about the role, not him; he stays your manager; it protects him too",
+          "score": 92,
+          "feedback": "Honest, respectful, and frames the benefit to him."
+        },
+        {
+          "id": "go_around",
+          "label": "Take it to the chair first, so the proposal is not blocked before the committee has a chance to see it",
+          "score": 20,
+          "feedback": "Confirms his fear and damages the relationship."
+        },
+        {
+          "id": "drop",
+          "label": "Withdraw it for now and raise it again once the relationship is stronger",
+          "score": 20,
+          "feedback": "Gives up a governance principle to avoid discomfort."
+        }
+      ]
+    },
+    {
+      "id": "deep_dives",
+      "competency": "StrategicThinking",
+      "weight": 20,
+      "prompt": "Which deep dive should come first?",
+      "options": [
+        {
+          "id": "pharma_integrity",
+          "label": "Cold-chain integrity for pharma growth: the strategy depends on it and it worsened last quarter",
+          "score": 92,
+          "feedback": "Strategic weight plus a negative trend."
+        },
+        {
+          "id": "stationery",
+          "label": "Procurement controls, since they cover the most transactions across the business",
+          "score": 5,
+          "feedback": "Not a board risk."
+        },
+        {
+          "id": "oldest",
+          "label": "The longest-standing risk on the register, to test whether old ratings and controls still hold",
+          "score": 30,
+          "feedback": "Age isn't importance."
+        }
+      ]
+    },
+    {
+      "id": "minutes",
+      "competency": "Communication",
+      "weight": 15,
+      "prompt": "What should minutes record?",
+      "options": [
+        {
+          "id": "challenge_decisions",
+          "label": "Decisions, the challenge raised, and actions with owners and dates",
+          "score": 92,
+          "feedback": "Evidence that the committee oversees, not just receives."
+        },
+        {
+          "id": "verbatim",
+          "label": "A full record of the discussion, so the regulator can see every point raised",
+          "score": 25,
+          "feedback": "Unreadable and discourages open debate."
+        },
+        {
+          "id": "attendance",
+          "label": "Attendance, papers received and decisions taken, kept short for confidentiality",
+          "score": 20,
+          "feedback": "Shows no oversight."
+        }
+      ]
+    }
   ],
   "lesson": "A risk committee earns its place by deciding and challenging. Agenda design, an independent risk function, and minutes that show challenge make that real."
 }

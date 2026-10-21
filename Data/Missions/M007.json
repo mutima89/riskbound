@@ -5,7 +5,9 @@
   "kind": "mission",
   "department": "Finance",
   "minLevel": 4,
-  "requiresPassed": ["M006"],
+  "requiresPassed": [
+    "M006"
+  ],
   "passMark": 60,
   "xp": 170,
   "weeks": 2,
@@ -14,60 +16,185 @@
     "You have the spoilage loss history and the Monte Carlo tool at your workstation. Hollis's instinct is to budget the average."
   ],
   "context": [
-    {"ifFlag": "harrowgate_flood_plan", "text": "Hollis liked your Harrowgate flood work: \"You told me what we actually keep. Do the same here.\""},
-    {"ifFlag": "eastfield_breakdown", "text": "The Eastfield breakdown is in this year's loss history, which makes the year look worse than usual."}
+    {
+      "ifFlag": "harrowgate_flood_plan",
+      "text": "Hollis liked your Harrowgate flood work: \"You told me what we actually keep. Do the same here.\""
+    },
+    {
+      "ifFlag": "eastfield_breakdown",
+      "text": "The Eastfield breakdown is in this year's loss history, which makes the year look worse than usual."
+    }
   ],
   "evidence": [
-    {"id": "loss_history", "title": "Spoilage events, last 5 years", "body": [
-      "About 6 events a year (Poisson-like). Single-event losses: median 18,000; 90th percentile 95,000; largest 410,000.",
-      "Annual totals: 96,000; 141,000; 88,000; 402,000; 119,000."
-    ]},
-    {"id": "mc_output", "title": "Monte Carlo run (10,000 trials, seed 7) prepared by the team", "body": [
-      "Annual loss: mean 152,000; median 121,000; P90 268,000; P95 341,000; P99 560,000.",
-      "Probability that annual losses exceed 300,000: 7%."
-    ]},
-    {"id": "budget_policy", "title": "Finance budgeting note", "body": "Provisions are set so the business is not surprised more than one year in ten. Any overspend above budget must be found from cuts elsewhere in the same year."}
+    {
+      "id": "loss_history",
+      "title": "Spoilage events, last 5 years",
+      "body": [
+        "About 6 events a year (Poisson-like). Single-event losses: median 18,000; 90th percentile 95,000; largest 410,000.",
+        "Annual totals: 96,000; 141,000; 88,000; 402,000; 119,000."
+      ]
+    },
+    {
+      "id": "mc_output",
+      "title": "Monte Carlo run (10,000 trials, seed 7) prepared by the team",
+      "body": [
+        "Annual loss: mean 152,000; median 121,000; P90 268,000; P95 341,000; P99 560,000.",
+        "Probability that annual losses exceed 300,000: 7%."
+      ]
+    },
+    {
+      "id": "budget_policy",
+      "title": "Finance budgeting note",
+      "body": "Provisions are set so the business is not surprised more than one year in ten. Any overspend above budget must be found from cuts elsewhere in the same year."
+    }
   ],
   "questions": [
-    {"id": "which_number", "competency": "QuantitativeAnalysis", "weight": 25,
-     "prompt": "Given the policy ('not surprised more than one year in ten'), which figure should set the provision?",
-     "options": [
-       {"id": "p90", "label": "P90: 268,000", "score": 92, "feedback": "One year in ten above the provision is exactly the 90th percentile."},
-       {"id": "mean", "label": "The mean: 152,000", "score": 35, "feedback": "Budgeting the mean means overspending in roughly four years out of ten for a skewed loss like this."},
-       {"id": "median", "label": "The median: 121,000", "score": 20, "feedback": "Half of all years would overspend."},
-       {"id": "max", "label": "The worst year in the history: 402,000", "score": 30, "feedback": "Ties up money against a rarer outcome than the policy requires."}
-     ]},
-    {"id": "skew", "competency": "QuantitativeAnalysis", "weight": 20,
-     "prompt": "Why is the mean (152,000) above the median (121,000)?",
-     "options": [
-       {"id": "right_skew", "label": "A few large events pull the average up: losses are right-skewed", "score": 92, "feedback": "Severity has a long right tail (largest 410,000 against a median of 18,000)."},
-       {"id": "error", "label": "The simulation has an error", "score": 10, "feedback": "Mean above median is expected for skewed loss distributions."},
-       {"id": "inflation", "label": "Inflation over the five years", "score": 20, "feedback": "Inflation would shift both, not separate them."}
-     ]},
-    {"id": "message", "competency": "Communication", "weight": 20,
-     "prompt": "How do you present the result to Hollis?",
-     "options": [
-       {"id": "range", "label": "\"Budget 268,000. In a typical year we'll spend about 120,000-150,000; in one year in twenty it could exceed 340,000, and in one in a hundred about 560,000.\"", "score": 92, "feedback": "A number to act on, plus the range and tail in plain words."},
-       {"id": "one_number", "label": "\"The answer is 152,000.\"", "score": 30, "feedback": "One number hides the risk he asked you to manage."},
-       {"id": "histogram", "label": "Send him the histogram and the percentile table", "score": 45, "feedback": "Correct data, but no recommendation."}
-     ]},
-    {"id": "tail_action", "competency": "Judgement", "weight": 20,
-     "prompt": "Hollis asks how to protect against the 1-in-100 year (about 560,000). Your authority is 75,000.",
-     "options": [
-       {"id": "excess_layer", "label": "Recommend getting a quote for stock insurance above 300,000 per year (an aggregate layer) and compare its premium with the expected loss it removes", "score": 90,
-        "feedback": "Transfer the tail and keep the frequent small losses: the classic split. You test the price before committing.",
-        "setsFlags": ["spoilage_tail_insured"], "effects": {"Costs": 20000, "Resilience": 3}},
-       {"id": "provision_max", "label": "Raise the provision to 560,000", "score": 35, "feedback": "Locks up 300,000 against a 1-in-100 year.",
-        "effects": {"Cash": -290000}},
-       {"id": "ignore_tail", "label": "Nothing: 1 in 100 will not happen", "score": 20, "feedback": "Rare is not never. A year like that would force deep cuts mid-year."}
-     ]},
-    {"id": "first_line", "competency": "StakeholderManagement", "weight": 15,
-     "prompt": "Operations dispute the model: \"Last year was a one-off.\" How do you respond?",
-     "options": [
-       {"id": "walk_through", "label": "Walk them through the inputs, show the result with and without last year, and invite better data", "score": 92, "feedback": "Transparent assumptions build trust; testing the disputed year answers the challenge directly."},
-       {"id": "authority", "label": "Remind them that the model is the risk team's call", "score": 20, "feedback": "Pulling rank wins the meeting and loses the relationship."},
-       {"id": "drop_year", "label": "Remove last year from the data to keep them on side", "score": 25, "feedback": "Dropping inconvenient data biases the result."}
-     ]}
+    {
+      "id": "which_number",
+      "competency": "QuantitativeAnalysis",
+      "weight": 25,
+      "prompt": "Given the policy ('not surprised more than one year in ten'), which figure should set the provision?",
+      "options": [
+        {
+          "id": "p90",
+          "label": "P90: 268,000",
+          "score": 92,
+          "feedback": "One year in ten above the provision is exactly the 90th percentile."
+        },
+        {
+          "id": "mean",
+          "label": "The mean: 152,000",
+          "score": 35,
+          "feedback": "Budgeting the mean means overspending in roughly four years out of ten for a skewed loss like this."
+        },
+        {
+          "id": "median",
+          "label": "The median: 121,000",
+          "score": 20,
+          "feedback": "Half of all years would overspend."
+        },
+        {
+          "id": "max",
+          "label": "402,000: the worst year in the history, so the provision has always been enough",
+          "score": 30,
+          "feedback": "Ties up money against a rarer outcome than the policy requires."
+        }
+      ]
+    },
+    {
+      "id": "skew",
+      "competency": "QuantitativeAnalysis",
+      "weight": 20,
+      "prompt": "Why is the mean (152,000) above the median (121,000)?",
+      "options": [
+        {
+          "id": "right_skew",
+          "label": "A few large events pull the average up: losses are right-skewed",
+          "score": 92,
+          "feedback": "Severity has a long right tail (largest 410,000 against a median of 18,000)."
+        },
+        {
+          "id": "error",
+          "label": "Too few trials: with more simulations the mean and median would converge",
+          "score": 10,
+          "feedback": "Mean above median is expected for skewed loss distributions."
+        },
+        {
+          "id": "inflation",
+          "label": "Inflation: later years have larger losses, which lifts the average above the middle year",
+          "score": 20,
+          "feedback": "Inflation would shift both, not separate them."
+        }
+      ]
+    },
+    {
+      "id": "message",
+      "competency": "Communication",
+      "weight": 20,
+      "prompt": "How do you present the result to Hollis?",
+      "options": [
+        {
+          "id": "range",
+          "label": "\"Budget 268,000. A typical year costs 120,000-150,000; one in twenty could exceed 340,000.\"",
+          "score": 92,
+          "feedback": "A number to act on, plus the range and tail in plain words."
+        },
+        {
+          "id": "one_number",
+          "label": "\"The simulation's expected annual loss is 152,000: that is the best single estimate to budget.\"",
+          "score": 30,
+          "feedback": "One number hides the risk he asked you to manage."
+        },
+        {
+          "id": "histogram",
+          "label": "The histogram and percentile table, with a note on how to read each percentile",
+          "score": 45,
+          "feedback": "Correct data, but no recommendation."
+        }
+      ]
+    },
+    {
+      "id": "tail_action",
+      "competency": "Judgement",
+      "weight": 20,
+      "prompt": "Hollis asks how to protect against the 1-in-100 year (about 560,000). Your authority is 75,000.",
+      "options": [
+        {
+          "id": "excess_layer",
+          "label": "Get a quote for stock cover above 300,000 a year and compare the premium with the loss it removes",
+          "score": 90,
+          "feedback": "Transfer the tail and keep the frequent small losses: the classic split. You test the price before committing.",
+          "setsFlags": [
+            "spoilage_tail_insured"
+          ],
+          "effects": {
+            "Costs": 20000,
+            "Resilience": 3
+          }
+        },
+        {
+          "id": "provision_max",
+          "label": "Raise the provision to 560,000 so that even a 1-in-100 year is covered from the budget",
+          "score": 35,
+          "feedback": "Locks up 300,000 against a 1-in-100 year.",
+          "effects": {
+            "Cash": -290000
+          }
+        },
+        {
+          "id": "ignore_tail",
+          "label": "Accept the tail: a 1-in-100 year is too remote to plan the budget around",
+          "score": 20,
+          "feedback": "Rare is not never. A year like that would force deep cuts mid-year."
+        }
+      ]
+    },
+    {
+      "id": "first_line",
+      "competency": "StakeholderManagement",
+      "weight": 15,
+      "prompt": "Operations dispute the model: \"Last year was a one-off.\" How do you respond?",
+      "options": [
+        {
+          "id": "walk_through",
+          "label": "Walk them through the inputs, show the result with and without last year, and ask for better data",
+          "score": 92,
+          "feedback": "Transparent assumptions build trust; testing the disputed year answers the challenge directly."
+        },
+        {
+          "id": "authority",
+          "label": "Explain that the model follows the agreed methodology, so its inputs are not open to negotiation",
+          "score": 20,
+          "feedback": "Pulling rank wins the meeting and loses the relationship."
+        },
+        {
+          "id": "drop_year",
+          "label": "Exclude last year as an outlier, since Operations know the cause and it is unlikely to recur",
+          "score": 25,
+          "feedback": "Dropping inconvenient data biases the result."
+        }
+      ]
+    }
   ],
   "lesson": "For skewed losses, the average is not a budget. Pick the percentile the policy asks for, and explain the range and the tail in plain words."
 }

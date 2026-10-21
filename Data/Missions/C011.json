@@ -70,7 +70,7 @@
       "options": [
         {
           "id": "fix_three",
-          "label": "Independent approval above a threshold, automated duplicate checks, a publicised speak-up channel, and recovery of the money through HR and legal process",
+          "label": "Independent approval above a threshold, automated duplicate checks, a publicised speak-up channel, and recovery of the money",
           "score": 92,
           "feedback": "Fixes all three gaps and deals with the case properly.",
           "setsFlags": [
@@ -83,7 +83,7 @@
         },
         {
           "id": "sack_colleagues",
-          "label": "Dismiss the two colleagues who stayed silent",
+          "label": "Discipline the two colleagues who knew and stayed silent, so everyone across the depots sees that silence has consequences",
           "score": 15,
           "feedback": "Punishing silence teaches people to stay silent.",
           "effects": {
@@ -92,7 +92,7 @@
         },
         {
           "id": "one_off",
-          "label": "Treat it as a one-off",
+          "label": "Recover the money and dismiss the manager: one dishonest person, not a control failure",
           "score": 10,
           "feedback": "The controls that allowed it remain."
         }
@@ -106,19 +106,19 @@
       "options": [
         {
           "id": "audit_committee",
-          "label": "The Audit Committee, external auditors and, if required, the police; with the control review",
+          "label": "The Audit Committee and external auditors, with the control review, and the police if required",
           "score": 92,
           "feedback": "Fraud is a governance matter, not just HR."
         },
         {
           "id": "hr_only",
-          "label": "HR only",
+          "label": "HR and the manager's line director, keeping it confidential while the disciplinary process runs",
           "score": 25,
           "feedback": "Too narrow for a control failure."
         },
         {
           "id": "nobody",
-          "label": "Nobody: avoid embarrassment",
+          "label": "Handle it within Finance and HR to protect the depot's reputation and the investigation",
           "score": 5,
           "feedback": "Concealment compounds the failure."
         }
@@ -138,13 +138,13 @@
         },
         {
           "id": "warn",
-          "label": "Formal warnings",
+          "label": "Remind them formally of their duty to report, without a disciplinary record this time",
           "score": 20,
           "feedback": "Confirms their fear."
         },
         {
           "id": "ignore",
-          "label": "Ignore it",
+          "label": "Leave them out of it: the investigation is about the manager, not the people around him",
           "score": 15,
           "feedback": "Misses the cultural cause."
         }

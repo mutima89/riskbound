@@ -42,6 +42,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Riskbound|Campaign")
 	FString GetActiveMissionId() const;
 
+	// True when every case open at the player's level is passed but the promotion bar is not met:
+	// passed cases reopen as reviews (rb::IsCampaignStuck).
+	UFUNCTION(BlueprintPure, Category = "Riskbound|Campaign")
+	bool IsStuck() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Riskbound|Campaign")
 	ERbMissionResult StartMission(const FString& MissionId);
 

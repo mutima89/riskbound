@@ -47,13 +47,13 @@
         },
         {
           "id": "driver_error",
-          "label": "The driver's error",
+          "label": "The driver kept driving while tired instead of stopping, which the fatigue policy already requires",
           "score": 15,
           "feedback": "He told you why: the roster."
         },
         {
           "id": "barrier",
-          "label": "A badly placed barrier",
+          "label": "A badly placed roadside barrier on a route the drivers say is poorly lit at night",
           "score": 10,
           "feedback": "The trigger, not the cause."
         }
@@ -67,7 +67,7 @@
       "options": [
         {
           "id": "fatigue_rules",
-          "label": "A fatigue rule above the legal minimum (no more than four consecutive nights, no night route over 9 hours) while recruitment catches up",
+          "label": "A fatigue rule above the legal minimum: at most four nights in a row, no night route over 9 hours",
           "score": 92,
           "feedback": "Closes the gap between legal and safe.",
           "setsFlags": [
@@ -80,7 +80,7 @@
         },
         {
           "id": "warning",
-          "label": "A written warning to the driver",
+          "label": "A formal reminder to all drivers of the duty to stop when tired, with the collision as the example",
           "score": 10,
           "feedback": "Punishes the symptom and silences the next report.",
           "effects": {
@@ -89,7 +89,7 @@
         },
         {
           "id": "nothing",
-          "label": "Nothing: he was within the law",
+          "label": "No change until the investigation is complete: he was within the legal limits",
           "score": 15,
           "feedback": "Legal compliance didn't prevent the collision."
         }
@@ -103,19 +103,19 @@
       "options": [
         {
           "id": "no_action",
-          "label": "Nobody acted on the amber: the escalation rule wasn't followed",
+          "label": "Nobody acted on the amber: the escalation rule was not followed",
           "score": 92,
           "feedback": "The indicator worked; the response didn't."
         },
         {
           "id": "bad_kri",
-          "label": "The KRI is wrong",
+          "label": "The KRI measured route length rather than hours actually driven, so it missed the real exposure",
           "score": 25,
           "feedback": "It predicted exactly this."
         },
         {
           "id": "thresholds",
-          "label": "Thresholds were too tight",
+          "label": "Amber was set too close to normal, so a real warning looked like the usual noise",
           "score": 15,
           "feedback": "It was amber, and correctly so."
         }
@@ -135,13 +135,13 @@
         },
         {
           "id": "reminder",
-          "label": "A reminder to drive carefully",
+          "label": "A safety bulletin reminding drivers to take breaks and use the fatigue policy",
           "score": 20,
           "feedback": "Puts the burden back on the driver."
         },
         {
           "id": "silence",
-          "label": "Nothing until the review is finished",
+          "label": "Nothing until the review is finished, to avoid speculation about the driver involved and his record",
           "score": 25,
           "feedback": "Rumour fills the silence."
         }

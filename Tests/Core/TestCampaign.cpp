@@ -179,6 +179,44 @@ TEST(Campaign_PassingMissionsWithWeakCompetenceDoesNotPromote)
 	CHECK(HasText(G.Career.CheckPromotion().UnmetGates, "Communication below 45"));
 }
 
+// Found in the walkthrough: a player who passed everything at their level with weak evidence had no
+// case left to play. Passed cases at the current level reopen as reviews: evidence only.
+TEST(Campaign_StuckPlayerCanReviewPassedCasesWithoutConsequences)
+{
+	const MissionCatalogue C = TestCatalogue();
+	GameState G = AfterM001();
+	for (const char* Id : {"M002", "M003"})
+	{
+		auto A = AllAnswers(*C.Find(Id), "good");
+		A[3].OptionIds = {"weak"}; // communication drops to 42 < 45
+		CHECK(Play(G, *C.Find(Id), A) == EMissionError::None);
+	}
+	CHECK_EQ(G.Career.Level, 2);
+	CHECK(IsCampaignStuck(G, C));
+	const auto Open = AvailableMissions(G, C);
+	REQUIRE(Open.size() == size_t(2)); // M002 and M003 as reviews
+	CHECK(CheckAvailability(G, *C.Find("M003"), &C).bReview);
+	CHECK(!CheckAvailability(G, *C.Find("M003")).bAvailable); // without the catalogue: closed as before
+	CHECK(StartMission(G, *C.Find("M003")) == EMissionError::Unavailable);
+
+	const size_t Decisions = G.Org.Decisions.size();
+	const int Week = G.Org.Week;
+	const std::string Flags = std::to_string(G.Org.Flags.size());
+	CHECK(StartMission(G, *C.Find("M003"), &C) == EMissionError::None);
+	for (const MissionEvidenceDef& E : C.Find("M003")->Evidence) ViewMissionEvidence(G, *C.Find("M003"), E.Id);
+	MissionDebrief D;
+	CHECK(SubmitMission(G, *C.Find("M003"), AllAnswers(*C.Find("M003"), "good"), &D) == EMissionError::None);
+	CHECK(D.bReview);
+	CHECK_EQ(D.XpAwarded, 0);
+	CHECK_EQ(G.Org.Decisions.size(), Decisions); // no new organisational decision
+	CHECK_EQ(G.Org.Week, Week);                  // no time passes
+	CHECK(std::to_string(G.Org.Flags.size()) == Flags);
+	CHECK(D.bPromoted);                          // communication 42 -> 57
+	CHECK_EQ(G.Career.Level, 3);
+	CHECK(!IsCampaignStuck(G, C));               // M004 is open now
+	CHECK(!CheckAvailability(G, *C.Find("M002"), &C).bAvailable);
+}
+
 TEST(Campaign_ConsequencesCarryIntoLaterMissions)
 {
 	const MissionCatalogue C = TestCatalogue();

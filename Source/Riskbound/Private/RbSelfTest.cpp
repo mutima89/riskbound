@@ -14,6 +14,7 @@
 #include "RbCampaignSubsystem.h"
 #include "RbConvert.h"
 #include "RbGameSubsystem.h"
+#include "RbWalkthrough.h"
 #include "UI/SRbCaseFiles.h"
 #include "RbHUD.h"
 #include "RbInteractable.h"
@@ -404,6 +405,12 @@ void Run(UWorld* World)
 	{
 		Hud->Saves()->SetSlotName(SlotName);
 		RunUiTour(World, Hud);
+		return;
+	}
+	if (Hud && (Mode == TEXT("walkthrough") || Mode == TEXT("walkthrough2")))
+	{
+		Hud->Saves()->SetSlotName(TEXT("walkthrough"));
+		RbWalkthrough::Start(World, Hud, Mode == TEXT("walkthrough") ? 1 : 2);
 		return;
 	}
 	if (Hud && Mode == TEXT("tour"))

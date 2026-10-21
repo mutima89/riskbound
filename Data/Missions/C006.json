@@ -41,19 +41,19 @@
       "options": [
         {
           "id": "nothing",
-          "label": "Nothing: the loss (about 150,000 including forklifts) is below the 250,000 excess",
+          "label": "Nothing: the loss (about 150,000 with forklifts) is below the 250,000 excess",
           "score": 92,
           "feedback": "Below the excess, Valtren keeps it all, which is what the 'net' analysis showed."
         },
         {
           "id": "all",
-          "label": "All of it",
+          "label": "All of it: flood is a named peril on the schedule and the cover limit is 1,000,000",
           "score": 10,
           "feedback": "The excess applies per event."
         },
         {
           "id": "minus_excess",
-          "label": "150,000 minus a small deductible",
+          "label": "The loss minus the policy's standard deductible, which applies to every claim",
           "score": 20,
           "feedback": "The excess is 250,000, larger than the loss."
         }
@@ -67,7 +67,7 @@
       "options": [
         {
           "id": "plan_now",
-          "label": "Adopt the response plan now (raised racking, sandbag store, stock-move procedure) and ask Brantwell to quote a lower excess",
+          "label": "Adopt the response plan now (racking, sandbags, stock-move drill) and ask Brantwell for a lower excess",
           "score": 92,
           "feedback": "The cheap mitigation is still the right one.",
           "setsFlags": [
@@ -80,13 +80,13 @@
         },
         {
           "id": "barriers_now",
-          "label": "Build the barriers now",
+          "label": "Build the flood barriers now: a flood has happened, so the risk is clearly higher than the appraisal assumed",
           "score": 50,
           "feedback": "The appraisal hasn't changed; one flood doesn't change the probability."
         },
         {
           "id": "nothing",
-          "label": "Nothing: floods are rare",
+          "label": "Nothing more: the loss was small, and a 1-in-25-year flood is unlikely to recur soon",
           "score": 15,
           "feedback": "One just happened, and Valtren paid all of it."
         }
@@ -106,7 +106,7 @@
         },
         {
           "id": "inflate",
-          "label": "Add new forklifts to the claim to get above the excess",
+          "label": "Include the forklifts at replacement cost so the claim clears the excess and Valtren recovers something from its premium",
           "score": 0,
           "feedback": "Inflating a claim is insurance fraud.",
           "effects": {
@@ -115,7 +115,7 @@
         },
         {
           "id": "wait",
-          "label": "Wait for them to ask",
+          "label": "Let the adjuster lead and answer questions as they come, so you do not over-commit to figures early",
           "score": 30,
           "feedback": "Slows everything down."
         }
@@ -129,19 +129,19 @@
       "options": [
         {
           "id": "candid",
-          "label": "Loss, what insurance covers (nothing), why, and the plan; including that the earlier recommendation wasn't adopted",
+          "label": "The loss, what insurance covers (nothing) and why, and the plan, noting the earlier recommendation was not adopted",
           "score": 92,
           "feedback": "Candid, without 'I told you so'."
         },
         {
           "id": "told_you",
-          "label": "Remind him you warned about this",
+          "label": "Point out that the flood plan you recommended would have saved most of this loss",
           "score": 25,
           "feedback": "Right but unhelpful."
         },
         {
           "id": "minimise",
-          "label": "Describe it as minor",
+          "label": "Describe it as a minor event: no injuries, the main store stayed dry, and operations were back to normal within three days",
           "score": 20,
           "feedback": "150,000 kept by Valtren is not minor."
         }

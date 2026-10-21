@@ -1,6 +1,7 @@
 #include "SRbToolHub.h"
 
 #include "RbQuant.h"
+#include "Framework/Application/SlateApplication.h"
 #include "RbToolsSubsystem.h"
 #include "RbUIStyle.h"
 #include "SRbCharts.h"
@@ -63,14 +64,16 @@ TSharedRef<SWidget> HubCell(const FText& Text, float Width, const FLinearColor& 
 {
 	return SNew(SBox).WidthOverride(Width)
 		[
-			SNew(STextBlock).Text(Text).Font(FontW(13, bBold ? EWeight::SemiBold : EWeight::Regular)).ColorAndOpacity(Color)
+			// Long values end in an ellipsis and show in full on hover, instead of being clipped.
+			SNew(STextBlock).Text(Text).ToolTipText(Text).OverflowPolicy(ETextOverflowPolicy::Ellipsis)
+			.Font(FontW(13, bBold ? EWeight::SemiBold : EWeight::Regular)).ColorAndOpacity(Color)
 		];
 }
 
 TSharedRef<SWidget> HubKeyValue(const FText& Key, const FText& Value, const FLinearColor& Color = TextPrimary)
 {
 	return SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot().AutoWidth()[SNew(SBox).WidthOverride(260.0f)[MakeBody(Key, 14, TextMuted)]]
+		+ SHorizontalBox::Slot().AutoWidth()[SNew(SBox).WidthOverride(340.0f)[MakeBody(Key, 14, TextMuted)]]
 		+ SHorizontalBox::Slot().AutoWidth()[SNew(STextBlock).Text(Value).Font(FontW(15, EWeight::SemiBold)).ColorAndOpacity(Color)];
 }
 } // namespace
@@ -86,20 +89,6 @@ void SRbToolHub::Construct(const FArguments& InArgs)
 	Appraisal.AnnualCost = 10000.0;
 	if (Tools.IsValid() && Tools->GetStressPresets().Num()) Shock = Tools->GetStressPresets()[0];
 
-	const FText Names[] = {LOCTEXT("TabRegister", "Risk register"), LOCTEXT("TabKri", "KRIs"), LOCTEXT("TabLoss", "Loss scenarios"),
-		LOCTEXT("TabCba", "Cost-benefit"), LOCTEXT("TabSens", "Sensitivity"), LOCTEXT("TabStress", "Stress test"),
-		LOCTEXT("TabMc", "Monte Carlo"), LOCTEXT("TabActions", "Actions"), LOCTEXT("TabReport", "Report")};
-	TSharedRef<SHorizontalBox> TabBar = SNew(SHorizontalBox);
-	for (int32 i = 0; i < static_cast<int32>(ETab::Count); ++i)
-	{
-		TSharedPtr<SButton> Btn;
-		const ETab Tab = static_cast<ETab>(i);
-		TabBar->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space1, 0.0f)
-		[
-			MakeButton(Names[i], HubClick([this, Tab]() { ShowTab(Tab); }), &Btn, true, false)
-		];
-		if (i == 0) FirstTab = Btn;
-	}
 
 	ChildSlot
 	[
@@ -115,7 +104,7 @@ void SRbToolHub::Construct(const FArguments& InArgs)
 				.Text_Lambda([this]() { return Tools.IsValid() ? FText::Format(LOCTEXT("HubWeek", "Week {0}"), Tools->GetWeek()) : FText::GetEmpty(); })
 			]
 		]
-		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)[TabBar]
+		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)[SAssignNew(TabBar, SBox)]
 		+ SVerticalBox::Slot().FillHeight(1.0f)
 		[
 			SNew(SScrollBox) + SScrollBox::Slot()[SAssignNew(Body, SBox)]
@@ -140,9 +129,33 @@ void SRbToolHub::ShowTab(ETab Tab)
 	Rebuild();
 }
 
+// The open tool is shown by the accent fill, not by keyboard focus (which follows the user).
+void SRbToolHub::RebuildTabs()
+{
+	if (!TabBar.IsValid()) return;
+	const FText Names[] = {LOCTEXT("TabRegister", "Risk register"), LOCTEXT("TabKri", "KRIs"), LOCTEXT("TabLoss", "Loss scenarios"),
+		LOCTEXT("TabCba", "Cost-benefit"), LOCTEXT("TabSens", "Sensitivity"), LOCTEXT("TabStress", "Stress test"),
+		LOCTEXT("TabMc", "Monte Carlo"), LOCTEXT("TabActions", "Actions"), LOCTEXT("TabReport", "Report")};
+	const bool bHadFocus = FirstTab.IsValid() && FirstTab->HasKeyboardFocus();
+	TSharedRef<SHorizontalBox> Bar = SNew(SHorizontalBox);
+	for (int32 i = 0; i < static_cast<int32>(ETab::Count); ++i)
+	{
+		TSharedPtr<SButton> Btn;
+		const ETab Tab = static_cast<ETab>(i);
+		Bar->AddSlot().AutoWidth().Padding(0.0f, 0.0f, Space1, 0.0f)
+		[
+			MakeButton(Names[i], HubClick([this, Tab]() { ShowTab(Tab); }), &Btn, true, Tab == Current)
+		];
+		if (Tab == Current) FirstTab = Btn;
+	}
+	TabBar->SetContent(Bar);
+	if (bHadFocus && FirstTab.IsValid()) FSlateApplication::Get().SetKeyboardFocus(FirstTab, EFocusCause::SetDirectly);
+}
+
 void SRbToolHub::Rebuild()
 {
 	if (!Tools.IsValid() || !Body.IsValid()) return;
+	RebuildTabs();
 	TSharedRef<SWidget> Content = SNullWidget::NullWidget;
 	switch (Current)
 	{
@@ -233,12 +246,12 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 	Table->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space1)
 	[
 		SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColId", "Id"), 60, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColTitle", "Title"), 220, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColCat", "Category"), 90, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColRes", "Residual (ordinal)"), 150, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColApp", "Appetite"), 80, TextMuted, true)]
-		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColTreat", "Treatment"), 90, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColId", "Id"), 64, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColTitle", "Title"), 300, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColCat", "Category"), 110, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColRes", "Residual (ordinal)"), 170, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColApp", "Appetite"), 140, TextMuted, true)]
+		+ SHorizontalBox::Slot().AutoWidth()[HubCell(LOCTEXT("ColTreat", "Treatment"), 110, TextMuted, true)]
 	];
 	for (const FRbRegisterRow& R : T->GetRegister(Filter))
 	{
@@ -246,15 +259,15 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 		Table->AddSlot().AutoHeight().Padding(0.0f, 2.0f)
 		[
 			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Id), 60)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Title), 220)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Category), 90, TextMuted)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Id), 64)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Title), 300)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Category), 110, TextMuted)]
 			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
 			[
-				HubCell(FText::Format(LOCTEXT("ResidualFmt", "{0} x {1} = {2} {3}"), R.ResidualLikelihood, R.ResidualImpact, R.ResidualScore, FText::FromString(R.Rating)), 150, HubRatingColor(R.Rating))
+				HubCell(FText::Format(LOCTEXT("ResidualFmt", "{0} x {1} = {2} {3}"), R.ResidualLikelihood, R.ResidualImpact, R.ResidualScore, FText::FromString(R.Rating)), 170, HubRatingColor(R.Rating))
 			]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Appetite), 80, R.Appetite == TEXT("Exceeds") ? Bad : TextMuted)]
-			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Treatment), 90, TextMuted)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Appetite), 140, R.Appetite.StartsWith(TEXT("Exceeds")) ? Bad : TextMuted)]
+			+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[HubCell(FText::FromString(R.Treatment), 110, TextMuted)]
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
 				MakeButton(LOCTEXT("Edit", "Edit"), HubClick([this, Id]()
@@ -365,13 +378,13 @@ TSharedRef<SWidget> SRbToolHub::BuildRegister()
 	];
 
 	return SNew(SVerticalBox)
-		+ SVerticalBox::Slot().AutoHeight()
+		+ SVerticalBox::Slot().AutoHeight()[Left]
+		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f)
 		[
 			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().FillWidth(1.0f).Padding(0.0f, 0.0f, Space3, 0.0f)[Left]
+			+ SHorizontalBox::Slot().FillWidth(1.0f).Padding(0.0f, 0.0f, Space3, 0.0f)[HubCard(Form)]
 			+ SHorizontalBox::Slot().AutoWidth()[Heat]
-		]
-		+ SVerticalBox::Slot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f)[HubCard(Form)];
+		];
 }
 
 // ---------------------------------------------------------------- KRIs

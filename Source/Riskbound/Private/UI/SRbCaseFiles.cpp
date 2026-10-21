@@ -33,6 +33,13 @@ TSharedRef<SWidget> CaseText(const FString& Text, int32 Size = 14, const FLinear
 	return SNew(STextBlock).Text(FText::FromString(Text)).Font(FontW(Size, Weight)).ColorAndOpacity(Color).AutoWrapText(true);
 }
 
+FString PromotionLine(const TArray<FString>& Gaps)
+{
+	if (Gaps.IsEmpty()) return TEXT("You meet every promotion requirement for your level.");
+	if (Gaps.Num() == 1 && Gaps[0].StartsWith(TEXT("Already at the top"))) return TEXT("You are at the top of the career ladder.");
+	return FString(TEXT("Next promotion still needs: ")) + FString::Join(Gaps, TEXT("; "));
+}
+
 FLinearColor CaseScoreColor(int32 Score)
 {
 	return Score >= 75 ? Good : (Score >= 50 ? Warning : Bad);
@@ -159,9 +166,16 @@ TSharedRef<SWidget> SRbCaseFiles::BuildList()
 	if (Game.IsValid())
 	{
 		const TArray<FString> Gaps = Game->GetCareer().UnmetPromotionGates;
-		const FString GapText = Gaps.IsEmpty() ? FString(TEXT("You meet every promotion requirement for your level."))
-			: FString(TEXT("Next promotion still needs: ")) + FString::Join(Gaps, TEXT("; "));
+		const FString GapText = PromotionLine(Gaps);
 		Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)[CaseText(GapText, 13, TextMuted)];
+		if (Campaign->IsStuck())
+		{
+			Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)
+			[
+				CaseCard(CaseText(TEXT("You have passed every case open at your level, but your evidence is not yet strong enough for promotion. ")
+					TEXT("Review a case to strengthen it: reviews count as new evidence of your competence and do not change the organisation."), 14, Warning))
+			];
+		}
 	}
 	if (Missions.IsEmpty())
 	{
@@ -174,6 +188,7 @@ TSharedRef<SWidget> SRbCaseFiles::BuildList()
 		FLinearColor StateColor = TextMuted;
 		if (M.bActive) { State = TEXT("In progress"); StateColor = Accent; }
 		else if (M.bPassed) { State = FString::Printf(TEXT("Passed (best %d)"), M.BestScore); StateColor = Good; }
+		else if (M.bAvailable && M.bReview) { State = FString::Printf(TEXT("Review available (best %d): practice to build evidence"), M.BestScore); StateColor = Warning; }
 		else if (M.bAvailable) { State = M.Attempts ? FString::Printf(TEXT("Retry available (best %d)"), M.BestScore) : FString(TEXT("Available")); StateColor = Accent; }
 		else { State = FString::Join(M.Reasons, TEXT("; ")); }
 
@@ -183,7 +198,8 @@ TSharedRef<SWidget> SRbCaseFiles::BuildList()
 		{
 			Buttons->AddSlot().AutoWidth().Padding(Space2, 0.0f, 0.0f, 0.0f)
 			[
-				MakeButton(M.bActive ? LOCTEXT("CaseResume", "Resume") : LOCTEXT("CaseOpen", "Open case"), CaseClick([this, Id]() { ShowMission(Id); }), nullptr, true, true)
+				MakeButton(M.bActive ? LOCTEXT("CaseResume", "Resume") : (M.bReview ? LOCTEXT("CaseReview", "Review case") : LOCTEXT("CaseOpen", "Open case")),
+					CaseClick([this, Id]() { ShowMission(Id); }), nullptr, true, true)
 			];
 		}
 		if (M.Attempts > 0)
@@ -354,6 +370,13 @@ TSharedRef<SWidget> SRbCaseFiles::BuildDebrief()
 				CaseText(TEXT("Decision quality is judged on your reasoning, separately from whatever luck brings later."), 13, TextMuted)
 			])
 	];
+	if (D.bReview)
+	{
+		Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)
+		[
+			CaseCard(CaseText(TEXT("Review: this attempt counts as new evidence of your competence. The organisation already lived with your original decision, so nothing else changes."), 14, TextMuted))
+		];
+	}
 	if (D.bPromoted)
 	{
 		Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)
@@ -392,8 +415,7 @@ TSharedRef<SWidget> SRbCaseFiles::BuildDebrief()
 	if (!D.Lesson.IsEmpty()) Tail->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)[CaseText(FString(TEXT("Lesson: ")) + D.Lesson, 14, Accent)];
 	Tail->AddSlot().AutoHeight()
 	[
-		CaseText(D.PromotionGaps.IsEmpty() ? FString(TEXT("You meet every promotion requirement for your level."))
-			: FString(TEXT("Next promotion still needs: ")) + FString::Join(D.PromotionGaps, TEXT("; ")), 13, TextMuted)
+		CaseText(PromotionLine(D.PromotionGaps), 13, TextMuted)
 	];
 	Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)[CaseCard(Tail)];
 	Box->AddSlot().AutoHeight()[MakeButton(LOCTEXT("CaseBackToList", "Back to case files"), CaseClick([this]() { ShowList(); }), nullptr, true, true)];

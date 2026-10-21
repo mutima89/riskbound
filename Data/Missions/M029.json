@@ -47,13 +47,13 @@
         },
         {
           "id": "it_only",
-          "label": "IT recovery times",
+          "label": "Whether IT can restore the critical systems within their agreed recovery time objectives",
           "score": 35,
           "feedback": "Necessary but not sufficient."
         },
         {
           "id": "contacts",
-          "label": "Whether people answer their phones",
+          "label": "Whether the call tree works and the right people can be reached out of hours",
           "score": 25,
           "feedback": "One small part."
         }
@@ -73,13 +73,13 @@
         },
         {
           "id": "asteroid",
-          "label": "A meteor strike",
+          "label": "A regional catastrophe that closes all six sites at once, to test the plan to its limits",
           "score": 5,
           "feedback": "Implausible exercises aren't taken seriously."
         },
         {
           "id": "printer",
-          "label": "A printer failure",
+          "label": "A short loss of one system, so the first exercise builds confidence",
           "score": 10,
           "feedback": "Too trivial to test anything."
         }
@@ -122,7 +122,7 @@
       "options": [
         {
           "id": "actions",
-          "label": "A short action plan: owners, dates, a two-page crisis card, and the next exercise booked in six months",
+          "label": "A short action plan with owners and dates, a two-page crisis card, and the next exercise booked",
           "score": 92,
           "feedback": "Exercises only matter if they change the plan.",
           "setsFlags": [
@@ -134,13 +134,13 @@
         },
         {
           "id": "report",
-          "label": "A long report filed with the BCP",
+          "label": "A full exercise report appended to the BCP, for the auditors",
           "score": 25,
           "feedback": "Filed reports change nothing."
         },
         {
           "id": "done",
-          "label": "Nothing: the exercise was the point",
+          "label": "A thank-you to participants and a note on the intranet: the exercise itself raised awareness",
           "score": 10,
           "feedback": "The point is learning."
         }

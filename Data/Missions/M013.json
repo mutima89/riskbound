@@ -5,7 +5,9 @@
   "kind": "mission",
   "department": "Executive Management",
   "minLevel": 6,
-  "requiresPassed": ["M012"],
+  "requiresPassed": [
+    "M012"
+  ],
   "passMark": 60,
   "xp": 210,
   "weeks": 3,
@@ -14,53 +16,178 @@
     "Draft measures that people can actually manage to."
   ],
   "context": [
-    {"ifFlag": "ransomware_outbreak", "text": "After the ransomware outbreak, the board wants cyber in the appetite statement with real numbers."},
-    {"ifFlag": "cyber_controls_funded", "text": "MFA coverage and patch age, the KRIs from your cyber work, are ready to use as appetite measures."}
+    {
+      "ifFlag": "ransomware_outbreak",
+      "text": "After the ransomware outbreak, the board wants cyber in the appetite statement with real numbers."
+    },
+    {
+      "ifFlag": "cyber_controls_funded",
+      "text": "MFA coverage and patch age, the KRIs from your cyber work, are ready to use as appetite measures."
+    }
   ],
   "evidence": [
-    {"id": "current_statement", "title": "Current appetite statement", "body": "'Valtren has zero tolerance for food safety breaches, a low appetite for regulatory breaches, a moderate appetite for operational disruption, and is open to strategic risk in pursuit of growth.'"},
-    {"id": "data", "title": "Available measures", "body": "Temperature excursions per 10,000 deliveries (last year 3.1). Regulatory findings per year (2). On-time delivery (93-96%). Unplanned downtime of critical systems (hours per quarter). Revenue from new services (8% of total)."},
-    {"id": "strategy", "title": "Strategy summary", "body": "Grow pharmaceutical cold chain from 8% to 25% of revenue in three years. Pharma clients audit suppliers and expect documented temperature control."}
+    {
+      "id": "current_statement",
+      "title": "Current appetite statement",
+      "body": "'Valtren has zero tolerance for food safety breaches, a low appetite for regulatory breaches, a moderate appetite for operational disruption, and is open to strategic risk in pursuit of growth.'"
+    },
+    {
+      "id": "data",
+      "title": "Available measures",
+      "body": "Temperature excursions per 10,000 deliveries (last year 3.1). Regulatory findings per year (2). On-time delivery (93-96%). Unplanned downtime of critical systems (hours per quarter). Revenue from new services (8% of total)."
+    },
+    {
+      "id": "strategy",
+      "title": "Strategy summary",
+      "body": "Grow pharmaceutical cold chain from 8% to 25% of revenue in three years. Pharma clients audit suppliers and expect documented temperature control."
+    }
   ],
   "questions": [
-    {"id": "food_safety_metric", "competency": "Governance", "weight": 20,
-     "prompt": "How should 'zero tolerance for food safety breaches' be expressed so it can be monitored?",
-     "options": [
-       {"id": "threshold_plus_response", "label": "Excursions reaching customers: 0 tolerated without root-cause review; in-transit excursions caught before delivery below 2 per 10,000 deliveries, amber at 2, red at 3", "score": 92, "feedback": "Keeps zero where it's achievable (reaching customers) and sets a measurable limit on the precursor."},
-       {"id": "zero_all", "label": "Zero excursions of any kind", "score": 30, "feedback": "Unachievable: it will be breached constantly and then ignored."},
-       {"id": "keep_words", "label": "Keep 'zero tolerance': the words matter more than numbers", "score": 15, "feedback": "Words without measures can't be monitored."}
-     ]},
-    {"id": "strategy_link", "competency": "StrategicThinking", "weight": 25,
-     "prompt": "How does the pharma growth strategy change the appetite?",
-     "options": [
-       {"id": "tighter_quality", "label": "Appetite for temperature and documentation failures must tighten for pharma lanes, while appetite for investment risk in new capability can be higher", "score": 92, "feedback": "Appetite should enable the strategy: open to building capability, strict on what pharma clients audit."},
-       {"id": "no_change", "label": "No change: appetite is independent of strategy", "score": 15, "feedback": "Appetite exists to steer strategy."},
-       {"id": "open_everything", "label": "Become 'open' to all risks to support growth", "score": 25, "feedback": "Growth into regulated pharma needs tighter, not looser, control appetite."}
-     ]},
-    {"id": "measure_choice", "kind": "multi", "competency": "QuantitativeAnalysis", "weight": 20,
-     "prompt": "Which measures belong in the board-level appetite statement?",
-     "options": [
-       {"id": "excursions", "label": "Temperature excursions per 10,000 deliveries", "correct": true},
-       {"id": "reg_findings", "label": "Regulatory findings per year", "correct": true},
-       {"id": "downtime", "label": "Unplanned downtime of critical systems", "correct": true},
-       {"id": "headcount", "label": "Headcount in the risk team", "feedback": "An input, not a measure of risk taken."},
-       {"id": "email_volume", "label": "Emails sent to staff about risk", "feedback": "Activity, not outcome."}
-     ]},
-    {"id": "consultation", "competency": "StakeholderManagement", "weight": 20,
-     "prompt": "How do you get the executive team behind the draft?",
-     "options": [
-       {"id": "workshop", "label": "Test each measure with its owner (thresholds they can live with and evidence they can produce), then take one agreed draft to the executive", "score": 92, "feedback": "Owners who shaped the limits will manage to them."},
-       {"id": "send_board", "label": "Send it straight to the board for approval", "score": 15, "feedback": "Owners will not manage to limits they never agreed."},
-       {"id": "consultant", "label": "Ask a consultancy to write it", "score": 30, "feedback": "Outsourcing the thinking loses ownership."}
-     ]},
-    {"id": "cascade", "competency": "Leadership", "weight": 15,
-     "prompt": "Once approved, what makes the appetite real day to day?",
-     "options": [
-       {"id": "cascade_kris", "label": "Cascade each board measure into business-unit limits and KRIs, with breach reporting through the committee", "score": 92, "feedback": "Board appetite only works when it reaches the people making daily decisions.",
-        "setsFlags": ["appetite_cascaded"], "effects": {"ControlEffectiveness": 4, "StrategicProgress": 3}},
-       {"id": "intranet", "label": "Publish it on the intranet", "score": 25, "feedback": "Publication is not adoption."},
-       {"id": "annual_review", "label": "Review it annually at the board", "score": 40, "feedback": "Necessary, but not enough on its own."}
-     ]}
+    {
+      "id": "food_safety_metric",
+      "competency": "Governance",
+      "weight": 20,
+      "prompt": "How should 'zero tolerance for food safety breaches' be expressed so it can be monitored?",
+      "options": [
+        {
+          "id": "threshold_plus_response",
+          "label": "Zero excursions reaching customers without a root-cause review; in-transit excursions below 2 per 10,000 (amber 2, red 3)",
+          "score": 92,
+          "feedback": "Keeps zero where it's achievable (reaching customers) and sets a measurable limit on the precursor."
+        },
+        {
+          "id": "zero_all",
+          "label": "Zero temperature excursions of any kind, reported monthly to the board, matching the board's own words exactly",
+          "score": 30,
+          "feedback": "Unachievable: it will be breached constantly and then ignored."
+        },
+        {
+          "id": "keep_words",
+          "label": "Keep 'zero tolerance' as a statement of intent and let each depot decide how to measure it",
+          "score": 15,
+          "feedback": "Words without measures can't be monitored."
+        }
+      ]
+    },
+    {
+      "id": "strategy_link",
+      "competency": "StrategicThinking",
+      "weight": 25,
+      "prompt": "How does the pharma growth strategy change the appetite?",
+      "options": [
+        {
+          "id": "tighter_quality",
+          "label": "Tighter appetite for temperature and documentation failures on pharma lanes; more for investment risk",
+          "score": 92,
+          "feedback": "Appetite should enable the strategy: open to building capability, strict on what pharma clients audit."
+        },
+        {
+          "id": "no_change",
+          "label": "No change: appetite reflects the board's attitude to risk, which a growth strategy should not alter",
+          "score": 15,
+          "feedback": "Appetite exists to steer strategy."
+        },
+        {
+          "id": "open_everything",
+          "label": "A more open appetite overall, so the business can move fast enough to win pharma clients",
+          "score": 25,
+          "feedback": "Growth into regulated pharma needs tighter, not looser, control appetite."
+        }
+      ]
+    },
+    {
+      "id": "measure_choice",
+      "kind": "multi",
+      "competency": "QuantitativeAnalysis",
+      "weight": 20,
+      "prompt": "Which measures belong in the board-level appetite statement?",
+      "options": [
+        {
+          "id": "excursions",
+          "label": "Temperature excursions per 10,000 deliveries",
+          "correct": true
+        },
+        {
+          "id": "reg_findings",
+          "label": "Regulatory findings per year",
+          "correct": true
+        },
+        {
+          "id": "downtime",
+          "label": "Unplanned downtime of critical systems",
+          "correct": true
+        },
+        {
+          "id": "headcount",
+          "label": "Headcount in the risk team",
+          "feedback": "An input, not a measure of risk taken."
+        },
+        {
+          "id": "email_volume",
+          "label": "Emails sent to staff about risk",
+          "feedback": "Activity, not outcome."
+        }
+      ]
+    },
+    {
+      "id": "consultation",
+      "competency": "StakeholderManagement",
+      "weight": 20,
+      "prompt": "How do you get the executive team behind the draft?",
+      "options": [
+        {
+          "id": "workshop",
+          "label": "Test each measure with its owner (thresholds they can live with, evidence they can produce), then one agreed draft",
+          "score": 92,
+          "feedback": "Owners who shaped the limits will manage to them."
+        },
+        {
+          "id": "send_board",
+          "label": "Send the draft to the board for approval and cascade it once approved",
+          "score": 15,
+          "feedback": "Owners will not manage to limits they never agreed."
+        },
+        {
+          "id": "consultant",
+          "label": "Commission a consultancy to benchmark peers and draft the measures independently, then present them to the executive",
+          "score": 30,
+          "feedback": "Outsourcing the thinking loses ownership."
+        }
+      ]
+    },
+    {
+      "id": "cascade",
+      "competency": "Leadership",
+      "weight": 15,
+      "prompt": "Once approved, what makes the appetite real day to day?",
+      "options": [
+        {
+          "id": "cascade_kris",
+          "label": "Cascade each board measure into business-unit limits and KRIs, with breach reporting to the committee",
+          "score": 92,
+          "feedback": "Board appetite only works when it reaches the people making daily decisions.",
+          "setsFlags": [
+            "appetite_cascaded"
+          ],
+          "effects": {
+            "ControlEffectiveness": 4,
+            "StrategicProgress": 3
+          }
+        },
+        {
+          "id": "intranet",
+          "label": "Publish it with a message from the CEO and include it in every manager's induction",
+          "score": 25,
+          "feedback": "Publication is not adoption."
+        },
+        {
+          "id": "annual_review",
+          "label": "Have the board review performance against each measure at its annual strategy session",
+          "score": 40,
+          "feedback": "Necessary, but not enough on its own."
+        }
+      ]
+    }
   ],
   "lesson": "Appetite must be measurable, owned and linked to strategy: tight on what clients and regulators care about, open where the strategy needs to take risk."
 }

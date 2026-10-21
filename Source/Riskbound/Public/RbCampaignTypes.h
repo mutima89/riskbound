@@ -31,6 +31,7 @@ struct FRbMissionSummary
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Department;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 MinLevel = 1;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bAvailable = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bReview = false; // passed case reopened to build evidence
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bActive = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bPassed = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Attempts = 0;
@@ -119,6 +120,7 @@ struct FRbMissionDebriefView
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Lesson;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FString> Consequences; // resolved while the mission ran
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bPromoted = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bReview = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Level = 0;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString LevelTitle;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FString> PromotionGaps;

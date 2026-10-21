@@ -5,7 +5,9 @@
   "kind": "mission",
   "department": "Procurement",
   "minLevel": 7,
-  "requiresPassed": ["M016"],
+  "requiresPassed": [
+    "M016"
+  ],
   "passMark": 60,
   "xp": 230,
   "weeks": 3,
@@ -14,61 +16,194 @@
     "Tomasz Brennan wants your view before he signs a three-year exclusive deal Corvane is offering at a 12% discount."
   ],
   "context": [
-    {"ifFlag": "second_contractor_planned", "text": "You introduced a second maintenance contractor two years ago; Tomasz admits it saved them during the Kelvarin dispute."},
-    {"ifFlag": "pellmoor_protected", "text": "Pellmoor's pharma client now depends on the same liners."}
+    {
+      "ifFlag": "second_contractor_planned",
+      "text": "You introduced a second maintenance contractor two years ago; Tomasz admits it saved them during the Kelvarin dispute."
+    },
+    {
+      "ifFlag": "pellmoor_protected",
+      "text": "Pellmoor's pharma client now depends on the same liners."
+    }
   ],
   "evidence": [
-    {"id": "credit", "title": "Supplier credit monitoring", "body": "Corvane: payment days to its own suppliers up from 30 to 74 in nine months. Credit score fallen two bands. A major customer of Corvane left last quarter."},
-    {"id": "dependency", "title": "Dependency analysis", "body": "Liners: 100% from Corvane, about 3 weeks' stock. A second supplier exists (Fennick Packaging), 9% more expensive, needs 8 weeks to qualify for pharma use."},
-    {"id": "offer", "title": "Corvane's offer", "body": "Three-year exclusivity, 12% discount (saves about 310,000 a year), payment 50% in advance each quarter."}
+    {
+      "id": "credit",
+      "title": "Supplier credit monitoring",
+      "body": "Corvane: payment days to its own suppliers up from 30 to 74 in nine months. Credit score fallen two bands. A major customer of Corvane left last quarter."
+    },
+    {
+      "id": "dependency",
+      "title": "Dependency analysis",
+      "body": "Liners: 100% from Corvane, about 3 weeks' stock. A second supplier exists (Fennick Packaging), 9% more expensive, needs 8 weeks to qualify for pharma use."
+    },
+    {
+      "id": "offer",
+      "title": "Corvane's offer",
+      "body": "Three-year exclusivity, 12% discount (saves about 310,000 a year), payment 50% in advance each quarter."
+    }
   ],
   "questions": [
-    {"id": "signals", "competency": "Judgement", "weight": 25,
-     "prompt": "What does the offer, read with the credit data, suggest?",
-     "options": [
-       {"id": "cash_need", "label": "Corvane may need cash: the discount and 50% advance payment are consistent with a supplier in financial difficulty", "score": 92, "feedback": "Stretching its own payment terms while asking for advances is a classic distress signal."},
-       {"id": "good_deal", "label": "A good deal: lock in the discount", "score": 15, "feedback": "The advance payments would be lost if Corvane fails."},
-       {"id": "neutral", "label": "Nothing in particular", "score": 20, "feedback": "Three distress signals together are not neutral."}
-     ]},
-    {"id": "recommendation", "competency": "StrategicThinking", "weight": 25,
-     "prompt": "What do you recommend?",
-     "options": [
-       {"id": "dual_source", "label": "Decline exclusivity and advance payments; qualify Fennick now as a second source, raise liner stock to 8 weeks, and keep buying from Corvane on normal terms", "score": 92,
-        "feedback": "Pays a modest premium to remove a single point of failure before it fails.",
-        "setsFlags": ["liners_dual_sourced"], "effects": {"Costs": 90000, "Resilience": 6, "RiskExposure": -4}},
-       {"id": "sign_exclusive", "label": "Sign the exclusive deal for the savings", "score": 15,
-        "feedback": "Deepens the dependency on a supplier showing distress, and pre-pays it.",
-        "effects": {"Costs": -310000},
-        "schedules": [
-          {"id": "corvane_collapse", "description": "Corvane Materials enters administration; liner deliveries stop", "delayWeeks": 7, "probability": 0.5,
-           "effects": {"Cash": -400000, "Revenue": -1500000, "Reputation": -6}, "flagIfOccurs": "supplier_insolvency",
-           "mitigatedBy": "liners_dual_sourced", "mitigatedProbabilityFactor": 1.0, "mitigatedSeverityFactor": 0.2}
-        ]},
-       {"id": "switch_all", "label": "Move everything to Fennick immediately", "score": 45,
-        "feedback": "Removes Corvane's risk but recreates single sourcing with a supplier not yet qualified for pharma.",
-        "effects": {"Costs": 230000}}
-     ]},
-    {"id": "cost_of_resilience", "competency": "QuantitativeAnalysis", "weight": 15,
-     "prompt": "Dual sourcing costs about 90,000 a year. A Corvane failure would cost about 1.9m. At what annual failure probability does dual sourcing pay for itself?",
-     "options": [
-       {"id": "about_5", "label": "About 5% (90,000 / 1.9m)", "score": 92, "feedback": "Break-even probability = cost / loss avoided = 4.7%. The credit signals suggest far higher."},
-       {"id": "about_50", "label": "About 50%", "score": 20, "feedback": "That confuses break-even with the chance of failure."},
-       {"id": "never", "label": "It never pays: 90,000 is a certain cost", "score": 15, "feedback": "A small certain cost against a large uncertain loss is what resilience costs."}
-     ]},
-    {"id": "procurement", "competency": "StakeholderManagement", "weight": 20,
-     "prompt": "Tomasz is measured on savings. How do you get him on side?",
-     "options": [
-       {"id": "share_metric", "label": "Show him the break-even and the supply-continuity risk, and propose that the committee recognise avoided-loss in his targets", "score": 92, "feedback": "Aligns his incentive with the right decision."},
-       {"id": "overrule", "label": "Ask the CEO to overrule him", "score": 35, "feedback": "Wins once, and he will avoid you next time."},
-       {"id": "split", "label": "Let him sign for one year as a compromise", "score": 40, "feedback": "Still pre-pays a distressed supplier."}
-     ]},
-    {"id": "lead_programme", "competency": "Leadership", "weight": 15,
-     "prompt": "How do you stop the next single-source surprise?",
-     "options": [
-       {"id": "tiering", "label": "Lead a supplier criticality review: tier suppliers by impact and substitutability, with credit monitoring and exit plans for tier 1", "score": 92, "feedback": "Turns one lesson into a standing control."},
-       {"id": "wait", "label": "Handle each case as it comes", "score": 20, "feedback": "Leaves the organisation to rediscover the same risk."},
-       {"id": "ban", "label": "Ban single sourcing everywhere", "score": 35, "feedback": "Costly and often impossible; focus on critical items."}
-     ]}
+    {
+      "id": "signals",
+      "competency": "Judgement",
+      "weight": 25,
+      "prompt": "What does the offer, read with the credit data, suggest?",
+      "options": [
+        {
+          "id": "cash_need",
+          "label": "Corvane may need cash: the discount and 50% advance are consistent with a supplier in difficulty",
+          "score": 92,
+          "feedback": "Stretching its own payment terms while asking for advances is a classic distress signal."
+        },
+        {
+          "id": "good_deal",
+          "label": "A strong offer: Corvane is competing hard for a larger share of a growing customer",
+          "score": 15,
+          "feedback": "The advance payments would be lost if Corvane fails."
+        },
+        {
+          "id": "neutral",
+          "label": "A normal negotiating position: suppliers often trade price for volume and for earlier payment",
+          "score": 20,
+          "feedback": "Three distress signals together are not neutral."
+        }
+      ]
+    },
+    {
+      "id": "recommendation",
+      "competency": "StrategicThinking",
+      "weight": 25,
+      "prompt": "What do you recommend?",
+      "options": [
+        {
+          "id": "dual_source",
+          "label": "Decline exclusivity and advances; qualify Fennick as a second source now, hold 8 weeks of liners, keep Corvane on normal terms",
+          "score": 92,
+          "feedback": "Pays a modest premium to remove a single point of failure before it fails.",
+          "setsFlags": [
+            "liners_dual_sourced"
+          ],
+          "effects": {
+            "Costs": 90000,
+            "Resilience": 6,
+            "RiskExposure": -4
+          }
+        },
+        {
+          "id": "sign_exclusive",
+          "label": "Sign the exclusive deal: the 310,000 saving is certain, and Corvane has supplied reliably for years without a single missed delivery",
+          "score": 15,
+          "feedback": "Deepens the dependency on a supplier showing distress, and pre-pays it.",
+          "effects": {
+            "Costs": -310000
+          },
+          "schedules": [
+            {
+              "id": "corvane_collapse",
+              "description": "Corvane Materials enters administration; liner deliveries stop",
+              "delayWeeks": 7,
+              "probability": 0.5,
+              "effects": {
+                "Cash": -400000,
+                "Revenue": -1500000,
+                "Reputation": -6
+              },
+              "flagIfOccurs": "supplier_insolvency",
+              "mitigatedBy": "liners_dual_sourced",
+              "mitigatedProbabilityFactor": 1.0,
+              "mitigatedSeverityFactor": 0.2
+            }
+          ]
+        },
+        {
+          "id": "switch_all",
+          "label": "Move all liner purchasing to Fennick now, before Corvane's problems reach Valtren's deliveries",
+          "score": 45,
+          "feedback": "Removes Corvane's risk but recreates single sourcing with a supplier not yet qualified for pharma.",
+          "effects": {
+            "Costs": 230000
+          }
+        }
+      ]
+    },
+    {
+      "id": "cost_of_resilience",
+      "competency": "QuantitativeAnalysis",
+      "weight": 15,
+      "prompt": "Dual sourcing costs about 90,000 a year. A Corvane failure would cost about 1.9m. At what annual failure probability does dual sourcing pay for itself?",
+      "options": [
+        {
+          "id": "about_5",
+          "label": "About 5% (90,000 / 1.9m)",
+          "score": 92,
+          "feedback": "Break-even probability = cost / loss avoided = 4.7%. The credit signals suggest far higher."
+        },
+        {
+          "id": "about_50",
+          "label": "About 50%: dual sourcing only pays if failure is more likely than not",
+          "score": 20,
+          "feedback": "That confuses break-even with the chance of failure."
+        },
+        {
+          "id": "never",
+          "label": "Never: 90,000 a year is a certain cost against a loss that may never happen",
+          "score": 15,
+          "feedback": "A small certain cost against a large uncertain loss is what resilience costs."
+        }
+      ]
+    },
+    {
+      "id": "procurement",
+      "competency": "StakeholderManagement",
+      "weight": 20,
+      "prompt": "Tomasz is measured on savings. How do you get him on side?",
+      "options": [
+        {
+          "id": "share_metric",
+          "label": "Show him the break-even and continuity risk, and propose that avoided losses count in his targets",
+          "score": 92,
+          "feedback": "Aligns his incentive with the right decision."
+        },
+        {
+          "id": "overrule",
+          "label": "Ask the CEO to rule on it, since the decision affects every pharma client and the growth strategy",
+          "score": 35,
+          "feedback": "Wins once, and he will avoid you next time."
+        },
+        {
+          "id": "split",
+          "label": "Let him sign a one-year exclusive as a compromise, with a review clause",
+          "score": 40,
+          "feedback": "Still pre-pays a distressed supplier."
+        }
+      ]
+    },
+    {
+      "id": "lead_programme",
+      "competency": "Leadership",
+      "weight": 15,
+      "prompt": "How do you stop the next single-source surprise?",
+      "options": [
+        {
+          "id": "tiering",
+          "label": "A supplier criticality review: tier by impact and substitutability, with credit monitoring and exit plans for tier 1",
+          "score": 92,
+          "feedback": "Turns one lesson into a standing control."
+        },
+        {
+          "id": "wait",
+          "label": "Ask Procurement to flag any supplier in difficulty to the risk team as soon as they hear about it from the market",
+          "score": 20,
+          "feedback": "Leaves the organisation to rediscover the same risk."
+        },
+        {
+          "id": "ban",
+          "label": "A policy that every purchased input must have at least two approved suppliers",
+          "score": 35,
+          "feedback": "Costly and often impossible; focus on critical items."
+        }
+      ]
+    }
   ],
   "lesson": "Supplier distress shows up in payment terms before it shows in the news. For critical inputs, the cost of a second source is the price of resilience."
 }

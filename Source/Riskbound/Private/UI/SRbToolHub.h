@@ -27,6 +27,7 @@ public:
 
 private:
 	void Rebuild();
+	void RebuildTabs();
 	TSharedRef<SWidget> BuildRegister();
 	TSharedRef<SWidget> BuildKri();
 	TSharedRef<SWidget> BuildLoss();
@@ -43,6 +44,7 @@ private:
 	TWeakObjectPtr<URbToolsSubsystem> Tools;
 	TFunction<void()> OnClose;
 	TSharedPtr<SBox> Body;
+	TSharedPtr<SBox> TabBar;
 	TSharedPtr<SWidget> FirstTab;
 	ETab Current = ETab::Register;
 	FText Status;

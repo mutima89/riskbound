@@ -47,13 +47,13 @@
         },
         {
           "id": "wait",
-          "label": "Only once the investigation is complete",
+          "label": "Once the investigation is complete, so the report is accurate and does not need correcting",
           "score": 20,
           "feedback": "May miss the 72-hour deadline."
         },
         {
           "id": "no",
-          "label": "No: no payment data was taken",
+          "label": "No: names and addresses without payment data are low risk, so the threshold is not met",
           "score": 15,
           "feedback": "Addresses and emails still create risk (phishing, fraud)."
         }
@@ -67,7 +67,7 @@
       "options": [
         {
           "id": "tell_guidance",
-          "label": "Yes: what happened, what was taken, how to spot phishing using their data, and a contact point",
+          "label": "Yes: what happened, what was taken, how to spot phishing that uses it, and a contact point",
           "score": 92,
           "feedback": "Gives people what they need to protect themselves.",
           "setsFlags": [
@@ -79,7 +79,7 @@
         },
         {
           "id": "no",
-          "label": "No: it would damage the brand",
+          "label": "No: notifying 8,400 people would cause more alarm than the risk justifies",
           "score": 15,
           "feedback": "Hiding it does more damage when it emerges.",
           "effects": {
@@ -88,7 +88,7 @@
         },
         {
           "id": "legal_only",
-          "label": "Only if lawyers insist",
+          "label": "Only if the regulator or the lawyers say the legal threshold for telling individuals is met",
           "score": 35,
           "feedback": "Leads with self-protection, not customer protection."
         }
@@ -108,13 +108,13 @@
         },
         {
           "id": "training",
-          "label": "Staff need phishing training",
+          "label": "Staff fell for phishing: more frequent awareness training would have prevented the theft",
           "score": 40,
           "feedback": "Helps, but the control gap is MFA."
         },
         {
           "id": "firewall",
-          "label": "A better firewall",
+          "label": "Perimeter defences let a foreign login through: tighter firewall rules would have blocked it",
           "score": 15,
           "feedback": "The attacker logged in with valid credentials."
         }
@@ -128,19 +128,19 @@
       "options": [
         {
           "id": "plain",
-          "label": "\"Someone used a stolen password to copy names, emails and addresses of 8,400 customers. No payment data was involved. We have reported it, secured the account and are adding stronger login checks. Here is how to protect yourself.\"",
+          "label": "\"A stolen password was used to copy names, emails and addresses of 8,400 customers. No payment data. We have reported it, secured the account and are adding stronger login checks.\"",
           "score": 95,
           "feedback": "Plain facts, responsibility, action, help."
         },
         {
           "id": "vague",
-          "label": "\"We take data protection very seriously.\"",
+          "label": "\"We are aware of an incident affecting some customer contact data and take data protection very seriously.\"",
           "score": 15,
           "feedback": "Says nothing."
         },
         {
           "id": "sophisticated",
-          "label": "\"We were the victim of a sophisticated attack.\"",
+          "label": "\"We were targeted by a sophisticated cyber attack. We are working with specialists and the authorities to understand its full extent, and will update customers when we know more.\"",
           "score": 20,
           "feedback": "A stolen password is not sophisticated."
         }

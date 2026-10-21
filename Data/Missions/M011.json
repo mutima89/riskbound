@@ -5,7 +5,9 @@
   "kind": "mission",
   "department": "Risk",
   "minLevel": 5,
-  "requiresPassed": ["M010"],
+  "requiresPassed": [
+    "M010"
+  ],
   "passMark": 60,
   "xp": 190,
   "weeks": 2,
@@ -14,52 +16,174 @@
     "The policy says appetite breaches are reported. What do you do?"
   ],
   "context": [
-    {"ifFlag": "fatigue_kri_live", "text": "The fatigue indicators you designed show long routes rising again as the COO stretches drivers to cover the shortage."},
-    {"ifFlag": "fraud_discovered", "text": "After the depot expenses fraud, the Audit Committee chair has asked to see every exception the risk team reports."}
+    {
+      "ifFlag": "fatigue_kri_live",
+      "text": "The fatigue indicators you designed show long routes rising again as the COO stretches drivers to cover the shortage."
+    },
+    {
+      "ifFlag": "fraud_discovered",
+      "text": "After the depot expenses fraud, the Audit Committee chair has asked to see every exception the risk team reports."
+    }
   ],
   "evidence": [
-    {"id": "kri_series", "title": "On-time delivery, last 12 weeks", "body": "96.0, 95.8, 95.1, 94.6, 94.2, 93.9, 93.1, 92.6, 92.4, 92.0, 91.9, 91.8. Appetite floor 94%; red below 94%."},
-    {"id": "policy", "title": "Risk appetite policy (extract)", "body": "Any metric outside appetite for more than two consecutive reporting periods must be reported to the Risk Committee with the owner's remediation plan and expected return date."},
-    {"id": "coo_email", "title": "Email from the COO", "body": "This is a blip. Recruitment is under way. Reporting it will just alarm people. Leave it out this month please and I'll sort it."},
-    {"id": "client_terms", "title": "Key client terms", "body": "Two of the largest clients have service credits below 93% on-time, and termination rights below 90% for three months."}
+    {
+      "id": "kri_series",
+      "title": "On-time delivery, last 12 weeks",
+      "body": "96.0, 95.8, 95.1, 94.6, 94.2, 93.9, 93.1, 92.6, 92.4, 92.0, 91.9, 91.8. Appetite floor 94%; red below 94%."
+    },
+    {
+      "id": "policy",
+      "title": "Risk appetite policy (extract)",
+      "body": "Any metric outside appetite for more than two consecutive reporting periods must be reported to the Risk Committee with the owner's remediation plan and expected return date."
+    },
+    {
+      "id": "coo_email",
+      "title": "Email from the COO",
+      "body": "This is a blip. Recruitment is under way. Reporting it will just alarm people. Leave it out this month please and I'll sort it."
+    },
+    {
+      "id": "client_terms",
+      "title": "Key client terms",
+      "body": "Two of the largest clients have service credits below 93% on-time, and termination rights below 90% for three months."
+    }
   ],
   "questions": [
-    {"id": "must_report", "competency": "Governance", "weight": 25,
-     "prompt": "Do you include the breach in the committee report?",
-     "options": [
-       {"id": "report_with_plan", "label": "Yes: report it as policy requires, with the COO's recovery plan and date, and tell the COO beforehand", "score": 95, "feedback": "Policy is clear, and the COO keeps ownership of the fix."},
-       {"id": "omit", "label": "No: give the COO a month as asked", "score": 5, "feedback": "Suppressing a breach the policy requires you to report breaks the committee's trust in every report you write.",
-        "effects": {"StakeholderTrust": -6}, "setsFlags": ["breach_suppressed"]},
-       {"id": "footnote", "label": "Mention it in a footnote without the client exposure", "score": 30, "feedback": "Technically reported, practically hidden."}
-     ]},
-    {"id": "trend", "competency": "Judgement", "weight": 20,
-     "prompt": "Is the 'temporary blip' explanation supported?",
-     "options": [
-       {"id": "steady_decline", "label": "No: a steady 12-week decline through the floor, still falling, is a trend, not a blip", "score": 92, "feedback": "Eleven of twelve weeks were lower than the week before."},
-       {"id": "yes_blip", "label": "Yes: 91.8% is close to 94%", "score": 15, "feedback": "The level is close, the direction is the problem."},
-       {"id": "cannot", "label": "Can't tell without more data", "score": 35, "feedback": "Twelve weeks of steady decline is enough to call a trend."}
-     ]},
-    {"id": "exposure", "competency": "QuantitativeAnalysis", "weight": 15,
-     "prompt": "What is the most important exposure to state alongside the breach?",
-     "options": [
-       {"id": "credits_and_termination", "label": "Service credits already triggered below 93%, and termination rights if it stays below 90% for three months", "score": 92, "feedback": "Links the KRI to money and to the clients that matter most."},
-       {"id": "nothing", "label": "None: the KRI speaks for itself", "score": 20, "feedback": "A percentage means little to a committee without its consequences."},
-       {"id": "driver_cost", "label": "The cost of recruiting drivers", "score": 35, "feedback": "Part of the plan, not the exposure."}
-     ]},
-    {"id": "coo_conversation", "competency": "Leadership", "weight": 20,
-     "prompt": "How do you handle the COO's request?",
-     "options": [
-       {"id": "explain_policy", "label": "Call him: explain you're required to report it, offer to present his recovery plan alongside it, and help him frame it", "score": 92, "feedback": "Firm on the obligation, helpful on the message."},
-       {"id": "email_refusal", "label": "Reply by email quoting the policy", "score": 45, "feedback": "Correct but cold; a conversation would keep him on side."},
-       {"id": "ask_priya", "label": "Ask Priya to decide", "score": 40, "feedback": "Keep Priya informed, but this is your report and your call to make."}
-     ]},
-    {"id": "wording", "competency": "Communication", "weight": 20,
-     "prompt": "Which opening line belongs in the report?",
-     "options": [
-       {"id": "clear", "label": "\"On-time delivery has been below appetite (94%) for six weeks and is still falling (91.8%). Service credits apply below 93% for our two largest clients. The COO's recovery plan targets 94% by week 20.\"", "score": 95, "feedback": "Fact, trend, consequence, plan."},
-       {"id": "alarm", "label": "\"Delivery performance is collapsing.\"", "score": 20, "feedback": "Emotive words undermine credibility."},
-       {"id": "soft", "label": "\"Delivery performance is slightly below target.\"", "score": 20, "feedback": "Understates an appetite breach with client consequences."}
-     ]}
+    {
+      "id": "must_report",
+      "competency": "Governance",
+      "weight": 25,
+      "prompt": "Do you include the breach in the committee report?",
+      "options": [
+        {
+          "id": "report_with_plan",
+          "label": "Yes: report it as policy requires, with the COO's recovery plan and date, telling the COO first",
+          "score": 95,
+          "feedback": "Policy is clear, and the COO keeps ownership of the fix."
+        },
+        {
+          "id": "omit",
+          "label": "Not this month: give the COO the month he asked for, and report next month if it has not recovered",
+          "score": 5,
+          "feedback": "Suppressing a breach the policy requires you to report breaks the committee's trust in every report you write.",
+          "effects": {
+            "StakeholderTrust": -6
+          },
+          "setsFlags": [
+            "breach_suppressed"
+          ]
+        },
+        {
+          "id": "footnote",
+          "label": "Yes, as a short note in the KRI annex, leaving the client exposure to the COO's own update",
+          "score": 30,
+          "feedback": "Technically reported, practically hidden."
+        }
+      ]
+    },
+    {
+      "id": "trend",
+      "competency": "Judgement",
+      "weight": 20,
+      "prompt": "Is the 'temporary blip' explanation supported?",
+      "options": [
+        {
+          "id": "steady_decline",
+          "label": "No: a steady 12-week decline through the floor, still falling, is a trend, not a blip",
+          "score": 92,
+          "feedback": "Eleven of twelve weeks were lower than the week before."
+        },
+        {
+          "id": "yes_blip",
+          "label": "Yes: 91.8% is within two points of target and the driver shortage explains it",
+          "score": 15,
+          "feedback": "The level is close, the direction is the problem."
+        },
+        {
+          "id": "cannot",
+          "label": "Not yet: twelve weeks may include seasonal effects, so wait for another quarter of data",
+          "score": 35,
+          "feedback": "Twelve weeks of steady decline is enough to call a trend."
+        }
+      ]
+    },
+    {
+      "id": "exposure",
+      "competency": "QuantitativeAnalysis",
+      "weight": 15,
+      "prompt": "What is the most important exposure to state alongside the breach?",
+      "options": [
+        {
+          "id": "credits_and_termination",
+          "label": "Service credits already apply below 93%, and termination rights below 90% for three months",
+          "score": 92,
+          "feedback": "Links the KRI to money and to the clients that matter most."
+        },
+        {
+          "id": "nothing",
+          "label": "None beyond the KRI itself, since the committee already understands what on-time delivery means",
+          "score": 20,
+          "feedback": "A percentage means little to a committee without its consequences."
+        },
+        {
+          "id": "driver_cost",
+          "label": "The cost of recruiting and training enough drivers to restore on-time delivery",
+          "score": 35,
+          "feedback": "Part of the plan, not the exposure."
+        }
+      ]
+    },
+    {
+      "id": "coo_conversation",
+      "competency": "Leadership",
+      "weight": 20,
+      "prompt": "How do you handle the COO's request?",
+      "options": [
+        {
+          "id": "explain_policy",
+          "label": "Call him: explain you must report it, and offer to present his recovery plan alongside it",
+          "score": 92,
+          "feedback": "Firm on the obligation, helpful on the message."
+        },
+        {
+          "id": "email_refusal",
+          "label": "Reply in writing quoting the policy, so there is a clear record of why it must be reported",
+          "score": 45,
+          "feedback": "Correct but cold; a conversation would keep him on side."
+        },
+        {
+          "id": "ask_priya",
+          "label": "Ask Priya to decide, since the COO is senior to you and she owns the relationship",
+          "score": 40,
+          "feedback": "Keep Priya informed, but this is your report and your call to make."
+        }
+      ]
+    },
+    {
+      "id": "wording",
+      "competency": "Communication",
+      "weight": 20,
+      "prompt": "Which opening line belongs in the report?",
+      "options": [
+        {
+          "id": "clear",
+          "label": "\"On-time delivery has been below appetite (94%) for six weeks and is still falling (91.8%); service credits apply below 93%; recovery targets week 20.\"",
+          "score": 95,
+          "feedback": "Fact, trend, consequence, plan."
+        },
+        {
+          "id": "alarm",
+          "label": "\"Delivery performance is collapsing and two major contracts are now at risk of termination.\"",
+          "score": 20,
+          "feedback": "Emotive words undermine credibility."
+        },
+        {
+          "id": "soft",
+          "label": "\"On-time delivery is slightly below target this quarter due to a temporary driver shortage, which the COO is addressing through recruitment and overtime.\"",
+          "score": 20,
+          "feedback": "Understates an appetite breach with client consequences."
+        }
+      ]
+    }
   ],
   "lesson": "An appetite breach is reported, with the owner's plan. Being firm on the obligation and helpful on the message keeps both the committee's trust and the owner's."
 }

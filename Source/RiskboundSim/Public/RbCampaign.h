@@ -149,10 +149,15 @@ struct CampaignState
 struct MissionAvailability
 {
 	bool bAvailable = false;
+	bool bReview = false;             // a passed case reopened for practice (see IsCampaignStuck)
 	std::vector<std::string> Reasons; // why not, human-readable
 };
 
-RB_API MissionAvailability CheckAvailability(const GameState& State, const MissionDef& M);
+// With a catalogue, a passed mission at the player's current level is reopened as a review
+// when the player is stuck: nothing new is open, they are not at the top, and the promotion
+// review still fails (their evidence is below the bar). Reviews add competence evidence only.
+RB_API MissionAvailability CheckAvailability(const GameState& State, const MissionDef& M, const MissionCatalogue* Catalogue = nullptr);
+RB_API bool IsCampaignStuck(const GameState& State, const MissionCatalogue& C);
 RB_API std::vector<const MissionDef*> AvailableMissions(const GameState& State, const MissionCatalogue& C);
 // The order in which a question's options are shown: a seeded Fisher-Yates shuffle of 0..N-1 keyed
 // by the game seed, mission id and question id. Content lists the best answer anywhere (usually
@@ -177,7 +182,7 @@ enum class EMissionError
 
 RB_API const char* ToString(EMissionError E);
 
-RB_API EMissionError StartMission(GameState& State, const MissionDef& M);
+RB_API EMissionError StartMission(GameState& State, const MissionDef& M, const MissionCatalogue* Catalogue = nullptr);
 RB_API EMissionError ViewMissionEvidence(GameState& State, const MissionDef& M, const std::string& EvidenceId);
 RB_API EMissionError AbandonMission(GameState& State);
 RB_API EMissionError ValidateAnswers(const GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers);
@@ -205,6 +210,7 @@ struct MissionDebrief
 	// Filled by SubmitMission (not by the pure scorer):
 	std::vector<ResolvedConsequence> Resolved; // consequences that came due while the mission ran
 	bool bPromoted = false;
+	bool bReview = false;                      // practice attempt at an already-passed case
 	int Level = 0;                             // career level after the promotion review
 	std::vector<std::string> PromotionGaps;    // what still blocks the next promotion
 };
@@ -219,6 +225,8 @@ RB_API MissionDebrief ScoreMission(const MissionDef& M, const std::vector<Missio
 
 // Scores, updates career evidence, records the organisational decision and its consequences,
 // advances organisation time (resolving anything due, from any earlier mission), then runs the
-// promotion review. Nothing changes if validation fails.
+// promotion review. Nothing changes if validation fails. Reviewing an already-passed mission
+// updates competence evidence and the record only: no organisational effects, flags,
+// consequences or time.
 RB_API EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers, MissionDebrief* OutDebrief = nullptr);
 } // namespace rb
