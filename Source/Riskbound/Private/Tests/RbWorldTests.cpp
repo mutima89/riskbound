@@ -58,7 +58,7 @@ bool FRbWorldContentTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("story has ten clues"), W.CluesTotal, 10);
 	const TArray<FRbPersonView> People = S.Campaign->GetPeople();
 	const FRbPersonView* Priya = People.FindByPredicate([](const FRbPersonView& P) { return P.Id == TEXT("priya"); });
-	TestTrue(TEXT("Priya starts friendly"), Priya && Priya->Relation == 20 && Priya->RelationLabel == TEXT("Friendly"));
+	TestTrue(TEXT("Priya starts friendly (graduate background +5)"), Priya && Priya->Relation == 25 && Priya->RelationLabel == TEXT("Friendly"));
 	return true;
 }
 
@@ -125,6 +125,22 @@ bool FRbGrowthTest::RunTest(const FString& Parameters)
 	while (!V.bEnded && Guard++ < 10) V = S.Campaign->ChooseResponse(V.Id, V.NodeId, V.Responses[0].Id, Error);
 	TestTrue(TEXT("conversation ends"), V.bEnded && Error.IsEmpty());
 	TestFalse(TEXT("and is not repeated"), S.Campaign->StartConversation(TEXT("priya"), TEXT("talk")).bFound);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRbChallengeTest, "Riskbound.World.ChallengesGlossaryAndReview", WorldFlags)
+bool FRbChallengeTest::RunTest(const FString& Parameters)
+{
+	FWorldSession S;
+	if (!TestNotNull(TEXT("campaign subsystem"), S.Campaign)) return false;
+	TestTrue(TEXT("glossary loaded"), S.Campaign->GetGlossary().size() >= 40);
+	TestTrue(TEXT("an ending is always chosen"), S.Campaign->GetEnding() != nullptr);
+	TestFalse(TEXT("career game is not a challenge"), S.Campaign->IsChallenge());
+	S.Campaign->StartChallengeGame(rb::EGameMode::Survival);
+	TestTrue(TEXT("survival started"), S.Campaign->IsChallenge() && S.Campaign->ChallengeStatus().StartsWith(TEXT("Survival: crisis 1 of 12")));
+	const TArray<FRbMissionSummary> Open = S.Campaign->GetMissions();
+	TestTrue(TEXT("only the current crisis is open"), Open.FilterByPredicate([](const FRbMissionSummary& M) { return M.bAvailable; }).Num() == 1);
+	TestFalse(TEXT("review text"), S.Campaign->GetReview().Summary.empty());
 	return true;
 }
 

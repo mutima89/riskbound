@@ -11,6 +11,7 @@
 #include "RbOrganization.h"
 #include "RbRiskModel.h"
 #include "RbWorld.h"
+#include "RbLearning.h"
 
 #include <cstdint>
 #include <string>
@@ -58,6 +59,7 @@ struct GameState
 	std::vector<QuantifiedRisk> Quantified; // player-entered loss scenarios (save v3)
 	CampaignState Campaign;                 // missions after M001 (save v5)
 	WorldState World;                       // relationships, stress, story, inbox, news, shares (save v6)
+	ChallengeState Challenge;               // survival and daily modes (save v8)
 };
 
 constexpr int KriHistoryWeeksAtStart = 12;

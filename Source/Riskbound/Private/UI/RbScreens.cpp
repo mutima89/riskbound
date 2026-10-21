@@ -1,10 +1,13 @@
 #include "RbScreens.h"
+#include <algorithm>
 #include "Engine/GameViewportClient.h"
 #include "Widgets/SWindow.h"
 
 #include "HAL/PlatformProcess.h"
 #include "RbCredits.h"
 #include "RbCampaignSubsystem.h"
+#include "RbConvert.h"
+#include "Misc/DateTime.h"
 #include "RbGameSubsystem.h"
 #include "RbHUD.h"
 #include "RbSaveSubsystem.h"
@@ -159,6 +162,7 @@ FRbScreenParts MainMenu(ARbHUD* Hud)
 			Hud->ShowMainMenu(); // shows MenuMessage
 		}
 	}), nullptr, bHasSave), 8.0f);
+	AddRow(Box, MakeButton(LOCTEXT("ChallengesBtn", "Challenges and classroom"), Click([Hud]() { Hud->ShowChallenges(); })), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("Settings", "Settings"), Click([Hud]() { Hud->OpenSettings([Hud]() { Hud->ShowMainMenu(); }); })), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("MenuCredits", "Credits"), Click([Hud]() { Hud->OpenCredits([Hud]() { Hud->ShowMainMenu(); }); })), 8.0f);
 	AddRow(Box, MakeButton(LOCTEXT("Quit", "Quit"), Click([Hud]() { Hud->QuitToDesktop(); })), 16.0f);
@@ -303,6 +307,149 @@ TSharedRef<SWidget> CeremonyOverlay(const FString& Title, const FString& Subtitl
 		]
 		+ SVerticalBox::Slot().AutoHeight()[SNew(SBox).HeightOverride(110.0f)[SNew(SBorder).BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush")).BorderBackgroundColor(Bar)]]
 	];
+}
+
+FRbScreenParts Challenges(ARbHUD* Hud)
+{
+	TSharedPtr<SButton> First;
+	URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	TSharedRef<SVerticalBox> Box = Column();
+	AddRow(Box, MakeEyebrow(LOCTEXT("ChEyebrow", "Play differently")), Space1);
+	AddRow(Box, MakeHeading(LOCTEXT("ChTitle", "Challenges and classroom")), Space3);
+	AddRow(Box, MakeButton(LOCTEXT("Survival", "Survival: one crisis after another"), Click([Hud]() { Hud->StartChallenge(1); }), &First, true, true), 2.0f);
+	AddRow(Box, WrappedLine(TEXT("All twelve crises in a random order at full authority. Three failed crises, or burning out, ends the run. Score: crises handled."), 13, TextMuted), Space3);
+	AddRow(Box, MakeButton(FText::Format(LOCTEXT("Daily", "Daily cases ({0})"), FText::FromString(FDateTime::Now().ToString(TEXT("%Y-%m-%d")))), Click([Hud]() { Hud->StartChallenge(2); })), 2.0f);
+	AddRow(Box, WrappedLine(TEXT("Three cases chosen by today's date, the same for everyone today. One attempt each. Score: the total."), 13, TextMuted), Space3);
+	// Classroom: a trainer picks a case and up to four players take it in turn.
+	AddRow(Box, MakeHeading(LOCTEXT("Classroom", "Classroom (hot seat)"), 16), 4.0f);
+	AddRow(Box, WrappedLine(TEXT("Players take the same case in turn on identical games; at the end the results can be exported as a CSV for the trainer."), 13, TextMuted), Space2);
+	for (const TCHAR* CaseId : {TEXT("M031"), TEXT("M033"), TEXT("M036"), TEXT("C001")})
+	{
+		const FRbMissionView M = Campaign ? Campaign->GetMission(CaseId) : FRbMissionView();
+		if (!M.bFound) continue;
+		const FString Id = CaseId;
+		AddRow(Box, MakeButton(FText::FromString(FString::Printf(TEXT("Classroom: %s (4 players)"), *M.Title)), Click([Hud, Id]()
+		{
+			URbCampaignSubsystem* C = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+			if (!C) return;
+			C->StartClassroom({TEXT("Player 1"), TEXT("Player 2"), TEXT("Player 3"), TEXT("Player 4")}, Id);
+			Hud->CloseScreen();
+			Hud->OpenCaseFiles(Id);
+			Hud->Notice(TEXT("Classroom: Player 1, it is your turn."));
+		})), 4.0f);
+	}
+	const TArray<FString> Board = Campaign ? Campaign->LeaderboardLines() : TArray<FString>();
+	AddRow(Box, SNew(SBox).HeightOverride(8.0f));
+	AddRow(Box, MakeHeading(LOCTEXT("Leaderboard", "Your best results (this PC)"), 16), 4.0f);
+	if (Board.IsEmpty()) AddRow(Box, MakeBody(LOCTEXT("NoBoard", "Nothing yet."), 13, TextMuted), 2.0f);
+	for (int32 i = 0; i < FMath::Min(8, Board.Num()); ++i) AddRow(Box, WrappedLine(Board[i], 13, TextMuted), 1.0f);
+	if (Campaign && (Campaign->ModMissionCount() > 0 || !Campaign->ModErrors().IsEmpty()))
+	{
+		AddRow(Box, SNew(SBox).HeightOverride(8.0f));
+		AddRow(Box, WrappedLine(Campaign->ModErrors().IsEmpty() ? FString::Printf(TEXT("Mods: %d player-made cases loaded from Saved/Mods/Missions."), Campaign->ModMissionCount())
+			: FString::Printf(TEXT("Mods: not loaded, %d problem(s). First: %s"), Campaign->ModErrors().Num(), *Campaign->ModErrors()[0]), 13, Campaign->ModErrors().IsEmpty() ? Good : Warning), 2.0f);
+	}
+	AddRow(Box, SNew(SBox).HeightOverride(8.0f));
+	AddRow(Box, MakeButton(LOCTEXT("ChBack", "Back"), Click([Hud]() { Hud->ShowMainMenu(); })), 0.0f);
+	TSharedRef<SVerticalBox> Root = Column();
+	Root->AddSlot().FillHeight(1.0f)[Scrolling(Box)];
+	return {MakeModalFrame(Root, 760.0f), First};
+}
+
+FRbScreenParts ChallengeResults(ARbHUD* Hud)
+{
+	TSharedPtr<SButton> Done;
+	URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	TSharedRef<SVerticalBox> Box = Column();
+	AddRow(Box, MakeHeading(LOCTEXT("ResultsTitle", "Results")), Space3);
+	if (Campaign && Campaign->IsClassroom())
+	{
+		AddRow(Box, MakeBody(LOCTEXT("ClassResults", "Classroom results"), 15, TextPrimary), Space2);
+		for (const FString& L : Campaign->ClassroomResults()) AddRow(Box, MakeBody(FText::FromString(L.Replace(TEXT(","), TEXT("   "))), 14, TextMuted), 2.0f);
+		AddRow(Box, MakeButton(LOCTEXT("ExportCsv", "Export results as CSV"), Click([Hud]()
+		{
+			URbCampaignSubsystem* C = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+			const FString Path = C ? C->ExportClassroomCsv() : FString();
+			Hud->Notice(Path.IsEmpty() ? FString(TEXT("Could not write the CSV.")) : TEXT("Saved: ") + Path);
+		})), Space2);
+	}
+	else if (Campaign)
+	{
+		const FString Status = Campaign->ChallengeStatus();
+		AddRow(Box, MakeBody(FText::FromString(Status), 16, TextPrimary), Space2);
+		const rb::ChallengeState& C = Hud->Game()->GetState().Challenge;
+		Campaign->RecordOnLeaderboard(RbConvert::ToFString(rb::ToString(C.Mode)), RbConvert::ToFString(C.Date), C.Points);
+		AddRow(Box, MakeBody(LOCTEXT("Recorded", "Recorded on this PC's leaderboard."), 13, TextMuted), Space2);
+	}
+	AddRow(Box, MakeButton(LOCTEXT("ResultsDone", "Back to the main menu"), Click([Hud]()
+	{
+		if (URbCampaignSubsystem* C = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>()) C->EndClassroom();
+		Hud->CloseScreen();
+		Hud->ShowMainMenu();
+	}), &Done, true, true), 0.0f);
+	return {MakeModalFrame(Box, 700.0f), Done};
+}
+
+FRbScreenParts Glossary(ARbHUD* Hud, TFunction<void()> OnBack)
+{
+	TSharedPtr<SButton> Back;
+	URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	TSharedRef<SVerticalBox> Box = Column();
+	AddRow(Box, MakeEyebrow(LOCTEXT("GlEyebrow", "Journal  /  Learn")), Space1);
+	AddRow(Box, MakeHeading(LOCTEXT("GlTitle", "Risk concepts")), 4.0f);
+	AddRow(Box, MakeBody(LOCTEXT("GlNote", "The ideas behind the cases, in plain words, with an example from Valtren."), 13, TextMuted), Space4);
+	std::vector<const rb::GlossaryTerm*> Sorted;
+	if (Campaign) for (const rb::GlossaryTerm& T : Campaign->GetGlossary()) Sorted.push_back(&T);
+	std::stable_sort(Sorted.begin(), Sorted.end(), [](const rb::GlossaryTerm* A, const rb::GlossaryTerm* B) { return A->Category < B->Category; });
+	std::string Category;
+	for (const rb::GlossaryTerm* T : Sorted)
+	{
+		if (T->Category != Category)
+		{
+			Category = T->Category;
+			AddRow(Box, MakeHeading(FText::FromString(RbConvert::ToFString(Category)), 16), 4.0f);
+		}
+		AddRow(Box, MakeBody(FText::FromString(RbConvert::ToFString(T->Term)), 14, Accent), 1.0f);
+		AddRow(Box, WrappedLine(RbConvert::ToFString(T->Definition), 13, TextPrimary), 1.0f);
+		if (!T->Example.empty()) AddRow(Box, WrappedLine(TEXT("At Valtren: ") + RbConvert::ToFString(T->Example), 12, TextMuted), Space3);
+	}
+	TSharedRef<SVerticalBox> Root = Column();
+	Root->AddSlot().FillHeight(1.0f)[Scrolling(Box)];
+	Root->AddSlot().AutoHeight().Padding(0.0f, Space3, 0.0f, 0.0f).HAlign(HAlign_Right)[MakeButton(LOCTEXT("GlBack", "Back"), Click(OnBack), &Back)];
+	return {MakeModalFrame(Root, 820.0f), Back};
+}
+
+FRbScreenParts Review(ARbHUD* Hud, bool bEnding, TFunction<void()> OnBack)
+{
+	TSharedPtr<SButton> Back;
+	URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	TSharedRef<SVerticalBox> Box = Column();
+	if (!Campaign) return {MakeModalFrame(Box, 820.0f), Back};
+	const rb::PerformanceReview R = Campaign->GetReview();
+	const rb::EndingDef* E = bEnding ? Campaign->GetEnding() : nullptr;
+	AddRow(Box, MakeEyebrow(bEnding ? LOCTEXT("EndEyebrow", "Your career") : LOCTEXT("RvEyebrow", "Journal  /  Performance review")), Space1);
+	AddRow(Box, MakeHeading(FText::FromString(E ? RbConvert::ToFString(E->Title) : FString::Printf(TEXT("Performance review: %s"), *RbConvert::ToFString(R.Title)))), Space3);
+	if (E)
+	{
+		for (const FString& P : [&]() { TArray<FString> Parts; RbConvert::ToFString(E->Epilogue).ParseIntoArray(Parts, TEXT("\n\n")); return Parts; }())
+		{
+			AddRow(Box, WrappedLine(P, 15, TextPrimary), Space2);
+		}
+		AddRow(Box, SNew(SBox).HeightOverride(8.0f));
+	}
+	AddRow(Box, SNew(SBorder).BorderImage(CardBrush()).Padding(Space4)[WrappedLine(RbConvert::ToFString(R.Summary), 14, TextPrimary)], Space3);
+	if (!R.Strengths.empty()) AddRow(Box, WrappedLine(TEXT("Strengths: ") + RbConvert::ToFString([&]() { std::string J; for (const std::string& S : R.Strengths) J += (J.empty() ? "" : ", ") + S; return J; }()), 13, Good), 2.0f);
+	if (!R.Growth.empty()) AddRow(Box, WrappedLine(TEXT("To develop: ") + RbConvert::ToFString([&]() { std::string J; for (const std::string& S : R.Growth) J += (J.empty() ? "" : ", ") + S; return J; }()), 13, Warning), Space3);
+	AddRow(Box, MakeButton(LOCTEXT("ExportCert", "Export career certificate"), Click([Hud]()
+	{
+		URbCampaignSubsystem* C = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+		const FString Path = C ? C->ExportCertificate() : FString();
+		Hud->Notice(Path.IsEmpty() ? FString(TEXT("Could not write the certificate.")) : TEXT("Certificate saved: ") + Path);
+	})), Space2);
+	AddRow(Box, MakeButton(bEnding ? LOCTEXT("EndContinue", "Continue in the role") : LOCTEXT("RvBack", "Back"), Click(OnBack), &Back, true, true), 0.0f);
+	TSharedRef<SVerticalBox> Root = Column();
+	Root->AddSlot().FillHeight(1.0f)[Scrolling(Box)];
+	return {MakeModalFrame(Root, 820.0f), Back};
 }
 
 FRbScreenParts PauseMenu(ARbHUD* Hud)
@@ -463,6 +610,14 @@ FRbScreenParts Journal(ARbHUD* Hud)
 		[
 			MakeButton(LOCTEXT("JournalSkills", "Skills"), Click([Hud]() { Hud->CloseScreen(); Hud->OpenSkills([Hud]() { Hud->CloseScreen(); Hud->OpenJournal(); }); }))
 		]
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space2, 0.0f)
+		[
+			MakeButton(LOCTEXT("JournalLearn", "Learn"), Click([Hud]() { Hud->CloseScreen(); Hud->OpenGlossary([Hud]() { Hud->CloseScreen(); Hud->OpenJournal(); }); }))
+		]
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space2, 0.0f)
+		[
+			MakeButton(LOCTEXT("JournalReview", "Review"), Click([Hud]() { Hud->CloseScreen(); Hud->OpenReview(false, [Hud]() { Hud->CloseScreen(); Hud->OpenJournal(); }); }))
+		]
 		+ SHorizontalBox::Slot().AutoWidth()
 		[
 			MakeButton(LOCTEXT("CloseJournal", "Close"), Click([Hud]() { Hud->CloseScreen(); }), &Close)
@@ -518,7 +673,8 @@ FRbScreenParts Workstation(ARbHUD* Hud)
 		Click([Hud, BackHere]() { Hud->OpenEvidence(TEXT("risk_register_R014"), BackHere); })), 8.0f);
 	AddRow(Box, MakeButton(bSubmitted ? LOCTEXT("FormDone", "Assessment form (submitted)") : LOCTEXT("FormOpen", "Assessment form: R-014"),
 		Click([Hud]() { Hud->OpenAssessment(); }), nullptr, !bSubmitted), 8.0f);
-	const bool bCases = Game->IsDebriefed();
+	const URbCampaignSubsystem* CampaignW = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	const bool bCases = Game->IsDebriefed() || (CampaignW && CampaignW->IsChallenge());
 	if (const URbCampaignSubsystem* Campaign = Hud->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
 	{
 		const FRbWorldView W = Campaign->GetWorldView();

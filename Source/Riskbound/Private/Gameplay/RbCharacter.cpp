@@ -14,6 +14,7 @@
 #include "RbHUD.h"
 #include "RbInteractionComponent.h"
 #include "RbAudioSubsystem.h"
+#include "UnrealClient.h"
 
 ARbCharacter::ARbCharacter()
 {
@@ -47,6 +48,8 @@ void ARbCharacter::BuildInput()
 	PauseAction = MakeAction(TEXT("IA_Pause"), EInputActionValueType::Boolean);
 	JournalAction = MakeAction(TEXT("IA_Journal"), EInputActionValueType::Boolean);
 	InboxAction = MakeAction(TEXT("IA_Inbox"), EInputActionValueType::Boolean);
+	PhotoAction = MakeAction(TEXT("IA_Photo"), EInputActionValueType::Boolean);
+	ShotAction = MakeAction(TEXT("IA_Shot"), EInputActionValueType::Boolean);
 
 	Mapping = NewObject<UInputMappingContext>(this, TEXT("IMC_Riskbound"));
 
@@ -86,6 +89,8 @@ void ARbCharacter::BuildInput()
 	Mapping->MapKey(JournalAction, EKeys::J);
 	Mapping->MapKey(JournalAction, EKeys::Tab);
 	Mapping->MapKey(InboxAction, EKeys::I);
+	Mapping->MapKey(PhotoAction, EKeys::F10);
+	Mapping->MapKey(ShotAction, EKeys::F12);
 }
 
 void ARbCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -99,6 +104,8 @@ void ARbCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Input->BindAction(PauseAction, ETriggerEvent::Started, this, &ARbCharacter::OnPause);
 	Input->BindAction(JournalAction, ETriggerEvent::Started, this, &ARbCharacter::OnJournal);
 	Input->BindAction(InboxAction, ETriggerEvent::Started, this, &ARbCharacter::OnInbox);
+	Input->BindAction(PhotoAction, ETriggerEvent::Started, this, &ARbCharacter::OnPhoto);
+	Input->BindAction(ShotAction, ETriggerEvent::Started, this, &ARbCharacter::OnShot);
 }
 
 void ARbCharacter::PawnClientRestart()
@@ -159,6 +166,17 @@ void ARbCharacter::OnInbox()
 {
 	ARbHUD* Hud = HudFor(this);
 	if (Hud && !Hud->IsScreenOpen()) Hud->OpenInbox();
+}
+
+void ARbCharacter::OnPhoto()
+{
+	if (ARbHUD* Hud = HudFor(this)) Hud->TogglePhotoMode();
+}
+
+void ARbCharacter::OnShot()
+{
+	// Works in every build; files go to Saved/Screenshots.
+	FScreenshotRequest::RequestScreenshot(false);
 }
 
 void ARbCharacter::Tick(float DeltaSeconds)

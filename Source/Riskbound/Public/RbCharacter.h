@@ -37,6 +37,8 @@ private:
 	void OnPause();
 	void OnJournal();
 	void OnInbox();
+	void OnPhoto();
+	void OnShot();
 	virtual void Tick(float DeltaSeconds) override;
 	float StrideDistance = 0.0f;
 	static constexpr float StrideLength = 150.0f;
@@ -55,4 +57,6 @@ private:
 	UPROPERTY(Transient) TObjectPtr<UInputAction> PauseAction;
 	UPROPERTY(Transient) TObjectPtr<UInputAction> JournalAction;
 	UPROPERTY(Transient) TObjectPtr<UInputAction> InboxAction;
+	UPROPERTY(Transient) TObjectPtr<UInputAction> PhotoAction;
+	UPROPERTY(Transient) TObjectPtr<UInputAction> ShotAction;
 };

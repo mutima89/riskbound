@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "endings": [
+    {
+      "id": "golden_cage",
+      "title": "The Golden Cage",
+      "when": {"flags": ["story_compromised"]},
+      "epilogue": [
+        "You took Celeste's sponsorship and the title that came with it. The Corvane money kept flowing, and every quarter you signed a risk report you knew was incomplete.",
+        "Two years later an auditor from a client found Schedule 4. Your name was on the sponsorship email. The board asked for your resignation the same afternoon."
+      ]
+    },
+    {
+      "id": "clean_sweep",
+      "title": "The Clean Sweep",
+      "when": {"flags": ["story_exposed"], "metrics": [{"metric": "Reputation", "atLeast": 60}]},
+      "epilogue": [
+        "The Corvane scheme ended in a courtroom, not a cover-up. Valtren recovered most of the money, the regulator praised the board's response, and the override route was closed for good.",
+        "Under your leadership the risk function became the place people bring bad news early. Dame Helen calls it the best thing that happened to Valtren in a decade."
+      ]
+    },
+    {
+      "id": "costly_truth",
+      "title": "The Costly Truth",
+      "when": {"flags": ["story_exposed"]},
+      "epilogue": [
+        "You exposed the Corvane scheme, but the years of incidents had already cost Valtren its standing. The fraud was the headline; the weak controls were the story underneath.",
+        "You spend your first year as CRO rebuilding trust one honest report at a time. It is slow work, and it is working."
+      ]
+    },
+    {
+      "id": "truth_teller",
+      "title": "The Truth Teller",
+      "when": {"flags": ["story_leaked"]},
+      "epilogue": [
+        "The Courier ran the story and the scheme collapsed within a week. Celeste left, and so did two directors who had looked away.",
+        "Some colleagues see you as the person who forced the truth out; others as the person who went to the press instead of the board. Both are right, and you know it."
+      ]
+    },
+    {
+      "id": "quiet_money",
+      "title": "Quiet Money",
+      "when": {"flags": ["story_buried"]},
+      "epilogue": [
+        "Celeste left with a settlement and a non-disclosure agreement. The share price never noticed.",
+        "The regulator did, eventually. When the Authority asked why a known fraud was never reported, the minutes showed whose recommendation the board had followed."
+      ]
+    },
+    {
+      "id": "steady_hands",
+      "title": "Steady Hands",
+      "when": {"metrics": [{"metric": "Reputation", "atLeast": 65}, {"metric": "Resilience", "atLeast": 55}]},
+      "epilogue": [
+        "No scandals, no heroics: just a company that saw its risks coming and dealt with them. Clients renew, the regulator visits less, and the board trusts the numbers.",
+        "Somewhere in the procurement files a supplier contract still has a page nobody has read. Perhaps your successor will find it."
+      ]
+    },
+    {
+      "id": "survivor",
+      "title": "The Survivor",
+      "when": {"metrics": [{"metric": "Reputation", "below": 45}]},
+      "epilogue": [
+        "You made it to the top of a company that took too many hits on the way. The incident log reads like a list of lessons learned the hard way.",
+        "The board gives you one job: make sure the next decade is quieter than the last."
+      ]
+    },
+    {
+      "id": "chief_risk_officer",
+      "title": "Chief Risk Officer",
+      "epilogue": [
+        "From a stale warning at Northgate to the boardroom. You learned that risk management is not saying no; it is helping people say yes with their eyes open.",
+        "Valtren's risks are yours to lead now."
+      ]
+    }
+  ]
+}

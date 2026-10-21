@@ -29,6 +29,14 @@ public:
 	void ShowDifficultyPicker();
 	void StartNewGame(ERbDifficulty Difficulty, const FString& Background = TEXT("graduate"));
 	void ShowBackgroundPicker(ERbDifficulty Difficulty);
+	void ShowChallenges();
+	void StartChallenge(int32 Mode); // 1 survival, 2 daily
+	void ShowChallengeResults();
+	void OpenGlossary(TFunction<void()> OnBack);
+	void OpenReview(bool bEnding, TFunction<void()> OnBack);
+	// Photo mode: hides the HUD; F12 takes a screenshot (Saved/Screenshots).
+	void TogglePhotoMode();
+	bool IsPhotoMode() const { return bPhotoMode; }
 	void OpenSkills(TFunction<void()> OnBack);
 	// A conversation with tone choices (Data/Dialogue.json); OnEnd runs when it is over.
 	void PlayConversation(const struct FRbConversationView& View, TFunction<void()> OnEnd);
@@ -82,6 +90,8 @@ private:
 
 	TSharedPtr<SWidget> Screen;
 	TSharedPtr<SWidget> CeremonyRoot;
+	bool bPhotoMode = false;
+	bool bEndingPending = false;
 	double CeremonyEnds = 0.0;
 	void EndCeremony();
 	UPROPERTY(Transient)

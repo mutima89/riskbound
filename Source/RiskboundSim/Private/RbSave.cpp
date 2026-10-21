@@ -842,6 +842,13 @@ std::string SerializeGame(const GameState& S)
 	WriteQuantified(W, S.Quantified);
 	WriteCampaign(W, S.Campaign);
 	WriteWorld(W, S.World);
+	W.Int("chal.mode", static_cast<int>(S.Challenge.Mode));
+	W.List("chal.seq", S.Challenge.Sequence);
+	W.Int("chal.index", S.Challenge.Index);
+	W.Int("chal.lives", S.Challenge.Lives);
+	W.Int("chal.points", S.Challenge.Points);
+	W.Bool("chal.over", S.Challenge.bOver);
+	W.Put("chal.date", S.Challenge.Date);
 	W.List("achievements", S.Achievements);
 	W.List("learning", S.LearningHistory);
 	char Sum[32];
@@ -1019,6 +1026,16 @@ bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 	if (Info.LoadedVersion < 5) Info.bMigrated = true;
 	ReadWorld(R, S.World);
 	if (Info.LoadedVersion < 7) Info.bMigrated = true;
+	// v8: challenge modes; older saves are career games.
+	S.Challenge.Mode = R.Enum<EGameMode>("chal.mode", EGameMode::Career, 2);
+	S.Challenge.Sequence = R.List("chal.seq");
+	S.Challenge.Index = static_cast<int>(R.Int("chal.index", 0));
+	S.Challenge.Lives = static_cast<int>(R.Int("chal.lives", 3));
+	S.Challenge.Points = static_cast<int>(R.Int("chal.points", 0));
+	S.Challenge.bOver = R.Bool("chal.over", false);
+	S.Challenge.Date = R.Str("chal.date");
+	if (S.Challenge.Index < 0 || S.Challenge.Index > static_cast<int>(S.Challenge.Sequence.size())) R.bOk = false;
+	if (Info.LoadedVersion < 8) Info.bMigrated = true;
 	S.Achievements = R.List("achievements");
 	S.LearningHistory = R.List("learning");
 	if (!R.bOk)

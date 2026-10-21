@@ -215,6 +215,10 @@ void URbGameSubsystem::Notify(const FString& Message)
 FString URbGameSubsystem::GetCurrentObjectiveText() const
 {
 	if (!bHasGame) return FString();
+	if (const URbCampaignSubsystem* Ch = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+	{
+		if (Ch->IsChallenge()) return Ch->ChallengeStatus() + TEXT("  (case files at your workstation)");
+	}
 	if (IsDebriefed())
 	{
 		const URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();

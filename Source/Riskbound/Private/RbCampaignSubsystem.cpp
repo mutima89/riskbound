@@ -81,6 +81,31 @@ bool URbCampaignSubsystem::LoadFromDisk()
 	rb::MissionCatalogue Loaded;
 	std::vector<std::string> Errors;
 	const bool bOk = rb::LoadMissionCatalogue(Files, Loaded, Errors) && LoadErrors.IsEmpty();
+	// Player-made missions (Docs/Modding.md): added only if the whole catalogue still validates.
+	ModCount = 0;
+	ModProblems.Reset();
+	const FString ModDir = FPaths::ProjectSavedDir() / TEXT("Mods/Missions");
+	TArray<FString> ModNames;
+	IFileManager::Get().FindFiles(ModNames, *(ModDir / TEXT("*.json")), true, false);
+	if (bOk && !ModNames.IsEmpty())
+	{
+		std::vector<std::pair<std::string, std::string>> All = Files;
+		ModNames.Sort();
+		for (const FString& Name : ModNames)
+		{
+			FString Text;
+			if (FFileHelper::LoadFileToString(Text, *(ModDir / Name))) All.push_back({ToStd(Name), ToStd(Text)});
+		}
+		rb::MissionCatalogue WithMods;
+		std::vector<std::string> ModErrs;
+		if (rb::LoadMissionCatalogue(All, WithMods, ModErrs))
+		{
+			ModCount = static_cast<int32>(WithMods.Missions.size() - Loaded.Missions.size());
+			Loaded = MoveTemp(WithMods);
+		}
+		ModProblems = ToFStrings(ModErrs);
+		for (const FString& E : ModProblems) UE_LOG(LogRiskbound, Warning, TEXT("Mod missions: %s"), *E);
+	}
 	LoadErrors.Append(ToFStrings(Errors));
 	for (const FString& E : LoadErrors)
 	{
@@ -293,6 +318,7 @@ ERbMissionResult URbCampaignSubsystem::SubmitMission(const FString& MissionId, c
 		URbAudioSubsystem::Cue(this, ERbCue::Promotion);
 	}
 	if (D.bPassed && M->Kind == rb::EMissionKind::Capstone) PendingCeremony = TEXT("CRO");
+	if (Game()->GetState().Challenge.bOver) bChallengeOverPending = true;
 	AnnounceWorldUpdate(D.NewMessages, D.Escalated, D.bBurnout);
 	Game()->StateCheckpoint();
 	return R;
@@ -418,6 +444,16 @@ void URbCampaignSubsystem::LoadWorld()
 	for (const std::string& E : DErrors) UE_LOG(LogRiskbound, Error, TEXT("Dialogue data: %s"), *ToFString(E));
 	LoadErrors.Append(ToFStrings(DErrors));
 	if (!DErrors.empty()) Dialogue = rb::DialogueCatalogue();
+	Glossary.clear();
+	Endings.clear();
+	std::string GlossaryText, EndingsText;
+	std::vector<std::string> LErrors;
+	if (Read(TEXT("Glossary.json"), GlossaryText)) rb::GlossaryFromJson(GlossaryText, "Glossary.json", Glossary, LErrors);
+	if (Read(TEXT("Endings.json"), EndingsText)) rb::EndingsFromJson(EndingsText, "Endings.json", Endings, LErrors);
+	for (const std::string& E : rb::ValidateGlossary(Glossary, &Catalogue)) LErrors.push_back(E);
+	for (const std::string& E : rb::ValidateEndings(Endings)) LErrors.push_back(E);
+	for (const std::string& E : LErrors) UE_LOG(LogRiskbound, Error, TEXT("Learning data: %s"), *ToFString(E));
+	LoadErrors.Append(ToFStrings(LErrors));
 	UE_LOG(LogRiskbound, Display, TEXT("World data: %d people, %d clues, %d events"), static_cast<int32>(World.People.People.size()),
 		static_cast<int32>(World.Story.Clues.size()), static_cast<int32>(World.Events.Events.size()));
 }
@@ -711,4 +747,160 @@ FRbConversationView URbCampaignSubsystem::ChooseResponse(const FString& Conversa
 		return Ended;
 	}
 	return NodeView(*C, Next);
+}
+
+// ---------------------------------------------------------------- phase 4
+
+std::string URbCampaignSubsystem::RbConvertToStd(const FString& S)
+{
+	return ToStd(S);
+}
+
+FString URbCampaignSubsystem::ExportCertificate() const
+{
+	const FString Date = FDateTime::Now().ToString(TEXT("%Y-%m-%d"));
+	const std::string Text = rb::CertificateMarkdown(Game()->GetState(), GetReview(), GetEnding(), ToStd(Date));
+	const FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir() / FString::Printf(TEXT("Riskbound-Certificate-%s.md"), *Date));
+	return FFileHelper::SaveStringToFile(ToFString(Text), *Path, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM) ? Path : FString();
+}
+
+TArray<FString> URbCampaignSubsystem::WhatIfLines(const FString& MissionId) const
+{
+	TArray<FString> Out;
+	const rb::MissionDef* M = Catalogue.Find(ToStd(MissionId));
+	const rb::GameState& S = Game()->GetState();
+	const rb::MissionRecord* Last = nullptr;
+	for (const rb::MissionRecord& R : S.Campaign.Records)
+	{
+		if (M && R.MissionId == M->Id) Last = &R;
+	}
+	if (!M || !Last) return Out;
+	for (const rb::WhatIfQuestion& Q : rb::WhatIf(*M, *Last))
+	{
+		Out.Add(TEXT("Q: ") + ToFString(Q.Prompt));
+		if (!Q.YourAnswer.empty()) Out.Add(FString::Printf(TEXT("    Your answer: %s"), *ToFString(Q.YourAnswer)));
+		for (const rb::WhatIfOption& O : Q.Options)
+		{
+			FString Line = FString::Printf(TEXT("    %s %s  (%d)"), O.bChosen ? TEXT("[you]") : TEXT("     "), *ToFString(O.Label), O.Score);
+			for (const std::string& C : O.Consequences) Line += TEXT("  ->  ") + ToFString(C);
+			Out.Add(Line);
+		}
+	}
+	return Out;
+}
+
+static FString LeaderboardPath()
+{
+	return FPaths::ProjectSavedDir() / TEXT("Leaderboard.txt");
+}
+
+TArray<FString> URbCampaignSubsystem::LeaderboardLines() const
+{
+	FString Text;
+	FFileHelper::LoadFileToString(Text, *LeaderboardPath());
+	TArray<FString> Out;
+	for (const rb::LeaderboardEntry& E : rb::DeserializeLeaderboard(ToStd(Text)))
+	{
+		Out.Add(FString::Printf(TEXT("%-9s %4d   %s   %s   %s"), *ToFString(E.Mode), E.Points, *ToFString(E.Profile), *ToFString(E.Detail), *ToFString(E.When)));
+	}
+	return Out;
+}
+
+void URbCampaignSubsystem::RecordOnLeaderboard(const FString& Mode, const FString& Detail, int32 Points)
+{
+	FString Text;
+	FFileHelper::LoadFileToString(Text, *LeaderboardPath());
+	std::vector<rb::LeaderboardEntry> Entries = rb::DeserializeLeaderboard(ToStd(Text));
+	const rb::GameState& S = Game()->GetState();
+	rb::AddToLeaderboard(Entries, {ToStd(Mode), S.ProfileName, ToStd(Detail), Points, S.Org.Week, ToStd(FDateTime::Now().ToString(TEXT("%Y-%m-%d")))});
+	FFileHelper::SaveStringToFile(ToFString(rb::SerializeLeaderboard(Entries)), *LeaderboardPath(), FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+}
+
+void URbCampaignSubsystem::StartChallengeGame(rb::EGameMode Mode)
+{
+	EndClassroom();
+	Game()->NewGame(ERbDifficulty::Professional, Mode == rb::EGameMode::Survival ? TEXT("Survivor") : TEXT("Daily"));
+	rb::GameState& S = Game()->EditState();
+	rb::StartChallenge(S, Catalogue, Mode, ToStd(FDateTime::Now().ToString(TEXT("%Y-%m-%d"))));
+	S.Checkpoint = "challenge";
+	Game()->StateCheckpoint();
+}
+
+FString URbCampaignSubsystem::ChallengeStatus() const
+{
+	const rb::ChallengeState& C = Game()->GetState().Challenge;
+	if (C.Mode == rb::EGameMode::Career) return FString();
+	if (IsClassroom()) return FString::Printf(TEXT("Classroom: %s's turn (%d of %d)"), *ClassroomCurrentPlayer(), ClassIndex + 1, ClassPlayers.Num());
+	const FString Mission = ToFString(rb::CurrentChallengeMission(Game()->GetState()));
+	const rb::MissionDef* M = Catalogue.Find(ToStd(Mission));
+	if (C.Mode == rb::EGameMode::Survival)
+	{
+		return C.bOver ? FString::Printf(TEXT("Survival over: %d crises handled"), C.Points)
+			: FString::Printf(TEXT("Survival: crisis %d of %d, %d lives  -  %s"), C.Index + 1, static_cast<int32>(C.Sequence.size()), C.Lives, M ? *ToFString(M->Title) : TEXT(""));
+	}
+	return C.bOver ? FString::Printf(TEXT("Daily %s complete: %d points"), *ToFString(C.Date), C.Points)
+		: FString::Printf(TEXT("Daily %s: case %d of %d, %d points  -  %s"), *ToFString(C.Date), C.Index + 1, static_cast<int32>(C.Sequence.size()), C.Points, M ? *ToFString(M->Title) : TEXT(""));
+}
+
+void URbCampaignSubsystem::StartClassroom(const TArray<FString>& Players, const FString& CaseId)
+{
+	ClassPlayers = Players;
+	ClassResults.Reset();
+	ClassCase = CaseId;
+	ClassIndex = 0;
+	Game()->NewGame(ERbDifficulty::Professional, ClassroomCurrentPlayer());
+	rb::GameState& S = Game()->EditState();
+	S.Seed = 20261020; // identical games for every player
+	rb::StartCustomChallenge(S, {ToStd(CaseId)});
+	S.Checkpoint = "challenge";
+	Game()->StateEdited();
+}
+
+bool URbCampaignSubsystem::ClassroomNext()
+{
+	if (!IsClassroom()) return false;
+	const rb::GameState& S = Game()->GetState();
+	int32 Score = 0;
+	for (const rb::MissionRecord& R : S.Campaign.Records) Score = R.Score;
+	ClassResults.Add(FString::Printf(TEXT("%s,%s,%d"), *ClassroomCurrentPlayer(), *ClassCase, Score));
+	if (++ClassIndex >= ClassPlayers.Num())
+	{
+		bChallengeOverPending = true;
+		return false;
+	}
+	Game()->NewGame(ERbDifficulty::Professional, ClassroomCurrentPlayer());
+	rb::GameState& Next = Game()->EditState();
+	Next.Seed = 20261020;
+	rb::StartCustomChallenge(Next, {ToStd(ClassCase)});
+	Next.Checkpoint = "challenge";
+	Game()->StateEdited();
+	return true;
+}
+
+TArray<FString> URbCampaignSubsystem::ClassroomResults() const
+{
+	return ClassResults;
+}
+
+FString URbCampaignSubsystem::ExportClassroomCsv() const
+{
+	FString Csv = TEXT("player,case,score\n");
+	for (const FString& L : ClassResults) Csv += L + TEXT("\n");
+	const FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir() / FString::Printf(TEXT("Riskbound-Classroom-%s.csv"), *FDateTime::Now().ToString(TEXT("%Y-%m-%d-%H%M"))));
+	return FFileHelper::SaveStringToFile(Csv, *Path) ? Path : FString();
+}
+
+rb::PerformanceReview URbCampaignSubsystem::GetReview() const
+{
+	return rb::MakeReview(Game()->GetState(), World.People);
+}
+
+const rb::EndingDef* URbCampaignSubsystem::GetEnding() const
+{
+	return rb::ChooseEnding(Game()->GetState(), Endings);
+}
+
+bool URbCampaignSubsystem::IsChallenge() const
+{
+	return Game() && Game()->GetState().Challenge.Mode != rb::EGameMode::Career;
 }

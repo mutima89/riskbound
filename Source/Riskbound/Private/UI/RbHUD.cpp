@@ -185,13 +185,35 @@ void ARbHUD::StopMenuCamera()
 
 void ARbHUD::Tick(float DeltaSeconds)
 {
-	if (CeremonyRoot.IsValid() && FPlatformTime::Seconds() > CeremonyEnds) EndCeremony();
+	if (CeremonyRoot.IsValid() && FPlatformTime::Seconds() > CeremonyEnds)
+	{
+		EndCeremony();
+		if (bEndingPending)
+		{
+			// The career ends with its epilogue, the review and the certificate.
+			bEndingPending = false;
+			OpenReview(true, [this]() { CloseScreen(); });
+		}
+	}
+	if (!IsScreenOpen() && Game() && Game()->HasGame())
+	{
+		if (URbCampaignSubsystem* C = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+		{
+			if (C->TakeChallengeOver()) ShowChallengeResults();
+		}
+	}
 	if (!CeremonyRoot.IsValid() && !IsScreenOpen() && Game() && Game()->HasGame())
 	{
 		if (URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
 		{
 			const FString Ceremony = Campaign->TakePendingCeremony();
-			if (Ceremony == TEXT("CRO")) PlayCeremony(TEXT("Chief Risk Officer"), TEXT("From Northgate to the boardroom. Valtren's risk is yours to lead."));
+			if (Ceremony == TEXT("CRO"))
+			{
+				PlayCeremony(TEXT("Chief Risk Officer"), TEXT("From Northgate to the boardroom. Valtren's risk is yours to lead."));
+				bEndingPending = true;
+				const rb::EndingDef* E = Campaign->GetEnding();
+				Campaign->RecordOnLeaderboard(TEXT("career"), E ? RbConvert::ToFString(E->Title) : FString(), Campaign->GetReview().AverageScore);
+			}
 			else if (!Ceremony.IsEmpty()) PlayCeremony(Ceremony, TEXT("Promoted on the evidence of your work"));
 		}
 	}
@@ -266,6 +288,53 @@ void ARbHUD::ShowBackgroundPicker(ERbDifficulty Difficulty)
 {
 	const FRbScreenParts Parts = RbScreens::BackgroundPicker(this, Difficulty);
 	ShowScreen(Parts.Widget, Parts.Focus, [this]() { ShowDifficultyPicker(); }, true);
+}
+
+void ARbHUD::ShowChallenges()
+{
+	const FRbScreenParts Parts = RbScreens::Challenges(this);
+	ShowScreen(Parts.Widget, Parts.Focus, [this]() { ShowMainMenu(); }, true);
+}
+
+void ARbHUD::StartChallenge(int32 Mode)
+{
+	if (URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>())
+	{
+		Campaign->StartChallengeGame(Mode == 1 ? rb::EGameMode::Survival : rb::EGameMode::Daily);
+	}
+	Draft = MakeShared<FRbAssessmentDraft>();
+	bMainMenuOpen = false;
+	StopMenuCamera();
+	CloseScreen();
+	OpenCaseFiles();
+	Notice(Mode == 1 ? TEXT("Survival: one crisis after another. Three failures and it is over.") : TEXT("Today's daily cases: the same three for everyone today."));
+}
+
+void ARbHUD::ShowChallengeResults()
+{
+	const FRbScreenParts Parts = RbScreens::ChallengeResults(this);
+	ShowScreen(Parts.Widget, Parts.Focus, [this]() { CloseScreen(); ShowMainMenu(); }, true);
+}
+
+void ARbHUD::OpenGlossary(TFunction<void()> OnBack)
+{
+	const FRbScreenParts Parts = RbScreens::Glossary(this, OnBack);
+	ShowScreen(Parts.Widget, Parts.Focus, OnBack, false);
+}
+
+void ARbHUD::OpenReview(bool bEnding, TFunction<void()> OnBack)
+{
+	const FRbScreenParts Parts = RbScreens::Review(this, bEnding, OnBack);
+	ShowScreen(Parts.Widget, Parts.Focus, OnBack, false);
+}
+
+void ARbHUD::TogglePhotoMode()
+{
+	if (IsScreenOpen() && !bPhotoMode) return;
+	bPhotoMode = !bPhotoMode;
+	if (OverlayRoot.IsValid()) OverlayRoot->SetVisibility(bPhotoMode ? EVisibility::Collapsed : EVisibility::HitTestInvisible);
+	if (!bPhotoMode) Notice(TEXT("Photo mode off."));
+	else if (OverlayRoot.IsValid()) UE_LOG(LogTemp, Display, TEXT("Riskbound: photo mode on"));
 }
 
 void ARbHUD::OpenSkills(TFunction<void()> OnBack)

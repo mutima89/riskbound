@@ -7,6 +7,7 @@
 #include "RbGameState.h"
 #include "RbWorld.h"
 #include "RbGrowth.h"
+#include "RbLearning.h"
 #include "RbCampaignTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "RbCampaignSubsystem.generated.h"
@@ -125,6 +126,37 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Riskbound|Growth")
 	FRbConversationView ChooseResponse(const FString& ConversationId, const FString& NodeId, const FString& ResponseId, FString& OutError);
 
+	// ---- Phase 4: learning, endings, review, challenges, classroom, leaderboard, mods ----
+	const std::vector<rb::GlossaryTerm>& GetGlossary() const { return Glossary; }
+	std::vector<const rb::GlossaryTerm*> ConceptsFor(const FString& MissionId) const { return rb::TermsForMission(Glossary, RbConvertToStd(MissionId)); }
+	rb::PerformanceReview GetReview() const;
+	const rb::EndingDef* GetEnding() const;
+	// Writes the career certificate (Markdown) to Saved/ and returns its full path ("" on failure).
+	FString ExportCertificate() const;
+	// Pre-formatted lines for the debrief's "What if" card (latest attempt), empty before submission.
+	TArray<FString> WhatIfLines(const FString& MissionId) const;
+	// Local leaderboard (Saved/Leaderboard.txt).
+	TArray<FString> LeaderboardLines() const;
+	void RecordOnLeaderboard(const FString& Mode, const FString& Detail, int32 Points);
+	// Challenge modes on a fresh game (rb::StartChallenge). Date: YYYY-MM-DD for Daily.
+	void StartChallengeGame(rb::EGameMode Mode);
+	FString ChallengeStatus() const; // "" in a career game
+	bool IsChallenge() const;
+	// Classroom: players take the same case in turn on identical fresh games; results kept here.
+	void StartClassroom(const TArray<FString>& Players, const FString& CaseId);
+	bool IsClassroom() const { return !ClassPlayers.IsEmpty(); }
+	FString ClassroomCurrentPlayer() const { return ClassPlayers.IsValidIndex(ClassIndex) ? ClassPlayers[ClassIndex] : FString(); }
+	// After a classroom submission: records the score and starts the next player's game. False when everyone is done.
+	bool ClassroomNext();
+	TArray<FString> ClassroomResults() const;
+	FString ExportClassroomCsv() const;
+	void EndClassroom() { ClassPlayers.Reset(); ClassResults.Reset(); ClassIndex = 0; }
+	// Extra missions from Saved/Mods/Missions (Docs/Modding.md).
+	int32 ModMissionCount() const { return ModCount; }
+	const TArray<FString>& ModErrors() const { return ModProblems; }
+	// Set when a challenge or classroom game ends; the HUD shows the results.
+	bool TakeChallengeOver() { const bool b = bChallengeOverPending; bChallengeOverPending = false; return b; }
+
 	// A ceremony the HUD plays when the screen is free (promotion, the CRO capstone). Cleared when taken.
 	FString TakePendingCeremony() { FString C = PendingCeremony; PendingCeremony.Reset(); return C; }
 
@@ -145,6 +177,16 @@ private:
 	rb::WorldContent World;
 	TMap<FString, TMap<FString, TArray<FString>>> Drafts;
 	rb::DialogueCatalogue Dialogue;
+	std::vector<rb::GlossaryTerm> Glossary;
+	std::vector<rb::EndingDef> Endings;
+	TArray<FString> ClassPlayers;
+	TArray<FString> ClassResults;
+	FString ClassCase;
+	int32 ClassIndex = 0;
+	int32 ModCount = 0;
+	TArray<FString> ModProblems;
+	bool bChallengeOverPending = false;
+	static std::string RbConvertToStd(const FString& S);
 	FString PendingCeremony;
 	FRbConversationView NodeView(const rb::ConversationDef& C, const std::string& NodeId) const;
 	TArray<FString> LoadErrors;

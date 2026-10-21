@@ -3,6 +3,7 @@
 #include "RbCampaignSubsystem.h"
 #include "RbCareer.h"
 #include "RbGameSubsystem.h"
+#include "RbConvert.h"
 #include "RbUIStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SCheckBox.h"
@@ -304,6 +305,21 @@ TSharedRef<SWidget> SRbCaseFiles::BuildMission()
 	}
 	Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)[CaseCard(Ev)];
 
+	// Concepts used in this case (Data/Glossary.json): learning value without giving answers away.
+	{
+		const auto Concepts = Campaign->ConceptsFor(MissionId);
+		if (!Concepts.empty())
+		{
+			TSharedRef<SVerticalBox> CBox = SNew(SVerticalBox);
+			CBox->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space1)[CaseText(TEXT("Concepts in this case"), 15, TextPrimary, EWeight::SemiBold)];
+			for (const rb::GlossaryTerm* T : Concepts)
+			{
+				CBox->AddSlot().AutoHeight().Padding(0.0f, 2.0f)[CaseText(RbConvert::ToFString(T->Term) + TEXT(": ") + RbConvert::ToFString(T->Definition), 13, TextMuted)];
+			}
+			Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)[CaseCard(CBox)];
+		}
+	}
+
 	// Questions: no scores are shown before submission.
 	for (int32 qi = 0; qi < M.Questions.Num(); ++qi)
 	{
@@ -545,6 +561,17 @@ TSharedRef<SWidget> SRbCaseFiles::BuildDebrief()
 		}
 		Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)[CaseCard(WBox)];
 	}
+	// What if: every alternative and what it would have done (the rubric is visible after submission).
+	{
+		const TArray<FString> Lines = Campaign->WhatIfLines(MissionId);
+		if (!Lines.IsEmpty())
+		{
+			TSharedRef<SVerticalBox> WBox = SNew(SVerticalBox);
+			WBox->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space1)[CaseText(TEXT("What if you had chosen differently?"), 15, TextPrimary, EWeight::SemiBold)];
+			for (const FString& L : Lines) WBox->AddSlot().AutoHeight().Padding(0.0f, 1.0f)[CaseText(L, 12, L.StartsWith(TEXT("Q: ")) ? TextPrimary : TextMuted)];
+			Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)[CaseCard(WBox)];
+		}
+	}
 	TSharedRef<SVerticalBox> Tail = SNew(SVerticalBox);
 	if (!D.Lesson.IsEmpty()) Tail->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space2)[CaseText(FString(TEXT("Lesson: ")) + D.Lesson, 14, Accent)];
 	Tail->AddSlot().AutoHeight()
@@ -552,6 +579,26 @@ TSharedRef<SWidget> SRbCaseFiles::BuildDebrief()
 		CaseText(PromotionLine(D.PromotionGaps), 13, TextMuted)
 	];
 	Box->AddSlot().AutoHeight().Padding(0.0f, 0.0f, 0.0f, Space3)[CaseCard(Tail)];
+	if (Campaign.IsValid() && Campaign->IsClassroom())
+	{
+		Box->AddSlot().AutoHeight()[MakeButton(LOCTEXT("ClassNext", "Next player"), CaseClick([this]()
+		{
+			if (!Campaign.IsValid()) return;
+			const FString Case = MissionId;
+			if (Campaign->ClassroomNext())
+			{
+				Answers.Reset();
+				MissionId.Reset();
+				ShowMission(Case);
+				Status = FText::FromString(Campaign->ChallengeStatus());
+			}
+			else
+			{
+				OnClose(); // the HUD shows the classroom results
+			}
+		}), nullptr, true, true)];
+		return Box;
+	}
 	Box->AddSlot().AutoHeight()[MakeButton(LOCTEXT("CaseBackToList", "Back to case files"), CaseClick([this]() { ShowList(); }), nullptr, true, true)];
 	return Box;
 }

@@ -307,6 +307,13 @@ std::vector<std::string> ValidateCatalogue(const MissionCatalogue& C)
 static MissionAvailability CheckNew(const GameState& State, const MissionDef& M)
 {
 	MissionAvailability A;
+	// Challenge modes (RbLearning.h): only the current case is open, whatever the career rules say.
+	if (State.Challenge.Mode != EGameMode::Career)
+	{
+		A.bAvailable = ChallengeUnlocks(State, M.Id);
+		if (!A.bAvailable) A.Reasons.push_back(State.Challenge.bOver ? "The challenge is over" : "Not the current case in this challenge");
+		return A;
+	}
 	if (State.Career.HasPassed(M.Id)) A.Reasons.push_back("Already passed");
 	if (State.Career.Level < M.MinLevel)
 	{
@@ -788,6 +795,13 @@ EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::ve
 	}
 
 	// Promotion review: competence evidence and passed missions only (Docs/CareerModel.md).
+	if (State.Challenge.Mode != EGameMode::Career)
+	{
+		AdvanceChallenge(State, D);
+		D.Level = State.Career.Level;
+		if (OutDebrief) *OutDebrief = D;
+		return EMissionError::None;
+	}
 	D.bPromoted = State.Career.TryPromote();
 	D.Level = State.Career.Level;
 	D.PromotionGaps = State.Career.CheckPromotion().UnmetGates;
