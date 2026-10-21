@@ -122,7 +122,11 @@
           "id": "l4i4",
           "label": "Likelihood 4, impact 4 (High): two sites already missed services and every site depends on Kelvarin",
           "score": 90,
-          "feedback": "Missed visits at two sites in a year make failure likely; the impact spans all six sites."
+          "feedback": "Missed visits at two sites in a year make failure likely; the impact spans all six sites.",
+          "relations": {
+            "priya": 5,
+            "tomasz": 5
+          }
         },
         {
           "id": "l2i4",
@@ -134,7 +138,11 @@
           "id": "l4i2",
           "label": "Likelihood 4, impact 2: missed visits are likely, but most compressors run for months after a missed service",
           "score": 35,
-          "feedback": "Northgate showed what a missed service can lead to: spoiled stock and client penalties."
+          "feedback": "Northgate showed what a missed service can lead to: spoiled stock and client penalties.",
+          "relations": {
+            "priya": -4,
+            "tomasz": -4
+          }
         },
         {
           "id": "l5i5",
@@ -154,7 +162,11 @@
           "id": "ineffective",
           "label": "Ineffective: the same party performs and checks the work, and nobody reconciles visits to invoices",
           "score": 90,
-          "feedback": "Right: there is no independent check, and invoices for missed quarters were paid."
+          "feedback": "Right: there is no independent check, and invoices for missed quarters were paid.",
+          "relations": {
+            "priya": 5,
+            "tomasz": 5
+          }
         },
         {
           "id": "partial",
@@ -166,7 +178,11 @@
           "id": "effective",
           "label": "Effective: the contract requires both the log and invoice certification, and Kelvarin follows the format",
           "score": 15,
-          "feedback": "A requirement on paper is not an operating control."
+          "feedback": "A requirement on paper is not an operating control.",
+          "relations": {
+            "priya": -4,
+            "tomasz": -4
+          }
         }
       ]
     },
@@ -203,7 +219,11 @@
               "mitigatedProbabilityFactor": 0.75,
               "mitigatedSeverityFactor": 0.5
             }
-          ]
+          ],
+          "relations": {
+            "priya": -4,
+            "tomasz": -4
+          }
         },
         {
           "id": "renew_conditions",
@@ -218,6 +238,10 @@
             "ControlEffectiveness": 5,
             "RiskExposure": -4,
             "Costs": 18000
+          },
+          "relations": {
+            "priya": 5,
+            "tomasz": 5
           }
         },
         {
@@ -269,7 +293,11 @@
           "id": "decision_first",
           "label": "Lead with the decision and deadline, the evidence (missed quarters paid as complete), the conditions and their owners",
           "score": 92,
-          "feedback": "Decision, deadline, evidence, owner: everything he needs to act."
+          "feedback": "Decision, deadline, evidence, owner: everything he needs to act.",
+          "relations": {
+            "priya": 5,
+            "tomasz": 5
+          }
         },
         {
           "id": "full_analysis",
@@ -281,13 +309,21 @@
           "id": "register_only",
           "label": "Record the risk as High in the register with the evidence attached, and flag it in the monthly risk report to Procurement",
           "score": 15,
-          "feedback": "A colour in a register nobody reads before the notice date changes nothing."
+          "feedback": "A colour in a register nobody reads before the notice date changes nothing.",
+          "relations": {
+            "priya": -4,
+            "tomasz": -4
+          }
         },
         {
           "id": "ceo_direct",
           "label": "Raise it with the CEO first so the renewal decision has executive attention before the notice date",
           "score": 30,
-          "feedback": "Bypassing the accountable owner damages trust and skips the people who can fix it."
+          "feedback": "Bypassing the accountable owner damages trust and skips the people who can fix it.",
+          "relations": {
+            "priya": -4,
+            "tomasz": -4
+          }
         }
       ]
     }

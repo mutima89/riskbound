@@ -44,7 +44,10 @@
           "id": "move_high_value",
           "label": "Load the 30 high-value pallets into the trailer now and start moving the next most perishable stock",
           "score": 92,
-          "feedback": "Protects the most valuable, most perishable stock inside the 3-hour window."
+          "feedback": "Protects the most valuable, most perishable stock inside the 3-hour window.",
+          "relations": {
+            "priya": 5
+          }
         },
         {
           "id": "wait_engineer",
@@ -62,7 +65,10 @@
                 "Reputation": -3
               }
             }
-          ]
+          ],
+          "relations": {
+            "priya": -4
+          }
         },
         {
           "id": "move_all",
@@ -82,19 +88,28 @@
           "id": "temp_log",
           "label": "A timed log of store and trailer temperatures and of every pallet moved",
           "score": 92,
-          "feedback": "The record you'll need for clients, insurers and the root cause."
+          "feedback": "The record you'll need for clients, insurers and the root cause.",
+          "relations": {
+            "priya": 5
+          }
         },
         {
           "id": "photos",
           "label": "Photos of the store display and the trailer loading, attached to the incident record afterwards",
           "score": 35,
-          "feedback": "Better than nothing, but not an evidence trail."
+          "feedback": "Better than nothing, but not an evidence trail.",
+          "relations": {
+            "priya": -4
+          }
         },
         {
           "id": "none",
           "label": "Leave the paperwork until the stock is safe: every pair of hands is needed on the move",
           "score": 10,
-          "feedback": "Evidence can't be recreated afterwards."
+          "feedback": "Evidence can't be recreated afterwards.",
+          "relations": {
+            "priya": -4
+          }
         }
       ]
     },
@@ -108,19 +123,28 @@
           "id": "facts_actions",
           "label": "Time, store temperature and trend, actions taken, the decision you need from her, and when you will update next",
           "score": 92,
-          "feedback": "Short, factual and decision-oriented."
+          "feedback": "Short, factual and decision-oriented.",
+          "relations": {
+            "priya": 5
+          }
         },
         {
           "id": "blame",
           "label": "That the failure follows Kelvarin's missed services, so she can raise it with Procurement and the contract owner straight away",
           "score": 30,
-          "feedback": "Possibly true, but blame can wait; she needs the situation."
+          "feedback": "Possibly true, but blame can wait; she needs the situation.",
+          "relations": {
+            "priya": -4
+          }
         },
         {
           "id": "fine",
           "label": "That the team has it in hand and you will report once the stock is safe, so she can stay in her meeting",
           "score": 15,
-          "feedback": "Not yet true."
+          "feedback": "Not yet true.",
+          "relations": {
+            "priya": -4
+          }
         }
       ]
     },
@@ -134,22 +158,41 @@
           "id": "realised",
           "label": "The non-performance risk has materialised: re-rate the likelihood and revisit the renewal decision",
           "score": 92,
-          "feedback": "Incidents are evidence; update the assessment."
+          "feedback": "Incidents are evidence; update the assessment.",
+          "relations": {
+            "priya": 5
+          }
         },
         {
           "id": "bad_luck",
           "label": "One failure in a hot spell does not change a likelihood rating built on a year of data",
           "score": 15,
-          "feedback": "A missed service followed by a failure is not just luck."
+          "feedback": "A missed service followed by a failure is not just luck.",
+          "relations": {
+            "priya": -4
+          }
         },
         {
           "id": "one_site",
           "label": "The failure is specific to Eastfield's older plant, so the other sites' ratings can stay as they are",
           "score": 30,
-          "feedback": "Every site depends on the same contractor."
+          "feedback": "Every site depends on the same contractor.",
+          "relations": {
+            "priya": -4
+          }
         }
       ]
     }
   ],
-  "lesson": "When something fails, protect what matters most inside the time you have, keep an evidence trail, and update the risk assessment with what happened."
+  "lesson": "When something fails, protect what matters most inside the time you have, keep an evidence trail, and update the risk assessment with what happened.",
+  "deadlineWeeks": 6,
+  "escalation": {
+    "text": "Nobody from risk picked up \"Eastfield Down\" in time. The executive team handled it alone, late and without a plan, and the damage spread.",
+    "effects": {
+      "Reputation": -4,
+      "StakeholderTrust": -4,
+      "Cash": -60000,
+      "RiskExposure": 3
+    }
+  }
 }

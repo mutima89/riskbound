@@ -40,6 +40,15 @@
       "id": "speak_up",
       "title": "Speak-up line data",
       "body": "4 reports in 12 months across 1,240 staff. Benchmark for similar firms: 15-25."
+    },
+    {
+      "id": "speakup_closed",
+      "title": "Speak-up line: closed cases",
+      "body": [
+        "Three reports about Corvane pricing in two years, each closed within a week as \"commercial matter, no action\" by the COO's office instead of going to Internal Audit."
+      ],
+      "required": false,
+      "clue": "speakup_closed"
     }
   ],
   "questions": [
@@ -53,19 +62,28 @@
           "id": "manager_gap",
           "label": "The 40-point gap: leaders believe people speak up; the front line says they don't",
           "score": 92,
-          "feedback": "The gap is the risk: leadership is blind to what the front line knows."
+          "feedback": "The gap is the risk: leadership is blind to what the front line knows.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "response",
           "label": "The 64% response rate, which means a third of staff did not take part",
           "score": 25,
-          "feedback": "Respectable; not the headline."
+          "feedback": "Respectable; not the headline.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "managers_high",
           "label": "Managers' strong scores, which show the leadership culture is in good shape across the sites",
           "score": 10,
-          "feedback": "Self-assessment by those in charge is not the culture of those reporting to them."
+          "feedback": "Self-assessment by those in charge is not the culture of those reporting to them.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -79,19 +97,28 @@
           "id": "silence",
           "label": "Under-use: well below the 15-25 benchmark, consistent with fear",
           "score": 92,
-          "feedback": "Low reports read with the survey suggest silence, not a lack of issues."
+          "feedback": "Low reports read with the survey suggest silence, not a lack of issues.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "few_issues",
           "label": "Few serious issues: most concerns are resolved informally before they need the line",
           "score": 10,
-          "feedback": "The survey says otherwise."
+          "feedback": "The survey says otherwise.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "line_broken",
           "label": "Low awareness: staff may not know the line exists or how to reach it",
           "score": 20,
-          "feedback": "Check it, but the survey explains it better."
+          "feedback": "Check it, but the survey explains it better.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -112,6 +139,9 @@
           "effects": {
             "EmployeeMorale": 3,
             "StakeholderTrust": 3
+          },
+          "relations": {
+            "adrian": 5
           }
         },
         {
@@ -135,7 +165,10 @@
               },
               "flagIfOccurs": "whistleblower"
             }
-          ]
+          ],
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "delay",
@@ -155,7 +188,10 @@
               },
               "flagIfOccurs": "whistleblower"
             }
-          ]
+          ],
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -169,19 +205,28 @@
           "id": "leaders_first",
           "label": "Leaders listen at sites, act visibly on three issues raised, protect people who speak up, re-survey in 12 months",
           "score": 92,
-          "feedback": "Culture changes when people see leaders act on what they hear."
+          "feedback": "Culture changes when people see leaders act on what they hear.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "poster",
           "label": "A speak-up campaign across all sites, with posters, the hotline number, a video and a message from the CEO",
           "score": 20,
-          "feedback": "Words without changed behaviour reinforce cynicism."
+          "feedback": "Words without changed behaviour reinforce cynicism.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "training",
           "label": "Mandatory speak-up training for all staff, with completion tracked by HR",
           "score": 30,
-          "feedback": "Puts the burden on the people who are afraid, not on those who create the fear."
+          "feedback": "Puts the burden on the people who are afraid, not on those who create the fear.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -195,19 +240,28 @@
           "id": "indicators",
           "label": "Speak-up reports rising toward benchmark, near misses holding, and the gap narrowing in the re-survey",
           "score": 92,
-          "feedback": "Several signals, including ones that should rise."
+          "feedback": "Several signals, including ones that should rise.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "fewer_reports",
           "label": "Fewer issues reaching the speak-up line, as concerns are resolved closer to where they arise on site",
           "score": 10,
-          "feedback": "In this situation, more reports is the sign of success."
+          "feedback": "In this situation, more reports is the sign of success.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "ceo_view",
           "label": "The executive team's view, gathered in a short pulse survey of senior managers",
           "score": 15,
-          "feedback": "The original problem was leaders' perception."
+          "feedback": "The original problem was leaders' perception.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     }

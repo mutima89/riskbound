@@ -43,19 +43,28 @@
           "id": "nothing",
           "label": "Nothing: the loss (about 150,000 with forklifts) is below the 250,000 excess",
           "score": 92,
-          "feedback": "Below the excess, Valtren keeps it all, which is what the 'net' analysis showed."
+          "feedback": "Below the excess, Valtren keeps it all, which is what the 'net' analysis showed.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "all",
           "label": "All of it: flood is a named peril on the schedule and the cover limit is 1,000,000",
           "score": 10,
-          "feedback": "The excess applies per event."
+          "feedback": "The excess applies per event.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "minus_excess",
           "label": "The loss minus the policy's standard deductible, which applies to every claim",
           "score": 20,
-          "feedback": "The excess is 250,000, larger than the loss."
+          "feedback": "The excess is 250,000, larger than the loss.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -76,6 +85,9 @@
           "effects": {
             "Cash": -6000,
             "Resilience": 4
+          },
+          "relations": {
+            "hollis": 5
           }
         },
         {
@@ -88,7 +100,10 @@
           "id": "nothing",
           "label": "Nothing more: the loss was small, and a 1-in-25-year flood is unlikely to recur soon",
           "score": 15,
-          "feedback": "One just happened, and Valtren paid all of it."
+          "feedback": "One just happened, and Valtren paid all of it.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -102,7 +117,10 @@
           "id": "evidence",
           "label": "Provide photos, stock and asset records and repair quotes, and confirm in writing that the loss is below the excess",
           "score": 92,
-          "feedback": "Accurate records, even when no payment is due, support future claims."
+          "feedback": "Accurate records, even when no payment is due, support future claims.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "inflate",
@@ -111,13 +129,19 @@
           "feedback": "Inflating a claim is insurance fraud.",
           "effects": {
             "StakeholderTrust": -10
+          },
+          "relations": {
+            "hollis": -4
           }
         },
         {
           "id": "wait",
           "label": "Let the adjuster lead and answer questions as they come, so you do not over-commit to figures early",
           "score": 30,
-          "feedback": "Slows everything down."
+          "feedback": "Slows everything down.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -131,22 +155,41 @@
           "id": "candid",
           "label": "The loss, what insurance covers (nothing) and why, and the plan, noting the earlier recommendation was not adopted",
           "score": 92,
-          "feedback": "Candid, without 'I told you so'."
+          "feedback": "Candid, without 'I told you so'.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "told_you",
           "label": "Point out that the flood plan you recommended would have saved most of this loss",
           "score": 25,
-          "feedback": "Right but unhelpful."
+          "feedback": "Right but unhelpful.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "minimise",
           "label": "Describe it as a minor event: no injuries, the main store stayed dry, and operations were back to normal within three days",
           "score": 20,
-          "feedback": "150,000 kept by Valtren is not minor."
+          "feedback": "150,000 kept by Valtren is not minor.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     }
   ],
-  "lesson": "Insurance protects against the big loss, not the frequent one. Small floods are yours to pay, so cheap mitigation pays. Report candidly, without scoring points."
+  "lesson": "Insurance protects against the big loss, not the frequent one. Small floods are yours to pay, so cheap mitigation pays. Report candidly, without scoring points.",
+  "deadlineWeeks": 6,
+  "escalation": {
+    "text": "Nobody from risk picked up \"Harrowgate Under Water\" in time. The executive team handled it alone, late and without a plan, and the damage spread.",
+    "effects": {
+      "Reputation": -4,
+      "StakeholderTrust": -4,
+      "Cash": -60000,
+      "RiskExposure": 3
+    }
+  }
 }

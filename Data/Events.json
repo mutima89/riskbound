@@ -1,0 +1,518 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "id": "welcome_priya",
+      "category": "team",
+      "from": "priya",
+      "subject": "Welcome to the team",
+      "body": [
+        "Good work on Northgate. That warning had sat in the register for fourteen months and you were the first person to ask why.",
+        "A few things about how we work here. Your inbox will fill up: incidents, requests, the odd favour. Some need a reply within a week or two, and if you leave them, someone else decides for you. Not everything is urgent. Learn which is which."
+      ],
+      "when": {"passed": ["M001"]},
+      "headline": "Valtren Coldline reports record pharma volumes",
+      "headlineTone": 1
+    },
+    {
+      "id": "callum_intro",
+      "category": "team",
+      "from": "callum",
+      "subject": "Fellow survivor of induction week",
+      "body": [
+        "Hi, Callum. We started the same week. I'm on the KRI dashboards and the monthly pack.",
+        "Celeste Marlow stopped by my desk yesterday asking who did the Northgate work. I said it was you. You're welcome. Fancy splitting the fleet data pull this week? It's a pig of a job."
+      ],
+      "when": {"passed": ["M002"]},
+      "deadlineWeeks": 3,
+      "defaultChoice": "ignore",
+      "choices": [
+        {"id": "share", "label": "Split the data pull with him", "outcome": "You spend two late evenings on it together. Callum is sharper than he lets on, and he owes you one.", "relations": {"callum": 15}, "stress": 4},
+        {"id": "decline", "label": "Politely decline: you have your own deadlines", "outcome": "Callum shrugs. \"Fair. Offer stands.\"", "relations": {"callum": -3}},
+        {"id": "ignore", "label": "(No reply)", "outcome": "Callum does the pull on his own and mentions to Priya, lightly, that you were too busy to help.", "relations": {"callum": -10}}
+      ]
+    },
+    {
+      "id": "sam_dinner",
+      "category": "personal",
+      "from": "sam",
+      "subject": "Thursday?",
+      "body": "I booked that Lebanese place for Thursday, 7:30. You promised. Don't make me eat the mezze alone.",
+      "when": {"passed": ["M002"]},
+      "deadlineWeeks": 2,
+      "defaultChoice": "forget",
+      "choices": [
+        {"id": "go", "label": "Go, phone off", "outcome": "A good evening. You talk about something other than work for three hours.", "relations": {"sam": 10}, "stress": -10},
+        {"id": "late", "label": "Go, but take the laptop for after", "outcome": "You are there, mostly. Sam notices the bag by the door.", "relations": {"sam": 2}, "stress": -3},
+        {"id": "forget", "label": "(No reply)", "outcome": "You forgot. Sam ate the mezze alone and sent a photo of the empty chair.", "relations": {"sam": -15}, "stress": 6}
+      ]
+    },
+    {
+      "id": "callum_saw_meeting",
+      "category": "story",
+      "from": "callum",
+      "subject": "Probably nothing",
+      "body": [
+        "Odd one. I was at Harrowgate late on Tuesday finishing the flood walk-through, and Celeste came out of the site office at nine with a man I didn't know. Expensive coat, Corvane lanyard.",
+        "No procurement people, no meeting in the diary. Probably nothing. You're the one who likes loose threads."
+      ],
+      "when": {"passed": ["M004"]},
+      "deadlineWeeks": 3,
+      "defaultChoice": "dismiss",
+      "choices": [
+        {"id": "note", "label": "Thank him and write it down", "outcome": "You note the date, the site and the name on the lanyard. It goes into a file you have not labelled yet.", "clue": "seen_together", "relations": {"callum": 5}},
+        {"id": "ask_more", "label": "Ask him what else he noticed", "outcome": "Callum remembers more than he said: the Corvane man was the managing director, and Celeste walked him to his car. You write it all down.", "clue": "seen_together", "relations": {"callum": 8}, "stress": 2},
+        {"id": "dismiss", "label": "Tell him executives meet suppliers all the time", "outcome": "\"Sure,\" says Callum. He does not bring it up again.", "relations": {"callum": -5}}
+      ]
+    },
+    {
+      "id": "celeste_coffee",
+      "category": "politics",
+      "from": "celeste",
+      "subject": "Coffee?",
+      "body": [
+        "I've read your last three pieces of work. Clear, practical, no jargon. We need more of that.",
+        "I'd like to mentor you, informally. Thirty minutes a fortnight. People who have a sponsor at the top move faster here; I would rather it was someone who deserves it."
+      ],
+      "when": {"minLevel": 3},
+      "deadlineWeeks": 3,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "accept", "label": "Accept gratefully", "outcome": "Celeste is generous with her time and her contacts. Hollis notices whose coffees you are drinking.", "relations": {"celeste": 20, "hollis": -5}, "setsFlags": ["celeste_mentee"]},
+        {"id": "accept_open", "label": "Accept, and tell Priya you're doing it", "outcome": "Priya raises an eyebrow, then nods. \"Keep your notes and your independence.\"", "relations": {"celeste": 12, "priya": 5}, "setsFlags": ["celeste_mentee"]},
+        {"id": "decline", "label": "Thank her but keep your distance", "outcome": "\"Of course.\" Her reply is warm. The next one, a month later, is shorter.", "relations": {"celeste": -10, "hollis": 3}},
+        {"id": "silence", "label": "(No reply)", "outcome": "Celeste does not chase. She also does not forget.", "relations": {"celeste": -15}}
+      ]
+    },
+    {
+      "id": "callum_credit",
+      "category": "politics",
+      "from": "priya",
+      "subject": "Nice work on the fleet indicators",
+      "body": [
+        "Hollis loved the fatigue indicators in the monthly pack. Callum presented them very well.",
+        "I had assumed they were yours. Were they?"
+      ],
+      "when": {"passed": ["M006"], "relations": [{"id": "callum", "below": 20}]},
+      "deadlineWeeks": 2,
+      "defaultChoice": "let_go",
+      "choices": [
+        {"id": "facts", "label": "Explain calmly what you built and what Callum added", "outcome": "Priya thanks you. In the next pack, the authorship line has both names. Callum is cooler with you for a while.", "relations": {"priya": 8, "callum": -10}},
+        {"id": "confront", "label": "Go and have it out with Callum first", "outcome": "A tense conversation by the coffee machine. He apologises, sort of. Half the floor heard.", "relations": {"callum": -15}, "stress": 6, "effects": {"EmployeeMorale": -1}},
+        {"id": "let_go", "label": "Let it go: the work matters, not the name", "outcome": "Priya lets it drop. Callum's name is the one Hollis remembers.", "relations": {"callum": 5, "priya": -3}}
+      ]
+    },
+    {
+      "id": "callum_ally",
+      "category": "team",
+      "from": "callum",
+      "subject": "Truce, and a tip",
+      "body": [
+        "We've been competing for two years and frankly it's exhausting. So: a tip. Procurement has been asked to 'tidy up' the supplier approvals log before the auditors' visit. Asked by the COO's office.",
+        "I didn't tell you this."
+      ],
+      "when": {"minLevel": 5, "relations": [{"id": "callum", "atLeast": 20}]},
+      "headline": "",
+      "deadlineWeeks": 2,
+      "defaultChoice": "nothing",
+      "choices": [
+        {"id": "preserve", "label": "Ask Internal Audit to take a copy of the log today", "outcome": "Audit takes a full extract that afternoon. Two days later, the live log is 'reorganised'. The extract is safe.", "relations": {"callum": 10}, "clue": "override_log", "effects": {"ControlEffectiveness": 2}},
+        {"id": "thanks", "label": "Thank him and keep watching", "outcome": "You keep an eye on the log. When you next look, several entries have moved.", "relations": {"callum": 5}},
+        {"id": "nothing", "label": "(No reply)", "outcome": "The log is tidied. Callum stops sharing.", "relations": {"callum": -8}}
+      ]
+    },
+    {
+      "id": "tessaline_lookup",
+      "category": "story",
+      "from": "ruth",
+      "subject": "Re: that supplier name you asked about",
+      "body": [
+        "You asked whether Compliance had ever done due diligence on Tessaline Haulage Services. We haven't. It was onboarded under the operational emergency route, so it never came to us.",
+        "If you want to look it up yourself, the company registry is public. I'd keep a note of when you looked and what you found."
+      ],
+      "when": {"passed": ["S001"]},
+      "deadlineWeeks": 3,
+      "defaultChoice": "later",
+      "choices": [
+        {"id": "lookup", "label": "Look it up and file a dated note", "outcome": "One director: D. Marlow. Registered address: a flat above a dry cleaner's. No vehicles registered. You sit very still for a minute.", "clue": "tessaline_registry", "relations": {"ruth": 6}, "stress": 5},
+        {"id": "ask_ruth", "label": "Ask Ruth to run formal due diligence", "outcome": "Ruth runs it properly and copies Internal Audit. The registry entry comes back with her signature on the file note.", "clue": "tessaline_registry", "relations": {"ruth": 10}, "effects": {"ControlEffectiveness": 1}, "stress": 2},
+        {"id": "later", "label": "(No reply)", "outcome": "It slides down the list. Ruth assumes you lost interest.", "relations": {"ruth": -5}}
+      ]
+    },
+    {
+      "id": "jonah_call",
+      "category": "story",
+      "from": "jonah",
+      "subject": "Comment request: Valtren suppliers",
+      "body": [
+        "I'm Jonah Pike at the Courier. I'm working on a piece about procurement at regional logistics firms and Valtren's name keeps coming up, specifically a supplier called Corvane.",
+        "I'd value a conversation, on background. My number is below."
+      ],
+      "when": {"minClues": 5, "minLevel": 6},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "refer", "label": "Refer him to the press office and tell Ruth", "outcome": "The press office sends a holding line. Ruth logs the contact. You keep the investigation where it belongs, inside.", "relations": {"ruth": 5, "jonah": -5}},
+        {"id": "background", "label": "Talk to him on background", "outcome": "You say less than you know and more than you should. Jonah is grateful. It feels like lighting a fuse.", "relations": {"jonah": 20}, "setsFlags": ["press_contact"], "stress": 10},
+        {"id": "silence", "label": "(No reply)", "outcome": "Jonah tries twice more, then stops.", "relations": {"jonah": -5}}
+      ]
+    },
+    {
+      "id": "tomasz_confides",
+      "category": "story",
+      "from": "tomasz",
+      "subject": "Can we talk? Not here.",
+      "body": "I think you know what I know. I've kept copies. I need to know whether you'll protect the people who give you evidence, or whether this goes the way it went last time.",
+      "when": {"passed": ["S003"], "relations": [{"id": "tomasz", "atLeast": -20}]},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "speakup", "label": "Meet him, and walk him through the protected speak-up route", "outcome": "Tomasz files through the speak-up line to the Audit Committee Chair, with his copies attached. He looks ten years younger walking out.", "clue": "tomasz_account", "relations": {"tomasz": 25, "helen": 5}},
+        {"id": "informal", "label": "Meet him in a cafe and take his copies yourself", "outcome": "You get the copies. You also become the only person who can vouch for where they came from.", "clue": "tomasz_account", "relations": {"tomasz": 10}, "stress": 8},
+        {"id": "silence", "label": "(No reply)", "outcome": "Tomasz takes your silence as an answer.", "relations": {"tomasz": -20}}
+      ]
+    },
+    {
+      "id": "celeste_warning",
+      "category": "politics",
+      "from": "celeste",
+      "subject": "A word of advice",
+      "body": [
+        "I hear you've been asking about our supplier arrangements. Supplier strategy is an operational matter and it is mine.",
+        "You have a bright future here. I'd hate to see it spent on a misunderstanding."
+      ],
+      "when": {"passed": ["S002"]},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "polite", "label": "Reply that you're doing routine assurance work", "outcome": "\"Good,\" she writes. Your access to two procurement folders is quietly removed the next day.", "relations": {"celeste": -5}, "stress": 6},
+        {"id": "escalate", "label": "Forward it to Dame Helen as a pressure attempt", "outcome": "Dame Helen replies within the hour: \"Noted. Carry on. Keep everything.\"", "relations": {"celeste": -25, "helen": 15}, "setsFlags": ["helen_informed"], "stress": 8},
+        {"id": "silence", "label": "(No reply)", "outcome": "Silence is also an answer. Celeste reads it correctly.", "relations": {"celeste": -10}, "stress": 4}
+      ]
+    },
+    {
+      "id": "sam_worried",
+      "category": "personal",
+      "from": "sam",
+      "subject": "Are you OK?",
+      "body": "You were up at 3 again. You check your phone in the shower. I'm not angry, I'm worried. Can we take a weekend? Just one.",
+      "when": {"minStress": 60},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "weekend", "label": "Take the weekend, properly", "outcome": "Two days on the coast, phone in a drawer. You come back lighter.", "relations": {"sam": 15}, "stress": -20},
+        {"id": "promise", "label": "Promise a weekend after this crunch", "outcome": "Sam says \"OK\" in the way that means it isn't.", "relations": {"sam": -5}, "stress": -3},
+        {"id": "silence", "label": "(No reply)", "outcome": "Sam stops asking. That is worse.", "relations": {"sam": -15}, "stress": 5}
+      ]
+    },
+    {
+      "id": "overtime_request",
+      "category": "team",
+      "from": "priya",
+      "subject": "Weekend cover?",
+      "body": "Ops have asked for risk cover on the peak weekend in case anything goes sideways at the depots. It's voluntary. I can't pay overtime, but people notice who turns up.",
+      "when": {"minLevel": 4},
+      "probability": 0.5,
+      "deadlineWeeks": 2,
+      "defaultChoice": "no_reply",
+      "choices": [
+        {"id": "cover", "label": "Cover the weekend", "outcome": "A quiet weekend, mostly. You spot a reefer unit drifting warm on Saturday night and get it swapped before a load is lost.", "relations": {"priya": 6, "amara": 8, "sam": -6}, "stress": 8, "effects": {"Resilience": 1}},
+        {"id": "rota", "label": "Propose a fair rota across the team", "outcome": "Priya likes it and it becomes the norm. You do one shift in four.", "relations": {"priya": 8, "callum": 3}, "stress": 2, "effects": {"EmployeeMorale": 1}},
+        {"id": "decline", "label": "Decline: you've promised the weekend at home", "outcome": "\"Totally fine,\" says Priya, and means it.", "relations": {"sam": 6}, "stress": -4},
+        {"id": "no_reply", "label": "(No reply)", "outcome": "Someone else covers. Priya wonders why you didn't answer.", "relations": {"priya": -4}}
+      ]
+    },
+    {
+      "id": "parent_hospital",
+      "category": "personal",
+      "from": "sam",
+      "subject": "Your dad's in hospital",
+      "body": "Nothing life-threatening, a fall, but they're keeping him in for tests. Your mum is in a state. Can you get away?",
+      "when": {"minLevel": 5},
+      "probability": 0.25,
+      "deadlineWeeks": 1,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "go", "label": "Go today and tell Priya", "outcome": "Priya covers your week without a second thought. Your dad is fine. Your mum holds your hand the whole time.", "relations": {"sam": 10, "priya": 4}, "stress": -8},
+        {"id": "weekend", "label": "Go at the weekend after the board paper", "outcome": "You make it on Saturday. Your dad jokes that you look worse than he does.", "relations": {"sam": -4}, "stress": 6},
+        {"id": "silence", "label": "(No reply)", "outcome": "Sam goes on their own and phones you from the ward. The silence on the line is long.", "relations": {"sam": -20}, "stress": 12}
+      ]
+    },
+    {
+      "id": "job_offer",
+      "category": "personal",
+      "from": "sam",
+      "subject": "A headhunter called the house",
+      "body": "Someone from a recruitment firm called the landline asking for you. Something about a Head of Risk job at Penhallow Chill Freight, more money, fewer hours. I said you'd call back. Will you?",
+      "when": {"minLevel": 6, "relations": [{"id": "priya", "below": 30}]},
+      "deadlineWeeks": 2,
+      "defaultChoice": "ignore",
+      "choices": [
+        {"id": "decline", "label": "Decline: you have unfinished business at Valtren", "outcome": "You call back and say no. It feels good to know someone asked.", "stress": -2},
+        {"id": "leverage", "label": "Mention it to Priya", "outcome": "Priya says she hopes you'll stay and that she'll make the case for your development budget. Hollis approves it within a week.", "relations": {"priya": 4, "hollis": -2}, "effects": {"Costs": 8000}},
+        {"id": "ignore", "label": "(No reply)", "outcome": "The headhunter moves on to the next name."}
+      ]
+    },
+    {
+      "id": "hollis_numbers",
+      "category": "politics",
+      "from": "hollis",
+      "subject": "Your flood numbers",
+      "body": "That Harrowgate appraisal was the first risk paper I've read this year that I could actually take to the board. If you ever need a budget argument made properly, my door is open.",
+      "when": {"passed": ["M004"], "flags": ["M004_passed"]}
+    },
+    {
+      "id": "growth_vs_prudence",
+      "category": "politics",
+      "from": "rafe",
+      "subject": "Need you on side for Monday",
+      "body": [
+        "Monday's exec meeting decides whether we bid for the national pharma distribution tender. Hollis will say we can't staff it. I say we can't afford not to.",
+        "A word from risk saying the operational risks are manageable would carry the room. Can I count on you?"
+      ],
+      "when": {"minLevel": 6},
+      "deadlineWeeks": 2,
+      "defaultChoice": "absent",
+      "choices": [
+        {"id": "back_rafe", "label": "Back the bid as manageable", "outcome": "The bid goes in. Rafe calls you 'one of the good ones'. Hollis looks at you for a long second.", "relations": {"rafe": 15, "adrian": 6, "hollis": -12}, "effects": {"StrategicProgress": 3, "RiskExposure": 3}},
+        {"id": "conditions", "label": "Support it only with staffing conditions agreed first", "outcome": "The bid goes in with a staffing plan and a go/no-go gate. Both sides grumble, which usually means it was right.", "relations": {"rafe": 3, "hollis": 6, "helen": 4}, "effects": {"StrategicProgress": 2, "RiskExposure": 1, "StakeholderTrust": 2}},
+        {"id": "back_hollis", "label": "Side with Hollis: not this year", "outcome": "The bid is dropped. Rafe tells the CEO the risk function 'killed the deal'.", "relations": {"rafe": -15, "adrian": -6, "hollis": 12}, "effects": {"StrategicProgress": -2}},
+        {"id": "absent", "label": "(No reply)", "outcome": "The decision is made without the risk view. Nobody remembers to ask next time either.", "relations": {"rafe": -5, "hollis": -5}, "effects": {"StakeholderTrust": -2}}
+      ]
+    },
+    {
+      "id": "adrian_townhall",
+      "category": "politics",
+      "from": "adrian",
+      "subject": "Town hall: a question for risk",
+      "body": "At Friday's town hall I want someone from risk to answer a staff question live: 'Are we growing faster than it's safe to?' I'd like the answer to be reassuring.",
+      "when": {"minLevel": 7},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "honest", "label": "Answer honestly: where growth is safe and where it isn't", "outcome": "The room goes quiet, then applauds. Adrian thanks you through slightly tight teeth.", "relations": {"adrian": -5, "helen": 6, "grace": 8}, "effects": {"EmployeeMorale": 3, "StakeholderTrust": 2}},
+        {"id": "reassure", "label": "Give the reassuring answer he wants", "outcome": "Adrian is pleased. On the front line, someone types 'told you so' into the speak-up line.", "relations": {"adrian": 10, "grace": -6}, "effects": {"EmployeeMorale": -3}},
+        {"id": "silence", "label": "(No reply)", "outcome": "Callum answers instead.", "relations": {"adrian": -4, "callum": 3}}
+      ]
+    },
+    {
+      "id": "regulator_spot_check",
+      "category": "regulator",
+      "from": "imogen",
+      "subject": "Unannounced inspection: Corby Road",
+      "body": "The Authority will carry out an unannounced inspection of temperature monitoring at Corby Road this week. Please nominate a contact and make records available.",
+      "when": {"minLevel": 3, "metrics": [{"metric": "ControlEffectiveness", "below": 52}]},
+      "deadlineWeeks": 1,
+      "defaultChoice": "silence",
+      "headline": "Cold chain regulator inspects Valtren depot",
+      "headlineTone": 0,
+      "choices": [
+        {"id": "open", "label": "Give full access and declare the known gaps up front", "outcome": "Imogen finds two minor issues, both already in your action tracker. Her report notes 'a self-aware control environment'.", "relations": {"imogen": 15, "ruth": 6}, "effects": {"StakeholderTrust": 2}, "setsFlags": ["regulator_cooperative"]},
+        {"id": "minimal", "label": "Provide exactly what is asked and no more", "outcome": "The inspection finds a logger gap you knew about. Imogen asks why it wasn't mentioned. Fine: 40,000.", "relations": {"imogen": -10}, "effects": {"Cash": -40000, "Reputation": -2}},
+        {"id": "silence", "label": "(No reply)", "outcome": "The inspector arrives to find no nominated contact. The report criticises governance. Fine: 90,000.", "relations": {"imogen": -20, "ruth": -8}, "effects": {"Cash": -90000, "Reputation": -4, "StakeholderTrust": -3}, "setsFlags": ["regulator_finding"]}
+      ]
+    },
+    {
+      "id": "regulator_data_request",
+      "category": "regulator",
+      "from": "imogen",
+      "subject": "Information request: excursion data",
+      "body": "Under our supervisory powers we request all temperature excursion records for the last twelve months, with root causes and actions, within ten working days.",
+      "when": {"passed": ["M025"]},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "complete", "label": "Send complete records with your own analysis", "outcome": "Imogen's reply is two lines: 'Received. This is what good looks like.'", "relations": {"imogen": 15, "helen": 5}, "effects": {"StakeholderTrust": 3}},
+        {"id": "late", "label": "Ask for an extension to clean the data", "outcome": "Granted, with a note on file about data quality.", "relations": {"imogen": -3}, "effects": {"StakeholderTrust": -1}},
+        {"id": "silence", "label": "(No reply)", "outcome": "The deadline passes. The Authority opens an enforcement review.", "relations": {"imogen": -25, "helen": -10}, "effects": {"Reputation": -5, "StakeholderTrust": -5}, "setsFlags": ["regulator_hearing"]}
+      ]
+    },
+    {
+      "id": "regulator_praise",
+      "category": "regulator",
+      "from": "imogen",
+      "subject": "Supervisory letter",
+      "body": "Following our recent engagement, the Authority has moved Valtren Coldline Logistics to standard supervision. We note in particular the quality of the risk function's self-identified issues.",
+      "when": {"minLevel": 9, "relations": [{"id": "imogen", "atLeast": 25}]},
+      "headline": "Regulator eases supervision of Valtren after governance review",
+      "headlineTone": 1
+    },
+    {
+      "id": "pattern_of_failures",
+      "category": "team",
+      "from": "priya",
+      "subject": "We need to talk about the incidents",
+      "body": [
+        "Three incidents in a few months, and Internal Audit has noticed that most trace back to calls the risk team signed off.",
+        "I'm not looking for a scapegoat. I want us to show we learn. What do you want to do?"
+      ],
+      "when": {"minIncidents": 3},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "review", "label": "Run an honest lessons-learned review, your own calls included", "outcome": "The review is uncomfortable and useful. Two controls change. Audit closes its query.", "relations": {"priya": 10, "helen": 4}, "effects": {"ControlEffectiveness": 3, "Resilience": 2}, "stress": 4},
+        {"id": "defend", "label": "Argue the incidents were bad luck", "outcome": "Some were. Audit notes that 'luck' appears in three of the four explanations.", "relations": {"priya": -8}, "effects": {"StakeholderTrust": -2}},
+        {"id": "silence", "label": "(No reply)", "outcome": "Audit writes its own review. Your name is in it.", "relations": {"priya": -10, "helen": -5}, "effects": {"StakeholderTrust": -3}, "stress": 6}
+      ]
+    },
+    {
+      "id": "morale_low",
+      "category": "team",
+      "from": "grace",
+      "subject": "The yard is unhappy",
+      "body": "Morale on the night shifts is the lowest I've seen. Two good shift leaders resigned last week. People say management only listens after something goes wrong.",
+      "when": {"minLevel": 4, "metrics": [{"metric": "EmployeeMorale", "below": 50}]},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "walk", "label": "Do a night walk-round with Grace and listen", "outcome": "You hear about broken heaters, a rota nobody can live with and a near miss nobody reported. You fix the first two that week.", "relations": {"grace": 15, "amara": 6}, "effects": {"EmployeeMorale": 4, "RiskExposure": -1}, "stress": 4},
+        {"id": "survey", "label": "Ask HR for a survey", "outcome": "The survey goes out. Response rate: 12%.", "relations": {"grace": -3}},
+        {"id": "silence", "label": "(No reply)", "outcome": "Another shift leader resigns.", "relations": {"grace": -10}, "effects": {"EmployeeMorale": -2}}
+      ]
+    },
+    {
+      "id": "helen_notice",
+      "category": "team",
+      "from": "helen",
+      "subject": "Your paper",
+      "body": "I read your paper twice, which I rarely do. It told me something I did not already know and was honest about what you did not know. Please keep writing like that, whoever asks you not to.",
+      "when": {"minLevel": 8, "relations": [{"id": "helen", "atLeast": 10}]}
+    },
+    {
+      "id": "mei_budget",
+      "category": "team",
+      "from": "mei",
+      "subject": "Backup budget, again",
+      "body": "My request to test the offline backups was cut for the third year running. If ransomware hits, I genuinely don't know if we can restore. Would you put it in your risk report?",
+      "when": {"minLevel": 5, "notFlags": ["ransomware_outbreak"]},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "report", "label": "Put it in the report with a cost of not doing it", "outcome": "Hollis funds a restore test. It fails the first time, which is exactly why you test.", "relations": {"mei": 15, "hollis": 3}, "effects": {"Costs": 30000, "Resilience": 4}, "setsFlags": ["backup_tested"]},
+        {"id": "note", "label": "Note it as a watch item", "outcome": "It sits in the watch list, amber, for another year.", "relations": {"mei": -3}},
+        {"id": "silence", "label": "(No reply)", "outcome": "Mei stops asking you.", "relations": {"mei": -10}}
+      ]
+    },
+    {
+      "id": "amara_heat",
+      "category": "team",
+      "from": "amara",
+      "subject": "Heatwave next month?",
+      "body": "Long-range forecast shows a heatwave in about six weeks. Last time we lost three reefer units in a day. Do you want me to pre-book spare units?",
+      "when": {"minLevel": 6, "notFlags": ["C001_passed"]},
+      "deadlineWeeks": 2,
+      "defaultChoice": "silence",
+      "choices": [
+        {"id": "book", "label": "Pre-book spares and brief the depots", "outcome": "Spares on standby, depots briefed. Amara sends a thumbs-up and a sun emoji.", "relations": {"amara": 12}, "effects": {"Costs": 15000, "Resilience": 3}, "setsFlags": ["heat_prepared"]},
+        {"id": "wait", "label": "Wait for a firmer forecast", "outcome": "Reasonable. The forecast firms up, and so do the prices.", "relations": {"amara": -2}},
+        {"id": "silence", "label": "(No reply)", "outcome": "Amara books two units out of her own budget and doesn't mention it again.", "relations": {"amara": -6}}
+      ]
+    },
+    {
+      "id": "news_competitor_recall",
+      "category": "news",
+      "subject": "Rival haulier loses pharma licence",
+      "body": "Penhallow Chill Freight has had its pharmaceutical distribution licence suspended after repeated temperature excursions. Clients are looking for alternatives.",
+      "when": {"minLevel": 4},
+      "probability": 0.3,
+      "headline": "Penhallow Chill Freight loses pharma licence; clients look elsewhere",
+      "headlineTone": 0
+    },
+    {
+      "id": "news_energy",
+      "category": "news",
+      "subject": "Energy prices climb",
+      "body": "Wholesale electricity prices are up 18% this quarter. Cold stores are among the hardest hit.",
+      "when": {"minLevel": 3},
+      "probability": 0.2,
+      "headline": "Energy prices up 18%: cold store operators squeezed",
+      "headlineTone": -1
+    },
+    {
+      "id": "news_reputation_slide",
+      "category": "news",
+      "subject": "Valtren under pressure",
+      "body": "Analysts question whether Valtren's controls have kept up with its growth after a string of incidents.",
+      "when": {"metrics": [{"metric": "Reputation", "below": 50}]},
+      "headline": "Analysts question Valtren's controls after string of incidents",
+      "headlineTone": -1
+    },
+    {
+      "id": "news_reputation_high",
+      "category": "news",
+      "subject": "Valtren wins industry award",
+      "body": "Valtren Coldline Logistics has been named regional logistics firm of the year, with judges citing its 'mature approach to risk'.",
+      "when": {"metrics": [{"metric": "Reputation", "atLeast": 72}]},
+      "headline": "Valtren named logistics firm of the year for 'mature approach to risk'",
+      "headlineTone": 1
+    },
+    {
+      "id": "news_story_breaks",
+      "category": "news",
+      "subject": "Courier: questions over Valtren supplier",
+      "body": "The Brindlemoor Courier reports that a Valtren supplier paid rebates to a company linked to a senior executive.",
+      "when": {"flags": ["press_contact"], "minLevel": 8},
+      "headline": "Courier: Valtren supplier paid rebates to firm linked to executive",
+      "headlineTone": -1
+    },
+    {
+      "id": "news_ledger_exposed",
+      "category": "news",
+      "subject": "Valtren COO steps down",
+      "body": "Valtren Coldline Logistics announced that its Chief Operating Officer has left the company with immediate effect following an Audit Committee investigation into supplier payments.",
+      "when": {"flags": ["story_exposed"]},
+      "headline": "Valtren COO steps down after Audit Committee investigation",
+      "headlineTone": 0
+    }
+  ],
+  "fallout": [
+    {
+      "department": "default",
+      "description": "A shortcut agreed in \"{mission}\" came back: \"{choice}\" left a gap that turned into a real problem.",
+      "headline": "Valtren hit by avoidable operational failure",
+      "effects": {"Cash": -12000, "Reputation": -2, "RiskExposure": 3, "StakeholderTrust": -1}
+    },
+    {
+      "department": "Operations",
+      "description": "A load was lost at a depot. The investigation traced it to the approach agreed in \"{mission}\" (\"{choice}\").",
+      "headline": "Valtren loses temperature-sensitive load at depot",
+      "effects": {"Cash": -15000, "Reputation": -2, "RiskExposure": 3, "EmployeeMorale": -1}
+    },
+    {
+      "department": "Finance",
+      "description": "An audit adjustment landed on a number the risk team signed off in \"{mission}\" (\"{choice}\").",
+      "headline": "Valtren restates provision after audit review",
+      "effects": {"Cash": -10000, "StakeholderTrust": -3, "ControlEffectiveness": -1}
+    },
+    {
+      "department": "Legal and Compliance",
+      "description": "The regulator flagged a weakness that goes back to \"{mission}\" (\"{choice}\").",
+      "headline": "Regulator raises concerns over Valtren compliance",
+      "effects": {"Cash": -18000, "Reputation": -3, "StakeholderTrust": -2}
+    },
+    {
+      "department": "IT",
+      "description": "A security alert went unhandled for a day. The gap traces back to \"{mission}\" (\"{choice}\").",
+      "headline": "Valtren systems disrupted by security incident",
+      "effects": {"Cash": -14000, "Resilience": -3, "RiskExposure": 3}
+    },
+    {
+      "department": "Security and Safety",
+      "description": "A near-miss in the yard became an injury. The review points to \"{mission}\" (\"{choice}\").",
+      "headline": "Worker injured at Valtren depot",
+      "effects": {"Cash": -8000, "EmployeeMorale": -3, "Reputation": -2}
+    },
+    {
+      "department": "Procurement",
+      "description": "A supplier problem landed without warning. The contract terms agreed in \"{mission}\" (\"{choice}\") left no protection.",
+      "headline": "Supplier problems hit Valtren deliveries",
+      "effects": {"Cash": -14000, "Resilience": -2, "RiskExposure": 2}
+    },
+    {
+      "department": "Executive Management",
+      "description": "The board asked why a risk flagged in \"{mission}\" was handled the way it was (\"{choice}\"). The answer did not satisfy them.",
+      "headline": "Valtren board questions risk oversight",
+      "effects": {"Cash": -10000, "StakeholderTrust": -4, "StrategicProgress": -1}
+    }
+  ]
+}

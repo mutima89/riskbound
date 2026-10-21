@@ -312,7 +312,7 @@ TEST(Settings_AccessibilityChoicesPersistAndAreClamped)
 TEST(Content_EveryFileIsValidatedAndABreakInAnyFileIsReported)
 {
 	const auto Files = MissionFiles();
-	REQUIRE(Files.size() == size_t(42));
+	REQUIRE(Files.size() == size_t(46)); // 29 missions, 12 crises, capstone, 4 story chapters
 	MissionCatalogue C;
 	std::vector<std::string> Errors;
 	CHECK(LoadMissionCatalogue(Files, C, Errors));
@@ -334,7 +334,7 @@ TEST(Content_EveryFileIsValidatedAndABreakInAnyFileIsReported)
 		CHECK(bNamed);
 		Reported += !bOk && bNamed ? 1 : 0;
 	}
-	CHECK_EQ(Reported, 42);
+	CHECK_EQ(Reported, 46);
 }
 
 TEST(Campaign_ReplayIsDeterministicWithSaveLoadBetweenEveryStep)

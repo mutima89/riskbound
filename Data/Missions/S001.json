@@ -1,0 +1,169 @@
+{
+  "schema": 1,
+  "id": "S001",
+  "title": "Two Invoices, One Delivery",
+  "kind": "mission",
+  "department": "Investigation",
+  "minLevel": 3,
+  "requiresPassed": [
+    "M005"
+  ],
+  "requiresClues": 2,
+  "passMark": 60,
+  "xp": 150,
+  "weeks": 1,
+  "briefing": [
+    "The Corvane Ledger, chapter 1. Something in the accounts payable sample will not leave you alone: the same Corvane delivery, paid twice, approved by the COO's office.",
+    "It could be a clerical slip. It could be the edge of something larger. Before you say a word to anyone, decide what you actually know, what you only suspect, and who should hear it first."
+  ],
+  "context": [
+    {
+      "ifFlag": "celeste_mentee",
+      "text": "Celeste has been mentoring you for a few weeks. She asked last Thursday how your 'supplier testing' was going. You had not told her about it."
+    },
+    {
+      "ifRelation": "callum",
+      "relationAtLeast": 15,
+      "text": "Callum catches your eye across the floor and raises an eyebrow. He knows you are on to something."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "the_invoices",
+      "title": "The two Corvane invoices",
+      "body": [
+        "Invoice CV-20418: 1,200 insulated pallet liners, delivery note DN-7731, 26,400. Paid on the 3rd.",
+        "Invoice CV-20466: 1,200 insulated pallet liners, delivery note DN-7731, 26,400. Paid on the 19th.",
+        "Same delivery note. Different invoice numbers. Both approved under the 'operational emergency' route by the COO's office."
+      ]
+    },
+    {
+      "id": "goods_in",
+      "title": "Goods-in records, Harrowgate",
+      "body": "One delivery of 1,200 liners was received on the 2nd against DN-7731. No second delivery appears in the month."
+    },
+    {
+      "id": "policy",
+      "title": "Speak-up and fraud response policy (extract)",
+      "body": [
+        "Suspected fraud must be reported to Internal Audit or the Audit Committee Chair. Staff must not investigate the people involved, confront suspects or alert them.",
+        "Evidence must be preserved as found. Reports made in good faith are protected."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "what_we_know",
+      "competency": "Judgement",
+      "weight": 35,
+      "prompt": "What can you honestly say the evidence shows at this point?",
+      "options": [
+        {
+          "id": "facts",
+          "label": "One delivery was paid twice via a route that skipped Procurement; why is not yet known",
+          "score": 92,
+          "feedback": "Exactly the right altitude: the facts are solid, and you have not leapt to who or why."
+        },
+        {
+          "id": "fraud",
+          "label": "The COO's office is using Corvane to take money out of Valtren, and the duplicate proves it",
+          "score": 25,
+          "feedback": "You may be right in the end, but nothing here shows intent or who benefits. Claiming fraud now would be reckless and easy to dismiss."
+        },
+        {
+          "id": "slip",
+          "label": "A clerical duplicate: Accounts Payable keyed the same delivery twice and should simply recover it",
+          "score": 40,
+          "feedback": "Possible, but the approval route is itself a red flag. Treating it as a slip closes the question too early."
+        },
+        {
+          "id": "nothing",
+          "label": "Nothing worth raising: duplicates happen every month and 26,400 is within normal tolerance",
+          "score": 10,
+          "feedback": "Small amounts are how larger schemes are tested. And a control was bypassed."
+        }
+      ]
+    },
+    {
+      "id": "who_first",
+      "competency": "Governance",
+      "weight": 40,
+      "prompt": "Who should hear about this first?",
+      "options": [
+        {
+          "id": "audit",
+          "label": "Internal Audit via the fraud route, with Priya told a report was made",
+          "score": 95,
+          "feedback": "This follows the policy, protects you and keeps the evidence clean. Priya knows without becoming a witness.",
+          "relations": {
+            "priya": 6
+          },
+          "setsFlags": [
+            "story_audit_aware"
+          ]
+        },
+        {
+          "id": "celeste",
+          "label": "Celeste Marlow: it is her office, so she can explain the approvals fastest",
+          "score": 15,
+          "feedback": "If anyone in her office is involved, you have just alerted them. The policy says never to alert the people involved.",
+          "relations": {
+            "celeste": 8
+          },
+          "setsFlags": [
+            "story_celeste_alerted"
+          ]
+        },
+        {
+          "id": "tomasz",
+          "label": "Tomasz in Procurement, to ask how a delivery could be invoiced twice",
+          "score": 35,
+          "feedback": "Understandable, but you would be investigating people yourself. Procurement may be involved or under pressure.",
+          "relations": {
+            "tomasz": -5
+          }
+        },
+        {
+          "id": "nobody",
+          "label": "Nobody yet: build a fuller picture on your own before anyone hears of it",
+          "score": 30,
+          "feedback": "Investigating alone is exactly what the policy tells you not to do. It also leaves you exposed if things go wrong."
+        }
+      ]
+    },
+    {
+      "id": "evidence_care",
+      "competency": "ControlEvaluation",
+      "weight": 25,
+      "kind": "multi",
+      "prompt": "Which steps protect the evidence and the investigation? Pick all that apply.",
+      "options": [
+        {
+          "id": "copies",
+          "label": "Keep dated copies of what you found, exactly as found",
+          "correct": true,
+          "feedback": "Contemporaneous, unaltered records are what investigators need."
+        },
+        {
+          "id": "override",
+          "label": "Ask for the 'operational emergency' override log to be preserved",
+          "correct": true,
+          "feedback": "The approval route is part of the story; logs can be edited."
+        },
+        {
+          "id": "email_all",
+          "label": "Email the finance team asking if anyone knows about the duplicate",
+          "correct": false,
+          "feedback": "This alerts everyone, including anyone involved."
+        },
+        {
+          "id": "fix_it",
+          "label": "Ask Accounts Payable to reverse the second payment straight away",
+          "correct": false,
+          "feedback": "Recovery matters, but doing it now tips off whoever approved it. Let Audit decide the timing."
+        }
+      ]
+    }
+  ],
+  "lesson": "Suspected fraud: establish facts, do not investigate people yourself, report through the protected route and preserve the evidence as found."
+}

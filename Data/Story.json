@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "title": "The Corvane Ledger",
+  "clues": [
+    {
+      "id": "duplicate_invoices",
+      "chapter": 1,
+      "title": "Two invoices, one delivery",
+      "summary": "In the accounts payable sample, Corvane Materials billed the same pallet-liner delivery twice under different invoice numbers. Both were paid. Both approvals came from the COO's office, not Procurement."
+    },
+    {
+      "id": "seen_together",
+      "chapter": 1,
+      "title": "A late meeting",
+      "summary": "Callum saw Celeste Marlow leaving the Harrowgate site office at 9 p.m. with Corvane's managing director. Nobody from Procurement was there."
+    },
+    {
+      "id": "override_log",
+      "chapter": 1,
+      "title": "The override log",
+      "summary": "Seven supplier approvals in the last year bypassed the Procurement sign-off rule using the 'operational emergency' override. Six were Corvane. All six were authorised by one login: the COO's executive assistant account."
+    },
+    {
+      "id": "standby_payments",
+      "chapter": 2,
+      "title": "Standby capacity nobody used",
+      "summary": "Valtren pays Tessaline Haulage Services 22,000 a month for standby refrigerated capacity. The fleet system shows Tessaline vehicles were called out twice in two years."
+    },
+    {
+      "id": "tessaline_registry",
+      "chapter": 2,
+      "title": "Who owns Tessaline",
+      "summary": "Company registry: Tessaline Haulage Services has one director, D. Marlow, and its registered address is a flat above a dry cleaner's. Tessaline owns no vehicles."
+    },
+    {
+      "id": "rebate_schedule",
+      "chapter": 2,
+      "title": "The rebate schedule",
+      "summary": "A side letter attached to the Corvane contract pays a 'logistics coordination rebate' of 15% of Corvane's invoices to Tessaline. Valtren's money goes to Corvane, and part of it comes back to Tessaline."
+    },
+    {
+      "id": "net_cost",
+      "chapter": 3,
+      "title": "The discount that costs money",
+      "summary": "Corvane's exclusive offer is 12% cheaper on paper. With the 15% rebate to Tessaline priced back in through Corvane's raised list prices, Valtren would pay about 4% more, locked in for three years."
+    },
+    {
+      "id": "speakup_closed",
+      "chapter": 3,
+      "title": "Closed without investigation",
+      "summary": "Three speak-up reports about Corvane pricing in two years. Each was closed as 'commercial matter, no action' by the COO's office within a week, against the policy that sends them to Internal Audit."
+    },
+    {
+      "id": "tomasz_account",
+      "chapter": 3,
+      "title": "Tomasz's account",
+      "summary": "Tomasz Brennan says he raised Corvane's pricing with the COO two years ago and was told his job depended on 'supporting the operational strategy'. He kept copies of everything."
+    },
+    {
+      "id": "celeste_message",
+      "chapter": 4,
+      "title": "The offer, in writing",
+      "summary": "Celeste's message to you: drop the supplier review, and she will sponsor you for Director 'this cycle, not next'. She wrote it down."
+    }
+  ]
+}

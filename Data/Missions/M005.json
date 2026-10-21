@@ -52,6 +52,16 @@
       "id": "logger_report",
       "title": "Logger health report",
       "body": "All sampled loggers recorded complete traces. No device faults were reported in the period."
+    },
+    {
+      "id": "ap_sample",
+      "title": "Accounts payable sample (noted in passing)",
+      "body": [
+        "While pulling invoices for the control test you notice two Corvane Materials invoices for the same delivery note, DN-7731, 26,400 each, both paid.",
+        "Both were approved under the operational emergency route by the COO's office. It is outside the scope of this test."
+      ],
+      "required": false,
+      "clue": "duplicate_invoices"
     }
   ],
   "questions": [
@@ -65,7 +75,10 @@
           "id": "ineffective_operation",
           "label": "Reasonably designed but not operating: 6 of 25 (24%) late or missed against a tolerance of 0-1",
           "score": 92,
-          "feedback": "Design and operation are judged separately; operation fails well beyond any tolerable exception rate."
+          "feedback": "Design and operation are judged separately; operation fails well beyond any tolerable exception rate.",
+          "relations": {
+            "ruth": 5
+          }
         },
         {
           "id": "partially",
@@ -77,13 +90,19 @@
           "id": "effective",
           "label": "Effective: 76% on time is a good rate for a manual control spread across six depots",
           "score": 15,
-          "feedback": "A 24% failure rate on a key control is a failed test."
+          "feedback": "A 24% failure rate on a key control is a failed test.",
+          "relations": {
+            "ruth": -4
+          }
         },
         {
           "id": "design_failure",
           "label": "Badly designed: a manual download by one supervisor can never be a reliable food-safety control",
           "score": 35,
-          "feedback": "The design is sound; the operation is not."
+          "feedback": "The design is sound; the operation is not.",
+          "relations": {
+            "ruth": -4
+          }
         }
       ]
     },
@@ -126,25 +145,37 @@
           "id": "about_480",
           "label": "About 480",
           "score": 92,
-          "feedback": "24% of 2,000 = 480 a month. A small sample, so treat it as an estimate and say so."
+          "feedback": "24% of 2,000 = 480 a month. A small sample, so treat it as an estimate and say so.",
+          "relations": {
+            "ruth": 5
+          }
         },
         {
           "id": "about_6",
           "label": "6",
           "score": 15,
-          "feedback": "6 is the count in the sample, not the population."
+          "feedback": "6 is the count in the sample, not the population.",
+          "relations": {
+            "ruth": -4
+          }
         },
         {
           "id": "about_120",
           "label": "About 120",
           "score": 30,
-          "feedback": "That is 6% of 2,000; the exception rate was 24%."
+          "feedback": "That is 6% of 2,000; the exception rate was 24%.",
+          "relations": {
+            "ruth": -4
+          }
         },
         {
           "id": "about_24",
           "label": "24",
           "score": 10,
-          "feedback": "24 is the percentage, not a number of deliveries."
+          "feedback": "24 is the percentage, not a number of deliveries.",
+          "relations": {
+            "ruth": -4
+          }
         }
       ]
     },
@@ -184,7 +215,10 @@
               "mitigatedProbabilityFactor": 0.1,
               "mitigatedSeverityFactor": 0.5
             }
-          ]
+          ],
+          "relations": {
+            "ruth": 5
+          }
         },
         {
           "id": "email_reminder",
@@ -204,7 +238,10 @@
               },
               "flagIfOccurs": "regulator_finding"
             }
-          ]
+          ],
+          "relations": {
+            "ruth": -4
+          }
         },
         {
           "id": "omit_results",
@@ -227,7 +264,10 @@
               },
               "flagIfOccurs": "regulator_finding"
             }
-          ]
+          ],
+          "relations": {
+            "ruth": -4
+          }
         }
       ]
     },
@@ -241,19 +281,28 @@
           "id": "structured",
           "label": "Test, sample and method, exceptions, conclusion, root causes, and each action with owner and date",
           "score": 92,
-          "feedback": "A complete, auditable test report."
+          "feedback": "A complete, auditable test report.",
+          "relations": {
+            "ruth": 5
+          }
         },
         {
           "id": "headline",
           "label": "A short note: the control mostly works, late downloads cluster on days off, a fix is being prepared",
           "score": 25,
-          "feedback": "Understates a failed test and gives Ruth nothing to show the inspector."
+          "feedback": "Understates a failed test and gives Ruth nothing to show the inspector.",
+          "relations": {
+            "ruth": -4
+          }
         },
         {
           "id": "raw_data",
           "label": "The sample spreadsheet with exceptions highlighted, so Ruth can draw her own conclusions",
           "score": 35,
-          "feedback": "Evidence without a conclusion or actions."
+          "feedback": "Evidence without a conclusion or actions.",
+          "relations": {
+            "ruth": -4
+          }
         }
       ]
     }

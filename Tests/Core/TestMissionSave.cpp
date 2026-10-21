@@ -450,5 +450,5 @@ TEST(Save_MigratesV4WithoutCampaign)
 	GameState L5;
 	CHECK(DeserializeGame(SerializeGame(L), L5, Info));
 	CHECK(!Info.bMigrated);
-	CHECK_EQ(Info.LoadedVersion, 5);
+	CHECK_EQ(Info.LoadedVersion, CurrentSaveVersion);
 }

@@ -40,6 +40,15 @@
       "id": "offer",
       "title": "Corvane's offer",
       "body": "Three-year exclusivity, 12% discount (saves about 310,000 a year), payment 50% in advance each quarter."
+    },
+    {
+      "id": "net_price",
+      "title": "Corvane price list, before and after",
+      "body": [
+        "Corvane's new list prices rise 18% on the day the exclusive deal starts. With the 12% discount, the net price is about 3.8% above today's (1.18 x 0.88 = 1.038)."
+      ],
+      "required": false,
+      "clue": "net_cost"
     }
   ],
   "questions": [
@@ -53,19 +62,28 @@
           "id": "cash_need",
           "label": "Corvane may need cash: the discount and 50% advance are consistent with a supplier in difficulty",
           "score": 92,
-          "feedback": "Stretching its own payment terms while asking for advances is a classic distress signal."
+          "feedback": "Stretching its own payment terms while asking for advances is a classic distress signal.",
+          "relations": {
+            "tomasz": 5
+          }
         },
         {
           "id": "good_deal",
           "label": "A strong offer: Corvane is competing hard for a larger share of a growing customer",
           "score": 15,
-          "feedback": "The advance payments would be lost if Corvane fails."
+          "feedback": "The advance payments would be lost if Corvane fails.",
+          "relations": {
+            "tomasz": -4
+          }
         },
         {
           "id": "neutral",
           "label": "A normal negotiating position: suppliers often trade price for volume and for earlier payment",
           "score": 20,
-          "feedback": "Three distress signals together are not neutral."
+          "feedback": "Three distress signals together are not neutral.",
+          "relations": {
+            "tomasz": -4
+          }
         }
       ]
     },
@@ -87,6 +105,9 @@
             "Costs": 90000,
             "Resilience": 6,
             "RiskExposure": -4
+          },
+          "relations": {
+            "tomasz": 5
           }
         },
         {
@@ -113,7 +134,10 @@
               "mitigatedProbabilityFactor": 1.0,
               "mitigatedSeverityFactor": 0.2
             }
-          ]
+          ],
+          "relations": {
+            "tomasz": -4
+          }
         },
         {
           "id": "switch_all",
@@ -136,19 +160,28 @@
           "id": "about_5",
           "label": "About 5% (90,000 / 1.9m)",
           "score": 92,
-          "feedback": "Break-even probability = cost / loss avoided = 4.7%. The credit signals suggest far higher."
+          "feedback": "Break-even probability = cost / loss avoided = 4.7%. The credit signals suggest far higher.",
+          "relations": {
+            "tomasz": 5
+          }
         },
         {
           "id": "about_50",
           "label": "About 50%: dual sourcing only pays if failure is more likely than not",
           "score": 20,
-          "feedback": "That confuses break-even with the chance of failure."
+          "feedback": "That confuses break-even with the chance of failure.",
+          "relations": {
+            "tomasz": -4
+          }
         },
         {
           "id": "never",
           "label": "Never: 90,000 a year is a certain cost against a loss that may never happen",
           "score": 15,
-          "feedback": "A small certain cost against a large uncertain loss is what resilience costs."
+          "feedback": "A small certain cost against a large uncertain loss is what resilience costs.",
+          "relations": {
+            "tomasz": -4
+          }
         }
       ]
     },
@@ -162,13 +195,19 @@
           "id": "share_metric",
           "label": "Show him the break-even and continuity risk, and propose that avoided losses count in his targets",
           "score": 92,
-          "feedback": "Aligns his incentive with the right decision."
+          "feedback": "Aligns his incentive with the right decision.",
+          "relations": {
+            "tomasz": 5
+          }
         },
         {
           "id": "overrule",
           "label": "Ask the CEO to rule on it, since the decision affects every pharma client and the growth strategy",
           "score": 35,
-          "feedback": "Wins once, and he will avoid you next time."
+          "feedback": "Wins once, and he will avoid you next time.",
+          "relations": {
+            "tomasz": -4
+          }
         },
         {
           "id": "split",
@@ -188,19 +227,28 @@
           "id": "tiering",
           "label": "A supplier criticality review: tier by impact and substitutability, with credit monitoring and exit plans for tier 1",
           "score": 92,
-          "feedback": "Turns one lesson into a standing control."
+          "feedback": "Turns one lesson into a standing control.",
+          "relations": {
+            "tomasz": 5
+          }
         },
         {
           "id": "wait",
           "label": "Ask Procurement to flag any supplier in difficulty to the risk team as soon as they hear about it from the market",
           "score": 20,
-          "feedback": "Leaves the organisation to rediscover the same risk."
+          "feedback": "Leaves the organisation to rediscover the same risk.",
+          "relations": {
+            "tomasz": -4
+          }
         },
         {
           "id": "ban",
           "label": "A policy that every purchased input must have at least two approved suppliers",
           "score": 35,
-          "feedback": "Costly and often impossible; focus on critical items."
+          "feedback": "Costly and often impossible; focus on critical items.",
+          "relations": {
+            "tomasz": -4
+          }
         }
       ]
     }

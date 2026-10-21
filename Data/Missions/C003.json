@@ -58,19 +58,28 @@
           "id": "contain",
           "label": "Locate the affected vaccine and support Halvern's recall decision, notify the Authority, and check this week's other pharma loads",
           "score": 95,
-          "feedback": "Patient safety, legal duty and the extent of the problem first."
+          "feedback": "Patient safety, legal duty and the extent of the problem first.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "negotiate",
           "label": "Call Halvern's commercial director tonight to show senior commitment before termination is formally discussed by their board",
           "score": 30,
-          "feedback": "Commercial talks before patient safety and regulatory duty is the wrong order."
+          "feedback": "Commercial talks before patient safety and regulatory duty is the wrong order.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "investigate_first",
           "label": "Investigate fully over the weekend first, so the Authority and Halvern get one accurate account on Monday",
           "score": 20,
-          "feedback": "The regulatory duty and patient safety don't wait for your investigation."
+          "feedback": "The regulatory duty and patient safety don't wait for your investigation.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -84,19 +93,28 @@
           "id": "people_process",
           "label": "Untrained agency drivers on pharma loads, and in-cab alerts that stop with the driver instead of reaching a control desk",
           "score": 92,
-          "feedback": "Two control design gaps, not one driver's mistake."
+          "feedback": "Two control design gaps, not one driver's mistake.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "driver",
           "label": "The driver acknowledged the alert and chose not to report it, which breaks the excursion procedure he signed on induction",
           "score": 20,
-          "feedback": "The system relied on one untrained person."
+          "feedback": "The system relied on one untrained person.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "heat",
           "label": "The 70-minute unplanned stop in hot weather, which no procedure could have prevented",
           "score": 25,
-          "feedback": "The trigger, not the cause of the failure to report."
+          "feedback": "The trigger, not the cause of the failure to report.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -116,13 +134,19 @@
           ],
           "effects": {
             "StakeholderTrust": 4
+          },
+          "relations": {
+            "adrian": 5
           }
         },
         {
           "id": "discount",
           "label": "Offer a service credit of 10% for the rest of the year to show Valtren takes the breach seriously",
           "score": 20,
-          "feedback": "Price doesn't fix a quality failure; it looks like buying silence."
+          "feedback": "Price doesn't fix a quality failure; it looks like buying silence.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "dispute",
@@ -142,7 +166,10 @@
               },
               "flagIfOccurs": "halvern_lost"
             }
-          ]
+          ],
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -156,13 +183,19 @@
           "id": "system_fix",
           "label": "Only pharma-trained drivers on pharma loads, alerts routed to a 24/7 desk with a 15-minute escalation rule, and weekly audits",
           "score": 92,
-          "feedback": "Fixes both causes and adds a detective control."
+          "feedback": "Fixes both causes and adds a detective control.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "retrain_one",
           "label": "Retrain and reassess the driver involved, then put him back on pharma work under supervision",
           "score": 20,
-          "feedback": "Fixes one person, not the system."
+          "feedback": "Fixes one person, not the system.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "ban_agency",
@@ -182,19 +215,28 @@
           "id": "full",
           "label": "Same day: what happened, patient-safety status, regulator notified, client position, root cause, fix and the 5.6m at risk",
           "score": 95,
-          "feedback": "Boards must hear bad news fast and whole."
+          "feedback": "Boards must hear bad news fast and whole.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "after_outcome",
           "label": "Brief the board once Halvern has decided, so directors hear a settled outcome rather than a situation that is still moving",
           "score": 20,
-          "feedback": "The board needs to know before the outcome, not after."
+          "feedback": "The board needs to know before the outcome, not after.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "ceo_only",
           "label": "Brief the CEO and let her decide how and when the board hears, since she owns the client relationship",
           "score": 30,
-          "feedback": "You lead the response; the board will want to hear from you."
+          "feedback": "You lead the response; the board will want to hear from you.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     }

@@ -53,19 +53,28 @@
           "id": "threshold_plus_response",
           "label": "Zero excursions reaching customers without a root-cause review; in-transit excursions below 2 per 10,000 (amber 2, red 3)",
           "score": 92,
-          "feedback": "Keeps zero where it's achievable (reaching customers) and sets a measurable limit on the precursor."
+          "feedback": "Keeps zero where it's achievable (reaching customers) and sets a measurable limit on the precursor.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "zero_all",
           "label": "Zero temperature excursions of any kind, reported monthly to the board, matching the board's own words exactly",
           "score": 30,
-          "feedback": "Unachievable: it will be breached constantly and then ignored."
+          "feedback": "Unachievable: it will be breached constantly and then ignored.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "keep_words",
           "label": "Keep 'zero tolerance' as a statement of intent and let each depot decide how to measure it",
           "score": 15,
-          "feedback": "Words without measures can't be monitored."
+          "feedback": "Words without measures can't be monitored.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -79,19 +88,28 @@
           "id": "tighter_quality",
           "label": "Tighter appetite for temperature and documentation failures on pharma lanes; more for investment risk",
           "score": 92,
-          "feedback": "Appetite should enable the strategy: open to building capability, strict on what pharma clients audit."
+          "feedback": "Appetite should enable the strategy: open to building capability, strict on what pharma clients audit.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "no_change",
           "label": "No change: appetite reflects the board's attitude to risk, which a growth strategy should not alter",
           "score": 15,
-          "feedback": "Appetite exists to steer strategy."
+          "feedback": "Appetite exists to steer strategy.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "open_everything",
           "label": "A more open appetite overall, so the business can move fast enough to win pharma clients",
           "score": 25,
-          "feedback": "Growth into regulated pharma needs tighter, not looser, control appetite."
+          "feedback": "Growth into regulated pharma needs tighter, not looser, control appetite.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -139,19 +157,28 @@
           "id": "workshop",
           "label": "Test each measure with its owner (thresholds they can live with, evidence they can produce), then one agreed draft",
           "score": 92,
-          "feedback": "Owners who shaped the limits will manage to them."
+          "feedback": "Owners who shaped the limits will manage to them.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "send_board",
           "label": "Send the draft to the board for approval and cascade it once approved",
           "score": 15,
-          "feedback": "Owners will not manage to limits they never agreed."
+          "feedback": "Owners will not manage to limits they never agreed.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "consultant",
           "label": "Commission a consultancy to benchmark peers and draft the measures independently, then present them to the executive",
           "score": 30,
-          "feedback": "Outsourcing the thinking loses ownership."
+          "feedback": "Outsourcing the thinking loses ownership.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -172,13 +199,19 @@
           "effects": {
             "ControlEffectiveness": 4,
             "StrategicProgress": 3
+          },
+          "relations": {
+            "adrian": 5
           }
         },
         {
           "id": "intranet",
           "label": "Publish it with a message from the CEO and include it in every manager's induction",
           "score": 25,
-          "feedback": "Publication is not adoption."
+          "feedback": "Publication is not adoption.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "annual_review",

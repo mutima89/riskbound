@@ -147,5 +147,15 @@
       ]
     }
   ],
-  "lesson": "A data breach tests honesty and speed: meet the legal clock, help the people affected, and fix the control that let it happen."
+  "lesson": "A data breach tests honesty and speed: meet the legal clock, help the people affected, and fix the control that let it happen.",
+  "deadlineWeeks": 6,
+  "escalation": {
+    "text": "Nobody from risk picked up \"Data Breach\" in time. The executive team handled it alone, late and without a plan, and the damage spread.",
+    "effects": {
+      "Reputation": -4,
+      "StakeholderTrust": -4,
+      "Cash": -60000,
+      "RiskExposure": 3
+    }
+  }
 }

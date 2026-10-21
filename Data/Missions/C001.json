@@ -65,6 +65,9 @@
           "effects": {
             "Cash": -50000,
             "Resilience": 4
+          },
+          "relations": {
+            "celeste": 5
           }
         },
         {
@@ -84,7 +87,10 @@
                 "StakeholderTrust": -6
               }
             }
-          ]
+          ],
+          "relations": {
+            "celeste": -4
+          }
         },
         {
           "id": "ship_now",
@@ -104,19 +110,28 @@
           "id": "proactive",
           "label": "Call them now: the situation, what you are doing, their loads' temperature logs, and when you will update next",
           "score": 92,
-          "feedback": "Clients forgive problems; they don't forgive surprises."
+          "feedback": "Clients forgive problems; they don't forgive surprises.",
+          "relations": {
+            "celeste": 5
+          }
         },
         {
           "id": "after",
           "label": "Wait until the store is stable, then send a full written account so the client gets facts rather than a running commentary",
           "score": 20,
-          "feedback": "If the contract reporting rule is breached, late disclosure compounds it."
+          "feedback": "If the contract reporting rule is breached, late disclosure compounds it.",
+          "relations": {
+            "celeste": -4
+          }
         },
         {
           "id": "reassure",
           "label": "Tell them the site is under control so they do not start contingency moves that would add to the operational load",
           "score": 5,
-          "feedback": "Untrue, and logged data will show it."
+          "feedback": "Untrue, and logged data will show it.",
+          "relations": {
+            "celeste": -4
+          }
         }
       ]
     },
@@ -130,19 +145,28 @@
           "id": "clear_roles",
           "label": "One incident lead (you), named owners for stock, engineering and client contact, a two-hourly update and a decision log",
           "score": 92,
-          "feedback": "Clear roles and rhythm prevent duplicated and dropped tasks."
+          "feedback": "Clear roles and rhythm prevent duplicated and dropped tasks.",
+          "relations": {
+            "celeste": 5
+          }
         },
         {
           "id": "everyone",
           "label": "Let each manager run their own area as they know best and meet as a group whenever something changes",
           "score": 25,
-          "feedback": "Energy without structure misses tasks."
+          "feedback": "Energy without structure misses tasks.",
+          "relations": {
+            "celeste": -4
+          }
         },
         {
           "id": "do_it_all",
           "label": "Take personal charge of the store moves and the Kelvarin call, since those are where a mistake would cost the most money",
           "score": 30,
-          "feedback": "The leader's job is to coordinate, not to drive the forklift."
+          "feedback": "The leader's job is to coordinate, not to drive the forklift.",
+          "relations": {
+            "celeste": -4
+          }
         }
       ]
     },
@@ -156,19 +180,28 @@
           "id": "within_log",
           "label": "Within your authority: spend, log every decision and its reason, and send the COO and CFO a cost forecast",
           "score": 92,
-          "feedback": "Use your authority, and keep the record that makes it accountable."
+          "feedback": "Use your authority, and keep the record that makes it accountable.",
+          "relations": {
+            "celeste": 5
+          }
         },
         {
           "id": "ask_each",
           "label": "Seek Finance approval for each hire as it comes up, so every pound spent in the crisis is signed off before it is committed",
           "score": 30,
-          "feedback": "Wastes hours you don't have; the authority exists for this."
+          "feedback": "Wastes hours you don't have; the authority exists for this.",
+          "relations": {
+            "celeste": -4
+          }
         },
         {
           "id": "no_record",
           "label": "Spend whatever it takes now and reconstruct the decisions for Finance once the heatwave is over",
           "score": 35,
-          "feedback": "Decisions without a record are hard to defend later."
+          "feedback": "Decisions without a record are hard to defend later.",
+          "relations": {
+            "celeste": -4
+          }
         }
       ]
     },
@@ -182,7 +215,10 @@
           "id": "review",
           "label": "A blameless after-action review: what worked, what failed, the cost, and three changes before next summer",
           "score": 92,
-          "feedback": "Turns the crisis into lasting resilience without a witch-hunt."
+          "feedback": "Turns the crisis into lasting resilience without a witch-hunt.",
+          "relations": {
+            "celeste": 5
+          }
         },
         {
           "id": "praise",
@@ -194,7 +230,10 @@
           "id": "blame",
           "label": "A report identifying which failures caused the crisis and who was responsible for each of them",
           "score": 15,
-          "feedback": "Blame drives future problems underground."
+          "feedback": "Blame drives future problems underground.",
+          "relations": {
+            "celeste": -4
+          }
         }
       ]
     }

@@ -1,0 +1,173 @@
+{
+  "schema": 1,
+  "id": "S002",
+  "title": "Standby Capacity",
+  "kind": "mission",
+  "department": "Investigation",
+  "minLevel": 5,
+  "requiresPassed": [
+    "S001"
+  ],
+  "requiresClues": 4,
+  "passMark": 60,
+  "xp": 200,
+  "weeks": 1,
+  "briefing": [
+    "The Corvane Ledger, chapter 2. Internal Audit has quietly asked you to help map the money: they have the authority, you understand the operations.",
+    "Every month Valtren pays a company called Tessaline Haulage Services for standby refrigerated capacity. The fleet system suggests Valtren almost never uses it. Audit wants to know whether this is waste, poor contracting or something worse, and what to do next without tipping anyone off."
+  ],
+  "context": [
+    {
+      "ifFlag": "story_celeste_alerted",
+      "text": "Since you mentioned the duplicate invoice to Celeste, two Corvane credit notes have appeared, dated last month. Audit is interested in when they were actually created."
+    },
+    {
+      "ifFlag": "story_audit_aware",
+      "text": "Because you reported through the proper route, Audit has already secured the invoice records and the override log extract. You are working with clean evidence."
+    },
+    {
+      "ifClues": 5,
+      "text": "Your file is getting thick. You have started keeping it at home in a locked drawer, which tells you something about how you feel."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "payments",
+      "title": "Payments to Tessaline Haulage Services (24 months)",
+      "body": [
+        "22,000 a month, every month: 528,000 in total, coded to 'standby refrigerated capacity'.",
+        "Contract: rolling, no cap, approved under the operational emergency route. No competitive tender on file."
+      ]
+    },
+    {
+      "id": "usage",
+      "title": "Fleet system: Tessaline call-outs",
+      "body": "Two call-outs in 24 months, 9 vehicle-days in total. Market rate for spot refrigerated hire: about 650 a vehicle-day."
+    },
+    {
+      "id": "rebate",
+      "title": "Corvane contract: side letter",
+      "clue": "rebate_schedule",
+      "required": false,
+      "body": [
+        "Schedule 4 to the Corvane supply agreement, signed by the COO's office: Corvane will pay a 'logistics coordination rebate' of 15% of invoiced value to Tessaline Haulage Services.",
+        "Procurement's copy of the contract does not include Schedule 4."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "value",
+      "competency": "QuantitativeAnalysis",
+      "weight": 30,
+      "prompt": "What has the standby arrangement cost Valtren compared with simply hiring spot capacity when it was needed?",
+      "options": [
+        {
+          "id": "excess",
+          "label": "About 522,000 more: 528,000 paid against roughly 5,850 at spot rates",
+          "score": 92,
+          "feedback": "9 vehicle-days x 650 = 5,850. 528,000 - 5,850 = 522,150. The standby fee bought almost nothing."
+        },
+        {
+          "id": "total",
+          "label": "528,000: every standby payment is a loss because the capacity went unused",
+          "score": 50,
+          "feedback": "That is the total, not the excess. Valtren would have spent something on spot hire anyway."
+        },
+        {
+          "id": "monthly",
+          "label": "Nothing extra: 22,000 a month is a normal premium for guaranteed standby",
+          "score": 20,
+          "feedback": "Standby premiums exist, but not at ninety times what the capacity would cost to hire."
+        },
+        {
+          "id": "unknown",
+          "label": "It cannot be estimated without Tessaline's own cost and margin figures",
+          "score": 25,
+          "feedback": "Valtren's own figures are enough to show what it paid against what it got."
+        }
+      ]
+    },
+    {
+      "id": "pattern",
+      "competency": "RiskIdentification",
+      "weight": 40,
+      "kind": "multi",
+      "prompt": "Which features of the arrangement are classic fraud red flags? Pick all that apply.",
+      "options": [
+        {
+          "id": "no_tender",
+          "label": "No tender and an emergency approval route used for a two-year rolling contract",
+          "correct": true,
+          "feedback": "Emergency routes are for emergencies, not standing arrangements."
+        },
+        {
+          "id": "low_use",
+          "label": "Payment for a service that is almost never delivered",
+          "correct": true,
+          "feedback": "Paying for capacity that is never used is a common way to move money."
+        },
+        {
+          "id": "side_letter",
+          "label": "A side letter that Procurement's contract copy does not contain",
+          "correct": true,
+          "feedback": "Hidden terms are a strong indicator."
+        },
+        {
+          "id": "monthly",
+          "label": "The payments are monthly rather than annual",
+          "correct": false,
+          "feedback": "Payment frequency on its own means nothing."
+        }
+      ]
+    },
+    {
+      "id": "next_step",
+      "competency": "Judgement",
+      "weight": 30,
+      "prompt": "What should Audit do next?",
+      "options": [
+        {
+          "id": "independent",
+          "label": "Brief the Audit Committee Chair, pause new Tessaline payments as routine review, keep all records",
+          "score": 94,
+          "feedback": "Escalates to the right level, stops the loss and keeps the evidence intact without accusing anyone yet.",
+          "relations": {
+            "helen": 8
+          },
+          "setsFlags": [
+            "story_payments_frozen"
+          ]
+        },
+        {
+          "id": "confront",
+          "label": "Ask the COO for a written explanation of the Tessaline contract before going any further with it",
+          "score": 20,
+          "feedback": "This alerts the person whose office approved every step.",
+          "relations": {
+            "celeste": -10
+          },
+          "setsFlags": [
+            "story_celeste_alerted"
+          ]
+        },
+        {
+          "id": "police",
+          "label": "Report it to the police today and hand over the payment records so they can open a case",
+          "score": 45,
+          "feedback": "It may end there, but the board must decide that with legal advice. Going straight outside skips governance."
+        },
+        {
+          "id": "wait",
+          "label": "Keep watching for six more months to build an airtight case before anyone is told about it",
+          "score": 30,
+          "feedback": "Every month costs 22,000 and risks the evidence. Stopping the loss quietly is possible now.",
+          "effects": {
+            "Cash": -132000
+          }
+        }
+      ]
+    }
+  ],
+  "lesson": "Follow the money with your own data: what was paid, what was received, and who approved it. Stop the loss quietly, escalate to the people independent of the suspects, and keep the evidence clean."
+}

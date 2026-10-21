@@ -62,19 +62,28 @@
           "id": "underreporting",
           "label": "Under-reporting caused by the bonus scheme, not safer yards",
           "score": 92,
-          "feedback": "Activity was flat, CCTV shows near misses still happening, and the drop starts exactly when the bonus did."
+          "feedback": "Activity was flat, CCTV shows near misses still happening, and the drop starts exactly when the bonus did.",
+          "relations": {
+            "grace": 5
+          }
         },
         {
           "id": "safer",
           "label": "Safer yards: the bonus focused supervisors on safety, and the injury rate supports that",
           "score": 10,
-          "feedback": "The CCTV sample contradicts this: 17 near misses in 20 shifts, 2 logged."
+          "feedback": "The CCTV sample contradicts this: 17 near misses in 20 shifts, 2 logged.",
+          "relations": {
+            "grace": -4
+          }
         },
         {
           "id": "noise",
           "label": "Normal variation: near-miss reporting fluctuates, and two years is too short to judge",
           "score": 25,
-          "feedback": "A 70% step change at a known date, with stable activity, is not noise."
+          "feedback": "A 70% step change at a known date, with stable activity, is not noise.",
+          "relations": {
+            "grace": -4
+          }
         }
       ]
     },
@@ -88,19 +97,28 @@
           "id": "about_12",
           "label": "About 12% (2 of 17)",
           "score": 92,
-          "feedback": "2 / 17 = 12%. A small sample, so quote it as an indication."
+          "feedback": "2 / 17 = 12%. A small sample, so quote it as an indication.",
+          "relations": {
+            "grace": 5
+          }
         },
         {
           "id": "about_85",
           "label": "About 85% (17 of 20 shifts had events)",
           "score": 15,
-          "feedback": "That is the share of shifts with events, not the reporting rate."
+          "feedback": "That is the share of shifts with events, not the reporting rate.",
+          "relations": {
+            "grace": -4
+          }
         },
         {
           "id": "about_30",
           "label": "About 30%, the drop in reports",
           "score": 30,
-          "feedback": "Reports fell by 70%; that does not tell you the reporting rate."
+          "feedback": "Reports fell by 70%; that does not tell you the reporting rate.",
+          "relations": {
+            "grace": -4
+          }
         }
       ]
     },
@@ -114,13 +132,19 @@
           "id": "ineffective_incentive",
           "label": "Ineffective: the incentive punishes the behaviour the control depends on",
           "score": 92,
-          "feedback": "A control that depends on self-reporting fails when reporting is penalised."
+          "feedback": "A control that depends on self-reporting fails when reporting is penalised.",
+          "relations": {
+            "grace": 5
+          }
         },
         {
           "id": "effective_low",
           "label": "Effective: reports are fewer because supervisors now manage hazards before they become events",
           "score": 10,
-          "feedback": "Few reports, not few hazards."
+          "feedback": "Few reports, not few hazards.",
+          "relations": {
+            "grace": -4
+          }
         },
         {
           "id": "partially",
@@ -148,6 +172,9 @@
             "EmployeeMorale": 3,
             "ControlEffectiveness": 4,
             "RiskExposure": -3
+          },
+          "relations": {
+            "grace": 5
           }
         },
         {
@@ -158,6 +185,9 @@
           "effects": {
             "EmployeeMorale": -6,
             "StakeholderTrust": -3
+          },
+          "relations": {
+            "grace": -4
           }
         },
         {
@@ -178,7 +208,10 @@
               },
               "flagIfOccurs": "yard_injury"
             }
-          ]
+          ],
+          "relations": {
+            "grace": -4
+          }
         }
       ]
     },
@@ -192,19 +225,28 @@
           "id": "pre_brief",
           "label": "Brief him privately first with the data, acknowledge the scheme's intent, and agree a joint recommendation",
           "score": 92,
-          "feedback": "No surprises in the board room, and the owner of the problem co-owns the fix."
+          "feedback": "No surprises in the board room, and the owner of the problem co-owns the fix.",
+          "relations": {
+            "grace": 5
+          }
         },
         {
           "id": "ambush",
           "label": "Present the data at the board as it stands, without a pre-brief, so the evidence is judged on its merits",
           "score": 25,
-          "feedback": "Surprising a director in public makes him defend the scheme instead of fixing it."
+          "feedback": "Surprising a director in public makes him defend the scheme instead of fixing it.",
+          "relations": {
+            "grace": -4
+          }
         },
         {
           "id": "soften",
           "label": "Recommend changes to reporting but leave the bonus scheme itself out of the paper",
           "score": 15,
-          "feedback": "Omitting the root cause leaves the board unable to fix it."
+          "feedback": "Omitting the root cause leaves the board unable to fix it.",
+          "relations": {
+            "grace": -4
+          }
         }
       ]
     }

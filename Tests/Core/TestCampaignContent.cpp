@@ -7,6 +7,7 @@
 #include "RbMissionData.h"
 #include "RbQuant.h"
 #include "RbSave.h"
+#include "RbWorld.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -108,16 +109,19 @@ void PassMission001(GameState& G)
 TEST(Data_ShippedContentScale)
 {
 	const MissionCatalogue C = ShippedCatalogue();
-	int Missions = 1, Crises = 0, Capstones = 0; // Mission 001 is hand-built
+	int Missions = 1, Crises = 0, Capstones = 0, Story = 0; // Mission 001 is hand-built
 	for (const MissionDef& M : C.Missions)
 	{
-		Missions += M.Kind == EMissionKind::Mission ? 1 : 0;
+		const bool bStory = M.Department == "Investigation";
+		Story += bStory ? 1 : 0;
+		Missions += M.Kind == EMissionKind::Mission && !bStory ? 1 : 0;
 		Crises += M.Kind == EMissionKind::Crisis ? 1 : 0;
 		Capstones += M.Kind == EMissionKind::Capstone ? 1 : 0;
 	}
 	CHECK_EQ(Missions, 30);
 	CHECK_EQ(Crises, 12);
 	CHECK_EQ(Capstones, 1);
+	CHECK_EQ(Story, 4); // The Corvane Ledger (S001-S004), optional
 	for (const CareerLevelDef& L : CareerLadder())
 	{
 		for (const std::string& Id : L.RequiredMissions)
@@ -263,6 +267,29 @@ TEST(Data_EveryReferencedFlagCanBeSet)
 			}
 		}
 	}
+	// Inbox replies set flags too (Data/Events.json), and so does burnout.
+	{
+		std::vector<std::string> Errors;
+		WorldContent W;
+		EventsFromJson(Slurp(std::filesystem::path(RB_DATA_DIR) / "Events.json"), "Events.json", W.Events, W.Fallout, Errors);
+		for (const EventDef& E : W.Events.Events)
+		{
+			for (const EventChoiceDef& Ch : E.Choices)
+			{
+				for (const std::string& F : Ch.SetsFlags) Settable.insert(F);
+				for (const ConsequenceDef& Cq : Ch.Schedules)
+				{
+					if (!Cq.FlagIfOccurs.empty()) Settable.insert(Cq.FlagIfOccurs);
+				}
+			}
+		}
+		Settable.insert("burnout");
+		Settable.insert("fallout_incident");
+		for (const MissionDef& M : C.Missions)
+		{
+			if (M.DeadlineWeeks > 0) Settable.insert(M.Id + "_escalated");
+		}
+	}
 	auto Check = [&](const std::string& Flag, const std::string& Where)
 	{
 		if (Flag.empty()) return;
@@ -284,6 +311,15 @@ TEST(Data_EveryReferencedFlagCanBeSet)
 		}
 	}
 	std::vector<std::string> Errors;
+	{
+		WorldContent W;
+		EventsFromJson(Slurp(std::filesystem::path(RB_DATA_DIR) / "Events.json"), "Events.json", W.Events, W.Fallout, Errors);
+		for (const EventDef& E : W.Events.Events)
+		{
+			for (const std::string& F : E.When.Flags) Check(F, "event " + E.Id);
+			for (const std::string& F : E.When.NotFlags) Check(F, "event " + E.Id);
+		}
+	}
 	for (const AchievementDef& A : ShippedAchievements(Errors))
 	{
 		if (A.Condition == EAchievementCondition::Flag) Check(A.Target, "achievement " + A.Id);

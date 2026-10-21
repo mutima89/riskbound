@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "people": [
+    {
+      "id": "priya",
+      "name": "Priya Okafor",
+      "role": "Risk Manager",
+      "department": "Risk",
+      "location": "Manager's office",
+      "startRelation": 20,
+      "bio": "Your first manager. Twenty years in operations before risk, and she still thinks like a depot supervisor: what actually happens at 3 a.m.? Generous with credit, unforgiving about evidence."
+    },
+    {
+      "id": "callum",
+      "name": "Callum Reyes",
+      "role": "Risk Analyst",
+      "department": "Risk",
+      "location": "Junior analyst workspace",
+      "startRelation": 0,
+      "bio": "Joined in the same intake as you. Quick, ambitious, good with an executive audience and very good at being in the room when credit is handed out. Rival or ally, depending on how you play it."
+    },
+    {
+      "id": "celeste",
+      "name": "Celeste Marlow",
+      "role": "Chief Operating Officer",
+      "department": "Executive",
+      "faction": "growth",
+      "executive": true,
+      "location": "Executive boardroom",
+      "startRelation": 10,
+      "bio": "Built Valtren's pharma business from two lorries and a contract. Charismatic, decisive, and openly interested in your career. She remembers everyone's name. She also remembers who says no to her."
+    },
+    {
+      "id": "adrian",
+      "name": "Adrian Kessling",
+      "role": "Chief Executive",
+      "department": "Executive",
+      "faction": "growth",
+      "executive": true,
+      "location": "Executive boardroom",
+      "startRelation": 0,
+      "bio": "Promised the market a growth story and intends to deliver it. Likes risk people who help him say yes, and tolerates the ones who tell him how."
+    },
+    {
+      "id": "hollis",
+      "name": "Hollis Varga",
+      "role": "Finance Director",
+      "department": "Finance",
+      "faction": "prudence",
+      "executive": true,
+      "location": "Executive boardroom",
+      "startRelation": 0,
+      "bio": "Thinks in cash, not adjectives. Will back any proposal with numbers that change a decision, and will dismantle one that hides behind a heat map."
+    },
+    {
+      "id": "rafe",
+      "name": "Rafe Dunmore",
+      "role": "Commercial Director",
+      "department": "Commercial",
+      "faction": "growth",
+      "executive": true,
+      "startRelation": 0,
+      "bio": "Owns the client relationships and the revenue target. Sees the risk team as the department of 'not yet'."
+    },
+    {
+      "id": "ruth",
+      "name": "Ruth Adeyemi",
+      "role": "Compliance Lead",
+      "department": "Legal and Compliance",
+      "faction": "prudence",
+      "startRelation": 10,
+      "bio": "Knows the regulations word for word and the regulator by first name. Values people who bring her awkward findings early."
+    },
+    {
+      "id": "tomasz",
+      "name": "Tomasz Brennan",
+      "role": "Head of Procurement",
+      "department": "Procurement",
+      "startRelation": 0,
+      "bio": "Runs supplier contracts with a spreadsheet for everything. Lately he looks like a man carrying something heavy."
+    },
+    {
+      "id": "grace",
+      "name": "Grace Mbeki",
+      "role": "Head of Health and Safety",
+      "department": "Security and Safety",
+      "startRelation": 0,
+      "bio": "Has carried a driver's coffin once and does not intend to do it again. Sceptical of anyone who has never stood in a yard at shift change."
+    },
+    {
+      "id": "amara",
+      "name": "Amara Lindqvist",
+      "role": "Fleet Manager",
+      "department": "Operations",
+      "location": "Risk monitoring room",
+      "startRelation": 0,
+      "bio": "Keeps two hundred refrigerated vehicles moving and knows every driver who is close to their hours limit."
+    },
+    {
+      "id": "mei",
+      "name": "Mei Lin",
+      "role": "Head of IT",
+      "department": "IT",
+      "startRelation": 0,
+      "bio": "Runs the systems everyone notices only when they fail. Under-funded, over-audited and quietly brilliant."
+    },
+    {
+      "id": "helen",
+      "name": "Dame Helen Oyelaran",
+      "role": "Chair of the Board Risk Committee",
+      "department": "Board",
+      "faction": "prudence",
+      "startRelation": 0,
+      "bio": "Non-executive director and former regulator. Reads every paper, asks the question nobody prepared for, and has a long memory for who told her the truth."
+    },
+    {
+      "id": "imogen",
+      "name": "Imogen Raske",
+      "role": "Lead Supervisor, Cold Chain Safety Authority",
+      "department": "Regulator",
+      "startRelation": 0,
+      "bio": "Fair, thorough and impossible to charm. Judges firms by what they find themselves before she does."
+    },
+    {
+      "id": "jonah",
+      "name": "Jonah Pike",
+      "role": "Reporter, The Brindlemoor Courier",
+      "department": "Press",
+      "startRelation": 0,
+      "bio": "Covers logistics and labour for the regional paper. Patient, well sourced, and always one phone call away from a front page."
+    },
+    {
+      "id": "sam",
+      "name": "Sam",
+      "role": "Your partner",
+      "department": "Home",
+      "personal": true,
+      "startRelation": 40,
+      "bio": "Teaches music at the secondary school across town. Proud of you, and increasingly aware of how often your phone is face up at dinner."
+    }
+  ]
+}

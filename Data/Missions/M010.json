@@ -38,6 +38,16 @@
       "id": "team",
       "title": "Team",
       "body": "Sam (graduate, improving fast), Lina (strong quant), Kofi (experienced, overloaded, two sick days last month), Ines (part-time, compliance background)."
+    },
+    {
+      "id": "tessaline",
+      "title": "Recurring payments review (side finding)",
+      "body": [
+        "Among the recurring payments: Tessaline Haulage Services, 22,000 a month for \"standby refrigerated capacity\".",
+        "The fleet system shows two Tessaline call-outs in two years."
+      ],
+      "required": false,
+      "clue": "standby_payments"
     }
   ],
   "questions": [

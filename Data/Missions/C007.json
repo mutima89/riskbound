@@ -38,19 +38,28 @@
           "id": "full_plan",
           "label": "Root causes, actions with owners and dates, how effectiveness will be tested, and interim controls until then",
           "score": 92,
-          "feedback": "What regulators look for: causes, actions, proof."
+          "feedback": "What regulators look for: causes, actions, proof.",
+          "relations": {
+            "ruth": 5
+          }
         },
         {
           "id": "promise",
           "label": "A clear commitment from the board to full compliance within 28 days, signed by the CEO",
           "score": 10,
-          "feedback": "Not a plan."
+          "feedback": "Not a plan.",
+          "relations": {
+            "ruth": -4
+          }
         },
         {
           "id": "training",
           "label": "Refresher training for all depot staff on logger downloads, with attendance records and a quiz score kept as evidence",
           "score": 30,
-          "feedback": "Treats a design gap as a knowledge gap."
+          "feedback": "Treats a design gap as a knowledge gap.",
+          "relations": {
+            "ruth": -4
+          }
         }
       ]
     },
@@ -70,19 +79,28 @@
           ],
           "effects": {
             "ControlEffectiveness": 4
+          },
+          "relations": {
+            "ruth": 5
           }
         },
         {
           "id": "monthly",
           "label": "A monthly compliance review of download records by Quality until automation is live",
           "score": 25,
-          "feedback": "Too slow to catch excursions."
+          "feedback": "Too slow to catch excursions.",
+          "relations": {
+            "ruth": -4
+          }
         },
         {
           "id": "none",
           "label": "No interim control: automation is due in six weeks and a manual check would divert depot staff",
           "score": 15,
-          "feedback": "The regulator expects protection now."
+          "feedback": "The regulator expects protection now.",
+          "relations": {
+            "ruth": -4
+          }
         }
       ]
     },
@@ -96,13 +114,19 @@
           "id": "accept",
           "label": "Accept the finding, explain the causes you already found, and offer a progress meeting at 8 weeks",
           "score": 92,
-          "feedback": "Shows a firm that knows and fixes its problems."
+          "feedback": "Shows a firm that knows and fixes its problems.",
+          "relations": {
+            "ruth": 5
+          }
         },
         {
           "id": "challenge",
           "label": "Accept most of it but challenge the 'major' rating, since no affected product reached a patient or a pharmacy",
           "score": 20,
-          "feedback": "Disputing a well-evidenced finding damages trust."
+          "feedback": "Disputing a well-evidenced finding damages trust.",
+          "relations": {
+            "ruth": -4
+          }
         },
         {
           "id": "silent",
@@ -122,22 +146,41 @@
           "id": "act_on_tests",
           "label": "Control test results must be acted on quickly: the problem was known before the inspector found it",
           "score": 92,
-          "feedback": "The cost of delay is now a formal finding."
+          "feedback": "The cost of delay is now a formal finding.",
+          "relations": {
+            "ruth": 5
+          }
         },
         {
           "id": "regulator_harsh",
           "label": "The Authority's standard is stricter than the industry norm, so Valtren must plan for tougher inspections",
           "score": 10,
-          "feedback": "The control was failing."
+          "feedback": "The control was failing.",
+          "relations": {
+            "ruth": -4
+          }
         },
         {
           "id": "hide_tests",
           "label": "Control test results should be handled through legal privilege so they do not become regulatory evidence",
           "score": 0,
-          "feedback": "The opposite lesson; testing is how firms fix things before regulators find them."
+          "feedback": "The opposite lesson; testing is how firms fix things before regulators find them.",
+          "relations": {
+            "ruth": -4
+          }
         }
       ]
     }
   ],
-  "lesson": "A regulator's finding is a test of governance. Accept it, fix the causes with owners and dates, protect in the meantime, and act on your own test results sooner next time."
+  "lesson": "A regulator's finding is a test of governance. Accept it, fix the causes with owners and dates, protect in the meantime, and act on your own test results sooner next time.",
+  "deadlineWeeks": 6,
+  "escalation": {
+    "text": "Nobody from risk picked up \"The Inspector's Letter\" in time. The executive team handled it alone, late and without a plan, and the damage spread.",
+    "effects": {
+      "Reputation": -4,
+      "StakeholderTrust": -4,
+      "Cash": -60000,
+      "RiskExposure": 3
+    }
+  }
 }

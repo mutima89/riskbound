@@ -2,6 +2,7 @@
 
 #include "RbGameState.h"
 #include "RbJson.h"
+#include "RbJsonReader.h"
 
 #include <cmath>
 #include <set>
@@ -10,144 +11,15 @@ namespace rb
 {
 namespace
 {
+using json::Reader;
 const char* const CompetencyNames[CompetencyCount] = {"RiskIdentification", "RiskAssessment", "ControlEvaluation", "QuantitativeAnalysis",
 	"Communication", "StakeholderManagement", "Judgement", "Leadership", "StrategicThinking", "Governance"};
 const char* const MetricNames[OrgMetricCount] = {"Revenue", "Costs", "Cash", "RiskExposure", "ControlEffectiveness", "Reputation",
 	"StakeholderTrust", "EmployeeMorale", "Resilience", "StrategicProgress"};
 
-// Reads one JSON object into a struct, recording errors and rejecting keys it was not asked about.
-class Reader
-{
-public:
-	Reader(const JsonValue& InObj, const std::string& InWhere, std::vector<std::string>& InErrors)
-		: Obj(InObj), Where(InWhere), Errors(InErrors)
-	{
-		if (!Obj.IsObject()) Error(Obj.Line, "expected an object");
-	}
+} // namespace
 
-	~Reader()
-	{
-		if (!Obj.IsObject()) return;
-		for (const auto& M : Obj.Members)
-		{
-			if (!Seen.count(M.first)) Error(M.second.Line, "unknown key \"" + M.first + "\"");
-		}
-	}
-
-	void Error(int Line, const std::string& Msg) { Errors.push_back(Where + " (line " + std::to_string(Line) + "): " + Msg); }
-
-	const JsonValue* Get(const char* Key, bool bRequired)
-	{
-		Seen.insert(Key);
-		const JsonValue* V = Obj.Find(Key);
-		if (!V && bRequired) Error(Obj.Line, std::string("missing \"") + Key + "\"");
-		return V;
-	}
-
-	void Str(const char* Key, std::string& Out, bool bRequired)
-	{
-		const JsonValue* V = Get(Key, bRequired);
-		if (!V) return;
-		if (V->IsString()) Out = V->String;
-		else Error(V->Line, std::string("\"") + Key + "\" must be a string");
-	}
-
-	// A string, or an array of strings joined as paragraphs.
-	void Text(const char* Key, std::string& Out, bool bRequired)
-	{
-		const JsonValue* V = Get(Key, bRequired);
-		if (!V) return;
-		if (V->IsString())
-		{
-			Out = V->String;
-			return;
-		}
-		if (V->IsArray())
-		{
-			Out.clear();
-			for (const JsonValue& P : V->Items)
-			{
-				if (!P.IsString())
-				{
-					Error(P.Line, std::string("\"") + Key + "\" paragraphs must be strings");
-					continue;
-				}
-				if (!Out.empty()) Out += "\n\n";
-				Out += P.String;
-			}
-			return;
-		}
-		Error(V->Line, std::string("\"") + Key + "\" must be a string or an array of strings");
-	}
-
-	void Int(const char* Key, int& Out, bool bRequired)
-	{
-		const JsonValue* V = Get(Key, bRequired);
-		if (!V) return;
-		if (V->IsNumber() && std::floor(V->Number) == V->Number && std::fabs(V->Number) < 1e9) Out = static_cast<int>(V->Number);
-		else Error(V->Line, std::string("\"") + Key + "\" must be a whole number");
-	}
-
-	void Dbl(const char* Key, double& Out, bool bRequired)
-	{
-		const JsonValue* V = Get(Key, bRequired);
-		if (!V) return;
-		if (V->IsNumber()) Out = V->Number;
-		else Error(V->Line, std::string("\"") + Key + "\" must be a number");
-	}
-
-	void Bool(const char* Key, bool& Out)
-	{
-		const JsonValue* V = Get(Key, false);
-		if (!V) return;
-		if (V->IsBool()) Out = V->Bool;
-		else Error(V->Line, std::string("\"") + Key + "\" must be true or false");
-	}
-
-	void Strings(const char* Key, std::vector<std::string>& Out)
-	{
-		const JsonValue* V = Get(Key, false);
-		if (!V) return;
-		if (!V->IsArray())
-		{
-			Error(V->Line, std::string("\"") + Key + "\" must be an array of strings");
-			return;
-		}
-		for (const JsonValue& S : V->Items)
-		{
-			if (S.IsString()) Out.push_back(S.String);
-			else Error(S.Line, std::string("\"") + Key + "\" items must be strings");
-		}
-	}
-
-	// {"Reputation": -2, "Cash": -5000}
-	void Effects(const char* Key, std::vector<MetricEffect>& Out)
-	{
-		const JsonValue* V = Get(Key, false);
-		if (!V) return;
-		if (!V->IsObject())
-		{
-			Error(V->Line, std::string("\"") + Key + "\" must be an object of metric: change");
-			return;
-		}
-		for (const auto& M : V->Members)
-		{
-			EOrgMetric Metric;
-			if (!MetricFromName(M.first, Metric)) Error(M.second.Line, "unknown metric \"" + M.first + "\"");
-			else if (!M.second.IsNumber()) Error(M.second.Line, "effect on " + M.first + " must be a number");
-			else Out.push_back({Metric, M.second.Number});
-		}
-	}
-
-	const JsonValue& Obj;
-	std::string Where;
-	std::vector<std::string>& Errors;
-
-private:
-	std::set<std::string> Seen;
-};
-
-void ReadConsequence(const JsonValue& V, const std::string& Where, ConsequenceDef& C, std::vector<std::string>& Errors)
+void json::ReadConsequence(const JsonValue& V, const std::string& Where, ConsequenceDef& C, std::vector<std::string>& Errors)
 {
 	Reader R(V, Where, Errors);
 	R.Str("id", C.Id, true);
@@ -161,6 +33,10 @@ void ReadConsequence(const JsonValue& V, const std::string& Where, ConsequenceDe
 	R.Dbl("mitigatedSeverityFactor", C.MitigatedSeverityFactor, false);
 }
 
+namespace
+{
+using json::ReadConsequence;
+
 void ReadOption(const JsonValue& V, const std::string& Where, MissionOptionDef& O, std::vector<std::string>& Errors)
 {
 	Reader R(V, Where, Errors);
@@ -173,6 +49,8 @@ void ReadOption(const JsonValue& V, const std::string& Where, MissionOptionDef& 
 	R.Bool("escalates", O.bEscalates);
 	R.Effects("effects", O.Effects);
 	R.Strings("setsFlags", O.SetsFlags);
+	R.Relations("relations", O.Relations);
+	R.Int("stress", O.Stress, false);
 	if (const JsonValue* S = R.Get("schedules", false))
 	{
 		if (!S->IsArray()) R.Error(S->Line, "\"schedules\" must be an array");
@@ -222,6 +100,22 @@ void ReadContext(const JsonValue& V, const std::string& Where, ContextNoteDef& C
 	Reader R(V, Where, Errors);
 	R.Text("text", C.Text, true);
 	std::string IfFlag, IfNotFlag, Metric;
+	R.Str("ifRelation", C.RelationId, false);
+	const JsonValue* RelBelow = R.Get("relationBelow", false);
+	const JsonValue* RelAtLeast = R.Get("relationAtLeast", false);
+	if (!C.RelationId.empty())
+	{
+		if ((RelBelow != nullptr) == (RelAtLeast != nullptr)) R.Error(V.Line, "ifRelation needs exactly one of relationBelow / relationAtLeast");
+		const JsonValue* T = RelBelow ? RelBelow : RelAtLeast;
+		if (T && !T->IsNumber()) R.Error(T->Line, "relation threshold must be a number");
+		else if (T) C.RelationThreshold = static_cast<int>(T->Number);
+		C.bRelationBelow = RelBelow != nullptr;
+	}
+	else if (RelBelow || RelAtLeast)
+	{
+		R.Error(V.Line, "relationBelow / relationAtLeast need ifRelation");
+	}
+	R.Int("ifClues", C.MinClues, false);
 	R.Str("ifFlag", IfFlag, false);
 	R.Str("ifNotFlag", IfNotFlag, false);
 	R.Str("ifMetric", Metric, false);
@@ -319,6 +213,14 @@ bool MissionFromJson(const std::string& Text, const std::string& SourceName, Mis
 		R.Int("xp", M.Xp, false);
 		R.Int("weeks", M.WeeksToComplete, false);
 		R.Text("lesson", M.Lesson, false);
+		R.Int("requiresClues", M.RequiresClues, false);
+		R.Int("deadlineWeeks", M.DeadlineWeeks, false);
+		if (const JsonValue* Esc = R.Get("escalation", false))
+		{
+			Reader XR(*Esc, SourceName + " escalation", OutErrors);
+			XR.Text("text", M.EscalationText, true);
+			XR.Effects("effects", M.EscalationEffects);
+		}
 		if (const JsonValue* C = R.Get("context", false))
 		{
 			if (!C->IsArray()) R.Error(C->Line, "\"context\" must be an array");
@@ -345,6 +247,7 @@ bool MissionFromJson(const std::string& Text, const std::string& SourceName, Mis
 					ER.Str("title", Def.Title, true);
 					ER.Text("body", Def.Body, true);
 					ER.Bool("required", Def.bRequired);
+					ER.Str("clue", Def.Clue, false);
 					M.Evidence.push_back(Def);
 				}
 			}

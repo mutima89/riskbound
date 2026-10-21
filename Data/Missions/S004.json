@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "id": "S004",
+  "title": "The Ledger",
+  "kind": "mission",
+  "department": "Investigation",
+  "minLevel": 9,
+  "requiresPassed": [
+    "S003"
+  ],
+  "requiresClues": 8,
+  "passMark": 60,
+  "xp": 300,
+  "weeks": 2,
+  "briefing": [
+    "The Corvane Ledger, final chapter. Dame Helen has called a private session of the Audit Committee for Thursday. Internal Audit, external counsel, and you.",
+    "You will lay out what you found across three years: the duplicate invoices, the overrides, Tessaline, the rebate, the speak-up reports that went nowhere, and the offer. Then the committee must decide what Valtren does about its Chief Operating Officer."
+  ],
+  "context": [
+    {
+      "ifFlag": "story_compromised",
+      "text": "Counsel has a copy of Celeste's message, and of your reply accepting her sponsorship. Before anything else, Dame Helen asks you to explain that."
+    },
+    {
+      "ifFlag": "story_offer_reported",
+      "text": "Counsel calls the offer you reported 'the single most useful document in the file'."
+    },
+    {
+      "ifFlag": "press_contact",
+      "text": "Jonah Pike at the Courier has called the press office twice this week. Somebody has been talking."
+    },
+    {
+      "ifRelation": "tomasz",
+      "relationAtLeast": 25,
+      "text": "Tomasz's speak-up report is in the pack. He will give evidence if asked."
+    },
+    {
+      "ifRelation": "callum",
+      "relationAtLeast": 25,
+      "text": "Callum sends a one-line message before the meeting: 'Whatever happens, you did this right.'"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "speakup",
+      "title": "Speak-up log: Corvane pricing reports",
+      "clue": "speakup_closed",
+      "body": "Three reports in two years about Corvane pricing. Each closed within a week as 'commercial matter, no action' by the COO's office. Policy requires them to go to Internal Audit."
+    },
+    {
+      "id": "flows",
+      "title": "Internal Audit: money flow summary",
+      "body": [
+        "Corvane invoices under Schedule 4: 6.1 million over three years. Rebate at 15% to Tessaline: about 915,000.",
+        "Standby fees paid to Tessaline: 528,000. Duplicate payments identified so far: 3, totalling 71,000.",
+        "Tessaline's sole director, D. Marlow, is the COO's brother."
+      ]
+    },
+    {
+      "id": "counsel",
+      "title": "External counsel: options",
+      "body": "The committee may suspend the executive pending investigation, report to the police and the regulator, recover funds through civil action and review the controls that allowed it. Public disclosure obligations apply if the matter is material."
+    }
+  ],
+  "questions": [
+    {
+      "id": "loss",
+      "competency": "QuantitativeAnalysis",
+      "weight": 25,
+      "prompt": "What is the best estimate of the identified loss to Valtren?",
+      "options": [
+        {
+          "id": "total",
+          "label": "About 1.5 million: 915,000 rebate, 522,000 excess standby fees, 71,000 duplicates",
+          "score": 92,
+          "feedback": "915,000 + 522,000 + 71,000 = 1,508,000. The standby excess, not the gross fee, is the loss."
+        },
+        {
+          "id": "gross",
+          "label": "About 1.51 million: 915,000 rebate, the full 528,000 standby fees, 71,000 duplicates",
+          "score": 70,
+          "feedback": "Close, but Valtren received about 6,000 of real capacity for the standby fees."
+        },
+        {
+          "id": "invoices",
+          "label": "About 6.1 million: every Corvane invoice paid under the Schedule 4 side letter",
+          "score": 15,
+          "feedback": "Valtren received the liners. The loss is what was diverted, not everything that was bought."
+        },
+        {
+          "id": "dupes",
+          "label": "About 71,000: only the duplicate payments can be proven, so only they count as loss",
+          "score": 20,
+          "feedback": "The duplicates are the smallest part. The rebate and the standby fees are the scheme."
+        }
+      ]
+    },
+    {
+      "id": "decision",
+      "competency": "Leadership",
+      "weight": 45,
+      "prompt": "What do you recommend the committee does?",
+      "options": [
+        {
+          "id": "full",
+          "label": "Suspend the COO pending investigation, report to police and regulator, recover funds, fix overrides",
+          "score": 96,
+          "feedback": "Decisive, lawful and complete. It protects Valtren's people, money and licence.",
+          "relations": {
+            "helen": 15,
+            "hollis": 10,
+            "tomasz": 10,
+            "celeste": -40
+          },
+          "setsFlags": [
+            "story_exposed"
+          ],
+          "effects": {
+            "ControlEffectiveness": 6,
+            "StakeholderTrust": 4,
+            "Reputation": -3,
+            "Cash": 400000
+          }
+        },
+        {
+          "id": "quiet",
+          "label": "Let the COO resign quietly with a settlement and a non-disclosure agreement to protect the share price",
+          "score": 25,
+          "feedback": "It avoids a headline today and buys a worse one later. The regulator will ask why it wasn't reported.",
+          "relations": {
+            "adrian": 8,
+            "helen": -15
+          },
+          "setsFlags": [
+            "story_buried"
+          ],
+          "effects": {
+            "Cash": -250000,
+            "StakeholderTrust": -4
+          }
+        },
+        {
+          "id": "press",
+          "label": "Give the full story to the Courier so that the board cannot bury it once the committee has met",
+          "score": 15,
+          "feedback": "It forces the issue but prejudices the investigation and breaks your duty to the committee you serve.",
+          "relations": {
+            "jonah": 20,
+            "helen": -20,
+            "adrian": -20
+          },
+          "setsFlags": [
+            "story_leaked"
+          ],
+          "effects": {
+            "Reputation": -8,
+            "StakeholderTrust": -6
+          }
+        },
+        {
+          "id": "controls",
+          "label": "Fix the override route and the speak-up process now, and leave the question of people to the CEO",
+          "score": 40,
+          "feedback": "Controls matter, but the CEO is the COO's closest colleague. This needs the independent committee."
+        }
+      ]
+    },
+    {
+      "id": "lessons",
+      "competency": "Governance",
+      "weight": 30,
+      "kind": "multi",
+      "prompt": "Which control failures let this run for three years? Pick all that apply.",
+      "options": [
+        {
+          "id": "override",
+          "label": "An emergency override with no expiry, no independent review and no reporting",
+          "correct": true,
+          "feedback": "Every exception route needs a sunset and someone independent watching it."
+        },
+        {
+          "id": "speakup",
+          "label": "Speak-up reports routed to the office being reported on",
+          "correct": true,
+          "feedback": "Whistleblowing must go to people independent of management."
+        },
+        {
+          "id": "contract",
+          "label": "Contract side letters held outside Procurement's records",
+          "correct": true,
+          "feedback": "One authoritative contract record, or nobody can check the terms."
+        },
+        {
+          "id": "tone",
+          "label": "The finance team was too small to check every invoice",
+          "correct": false,
+          "feedback": "Staffing helps, but the scheme beat design, not capacity."
+        }
+      ]
+    }
+  ],
+  "lesson": "Fraud at the top is a governance test. The independent chair, the law and the regulator decide; the risk function brings facts, quantifies the loss and fixes the routes that let it happen."
+}

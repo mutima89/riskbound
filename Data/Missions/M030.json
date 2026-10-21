@@ -30,6 +30,15 @@
       "id": "cases",
       "title": "Industry cases",
       "body": "Most losses in similar firms come from supplier bank-detail fraud (fake emails changing payee details) and credit-note abuse."
+    },
+    {
+      "id": "side_letter",
+      "title": "Corvane contract file (Finance copy)",
+      "body": [
+        "Finance's copy of the Corvane agreement has a Schedule 4 that Procurement's copy lacks: a 15% \"logistics coordination rebate\" paid by Corvane to Tessaline Haulage Services."
+      ],
+      "required": false,
+      "clue": "rebate_schedule"
     }
   ],
   "questions": [

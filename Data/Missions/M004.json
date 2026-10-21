@@ -69,7 +69,10 @@
           "id": "el_20800",
           "label": "20,800 a year",
           "score": 92,
-          "feedback": "4% x 120,000 + 1% x 1,600,000 = 4,800 + 16,000 = 20,800."
+          "feedback": "4% x 120,000 + 1% x 1,600,000 = 4,800 + 16,000 = 20,800.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "el_16000",
@@ -81,13 +84,19 @@
           "id": "el_1720000",
           "label": "1,720,000",
           "score": 10,
-          "feedback": "That adds the losses without weighting by probability. Expected loss is a probability-weighted average."
+          "feedback": "That adds the losses without weighting by probability. Expected loss is a probability-weighted average.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "el_1600000",
           "label": "1,600,000 (the worst case)",
           "score": 10,
-          "feedback": "That is the worst case, not the expected loss. Report the two separately."
+          "feedback": "That is the worst case, not the expected loss. Report the two separately.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -101,13 +110,19 @@
           "id": "net_10800",
           "label": "10,800 a year",
           "score": 92,
-          "feedback": "Minor floods are below the excess, so Valtren keeps all 120,000 (4,800 a year). For a major flood the insurer pays 1,000,000 and Valtren keeps 600,000 (6,000 a year)."
+          "feedback": "Minor floods are below the excess, so Valtren keeps all 120,000 (4,800 a year). For a major flood the insurer pays 1,000,000 and Valtren keeps 600,000 (6,000 a year).",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "net_20800",
           "label": "20,800 a year: the excess and limit only matter when a flood happens, not to the average",
           "score": 35,
-          "feedback": "Insurance pays most of a major flood; the loss Valtren keeps is lower."
+          "feedback": "Insurance pays most of a major flood; the loss Valtren keeps is lower.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "net_4800",
@@ -119,7 +134,10 @@
           "id": "net_0",
           "label": "Close to nothing: both scenarios are insured perils, so the insurer carries the flood risk",
           "score": 5,
-          "feedback": "Excess and limits mean insurance never covers everything."
+          "feedback": "Excess and limits mean insurance never covers everything.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -133,7 +151,10 @@
           "id": "npv_negative",
           "label": "NPV about -27,000 on the losses Valtren keeps: not justified on money alone",
           "score": 90,
-          "feedback": "Benefit 7,500 a year for 5 years at 8% is worth about 29,900; cost is 45,000 plus 3,000 a year (about 57,000). NPV about -27,000."
+          "feedback": "Benefit 7,500 a year for 5 years at 8% is worth about 29,900; cost is 45,000 plus 3,000 a year (about 57,000). NPV about -27,000.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "npv_gross",
@@ -145,13 +166,19 @@
           "id": "npv_worst",
           "label": "Strongly positive: a single major flood would cost more than thirty years of the barrier's costs",
           "score": 15,
-          "feedback": "Comparing a certain cost with a worst case ignores how unlikely that worst case is."
+          "feedback": "Comparing a certain cost with a worst case ignores how unlikely that worst case is.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "cannot",
           "label": "No reliable answer: flood timing is unknown, so discounting future savings is meaningless here",
           "score": 10,
-          "feedback": "Expected loss exists precisely to appraise risks whose timing is unknown."
+          "feedback": "Expected loss exists precisely to appraise risks whose timing is unknown.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -200,7 +227,10 @@
               "mitigatedProbabilityFactor": 1.0,
               "mitigatedSeverityFactor": 0.3
             }
-          ]
+          ],
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "escalate_barriers",
@@ -231,7 +261,10 @@
               },
               "flagIfOccurs": "harrowgate_flooded"
             }
-          ]
+          ],
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -245,25 +278,37 @@
           "id": "el_and_worst",
           "label": "\"Floods cost us 10,800 a year on average after insurance, but a major flood would cost us 600,000 in one year.\"",
           "score": 95,
-          "feedback": "Expected loss and worst case side by side, neither mistaken for the other."
+          "feedback": "Expected loss and worst case side by side, neither mistaken for the other.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "el_only",
           "label": "\"After insurance, Harrowgate's flood risk costs Valtren about 10,800 a year: small against the site's turnover.\"",
           "score": 30,
-          "feedback": "Presenting the average alone hides the 600,000 year."
+          "feedback": "Presenting the average alone hides the 600,000 year.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "worst_only",
           "label": "\"A major flood at Harrowgate could cost 1.6 million, so we should invest in protection now.\"",
           "score": 30,
-          "feedback": "Gross worst case alone overstates what Valtren keeps and says nothing about likelihood."
+          "feedback": "Gross worst case alone overstates what Valtren keeps and says nothing about likelihood.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "low_risk",
           "label": "\"Floods are a 1-in-20-year event at Harrowgate and insurance covers the major case, so no action is needed.\"",
           "score": 10,
-          "feedback": "Low likelihood is not low risk when the impact is severe."
+          "feedback": "Low likelihood is not low risk when the impact is severe.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     }

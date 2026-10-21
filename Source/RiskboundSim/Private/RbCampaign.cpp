@@ -3,6 +3,7 @@
 #include "RbGameState.h"
 #include "RbQuant.h"
 #include "RbRng.h"
+#include "RbWorld.h"
 
 #include <algorithm>
 #include <cctype>
@@ -86,8 +87,16 @@ std::vector<std::string> ValidateMission(const MissionDef& M)
 	for (const ContextNoteDef& C : M.Context)
 	{
 		if (C.Text.empty()) Err("context note without text");
-		if (C.Flag.empty() && !C.bUseMetric) Err("context note without a condition");
+		if (C.Flag.empty() && !C.bUseMetric && C.RelationId.empty() && C.MinClues <= 0) Err("context note without a condition");
 	}
+	if (M.RequiresClues < 0) Err("negative requiresClues");
+	if (M.DeadlineWeeks < 0 || M.DeadlineWeeks > 26) Err("deadlineWeeks outside 0..26");
+	if (M.DeadlineWeeks > 0 && (M.Kind != EMissionKind::Crisis || M.RequiresFlags.empty()))
+	{
+		Err("only incident-triggered crises (with requiresFlags) can have a deadline");
+	}
+	if (M.DeadlineWeeks == 0 && (!M.EscalationEffects.empty() || !M.EscalationText.empty())) Err("escalation needs deadlineWeeks");
+	ValidateEffects(M.EscalationEffects, P + "escalation", Out);
 
 	std::set<std::string> EvidenceIds;
 	if (M.Evidence.empty()) Err("no evidence");
@@ -129,6 +138,11 @@ std::vector<std::string> ValidateMission(const MissionDef& M)
 			{
 				if (F.empty()) Err(OP + ": empty flag");
 			}
+			if (O.Stress < -30 || O.Stress > 30) Err(OP + ": stress change outside -30..30");
+			for (const RelationEffect& R : O.Relations)
+			{
+				if (R.CharacterId.empty() || R.Delta < -40 || R.Delta > 40) Err(OP + ": relation effect needs a character and a change within 40");
+			}
 			for (const ConsequenceDef& Cq : O.Schedules)
 			{
 				const std::string CP = OP + " consequence '" + Cq.Id + "'";
@@ -165,6 +179,8 @@ std::vector<std::string> ValidateCatalogue(const MissionCatalogue& C)
 		for (const std::string& R : M.RequiresPassed)
 		{
 			if (R != "M001" && !Ids.count(R)) Out.push_back(M.Id + ": requires unknown mission '" + R + "'");
+			const MissionDef* Req = C.Find(R);
+			if (Req && Req->DeadlineWeeks > 0) Out.push_back(M.Id + ": requires " + R + ", which can escalate and close");
 		}
 	}
 	return Out;
@@ -191,6 +207,11 @@ static MissionAvailability CheckNew(const GameState& State, const MissionDef& M)
 	for (const std::string& F : M.ExcludedByFlags)
 	{
 		if (State.Org.HasFlag(F)) A.Reasons.push_back("No longer relevant");
+	}
+	if (M.DeadlineWeeks > 0 && State.Org.HasFlag(M.Id + "_escalated")) A.Reasons.push_back("Escalated without you");
+	if (static_cast<int>(State.World.Clues.size()) < M.RequiresClues)
+	{
+		A.Reasons.push_back("Needs more evidence (" + std::to_string(State.World.Clues.size()) + " of " + std::to_string(M.RequiresClues) + " clues)");
 	}
 	A.bAvailable = A.Reasons.empty();
 	return A;
@@ -267,8 +288,16 @@ std::vector<std::string> BriefingFor(const GameState& State, const MissionDef& M
 			const double V = State.Org.Get(C.Metric);
 			bApplies = C.bBelow ? V < C.Threshold : V >= C.Threshold;
 		}
+		if (bApplies && !C.RelationId.empty())
+		{
+			const int V = GetRelation(State, C.RelationId);
+			bApplies = C.bRelationBelow ? V < C.RelationThreshold : V >= C.RelationThreshold;
+		}
+		if (bApplies && C.MinClues > 0) bApplies = static_cast<int>(State.World.Clues.size()) >= C.MinClues;
 		if (bApplies) Out.push_back(C.Text);
 	}
+	const std::string Cause = CrisisCause(State, M);
+	if (!Cause.empty()) Out.push_back(Cause);
 	return Out;
 }
 
@@ -293,6 +322,10 @@ EMissionError ViewMissionEvidence(GameState& State, const MissionDef& M, const s
 	const bool bKnown = std::any_of(M.Evidence.begin(), M.Evidence.end(), [&](const MissionEvidenceDef& E) { return E.Id == EvidenceId; });
 	if (!bKnown) return EMissionError::UnknownEvidence;
 	if (!Contains(C.ViewedEvidence, EvidenceId)) C.ViewedEvidence.push_back(EvidenceId);
+	for (const MissionEvidenceDef& E : M.Evidence)
+	{
+		if (E.Id == EvidenceId) AddClue(State, E.Clue);
+	}
 	return EMissionError::None;
 }
 
@@ -416,7 +449,66 @@ MissionDebrief ScoreMission(const MissionDef& M, const std::vector<MissionAnswer
 	return D;
 }
 
-EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers, MissionDebrief* OutDebrief)
+// Latent risk from weak answers: one possible incident per weak question (FalloutScoreThreshold).
+static void ScheduleFallout(GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers, const std::string& DecisionId,
+	const WorldContent& World, MissionDebrief& D)
+{
+	const FalloutTemplate* T = World.FalloutFor(M.Department);
+	if (!T) return;
+	for (const MissionQuestionDef& Q : M.Questions)
+	{
+		const MissionAnswer* A = FindAnswer(Answers, Q.Id);
+		if (!A || A->OptionIds.empty()) continue;
+		double P = 0.0;
+		std::string Choice;
+		if (Q.Kind == EQuestionKind::Single)
+		{
+			const MissionOptionDef* O = FindOption(Q, A->OptionIds.front());
+			if (!O || O->Score >= FalloutScoreThreshold || !O->Schedules.empty()) continue;
+			P = FalloutMaxProbability * (FalloutScoreThreshold - O->Score) / FalloutScoreThreshold;
+			Choice = O->Label;
+		}
+		else
+		{
+			for (const std::string& Id : A->OptionIds)
+			{
+				const MissionOptionDef* O = FindOption(Q, Id);
+				if (O && !O->bCorrect && Choice.empty()) Choice = O->Label;
+			}
+			if (Choice.empty()) continue;
+			P = FalloutMultiProbability;
+		}
+		std::string Text = T->Description;
+		const std::pair<std::string, std::string> Subs[] = {{"{mission}", M.Title}, {"{choice}", Choice}};
+		for (const auto& Sub : Subs)
+		{
+			for (size_t i = Text.find(Sub.first); i != std::string::npos; i = Text.find(Sub.first, i + Sub.second.size())) Text.replace(i, Sub.first.size(), Sub.second);
+		}
+		uint64_t H = 1469598103934665603ULL;
+		for (unsigned char Ch : M.Id + "/" + Q.Id)
+		{
+			H ^= Ch;
+			H *= 1099511628211ULL;
+		}
+		PendingConsequence C;
+		C.Id = "FALLOUT-" + DecisionId + "-" + Q.Id;
+		C.SourceDecisionId = DecisionId;
+		C.Description = Text;
+		C.TriggerWeek = State.Org.Week + 2 + static_cast<int>(H % 5);
+		C.Probability = std::min(1.0, P * IncidentProbabilityMultiplier(State.Difficulty));
+		C.FlagIfOccurs = "fallout_incident";
+		for (const MetricEffect& E : T->Effects)
+		{
+			const bool bMoney = E.Metric == EOrgMetric::Cash || E.Metric == EOrgMetric::Costs || E.Metric == EOrgMetric::Revenue;
+			C.EffectsIfOccurs.push_back({E.Metric, bMoney ? E.Delta * std::max(1, M.MinLevel) : E.Delta});
+		}
+		State.Org.Schedule(C);
+		D.Fallout.push_back(Text);
+	}
+}
+
+EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers, MissionDebrief* OutDebrief,
+	const MissionCatalogue* Catalogue, const WorldContent* World)
 {
 	const EMissionError Err = ValidateAnswers(State, M, Answers);
 	if (Err != EMissionError::None) return Err;
@@ -474,6 +566,8 @@ EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::ve
 	State.Org.RecordDecision(Rec);
 	for (const MissionOptionDef* O : Chosen)
 	{
+		for (const RelationEffect& R : O->Relations) ChangeRelation(State, R.CharacterId, R.Delta);
+		ChangeStress(State, O->Stress);
 		for (const std::string& F : O->SetsFlags) State.Org.SetFlag(F);
 		for (const ConsequenceDef& Cq : O->Schedules)
 		{
@@ -492,6 +586,8 @@ EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::ve
 		}
 	}
 	State.Org.SetFlag(M.Id + (D.bPassed ? "_passed" : "_failed"));
+	ChangeStress(State, M.Kind == EMissionKind::Crisis ? StressPerCrisis : (M.Kind == EMissionKind::Capstone ? StressPerCapstone : StressPerMission));
+	if (World) ScheduleFallout(State, M, Answers, Rec.Id, *World, D);
 
 	MissionRecord Record;
 	Record.MissionId = M.Id;
@@ -508,6 +604,13 @@ EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::ve
 
 	// Time passes while the work lands; anything due (from this or an earlier mission) resolves now.
 	D.Resolved = AdvanceGameWeeks(State, M.WeeksToComplete);
+	if (World)
+	{
+		const WorldUpdate U = UpdateWorld(State, Catalogue, *World, D.Resolved, M.WeeksToComplete);
+		D.NewMessages = U.NewMessages;
+		D.Escalated = U.Escalated;
+		D.bBurnout = U.bBurnout;
+	}
 
 	// Promotion review: competence evidence and passed missions only (Docs/CareerModel.md).
 	D.bPromoted = State.Career.TryPromote();

@@ -58,7 +58,10 @@
           "id": "report_with_plan",
           "label": "Yes: report it as policy requires, with the COO's recovery plan and date, telling the COO first",
           "score": 95,
-          "feedback": "Policy is clear, and the COO keeps ownership of the fix."
+          "feedback": "Policy is clear, and the COO keeps ownership of the fix.",
+          "relations": {
+            "celeste": 5
+          }
         },
         {
           "id": "omit",
@@ -70,13 +73,19 @@
           },
           "setsFlags": [
             "breach_suppressed"
-          ]
+          ],
+          "relations": {
+            "celeste": -4
+          }
         },
         {
           "id": "footnote",
           "label": "Yes, as a short note in the KRI annex, leaving the client exposure to the COO's own update",
           "score": 30,
-          "feedback": "Technically reported, practically hidden."
+          "feedback": "Technically reported, practically hidden.",
+          "relations": {
+            "celeste": -4
+          }
         }
       ]
     },
@@ -90,19 +99,28 @@
           "id": "steady_decline",
           "label": "No: a steady 12-week decline through the floor, still falling, is a trend, not a blip",
           "score": 92,
-          "feedback": "Eleven of twelve weeks were lower than the week before."
+          "feedback": "Eleven of twelve weeks were lower than the week before.",
+          "relations": {
+            "celeste": 5
+          }
         },
         {
           "id": "yes_blip",
           "label": "Yes: 91.8% is within two points of target and the driver shortage explains it",
           "score": 15,
-          "feedback": "The level is close, the direction is the problem."
+          "feedback": "The level is close, the direction is the problem.",
+          "relations": {
+            "celeste": -4
+          }
         },
         {
           "id": "cannot",
           "label": "Not yet: twelve weeks may include seasonal effects, so wait for another quarter of data",
           "score": 35,
-          "feedback": "Twelve weeks of steady decline is enough to call a trend."
+          "feedback": "Twelve weeks of steady decline is enough to call a trend.",
+          "relations": {
+            "celeste": -4
+          }
         }
       ]
     },
@@ -116,19 +134,28 @@
           "id": "credits_and_termination",
           "label": "Service credits already apply below 93%, and termination rights below 90% for three months",
           "score": 92,
-          "feedback": "Links the KRI to money and to the clients that matter most."
+          "feedback": "Links the KRI to money and to the clients that matter most.",
+          "relations": {
+            "celeste": 5
+          }
         },
         {
           "id": "nothing",
           "label": "None beyond the KRI itself, since the committee already understands what on-time delivery means",
           "score": 20,
-          "feedback": "A percentage means little to a committee without its consequences."
+          "feedback": "A percentage means little to a committee without its consequences.",
+          "relations": {
+            "celeste": -4
+          }
         },
         {
           "id": "driver_cost",
           "label": "The cost of recruiting and training enough drivers to restore on-time delivery",
           "score": 35,
-          "feedback": "Part of the plan, not the exposure."
+          "feedback": "Part of the plan, not the exposure.",
+          "relations": {
+            "celeste": -4
+          }
         }
       ]
     },
@@ -142,7 +169,10 @@
           "id": "explain_policy",
           "label": "Call him: explain you must report it, and offer to present his recovery plan alongside it",
           "score": 92,
-          "feedback": "Firm on the obligation, helpful on the message."
+          "feedback": "Firm on the obligation, helpful on the message.",
+          "relations": {
+            "celeste": 5
+          }
         },
         {
           "id": "email_refusal",
@@ -168,19 +198,28 @@
           "id": "clear",
           "label": "\"On-time delivery has been below appetite (94%) for six weeks and is still falling (91.8%); service credits apply below 93%; recovery targets week 20.\"",
           "score": 95,
-          "feedback": "Fact, trend, consequence, plan."
+          "feedback": "Fact, trend, consequence, plan.",
+          "relations": {
+            "celeste": 5
+          }
         },
         {
           "id": "alarm",
           "label": "\"Delivery performance is collapsing and two major contracts are now at risk of termination.\"",
           "score": 20,
-          "feedback": "Emotive words undermine credibility."
+          "feedback": "Emotive words undermine credibility.",
+          "relations": {
+            "celeste": -4
+          }
         },
         {
           "id": "soft",
           "label": "\"On-time delivery is slightly below target this quarter due to a temporary driver shortage, which the COO is addressing through recruitment and overtime.\"",
           "score": 20,
-          "feedback": "Understates an appetite breach with client consequences."
+          "feedback": "Understates an appetite breach with client consequences.",
+          "relations": {
+            "celeste": -4
+          }
         }
       ]
     }

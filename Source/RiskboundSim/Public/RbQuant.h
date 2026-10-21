@@ -157,4 +157,10 @@ struct MonteCarloResult
 RB_API void LogNormalFromMedianP90(double Median, double P90, double& OutMu, double& OutSigma);
 
 RB_API MonteCarloResult RunMonteCarlo(const MonteCarloInput& In);
+// ---------- Share index (presentation, not a valuation) ----------
+// 100 at the organisation's starting position. Moves with reputation, trust, strategy, resilience,
+// control and morale (index points), against risk exposure, and with cash relative to annual
+// revenue. Clamped to [20, 300]. Docs/RiskMethodology.md section 15.
+RB_API double ShareIndex(const double Metrics[], const double Baseline[]);
+
 } // namespace rb

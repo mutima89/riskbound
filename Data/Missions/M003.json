@@ -71,7 +71,11 @@
           "id": "long_routes",
           "label": "Share of routes planned above 9 hours of driving",
           "score": 90,
-          "feedback": "A leading indicator: it moves before excursions do, and all three excursions were on long routes."
+          "feedback": "A leading indicator: it moves before excursions do, and all three excursions were on long routes.",
+          "relations": {
+            "priya": 5,
+            "amara": 5
+          }
         },
         {
           "id": "excursion_count",
@@ -83,13 +87,21 @@
           "id": "deliveries",
           "label": "Deliveries completed per driver per shift",
           "score": 10,
-          "feedback": "A volume measure, not a risk signal."
+          "feedback": "A volume measure, not a risk signal.",
+          "relations": {
+            "priya": -4,
+            "amara": -4
+          }
         },
         {
           "id": "fuel",
           "label": "Fuel spend per route, as a proxy for time on the road",
           "score": 5,
-          "feedback": "A cost measure with no link to the risk."
+          "feedback": "A cost measure with no link to the risk.",
+          "relations": {
+            "priya": -4,
+            "amara": -4
+          }
         }
       ]
     },
@@ -138,7 +150,11 @@
           "id": "amber1_red3",
           "label": "Amber at 1, red at 3, reviewed after one quarter",
           "score": 85,
-          "feedback": "Above zero to avoid constant alarms, well below where a regulator would act, and reviewed once there is data."
+          "feedback": "Above zero to avoid constant alarms, well below where a regulator would act, and reviewed once there is data.",
+          "relations": {
+            "priya": 5,
+            "amara": 5
+          }
         },
         {
           "id": "red0",
@@ -150,13 +166,21 @@
           "id": "amber10_red20",
           "label": "Amber at 10, red at 20, so normal variation does not trigger escalation",
           "score": 30,
-          "feedback": "Far too loose: at 2,000 shifts a month this would allow 40 breaches before red."
+          "feedback": "Far too loose: at 2,000 shifts a month this would allow 40 breaches before red.",
+          "relations": {
+            "priya": -4,
+            "amara": -4
+          }
         },
         {
           "id": "no_thresholds",
           "label": "No thresholds for the first quarter: show the trend and set limits once there is data",
           "score": 20,
-          "feedback": "Without thresholds nobody knows when to act."
+          "feedback": "Without thresholds nobody knows when to act.",
+          "relations": {
+            "priya": -4,
+            "amara": -4
+          }
         }
       ]
     },
@@ -177,6 +201,10 @@
           "effects": {
             "ControlEffectiveness": 4,
             "RiskExposure": -3
+          },
+          "relations": {
+            "priya": 5,
+            "amara": 5
           }
         },
         {
@@ -200,7 +228,11 @@
               "mitigatedProbabilityFactor": 0.4,
               "mitigatedSeverityFactor": 0.6
             }
-          ]
+          ],
+          "relations": {
+            "priya": -4,
+            "amara": -4
+          }
         },
         {
           "id": "ban_long_routes",
@@ -226,13 +258,21 @@
           "id": "one_page",
           "label": "One page: each indicator with its threshold, trend, owner and the action agreed for red",
           "score": 90,
-          "feedback": "Clear, owned and actionable."
+          "feedback": "Clear, owned and actionable.",
+          "relations": {
+            "priya": 5,
+            "amara": 5
+          }
         },
         {
           "id": "workbook",
           "label": "A workbook with every route's data and filters, so each manager can find the figures for their own depot",
           "score": 25,
-          "feedback": "Useful for analysis, not for a meeting that must decide."
+          "feedback": "Useful for analysis, not for a meeting that must decide.",
+          "relations": {
+            "priya": -4,
+            "amara": -4
+          }
         },
         {
           "id": "reds_only",

@@ -40,6 +40,16 @@
       "id": "loss_events",
       "title": "Warehouse loss events, last 12 months",
       "body": "Stock write-offs 214,000 (up 40%). Two forklift incidents. One fire service visit (false alarm, door alarms disabled)."
+    },
+    {
+      "id": "override_log",
+      "title": "Supplier approvals: override log",
+      "body": [
+        "Seven supplier approvals in twelve months used the \"operational emergency\" override instead of Procurement sign-off.",
+        "Six were Corvane Materials. All six were authorised from the COO's executive assistant login."
+      ],
+      "required": false,
+      "clue": "override_log"
     }
   ],
   "questions": [

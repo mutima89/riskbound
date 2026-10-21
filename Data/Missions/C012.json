@@ -43,7 +43,10 @@
           "id": "protect",
           "label": "Advise firmly against it: it is unlawful, and the data suggests the claim is true; focus on the allegation",
           "score": 95,
-          "feedback": "Protects the whistleblower, the company and the CEO."
+          "feedback": "Protects the whistleblower, the company and the CEO.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "quiet_search",
@@ -53,13 +56,19 @@
           "effects": {
             "StakeholderTrust": -10,
             "Reputation": -6
+          },
+          "relations": {
+            "adrian": -4
           }
         },
         {
           "id": "defer",
           "label": "Pass the request to HR, who handle employee relations and know the legal position",
           "score": 20,
-          "feedback": "Doesn't stop a dangerous instruction."
+          "feedback": "Doesn't stop a dangerous instruction.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -73,19 +82,28 @@
           "id": "independent",
           "label": "An independent investigation reporting to the Audit Committee chair, with roster and tachograph data preserved",
           "score": 92,
-          "feedback": "Independence is essential when management is implicated."
+          "feedback": "Independence is essential when management is implicated.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "site_manager",
           "label": "The Corby Road site manager investigates, since he knows the rosters and the drivers best and can act quickly",
           "score": 10,
-          "feedback": "Implicated parties can't investigate themselves."
+          "feedback": "Implicated parties can't investigate themselves.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "none",
           "label": "Issue a firm denial: the company's fatigue rules are clear and published",
           "score": 5,
-          "feedback": "Your own data supports the claim."
+          "feedback": "Your own data supports the claim.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -99,19 +117,28 @@
           "id": "take_seriously",
           "label": "\"We take this seriously, have started an independent investigation, are enforcing rest rules at Corby Road, and protect staff who raise concerns.\"",
           "score": 92,
-          "feedback": "Credible and responsible."
+          "feedback": "Credible and responsible.",
+          "relations": {
+            "adrian": 5
+          }
         },
         {
           "id": "deny",
           "label": "\"Valtren's fatigue rules exceed legal requirements, every roster is checked by a supervisor, and we have no evidence that they are being breached.\"",
           "score": 10,
-          "feedback": "Your data says otherwise."
+          "feedback": "Your data says otherwise.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "no_comment",
           "label": "\"We do not comment on matters under internal review.\"",
           "score": 30,
-          "feedback": "Looks evasive."
+          "feedback": "Looks evasive.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     },
@@ -131,22 +158,41 @@
           ],
           "effects": {
             "EmployeeMorale": 3
+          },
+          "relations": {
+            "adrian": 5
           }
         },
         {
           "id": "wait",
           "label": "Keep operations unchanged until the investigation reports, to avoid acting on an unproven claim",
           "score": 20,
-          "feedback": "Drivers stay at risk meanwhile."
+          "feedback": "Drivers stay at risk meanwhile.",
+          "relations": {
+            "adrian": -4
+          }
         },
         {
           "id": "close_depot",
           "label": "Close Corby Road temporarily until the investigation is complete",
           "score": 25,
-          "feedback": "Disproportionate; fix the practice."
+          "feedback": "Disproportionate; fix the practice.",
+          "relations": {
+            "adrian": -4
+          }
         }
       ]
     }
   ],
-  "lesson": "A whistleblower is a warning system working. Protect the person, investigate independently, fix the danger now, and treat the allegation on its evidence."
+  "lesson": "A whistleblower is a warning system working. Protect the person, investigate independently, fix the danger now, and treat the allegation on its evidence.",
+  "deadlineWeeks": 6,
+  "escalation": {
+    "text": "Nobody from risk picked up \"The Whistleblower\" in time. The executive team handled it alone, late and without a plan, and the damage spread.",
+    "effects": {
+      "Reputation": -4,
+      "StakeholderTrust": -4,
+      "Cash": -60000,
+      "RiskExposure": 3
+    }
+  }
 }

@@ -37,6 +37,22 @@
       "ifMetric": "Reputation",
       "atLeast": 70,
       "text": "Valtren's reputation is the strongest it has been in a decade."
+    },
+    {
+      "ifFlag": "story_exposed",
+      "text": "Celeste Marlow's chair is empty. The board knows who found the Corvane scheme, and why it took three years for anyone to look."
+    },
+    {
+      "ifFlag": "story_buried",
+      "text": "Celeste left with a settlement and a farewell lunch. You know what was in the file. So does Dame Helen, and she is watching what you do with it."
+    },
+    {
+      "ifFlag": "story_leaked",
+      "text": "The Courier story still hangs over the boardroom. Some directors see you as the person who told the truth; others as the person who told the newspaper."
+    },
+    {
+      "ifFlag": "story_compromised",
+      "text": "Celeste sponsored your rise. She is in the room today, and she smiles at you as you stand to speak."
     }
   ],
   "evidence": [

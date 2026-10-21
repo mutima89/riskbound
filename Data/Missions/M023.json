@@ -54,13 +54,19 @@
           "id": "decisions_first",
           "label": "Decisions and breaches first, one deep dive per meeting, updates taken as read",
           "score": 92,
-          "feedback": "Time follows the committee's purpose: decide and challenge."
+          "feedback": "Time follows the committee's purpose: decide and challenge.",
+          "relations": {
+            "helen": 5
+          }
         },
         {
           "id": "more_meetings",
           "label": "Add two meetings a year so updates and decisions both get enough time",
           "score": 30,
-          "feedback": "More time spent on updates doesn't fix the balance."
+          "feedback": "More time spent on updates doesn't fix the balance.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "shorter_papers",
@@ -86,13 +92,19 @@
           ],
           "effects": {
             "StakeholderTrust": 4
+          },
+          "relations": {
+            "helen": 5
           }
         },
         {
           "id": "nothing",
           "label": "No change: the CFO has never interfered, and a new reporting line could look like distrust",
           "score": 30,
-          "feedback": "Independence is about structure, not current goodwill."
+          "feedback": "Independence is about structure, not current goodwill.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "report_ceo",
@@ -112,19 +124,28 @@
           "id": "explain_principle",
           "label": "Speak to him first: it is about the role, not him; he stays your manager; it protects him too",
           "score": 92,
-          "feedback": "Honest, respectful, and frames the benefit to him."
+          "feedback": "Honest, respectful, and frames the benefit to him.",
+          "relations": {
+            "helen": 5
+          }
         },
         {
           "id": "go_around",
           "label": "Take it to the chair first, so the proposal is not blocked before the committee has a chance to see it",
           "score": 20,
-          "feedback": "Confirms his fear and damages the relationship."
+          "feedback": "Confirms his fear and damages the relationship.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "drop",
           "label": "Withdraw it for now and raise it again once the relationship is stronger",
           "score": 20,
-          "feedback": "Gives up a governance principle to avoid discomfort."
+          "feedback": "Gives up a governance principle to avoid discomfort.",
+          "relations": {
+            "helen": -4
+          }
         }
       ]
     },
@@ -138,19 +159,28 @@
           "id": "pharma_integrity",
           "label": "Cold-chain integrity for pharma growth: the strategy depends on it and it worsened last quarter",
           "score": 92,
-          "feedback": "Strategic weight plus a negative trend."
+          "feedback": "Strategic weight plus a negative trend.",
+          "relations": {
+            "helen": 5
+          }
         },
         {
           "id": "stationery",
           "label": "Procurement controls, since they cover the most transactions across the business",
           "score": 5,
-          "feedback": "Not a board risk."
+          "feedback": "Not a board risk.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "oldest",
           "label": "The longest-standing risk on the register, to test whether old ratings and controls still hold",
           "score": 30,
-          "feedback": "Age isn't importance."
+          "feedback": "Age isn't importance.",
+          "relations": {
+            "helen": -4
+          }
         }
       ]
     },
@@ -164,19 +194,28 @@
           "id": "challenge_decisions",
           "label": "Decisions, the challenge raised, and actions with owners and dates",
           "score": 92,
-          "feedback": "Evidence that the committee oversees, not just receives."
+          "feedback": "Evidence that the committee oversees, not just receives.",
+          "relations": {
+            "helen": 5
+          }
         },
         {
           "id": "verbatim",
           "label": "A full record of the discussion, so the regulator can see every point raised",
           "score": 25,
-          "feedback": "Unreadable and discourages open debate."
+          "feedback": "Unreadable and discourages open debate.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "attendance",
           "label": "Attendance, papers received and decisions taken, kept short for confidentiality",
           "score": 20,
-          "feedback": "Shows no oversight."
+          "feedback": "Shows no oversight.",
+          "relations": {
+            "helen": -4
+          }
         }
       ]
     }

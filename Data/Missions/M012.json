@@ -98,6 +98,9 @@
             "ControlEffectiveness": 6,
             "RiskExposure": -6,
             "Resilience": 5
+          },
+          "relations": {
+            "mei": 5
           }
         },
         {
@@ -124,7 +127,10 @@
               "mitigatedProbabilityFactor": 0.2,
               "mitigatedSeverityFactor": 0.3
             }
-          ]
+          ],
+          "relations": {
+            "mei": -4
+          }
         },
         {
           "id": "accept",
@@ -156,7 +162,10 @@
               },
               "flagIfOccurs": "data_breach"
             }
-          ]
+          ],
+          "relations": {
+            "mei": -4
+          }
         }
       ]
     },
@@ -170,19 +179,28 @@
           "id": "yes_90k",
           "label": "Yes: expected loss falls by about 90,000 a year (112,500 to 22,500), paying back in under two years",
           "score": 92,
-          "feedback": "0.25 x 450,000 = 112,500; 0.05 x 450,000 = 22,500; reduction 90,000."
+          "feedback": "0.25 x 450,000 = 112,500; 0.05 x 450,000 = 22,500; reduction 90,000.",
+          "relations": {
+            "mei": 5
+          }
         },
         {
           "id": "no_120",
           "label": "No: the 120,000 cost is more than the whole 112,500 expected loss, so it can never pay back",
           "score": 35,
-          "feedback": "Compare the reduction over the controls' life, not one year's cost against one year's loss."
+          "feedback": "Compare the reduction over the controls' life, not one year's cost against one year's loss.",
+          "relations": {
+            "mei": -4
+          }
         },
         {
           "id": "yes_450",
           "label": "Yes: one avoided outage saves 450,000, nearly four times the package's cost",
           "score": 20,
-          "feedback": "That treats the worst case as certain."
+          "feedback": "That treats the worst case as certain.",
+          "relations": {
+            "mei": -4
+          }
         }
       ]
     },
@@ -196,19 +214,28 @@
           "id": "tracked",
           "label": "Tracked actions with owners and dates, MFA coverage and patch age as KRIs, and monthly progress to committee",
           "score": 92,
-          "feedback": "Actions plus indicators plus oversight."
+          "feedback": "Actions plus indicators plus oversight.",
+          "relations": {
+            "mei": 5
+          }
         },
         {
           "id": "trust_it",
           "label": "Leave delivery to Mei Lin and IT, with the risk team checking progress at the end of the quarter",
           "score": 30,
-          "feedback": "Ownership yes; oversight no."
+          "feedback": "Ownership yes; oversight no.",
+          "relations": {
+            "mei": -4
+          }
         },
         {
           "id": "annual",
           "label": "Re-assess the cyber risk at the annual review, once the controls have had time to bed in",
           "score": 25,
-          "feedback": "A year is too long for exposures this live."
+          "feedback": "A year is too long for exposures this live.",
+          "relations": {
+            "mei": -4
+          }
         }
       ]
     },
@@ -222,7 +249,10 @@
           "id": "pilot",
           "label": "Pilot it at one depot with app approval, measure the time added, adjust before rollout",
           "score": 90,
-          "feedback": "Takes the concern seriously and answers it with evidence."
+          "feedback": "Takes the concern seriously and answers it with evidence.",
+          "relations": {
+            "mei": 5
+          }
         },
         {
           "id": "mandate",
@@ -234,7 +264,10 @@
           "id": "exempt",
           "label": "Exempt dispatch terminals at shift change and protect them with network controls instead",
           "score": 15,
-          "feedback": "Dispatch had one of the highest click rates."
+          "feedback": "Dispatch had one of the highest click rates.",
+          "relations": {
+            "mei": -4
+          }
         }
       ]
     }

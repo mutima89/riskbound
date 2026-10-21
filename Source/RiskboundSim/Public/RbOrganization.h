@@ -89,6 +89,7 @@ struct ResolvedConsequence
 	bool bOccurred = false;
 	bool bMitigated = false;
 	double EffectiveProbability = 0.0;
+	std::string FlagIfOccurs; // copied from the pending consequence (save v6), traces crises to causes
 };
 
 struct OrganizationProfile
@@ -131,6 +132,9 @@ public:
 	// Advances time and resolves every consequence whose trigger week has arrived.
 	// Returns the consequences resolved during this call, in trigger order.
 	std::vector<ResolvedConsequence> AdvanceWeeks(int Weeks);
+
+	// Next draw from the seeded event stream (shared with consequences; survives save/load).
+	double DrawUniform() { return NextUniform(); }
 
 private:
 	double NextUniform();

@@ -54,25 +54,37 @@
           "id": "minus_059",
           "label": "About -0.59m a month",
           "score": 92,
-          "feedback": "Normal surplus +0.2m, less the top client's delayed receipts (14% of 4.6m = 0.64m), less extra fuel 0.15m: 0.2 - 0.64 - 0.15 = -0.59m."
+          "feedback": "Normal surplus +0.2m, less the top client's delayed receipts (14% of 4.6m = 0.64m), less extra fuel 0.15m: 0.2 - 0.64 - 0.15 = -0.59m.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "plus_02",
           "label": "About +0.2m a month: delayed receipts still arrive, so the usual surplus continues",
           "score": 15,
-          "feedback": "Cash timing is the whole point of a liquidity test."
+          "feedback": "Cash timing is the whole point of a liquidity test.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "minus_44",
           "label": "About -4.4m a month: outflows continue while the client's payments stop",
           "score": 10,
-          "feedback": "That is gross outflow, not net."
+          "feedback": "That is gross outflow, not net.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "minus_179",
           "label": "About -1.79m a month, including the client failure",
           "score": 30,
-          "feedback": "That spreads the one-off 1.2m bad debt into every month."
+          "feedback": "That spreads the one-off 1.2m bad debt into every month.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -86,19 +98,28 @@
           "id": "facility_disappears",
           "label": "The facility relied on for liquidity is withdrawn exactly when needed, so it cannot count in stress",
           "score": 92,
-          "feedback": "Wrong-way risk: the backstop fails in the same scenario that needs it."
+          "feedback": "Wrong-way risk: the backstop fails in the same scenario that needs it.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "fine_9m",
           "label": "Total liquidity of 9.0m (4.0m cash plus the 5.0m facility) covers the scenario with room to spare",
           "score": 15,
-          "feedback": "Counts the facility that the scenario withdraws."
+          "feedback": "Counts the facility that the scenario withdraws.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "fuel",
           "label": "Fuel is the biggest driver of the cash drain, so fuel hedging is the main lever",
           "score": 30,
-          "feedback": "It's a contributor, not the key insight."
+          "feedback": "It's a contributor, not the key insight.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -119,13 +140,19 @@
           "effects": {
             "Resilience": 6,
             "Costs": 60000
+          },
+          "relations": {
+            "hollis": 5
           }
         },
         {
           "id": "invest_now",
           "label": "Invest now: the growth strengthens future cash flow and makes the business more resilient to exactly this kind of shock",
           "score": 20,
-          "feedback": "Growth funded from the buffer leaves nothing for the downside."
+          "feedback": "Growth funded from the buffer leaves nothing for the downside.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "cancel",
@@ -145,19 +172,28 @@
           "id": "liquidity_appetite",
           "label": "A liquidity appetite: at least 3 months' survival in the severe scenario without the facility",
           "score": 92,
-          "feedback": "A measurable limit that governs future decisions."
+          "feedback": "A measurable limit that governs future decisions.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "cash_target",
           "label": "A minimum cash balance of 2.0m at every month end",
           "score": 20,
-          "feedback": "Unmeasurable."
+          "feedback": "Unmeasurable.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "cfo_discretion",
           "label": "Leave liquidity to the CFO, who manages it day to day and reports exceptions to the board",
           "score": 30,
-          "feedback": "The board owns appetite."
+          "feedback": "The board owns appetite.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -171,19 +207,28 @@
           "id": "early_open",
           "label": "Approach early, share the stress test and buffer, and negotiate before any breach",
           "score": 92,
-          "feedback": "Banks negotiate generously with prepared borrowers and harshly with surprised ones."
+          "feedback": "Banks negotiate generously with prepared borrowers and harshly with surprised ones.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "after_breach",
           "label": "Raise it only if a breach looks likely, so the bank does not reprice the facility early",
           "score": 25,
-          "feedback": "Leverage disappears once you need it."
+          "feedback": "Leverage disappears once you need it.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "switch_bank",
           "label": "Tender the facility to other banks to find one with looser covenants",
           "score": 30,
-          "feedback": "Same covenant logic everywhere."
+          "feedback": "Same covenant logic everywhere.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     }

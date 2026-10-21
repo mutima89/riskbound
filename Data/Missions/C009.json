@@ -145,5 +145,15 @@
       ]
     }
   ],
-  "lesson": "Supplier failure is a stock, time and priority problem. Protect the strictest commitments, involve clients early, and build second sources before you need them."
+  "lesson": "Supplier failure is a stock, time and priority problem. Protect the strictest commitments, involve clients early, and build second sources before you need them.",
+  "deadlineWeeks": 6,
+  "escalation": {
+    "text": "Nobody from risk picked up \"Supplier Collapse\" in time. The executive team handled it alone, late and without a plan, and the damage spread.",
+    "effects": {
+      "Reputation": -4,
+      "StakeholderTrust": -4,
+      "Cash": -60000,
+      "RiskExposure": 3
+    }
+  }
 }

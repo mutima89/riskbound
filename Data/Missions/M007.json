@@ -59,25 +59,37 @@
           "id": "p90",
           "label": "P90: 268,000",
           "score": 92,
-          "feedback": "One year in ten above the provision is exactly the 90th percentile."
+          "feedback": "One year in ten above the provision is exactly the 90th percentile.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "mean",
           "label": "The mean: 152,000",
           "score": 35,
-          "feedback": "Budgeting the mean means overspending in roughly four years out of ten for a skewed loss like this."
+          "feedback": "Budgeting the mean means overspending in roughly four years out of ten for a skewed loss like this.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "median",
           "label": "The median: 121,000",
           "score": 20,
-          "feedback": "Half of all years would overspend."
+          "feedback": "Half of all years would overspend.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "max",
           "label": "402,000: the worst year in the history, so the provision has always been enough",
           "score": 30,
-          "feedback": "Ties up money against a rarer outcome than the policy requires."
+          "feedback": "Ties up money against a rarer outcome than the policy requires.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -91,19 +103,28 @@
           "id": "right_skew",
           "label": "A few large events pull the average up: losses are right-skewed",
           "score": 92,
-          "feedback": "Severity has a long right tail (largest 410,000 against a median of 18,000)."
+          "feedback": "Severity has a long right tail (largest 410,000 against a median of 18,000).",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "error",
           "label": "Too few trials: with more simulations the mean and median would converge",
           "score": 10,
-          "feedback": "Mean above median is expected for skewed loss distributions."
+          "feedback": "Mean above median is expected for skewed loss distributions.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "inflation",
           "label": "Inflation: later years have larger losses, which lifts the average above the middle year",
           "score": 20,
-          "feedback": "Inflation would shift both, not separate them."
+          "feedback": "Inflation would shift both, not separate them.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -117,13 +138,19 @@
           "id": "range",
           "label": "\"Budget 268,000. A typical year costs 120,000-150,000; one in twenty could exceed 340,000.\"",
           "score": 92,
-          "feedback": "A number to act on, plus the range and tail in plain words."
+          "feedback": "A number to act on, plus the range and tail in plain words.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "one_number",
           "label": "\"The simulation's expected annual loss is 152,000: that is the best single estimate to budget.\"",
           "score": 30,
-          "feedback": "One number hides the risk he asked you to manage."
+          "feedback": "One number hides the risk he asked you to manage.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "histogram",
@@ -150,6 +177,9 @@
           "effects": {
             "Costs": 20000,
             "Resilience": 3
+          },
+          "relations": {
+            "hollis": 5
           }
         },
         {
@@ -159,13 +189,19 @@
           "feedback": "Locks up 300,000 against a 1-in-100 year.",
           "effects": {
             "Cash": -290000
+          },
+          "relations": {
+            "hollis": -4
           }
         },
         {
           "id": "ignore_tail",
           "label": "Accept the tail: a 1-in-100 year is too remote to plan the budget around",
           "score": 20,
-          "feedback": "Rare is not never. A year like that would force deep cuts mid-year."
+          "feedback": "Rare is not never. A year like that would force deep cuts mid-year.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -179,19 +215,28 @@
           "id": "walk_through",
           "label": "Walk them through the inputs, show the result with and without last year, and ask for better data",
           "score": 92,
-          "feedback": "Transparent assumptions build trust; testing the disputed year answers the challenge directly."
+          "feedback": "Transparent assumptions build trust; testing the disputed year answers the challenge directly.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "authority",
           "label": "Explain that the model follows the agreed methodology, so its inputs are not open to negotiation",
           "score": 20,
-          "feedback": "Pulling rank wins the meeting and loses the relationship."
+          "feedback": "Pulling rank wins the meeting and loses the relationship.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "drop_year",
           "label": "Exclude last year as an outlier, since Operations know the cause and it is unlikely to recur",
           "score": 25,
-          "feedback": "Dropping inconvenient data biases the result."
+          "feedback": "Dropping inconvenient data biases the result.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     }

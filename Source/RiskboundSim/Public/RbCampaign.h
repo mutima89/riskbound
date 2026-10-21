@@ -8,6 +8,7 @@
 
 #include "RbCareer.h"
 #include "RbOrganization.h"
+#include "RbPeople.h"
 
 #include <cstdint>
 #include <string>
@@ -58,6 +59,8 @@ struct MissionOptionDef
 	std::vector<MetricEffect> Effects;
 	std::vector<std::string> SetsFlags;
 	std::vector<ConsequenceDef> Schedules;
+	std::vector<RelationEffect> Relations; // how the people involved feel about this choice
+	int Stress = 0;                        // change to the player's stress (overtime, conflict, relief)
 };
 
 struct MissionQuestionDef
@@ -76,6 +79,7 @@ struct MissionEvidenceDef
 	std::string Title;
 	std::string Body;
 	bool bRequired = true; // must be opened before submitting
+	std::string Clue;      // story clue gained when opened (Data/Story.json), may be empty
 };
 
 // Briefing text that appears only when the organisation's state matches: this is how earlier
@@ -89,6 +93,10 @@ struct ContextNoteDef
 	bool bBelow = true;          // metric < Threshold (else >=)
 	double Threshold = 0.0;
 	std::string Text;
+	std::string RelationId;       // condition on a relationship (empty: none)
+	bool bRelationBelow = false;  // relation < RelationThreshold (else >=)
+	int RelationThreshold = 0;
+	int MinClues = 0;             // story clues collected (0: no condition)
 };
 
 struct MissionDef
@@ -109,6 +117,12 @@ struct MissionDef
 	int Xp = 100;             // feedback only, never a promotion input
 	int WeeksToComplete = 2;  // organisation time that passes when the mission is submitted
 	std::string Lesson;       // added to the learning history
+	int RequiresClues = 0;    // story missions: clues collected before it opens
+	// Crises: weeks the case can wait once it opens. Past that, it escalates without you:
+	// EscalationEffects apply, flag "<id>_escalated" is set and the case closes (UpdateWorld).
+	int DeadlineWeeks = 0;
+	std::vector<MetricEffect> EscalationEffects;
+	std::string EscalationText;
 };
 
 struct MissionCatalogue
@@ -166,6 +180,10 @@ RB_API std::vector<int> OptionDisplayOrder(uint64_t GameSeed, const std::string&
 
 // Briefing paragraphs that apply now (base briefing first, then matching context notes).
 RB_API std::vector<std::string> BriefingFor(const GameState& State, const MissionDef& M);
+// For a crisis opened by an incident: which earlier decision led here ("" if none).
+RB_API std::string CrisisCause(const GameState& State, const MissionDef& M);
+// Weeks left before an open crisis escalates (-1: no deadline or not open yet).
+RB_API int WeeksUntilEscalation(const GameState& State, const MissionDef& M);
 
 enum class EMissionError
 {
@@ -213,7 +231,19 @@ struct MissionDebrief
 	bool bReview = false;                      // practice attempt at an already-passed case
 	int Level = 0;                             // career level after the promotion review
 	std::vector<std::string> PromotionGaps;    // what still blocks the next promotion
+	std::vector<std::string> Fallout;          // weak answers that may now cause an incident (descriptions)
+	std::vector<std::string> NewMessages;      // inbox message ids delivered after the mission (UpdateWorld)
+	std::vector<std::string> Escalated;        // crises that escalated while time passed
+	bool bBurnout = false;                     // stress forced the player to take leave
 };
+
+struct WorldContent;
+
+// Weak decisions leave latent risk behind: a single-choice answer scoring below this (with no
+// consequence of its own) or a wrong pick in a multi-select may cause a later incident.
+constexpr int FalloutScoreThreshold = 50;
+constexpr double FalloutMaxProbability = 0.6;   // at score 0; scales linearly to 0 at the threshold
+constexpr double FalloutMultiProbability = 0.2; // per question with wrong picks
 
 // Choices that commit more than this authority without escalating are capped.
 constexpr int AuthorityBreachScoreCap = 40;
@@ -228,5 +258,8 @@ RB_API MissionDebrief ScoreMission(const MissionDef& M, const std::vector<Missio
 // promotion review. Nothing changes if validation fails. Reviewing an already-passed mission
 // updates competence evidence and the record only: no organisational effects, flags,
 // consequences or time.
-RB_API EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers, MissionDebrief* OutDebrief = nullptr);
+// With World content: also schedules fallout from weak answers, applies relationship and stress
+// effects and runs UpdateWorld after time passes (inbox events, escalations, burnout, news).
+RB_API EMissionError SubmitMission(GameState& State, const MissionDef& M, const std::vector<MissionAnswer>& Answers, MissionDebrief* OutDebrief = nullptr,
+	const MissionCatalogue* Catalogue = nullptr, const WorldContent* World = nullptr);
 } // namespace rb

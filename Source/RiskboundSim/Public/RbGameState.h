@@ -10,6 +10,7 @@
 #include "RbMission001.h"
 #include "RbOrganization.h"
 #include "RbRiskModel.h"
+#include "RbWorld.h"
 
 #include <cstdint>
 #include <string>
@@ -56,6 +57,7 @@ struct GameState
 	KriMonitor Kris;                        // KRI history (save v3)
 	std::vector<QuantifiedRisk> Quantified; // player-entered loss scenarios (save v3)
 	CampaignState Campaign;                 // missions after M001 (save v5)
+	WorldState World;                       // relationships, stress, story, inbox, news, shares (save v6)
 };
 
 constexpr int KriHistoryWeeksAtStart = 12;

@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "id": "S003",
+  "title": "The Offer",
+  "kind": "mission",
+  "department": "Investigation",
+  "minLevel": 7,
+  "requiresPassed": [
+    "S002"
+  ],
+  "requiresClues": 6,
+  "passMark": 60,
+  "xp": 250,
+  "weeks": 1,
+  "briefing": [
+    "The Corvane Ledger, chapter 3. The Tessaline payments were frozen 'for routine review'. Somebody noticed.",
+    "Tonight a message arrived from Celeste Marlow. It is friendly, specific and generous. It also asks you to stop."
+  ],
+  "context": [
+    {
+      "ifFlag": "celeste_mentee",
+      "text": "For two years Celeste has been your mentor. She introduced you to half the board. Reading her message, you realise she has been reading you just as carefully."
+    },
+    {
+      "ifFlag": "helen_informed",
+      "text": "Dame Helen already knows Celeste has tried to warn you off. Whatever you decide, you will not be deciding alone."
+    },
+    {
+      "ifRelation": "celeste",
+      "relationBelow": -20,
+      "text": "There is no warmth left in Celeste's tone. She is not offering a favour; she is offering a deal."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "message",
+      "title": "Message from Celeste Marlow",
+      "clue": "celeste_message",
+      "body": [
+        "\"I know about the supplier review. You're wasting a remarkable talent on an old commercial arrangement that the board approved in spirit years ago.",
+        "Director comes up this cycle. I sit on the panel. Drop the review and I will sponsor you, this cycle, not next. Keep going and you'll find this company has a long memory. Your choice. C.\""
+      ]
+    },
+    {
+      "id": "promotion",
+      "title": "Promotion policy (extract)",
+      "body": "Promotion decisions are made on competence evidence and work delivered. Any attempt to influence a promotion in exchange for a business decision is gross misconduct and must be reported to the Audit Committee Chair."
+    },
+    {
+      "id": "net_cost",
+      "title": "Corvane exclusive offer, re-priced",
+      "clue": "net_cost",
+      "required": false,
+      "body": [
+        "Corvane's three-year exclusive offer: list prices up 18%, then a 12% discount, so the net price is about 3.8% above today's.",
+        "And 15% of every invoice continues to flow to Tessaline under Schedule 4."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "the_offer",
+      "competency": "Judgement",
+      "weight": 40,
+      "prompt": "How do you respond to Celeste's offer?",
+      "options": [
+        {
+          "id": "report",
+          "label": "Do not reply; give the message to the Audit Committee Chair tonight",
+          "score": 96,
+          "feedback": "The offer is itself misconduct and now evidence. Reporting it protects you and the investigation.",
+          "relations": {
+            "helen": 15,
+            "celeste": -30
+          },
+          "setsFlags": [
+            "story_offer_reported"
+          ],
+          "stress": 6
+        },
+        {
+          "id": "accept",
+          "label": "Accept: the promotion is deserved anyway, and the arrangement is historic",
+          "score": 5,
+          "feedback": "You have traded your independence for a title. Whatever happens next, you are now part of the story.",
+          "relations": {
+            "celeste": 25,
+            "helen": -20
+          },
+          "setsFlags": [
+            "story_compromised"
+          ],
+          "stress": -4
+        },
+        {
+          "id": "string_along",
+          "label": "Pretend to agree to buy time while you gather more",
+          "score": 35,
+          "feedback": "It feels clever, but it puts you in an undocumented private deal with a suspect. Investigations are not yours to run alone.",
+          "relations": {
+            "celeste": 10
+          },
+          "setsFlags": [
+            "story_double_game"
+          ],
+          "stress": 12
+        },
+        {
+          "id": "refuse",
+          "label": "Reply firmly that you will not drop it",
+          "score": 55,
+          "feedback": "Principled, but it alerts her that the review is alive, and the threat goes unreported.",
+          "relations": {
+            "celeste": -20
+          },
+          "setsFlags": [
+            "story_celeste_alerted"
+          ],
+          "stress": 8
+        }
+      ]
+    },
+    {
+      "id": "deal_advice",
+      "competency": "QuantitativeAnalysis",
+      "weight": 30,
+      "prompt": "Tomasz still has to answer Corvane's exclusive offer. What is your advice on the numbers?",
+      "options": [
+        {
+          "id": "reject",
+          "label": "Reject it: net of the 18% price rise it costs about 4% more for three years",
+          "score": 92,
+          "feedback": "1.18 x 0.88 = 1.038. The 'discount' is a 3.8% increase, and the side letter survives.",
+          "relations": {
+            "tomasz": 10,
+            "hollis": 6
+          }
+        },
+        {
+          "id": "accept",
+          "label": "Accept it: a 12% discount on a critical supplier is worth locking in for three years",
+          "score": 15,
+          "feedback": "The discount is applied to a list price that has gone up 18%."
+        },
+        {
+          "id": "neutral",
+          "label": "It is roughly neutral on price, so decide on the strength of the relationship instead",
+          "score": 40,
+          "feedback": "Three years at plus 3.8% is not neutral, and the relationship is the problem."
+        }
+      ]
+    },
+    {
+      "id": "protect",
+      "competency": "Governance",
+      "weight": 30,
+      "kind": "multi",
+      "prompt": "What protects the people who have helped you? Pick all that apply.",
+      "options": [
+        {
+          "id": "speakup",
+          "label": "Point Tomasz and others to the protected speak-up route to the Audit Committee",
+          "correct": true,
+          "feedback": "Protection comes from the route, not from your goodwill.",
+          "relations": {
+            "tomasz": 6
+          }
+        },
+        {
+          "id": "names",
+          "label": "Keep sources' names out of everything you circulate",
+          "correct": true,
+          "feedback": "Need-to-know protects people from retaliation."
+        },
+        {
+          "id": "tell_team",
+          "label": "Tell your team what is happening so they can be careful",
+          "correct": false,
+          "feedback": "Well meant, but it widens the circle and the risk of leaks."
+        },
+        {
+          "id": "promise",
+          "label": "Promise sources they will never be named, whatever happens",
+          "correct": false,
+          "feedback": "You cannot promise what a legal process may require. Be honest about what protection the route gives."
+        }
+      ]
+    }
+  ],
+  "lesson": "An inducement to drop a review is evidence. Report it to the independent chair, refuse private deals and protect your sources through formal routes, not personal promises."
+}

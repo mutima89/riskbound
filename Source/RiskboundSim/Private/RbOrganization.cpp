@@ -145,6 +145,7 @@ std::vector<ResolvedConsequence> OrganizationState::AdvanceWeeks(int Weeks)
 		R.SourceDecisionId = C.SourceDecisionId;
 		R.Description = C.Description;
 		R.Week = C.TriggerWeek;
+		R.FlagIfOccurs = C.FlagIfOccurs;
 		R.bMitigated = !C.MitigatingFlag.empty() && HasFlag(C.MitigatingFlag);
 		R.EffectiveProbability = std::min(1.0, std::max(0.0, C.Probability * (R.bMitigated ? C.MitigatedProbabilityFactor : 1.0)));
 		R.bOccurred = NextUniform() < R.EffectiveProbability;

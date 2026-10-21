@@ -58,19 +58,28 @@
           "id": "minus_198",
           "label": "Margin falls by about 1.98m, to about 1.8m",
           "score": 92,
-          "feedback": "Fuel = 12% x 47.2m = 5.66m; +35% = 1.98m extra cost."
+          "feedback": "Fuel = 12% x 47.2m = 5.66m; +35% = 1.98m extra cost.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "minus_165",
           "label": "Margin falls by 35%, to about 2.5m",
           "score": 20,
-          "feedback": "The rise applies to fuel costs, not the margin."
+          "feedback": "The rise applies to fuel costs, not the margin.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "minus_566",
           "label": "Margin falls by 5.66m, into a loss of about 1.9m",
           "score": 25,
-          "feedback": "That is the whole fuel bill, not the 35% increase."
+          "feedback": "That is the whole fuel bill, not the 35% increase.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -84,19 +93,28 @@
           "id": "loss_02",
           "label": "About -0.2m: the margin is wiped out",
           "score": 90,
-          "feedback": "Client loss: revenue -4.59m, costs cut 0.6 x 4.25m = 2.55m, net -2.04m. Plus fuel -1.98m: 3.8 - 2.04 - 1.98 = -0.22m."
+          "feedback": "Client loss: revenue -4.59m, costs cut 0.6 x 4.25m = 2.55m, net -2.04m. Plus fuel -1.98m: 3.8 - 2.04 - 1.98 = -0.22m.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "plus_18",
           "label": "About +1.8m: the client's costs go with it, so only the fuel shock really bites",
           "score": 20,
-          "feedback": "That ignores the client loss."
+          "feedback": "That ignores the client loss.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "minus_46",
           "label": "About -4.6m: the lost revenue comes straight off the margin",
           "score": 25,
-          "feedback": "Lost revenue is partly offset by costs that can be cut."
+          "feedback": "Lost revenue is partly offset by costs that can be cut.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     },
@@ -110,13 +128,19 @@
           "id": "survives_with_actions",
           "label": "Year-end cash falls to about 0.6m in S3, below the covenant, unless surcharges and a hiring freeze start in Q1",
           "score": 92,
-          "feedback": "3.0 - 0.22 - 2.2 = 0.58m. Surcharges (about 0.7m in the year) and the freeze (0.8m) restore about 2.1m; deferral adds 1.2m if needed."
+          "feedback": "3.0 - 0.22 - 2.2 = 0.58m. Surcharges (about 0.7m in the year) and the freeze (0.8m) restore about 2.1m; deferral adds 1.2m if needed.",
+          "relations": {
+            "hollis": 5
+          }
         },
         {
           "id": "fine",
           "label": "Cash stays above the covenant in every scenario, because opening cash and the margin absorb the shocks",
           "score": 15,
-          "feedback": "S3 leaves about 0.6m at year end, below the covenant."
+          "feedback": "S3 leaves about 0.6m at year end, below the covenant.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "doomed",
@@ -142,13 +166,19 @@
           ],
           "effects": {
             "Resilience": 5
+          },
+          "relations": {
+            "hollis": 5
           }
         },
         {
           "id": "decide_later",
           "label": "Keep the actions on file and decide when a scenario starts to happen, with the facts in hand",
           "score": 25,
-          "feedback": "Delay costs a quarter of recovery, which is the margin of survival here."
+          "feedback": "Delay costs a quarter of recovery, which is the margin of survival here.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "act_now",
@@ -175,19 +205,28 @@
           "feedback": "Lenders trust borrowers who show they know their downside.",
           "effects": {
             "StakeholderTrust": 3
+          },
+          "relations": {
+            "hollis": 5
           }
         },
         {
           "id": "base_only",
           "label": "Share the base plan and the headline that Valtren has tested its downside",
           "score": 30,
-          "feedback": "Banks run their own downside; hiding yours costs credibility."
+          "feedback": "Banks run their own downside; hiding yours costs credibility.",
+          "relations": {
+            "hollis": -4
+          }
         },
         {
           "id": "nothing",
           "label": "Answer the bank's questions fully but volunteer nothing beyond the information pack",
           "score": 25,
-          "feedback": "A missed chance to build trust before a renewal."
+          "feedback": "A missed chance to build trust before a renewal.",
+          "relations": {
+            "hollis": -4
+          }
         }
       ]
     }

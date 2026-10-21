@@ -87,19 +87,28 @@
           "id": "specific",
           "label": "\"Route planning unavailable for over 24 hours (vendor ransomware or account takeover), forcing manual dispatch\"",
           "score": 92,
-          "feedback": "Specific, measurable, and links causes to an operational consequence."
+          "feedback": "Specific, measurable, and links causes to an operational consequence.",
+          "relations": {
+            "priya": 5
+          }
         },
         {
           "id": "generic",
           "label": "\"Cyber attack on Valtren's IT estate causing disruption to operations and customer service\"",
           "score": 20,
-          "feedback": "Still generic: what fails and for how long?"
+          "feedback": "Still generic: what fails and for how long?",
+          "relations": {
+            "priya": -4
+          }
         },
         {
           "id": "cause_only",
           "label": "\"Criminal hackers target Valtren's systems through phishing emails, weak passwords or unpatched software\"",
           "score": 15,
-          "feedback": "That is a cause, not an event."
+          "feedback": "That is a cause, not an event.",
+          "relations": {
+            "priya": -4
+          }
         }
       ]
     },
@@ -113,13 +122,19 @@
           "id": "coach",
           "label": "Sit together: ask Sam to explain the rating, point to the IT facts, rewrite one part together, let Sam redo the rest",
           "score": 92,
-          "feedback": "Sam learns the method, keeps ownership, and you check understanding."
+          "feedback": "Sam learns the method, keeps ownership, and you check understanding.",
+          "relations": {
+            "priya": 5
+          }
         },
         {
           "id": "fix_yourself",
           "label": "Rewrite it yourself for committee, then walk Sam through the changes afterwards",
           "score": 35,
-          "feedback": "Fast, but Sam learns nothing and will make the same mistakes next time."
+          "feedback": "Fast, but Sam learns nothing and will make the same mistakes next time.",
+          "relations": {
+            "priya": -4
+          }
         },
         {
           "id": "red_pen",
@@ -131,7 +146,10 @@
           "id": "pass_it",
           "label": "Let it go to committee: challenge from senior people will teach Sam more than you can",
           "score": 10,
-          "feedback": "Exposes a junior colleague and puts a misleading entry in front of the committee."
+          "feedback": "Exposes a junior colleague and puts a misleading entry in front of the committee.",
+          "relations": {
+            "priya": -4
+          }
         }
       ]
     },
@@ -145,13 +163,19 @@
           "id": "defer_entry",
           "label": "Pull R-031 from this month's pack, tell Priya why, and bring a proper entry next month",
           "score": 90,
-          "feedback": "Better one month late than wrong in front of the committee."
+          "feedback": "Better one month late than wrong in front of the committee.",
+          "relations": {
+            "priya": 5
+          }
         },
         {
           "id": "submit_draft",
           "label": "Submit Sam's draft marked 'provisional' and bring the corrected version next month",
           "score": 15,
-          "feedback": "A Low rating on an untested restore and no fallback could mislead the committee."
+          "feedback": "A Low rating on an untested restore and no fallback could mislead the committee.",
+          "relations": {
+            "priya": -4
+          }
         },
         {
           "id": "all_nighter",
@@ -171,19 +195,28 @@
           "id": "head_logistics_systems",
           "label": "The Head of Logistics Systems, who owns the vendor contract and the dispatch process",
           "score": 90,
-          "feedback": "The person who can fund and decide the fallback."
+          "feedback": "The person who can fund and decide the fallback.",
+          "relations": {
+            "priya": 5
+          }
         },
         {
           "id": "it_dept",
           "label": "The IT Manager, Mei Lin, since every control involved is an IT control she runs",
           "score": 20,
-          "feedback": "A department cannot be accountable."
+          "feedback": "A department cannot be accountable.",
+          "relations": {
+            "priya": -4
+          }
         },
         {
           "id": "sam",
           "label": "The risk team, until the business accepts ownership of a cyber risk",
           "score": 10,
-          "feedback": "Risk owners manage the risk; analysts assess it."
+          "feedback": "Risk owners manage the risk; analysts assess it.",
+          "relations": {
+            "priya": -4
+          }
         }
       ]
     }

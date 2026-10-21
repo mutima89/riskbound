@@ -148,5 +148,15 @@
       ]
     }
   ],
-  "lesson": "Legal limits are a floor, not a safety control. Act on amber indicators, fix the system that made fatigue normal, and protect the people who tell you."
+  "lesson": "Legal limits are a floor, not a safety control. Act on amber indicators, fix the system that made fatigue normal, and protect the people who tell you.",
+  "deadlineWeeks": 6,
+  "escalation": {
+    "text": "Nobody from risk picked up \"The A-Road Collision\" in time. The executive team handled it alone, late and without a plan, and the damage spread.",
+    "effects": {
+      "Reputation": -4,
+      "StakeholderTrust": -4,
+      "Cash": -60000,
+      "RiskExposure": 3
+    }
+  }
 }

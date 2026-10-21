@@ -53,19 +53,28 @@
           "id": "exec_summary",
           "label": "What changed, what is outside appetite, decisions needed, and your judgement on emerging concerns",
           "score": 95,
-          "feedback": "Exactly what the chair asked for."
+          "feedback": "Exactly what the chair asked for.",
+          "relations": {
+            "helen": 5
+          }
         },
         {
           "id": "methodology",
           "label": "The methodology and scales first, so the board can trust and interpret the numbers that follow",
           "score": 20,
-          "feedback": "Put it in an appendix."
+          "feedback": "Put it in an appendix.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "good_news",
           "label": "Progress this quarter (Coldline 2, actions closed), so the board sees the risk function delivering",
           "score": 25,
-          "feedback": "Good news belongs in the report but not at the top."
+          "feedback": "Good news belongs in the report but not at the top.",
+          "relations": {
+            "helen": -4
+          }
         }
       ]
     },
@@ -79,19 +88,28 @@
           "id": "front",
           "label": "On page one, with the owner's plan and expected return date",
           "score": 95,
-          "feedback": "Breaches are the board's business; they lead."
+          "feedback": "Breaches are the board's business; they lead.",
+          "relations": {
+            "helen": 5
+          }
         },
         {
           "id": "kri_section",
           "label": "In the KRI section with the other indicators, clearly marked red",
           "score": 25,
-          "feedback": "Last time that put breaches on page 31."
+          "feedback": "Last time that put breaches on page 31.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "verbal",
           "label": "Raised verbally by the COO at the meeting, so he can explain the context in person",
           "score": 15,
-          "feedback": "Breaches must be on the record."
+          "feedback": "Breaches must be on the record.",
+          "relations": {
+            "helen": -4
+          }
         }
       ]
     },
@@ -105,19 +123,28 @@
           "id": "judgement",
           "label": "The pharma near miss as a sign of fragility as volumes grow, and engineer shortages KRIs miss",
           "score": 92,
-          "feedback": "Judgement the board can't get from charts."
+          "feedback": "Judgement the board can't get from charts.",
+          "relations": {
+            "helen": 5
+          }
         },
         {
           "id": "nothing",
           "label": "Nothing: the report should stick to measured facts the board can rely on",
           "score": 20,
-          "feedback": "The chair asked explicitly for your judgement."
+          "feedback": "The chair asked explicitly for your judgement.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "everything",
           "label": "A full list of the emerging risks from the horizon scan, so nothing is left out of the board's view",
           "score": 25,
-          "feedback": "Shows nothing about what you actually think."
+          "feedback": "Shows nothing about what you actually think.",
+          "relations": {
+            "helen": -4
+          }
         }
       ]
     },
@@ -141,19 +168,28 @@
             "Costs": 600000,
             "EmployeeMorale": 4,
             "Resilience": 3
+          },
+          "relations": {
+            "helen": 5
           }
         },
         {
           "id": "none",
           "label": "None: the report is for information, and board decisions belong in separate papers",
           "score": 25,
-          "feedback": "Boards are there to decide; give them the decision."
+          "feedback": "Boards are there to decide; give them the decision.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "approve_all",
           "label": "Ask the board to approve the full action plan of 114 items as one decision",
           "score": 15,
-          "feedback": "Rubber-stamping lists is not governance."
+          "feedback": "Rubber-stamping lists is not governance.",
+          "relations": {
+            "helen": -4
+          }
         }
       ]
     },
@@ -167,19 +203,28 @@
           "id": "short_appendix",
           "label": "About 6-8 pages, with registers, KRI detail and method in appendices",
           "score": 92,
-          "feedback": "Short enough to read, complete enough to trust."
+          "feedback": "Short enough to read, complete enough to trust.",
+          "relations": {
+            "helen": 5
+          }
         },
         {
           "id": "two_lines",
           "label": "A one-page dashboard only, with the full pack available on request",
           "score": 25,
-          "feedback": "Too thin for the board to discharge its oversight."
+          "feedback": "Too thin for the board to discharge its oversight.",
+          "relations": {
+            "helen": -4
+          }
         },
         {
           "id": "same",
           "label": "Keep the full 46 pages but add a contents page so directors can navigate",
           "score": 15,
-          "feedback": "Complete and unread."
+          "feedback": "Complete and unread.",
+          "relations": {
+            "helen": -4
+          }
         }
       ]
     }

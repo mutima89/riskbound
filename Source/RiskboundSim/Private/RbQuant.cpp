@@ -246,4 +246,27 @@ MonteCarloResult RunMonteCarlo(const MonteCarloInput& In)
 	}
 	return R;
 }
+double ShareIndex(const double Metrics[], const double Baseline[])
+{
+	// Weights per index point of change from the start (Docs/RiskMethodology.md section 15).
+	static const double PointWeight[] = {
+		0.0,    // Revenue (via cash)
+		0.0,    // Costs (via cash)
+		0.0,    // Cash (below)
+		-0.003, // RiskExposure
+		0.002,  // ControlEffectiveness
+		0.004,  // Reputation
+		0.003,  // StakeholderTrust
+		0.001,  // EmployeeMorale
+		0.002,  // Resilience
+		0.003,  // StrategicProgress
+	};
+	double Factor = 1.0;
+	for (int i = 3; i < 10; ++i) Factor += PointWeight[i] * (Metrics[i] - Baseline[i]);
+	const double Revenue = Baseline[0] > 0.0 ? Baseline[0] : 1.0;
+	Factor += 0.5 * (Metrics[2] - Baseline[2]) / Revenue;
+	if (!std::isfinite(Factor)) Factor = 1.0;
+	return std::min(300.0, std::max(20.0, 100.0 * Factor));
+}
+
 } // namespace rb

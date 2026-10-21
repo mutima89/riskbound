@@ -1,6 +1,7 @@
 #include "RbSave.h"
 
 #include <cinttypes>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -290,6 +291,7 @@ static void WriteOrg(KvWriter& W, const OrganizationState& O)
 		W.Bool(P + ".occ", H.bOccurred);
 		W.Bool(P + ".mit", H.bMitigated);
 		W.Dbl(P + ".p", H.EffectiveProbability);
+		W.Put(P + ".setflag", H.FlagIfOccurs);
 	}
 }
 
@@ -348,6 +350,7 @@ static void ReadOrg(KvReader& R, OrganizationState& O)
 		H.bOccurred = R.Bool(P + ".occ");
 		H.bMitigated = R.Bool(P + ".mit");
 		H.EffectiveProbability = R.Dbl(P + ".p");
+		H.FlagIfOccurs = R.Str(P + ".setflag");
 		O.History.push_back(H);
 	}
 }
@@ -689,6 +692,125 @@ static void ReadCampaign(KvReader& R, CampaignState& Out)
 	}
 }
 
+static void WriteWorld(KvWriter& W, const WorldState& S)
+{
+	W.Int("world.stress", S.Stress);
+	W.Int("world.burnouts", S.Burnouts);
+	W.Int("world.nextMsg", S.NextMessage);
+	W.List("world.clues", S.Clues);
+	W.List("world.fired", S.FiredEvents);
+	W.Int("world.rel.n", static_cast<long long>(S.Relations.size()));
+	for (size_t i = 0; i < S.Relations.size(); ++i)
+	{
+		const std::string P = "world.rel." + std::to_string(i);
+		W.Put(P + ".id", S.Relations[i].CharacterId);
+		W.Int(P + ".v", S.Relations[i].Value);
+	}
+	W.Int("world.msg.n", static_cast<long long>(S.Inbox.size()));
+	for (size_t i = 0; i < S.Inbox.size(); ++i)
+	{
+		const InboxMessage& M = S.Inbox[i];
+		const std::string P = "world.msg." + std::to_string(i);
+		W.Put(P + ".id", M.Id);
+		W.Put(P + ".event", M.EventId);
+		W.Int(P + ".cat", static_cast<int>(M.Category));
+		W.Put(P + ".from", M.From);
+		W.Put(P + ".subject", M.Subject);
+		W.Put(P + ".body", M.Body);
+		W.Int(P + ".week", M.Week);
+		W.Int(P + ".deadline", M.DeadlineWeek);
+		W.Bool(P + ".read", M.bRead);
+		W.Put(P + ".choice", M.ChoiceId);
+		W.Put(P + ".outcome", M.Outcome);
+		W.Bool(P + ".auto", M.bAutoResolved);
+	}
+	W.Int("world.news.n", static_cast<long long>(S.News.size()));
+	for (size_t i = 0; i < S.News.size(); ++i)
+	{
+		const std::string P = "world.news." + std::to_string(i);
+		W.Int(P + ".week", S.News[i].Week);
+		W.Put(P + ".text", S.News[i].Text);
+		W.Int(P + ".tone", S.News[i].Tone);
+	}
+	W.Int("world.share.n", static_cast<long long>(S.Shares.size()));
+	for (size_t i = 0; i < S.Shares.size(); ++i)
+	{
+		const std::string P = "world.share." + std::to_string(i);
+		W.Int(P + ".week", S.Shares[i].Week);
+		W.Dbl(P + ".v", S.Shares[i].Value);
+	}
+	W.Int("world.open.n", static_cast<long long>(S.CrisisOpened.size()));
+	for (size_t i = 0; i < S.CrisisOpened.size(); ++i)
+	{
+		const std::string P = "world.open." + std::to_string(i);
+		W.Put(P + ".id", S.CrisisOpened[i].first);
+		W.Int(P + ".week", S.CrisisOpened[i].second);
+	}
+}
+
+// v6 added the living world. Older saves start with default stress and an empty inbox; the game
+// fills relationship start values from Data/People.json on load (InitWorld).
+static void ReadWorld(KvReader& R, WorldState& Out)
+{
+	Out = WorldState();
+	Out.Stress = static_cast<int>(R.Int("world.stress", StressStart));
+	Out.Burnouts = static_cast<int>(R.Int("world.burnouts", 0));
+	Out.NextMessage = static_cast<int>(R.Int("world.nextMsg", 1));
+	Out.Clues = R.List("world.clues");
+	Out.FiredEvents = R.List("world.fired");
+	if (Out.Stress < 0 || Out.Stress > StressMax || Out.Burnouts < 0 || Out.NextMessage < 1) R.bOk = false;
+	const int NR = R.Count("world.rel");
+	for (int i = 0; i < NR; ++i)
+	{
+		const std::string P = "world.rel." + std::to_string(i);
+		Relation Rel{R.Str(P + ".id"), static_cast<int>(R.Int(P + ".v"))};
+		if (Rel.CharacterId.empty() || Rel.Value < RelationMin || Rel.Value > RelationMax) R.bOk = false;
+		Out.Relations.push_back(Rel);
+	}
+	const int NM = R.Count("world.msg");
+	for (int i = 0; i < NM; ++i)
+	{
+		const std::string P = "world.msg." + std::to_string(i);
+		InboxMessage M;
+		M.Id = R.Str(P + ".id");
+		M.EventId = R.Str(P + ".event");
+		M.Category = R.Enum<EMessageCategory>(P + ".cat", EMessageCategory::Team, static_cast<int>(EMessageCategory::Count) - 1);
+		M.From = R.Str(P + ".from");
+		M.Subject = R.Str(P + ".subject");
+		M.Body = R.Str(P + ".body");
+		M.Week = static_cast<int>(R.Int(P + ".week"));
+		M.DeadlineWeek = static_cast<int>(R.Int(P + ".deadline", -1));
+		M.bRead = R.Bool(P + ".read");
+		M.ChoiceId = R.Str(P + ".choice");
+		M.Outcome = R.Str(P + ".outcome");
+		M.bAutoResolved = R.Bool(P + ".auto");
+		if (M.Id.empty() || M.DeadlineWeek < -1) R.bOk = false;
+		Out.Inbox.push_back(std::move(M));
+	}
+	const int NN = R.Count("world.news");
+	for (int i = 0; i < NN; ++i)
+	{
+		const std::string P = "world.news." + std::to_string(i);
+		NewsItem N{static_cast<int>(R.Int(P + ".week")), R.Str(P + ".text"), static_cast<int>(R.Int(P + ".tone"))};
+		if (N.Tone < -1 || N.Tone > 1) R.bOk = false;
+		Out.News.push_back(N);
+	}
+	const int NS = R.Count("world.share");
+	for (int i = 0; i < NS; ++i)
+	{
+		const std::string P = "world.share." + std::to_string(i);
+		SharePoint S{static_cast<int>(R.Int(P + ".week")), R.Dbl(P + ".v", 100.0)};
+		if (!std::isfinite(S.Value)) R.bOk = false;
+		Out.Shares.push_back(S);
+	}
+	const int NO = R.Count("world.open");
+	for (int i = 0; i < NO; ++i)
+	{
+		const std::string P = "world.open." + std::to_string(i);
+		Out.CrisisOpened.push_back({R.Str(P + ".id"), static_cast<int>(R.Int(P + ".week"))});
+	}
+}
+
 std::string SerializeGame(const GameState& S)
 {
 	KvWriter W;
@@ -713,6 +835,7 @@ std::string SerializeGame(const GameState& S)
 	WriteKris(W, S.Kris);
 	WriteQuantified(W, S.Quantified);
 	WriteCampaign(W, S.Campaign);
+	WriteWorld(W, S.World);
 	W.List("achievements", S.Achievements);
 	W.List("learning", S.LearningHistory);
 	char Sum[32];
@@ -888,6 +1011,8 @@ bool DeserializeGame(const std::string& Text, GameState& Out, LoadResult& Info)
 	// v5 added the campaign and consequence flags; older saves default to no campaign progress.
 	ReadCampaign(R, S.Campaign);
 	if (Info.LoadedVersion < 5) Info.bMigrated = true;
+	ReadWorld(R, S.World);
+	if (Info.LoadedVersion < 6) Info.bMigrated = true;
 	S.Achievements = R.List("achievements");
 	S.LearningHistory = R.List("learning");
 	if (!R.bOk)

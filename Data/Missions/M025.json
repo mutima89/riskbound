@@ -59,6 +59,9 @@
           "effects": {
             "StakeholderTrust": 5,
             "Reputation": 2
+          },
+          "relations": {
+            "imogen": 5
           }
         },
         {
@@ -71,7 +74,10 @@
           "id": "defensive",
           "label": "Route all correspondence through external counsel to manage legal exposure",
           "score": 20,
-          "feedback": "Signals you have something to hide."
+          "feedback": "Signals you have something to hide.",
+          "relations": {
+            "imogen": -4
+          }
         }
       ]
     },
@@ -85,19 +91,28 @@
           "id": "close_or_explain",
           "label": "Close it if possible; if not, a board-approved revised date with the reason and interim controls",
           "score": 92,
-          "feedback": "Shows governance working, even when late."
+          "feedback": "Shows governance working, even when late.",
+          "relations": {
+            "imogen": 5
+          }
         },
         {
           "id": "hope",
           "label": "Leave it as it is: the finding is on track to close within the next quarter, which the supervisor will see",
           "score": 5,
-          "feedback": "It is on their list."
+          "feedback": "It is on their list.",
+          "relations": {
+            "imogen": -4
+          }
         },
         {
           "id": "blame_owner",
           "label": "Explain which manager missed the date and what has been done about it",
           "score": 20,
-          "feedback": "Accountability is the firm's, not one person's, in front of a regulator."
+          "feedback": "Accountability is the firm's, not one person's, in front of a regulator.",
+          "relations": {
+            "imogen": -4
+          }
         }
       ]
     },
@@ -111,19 +126,28 @@
           "id": "trace",
           "label": "Trace one enterprise risk end to end: profile, deep dive, challenge in the minutes, decisions, actions, KRIs",
           "score": 92,
-          "feedback": "One clear trail beats a stack of documents."
+          "feedback": "One clear trail beats a stack of documents.",
+          "relations": {
+            "imogen": 5
+          }
         },
         {
           "id": "volume",
           "label": "Provide every board and committee paper from the year, indexed, so nothing can be said to be missing",
           "score": 25,
-          "feedback": "Volume obscures evidence."
+          "feedback": "Volume obscures evidence.",
+          "relations": {
+            "imogen": -4
+          }
         },
         {
           "id": "assert",
           "label": "A letter from the chair confirming the board's oversight of its principal risks",
           "score": 15,
-          "feedback": "An assertion is not evidence."
+          "feedback": "An assertion is not evidence.",
+          "relations": {
+            "imogen": -4
+          }
         }
       ]
     },
@@ -137,7 +161,10 @@
           "id": "acknowledge",
           "label": "Acknowledge it, show the redesign and recent minutes that record challenge, and offer an observation",
           "score": 92,
-          "feedback": "Turns a weakness into evidence of improvement."
+          "feedback": "Turns a weakness into evidence of improvement.",
+          "relations": {
+            "imogen": 5
+          }
         },
         {
           "id": "rewrite",
@@ -147,13 +174,19 @@
           "effects": {
             "StakeholderTrust": -10,
             "Reputation": -6
+          },
+          "relations": {
+            "imogen": -4
           }
         },
         {
           "id": "ignore",
           "label": "Leave it: the minutes were approved at the time and the supervisor can judge them",
           "score": 25,
-          "feedback": "They will read them."
+          "feedback": "They will read them.",
+          "relations": {
+            "imogen": -4
+          }
         }
       ]
     },
@@ -167,19 +200,28 @@
           "id": "relationship",
           "label": "A regular, open relationship: periodic updates on the risk profile and major changes",
           "score": 92,
-          "feedback": "Supervisory trust is a strategic asset for a pharma distributor."
+          "feedback": "Supervisory trust is a strategic asset for a pharma distributor.",
+          "relations": {
+            "imogen": 5
+          }
         },
         {
           "id": "arms_length",
           "label": "Keep contact formal and limited to what the rules require",
           "score": 30,
-          "feedback": "Minimises contact and maximises surprise."
+          "feedback": "Minimises contact and maximises surprise.",
+          "relations": {
+            "imogen": -4
+          }
         },
         {
           "id": "lobby",
           "label": "Work through the industry body to make the rules more proportionate for mid-sized distributors",
           "score": 25,
-          "feedback": "Not a substitute for a credible relationship."
+          "feedback": "Not a substitute for a credible relationship.",
+          "relations": {
+            "imogen": -4
+          }
         }
       ]
     }
