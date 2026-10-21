@@ -21,7 +21,7 @@ Windows (CMake + Visual Studio C++): `Scripts\RunCoreTests.bat`
 2. Compile the editor: `"C:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat" RiskboundEditor Win64 Development -project="%CD%\Riskbound.uproject"`
 3. Automation tests: `Scripts\RunUnrealTests.bat "C:\Program Files\Epic Games\UE_5.8"`
 4. Package: `Scripts\BuildWindows.bat "C:\Program Files\Epic Games\UE_5.8" Development` (or `Shipping`; output in `Release\<Config>\Windows\`).
-5. Portable release zip (no installer): `powershell -ExecutionPolicy Bypass -File Scripts\MakePortableZip.ps1` (output in `Release\`).
+5. Installer and portable zip: `Scripts\BuildInstaller.bat 0.5.0-alpha 0.5.0.0` (needs Inno Setup 6; output in `Release\`). Release checklist: `Docs/Release.md`.
 
 Controls: WASD/arrows move, mouse looks, E interacts, J journal, Esc pause. Menus are keyboard navigable (Tab/arrows, Enter/Space, Esc back).
 

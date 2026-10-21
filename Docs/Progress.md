@@ -18,6 +18,7 @@ Last update: 2026-10-21
 - Gate 4 step 1 (2026-10-21): mission content as validated JSON in `Data/Missions` (Docs/MissionData.md); M002-M005 written; case files screen at the workstation; packaged play/resume include M002.
 - Gate 4 scale-up (2026-10-21): 30 missions (M001 + M002-M030, four optional specialisms), 12 crises (3 on the career ladder, 9 triggered by incidents), CRO capstone, 50 data-driven achievements; best play reaches CRO in the core test.
 - Answer-order fix and Gate 5 (2026-10-21): options shown in a per-save shuffled order; save fuzzing, per-file content validation, deterministic campaign replay with save/load at every step, settings persistence; Shipping rebuilt and its self-tests pass; portable zip built and run.
+- Gate 6 (2026-10-21): Inno Setup installer and portable zip for 0.5.0-alpha; silent install, run from the installed folder, uninstall keeping saves verified; release docs (Docs/Release.md, release notes, known issues).
 - Shipping Win64 package builds (2026-10-21); Shipping self-test play, resume and tour PASS (Docs/QAReport.md).
 
 ### Not yet verified
@@ -25,10 +26,10 @@ Last update: 2026-10-21
 - Save/exit/relaunch/resume by hand (verified only through the self-test process pair and automation tests).
 
 ### Next action
-Owner's hands-on review of the build; fix findings. Owner's hands-on review of the campaign; content tuning from playtests (difficulty of distractors, pacing of weeks). Gate 6: Inno Setup installer (approved by the owner 2026-10-21), install/launch/uninstall verification, release docs.
+Owner's hands-on review of the build; fix findings. Owner's hands-on review of the campaign; content tuning from playtests (difficulty of distractors, pacing of weeks). Owner's hands-on review of 0.5.0-alpha (installer or zip); then fixes, audio, and a release tag when the owner approves.
 
 ### Open blockers
-- None for building. No full VS IDE installed (Build Tools only); Inno Setup/NSIS/WiX not installed (needed by Gate 6).
+- None for building. No full VS IDE installed (Build Tools only); Inno Setup 6.7.3 installed per user (owner-approved, 2026-10-21).
 
 ### Gate checklist
 - [ ] Gate 1: M001 playable in packaged build, save/exit/relaunch/resume verified (automated checks pass; hands-on playtest outstanding)
@@ -36,4 +37,4 @@ Owner's hands-on review of the build; fix findings. Owner's hands-on review of t
 - [x] Gate 3: career + organisation consequences across missions (sim + UE subsystem, tested; content arrives in Gate 4)
 - [x] Gate 4: campaign content (30 missions, 12 crises, CRO capstone), data-driven missions, 50 achievements (verified by tests and packaged self-tests; hands-on playtest pending)
 - [x] Gate 5: automated + integration tests (73 core, 11 Unreal, packaged self-tests on Development and Shipping)
-- [ ] Gate 6: Windows package, installer, release verification
+- [x] Gate 6: Windows package, installer, release verification (unsigned; hands-on wizard check and all-users install pending)

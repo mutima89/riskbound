@@ -144,3 +144,14 @@ Review fixes from the Gate 4 step 1 screenshots: notices no longer overlap scree
 | Zip check | extract to a new folder, `-RbSelfTest=play` then `resume` from there | both PASS (42 missions, 50 achievements, 0 problems) |
 
 Defect (reported in review): the best answer was the first option in 196 of 198 single-choice questions, and Mission 001's lists put the correct items first, so a player could win by position. Fixed in the sim: `rb::OptionDisplayOrder` shuffles each question's options with a seeded Fisher-Yates keyed by the save's seed, mission id and question id; the UE views use it for campaign questions and Mission 001's lists. Also: settings limits now live in `rb::ClampSettings` and apply on load, so a hand-edited save cannot break the UI.
+
+## 2026-10-21 - Gate 6: installer and release verification (0.5.0-alpha)
+| Run | Command | Result |
+|---|---|---|
+| Tool install | `winget install JRSoftware.InnoSetup` (owner-approved) | Inno Setup 6.7.3, installer hash verified by winget, installed per user |
+| Build installer + zip | `Scripts\BuildInstaller.bat 0.5.0-alpha 0.5.0.0` | `Release\Installer\Riskbound-Setup-0.5.0-alpha.exe` 256.2 MB, SHA-256 a095068ddcdf800dc918e84bacd57fa5c5a4cbac1226ed05cf1f3107a781d873; `Release\Riskbound-0.5.0-alpha-Win64-Portable.zip` 284.5 MB, SHA-256 29a5b387c71cf93acefc09da82313a81986fdd5550892537eeba3144e5abffe6 |
+| Silent install | `/VERYSILENT /SUPPRESSMSGBOXES /CURRENTUSER /DIR=%LOCALAPPDATA%\RiskboundInstallTest /TASKS=desktopicon` | game, README, licences and uninstaller installed; Start-menu folder with Riskbound, Read me, Licences and credits, Uninstall Riskbound; desktop shortcut; uninstall entry "Riskbound 0.5.0-alpha" (HKCU) |
+| Run from installed folder | `-RbSelfTest=play`, `-RbSelfTest=resume` | both PASS (42 missions, 50 achievements, 0 problems) |
+| Silent uninstall | `unins000.exe /VERYSILENT /SUPPRESSMSGBOXES` | install folder, Start-menu folder, desktop shortcut and uninstall entry removed; saves in `%LOCALAPPDATA%\Riskbound\Saved\SaveGames` kept |
+
+Not verified: the interactive wizard pages (licence and unsigned-build notice pages, the post-uninstall message) were not clicked through by a person; an all-users (administrator) install was not tested.
