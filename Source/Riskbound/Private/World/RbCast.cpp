@@ -2,9 +2,18 @@
 
 #include "Animation/AnimSequence.h"
 #include "Engine/SkeletalMesh.h"
+#include "Misc/PackageName.h"
 
 namespace RbCast
 {
+UAnimSequence* Anim(bool bFemale, const TCHAR* Name)
+{
+	const FString Path = FString::Printf(TEXT("/Game/Riskbound/Characters/Anims/A_%s_%s.A_%s_%s"), bFemale ? TEXT("f") : TEXT("m"), Name, bFemale ? TEXT("f") : TEXT("m"), Name);
+	// Missing loops are normal (not every loop exists for both bodies), so look quietly.
+	if (!FPackageName::DoesPackageExist(FPackageName::ObjectPathToPackageName(Path))) return nullptr;
+	return LoadObject<UAnimSequence>(nullptr, *Path);
+}
+
 namespace
 {
 // Rocketbox avatars import in centimetres facing +Y, like the engine mannequin.
@@ -37,20 +46,15 @@ const TCHAR* const Staff[] = {
 const TCHAR* const StaffIdles[] = {TEXT("idle_neutral_01"), TEXT("idle_breathe_01"), TEXT("idle_neutral_02"), TEXT("idle_look_around_01"),
 	TEXT("cell_phone_listen_01"), TEXT("idle_neutral_02")};
 
-UAnimSequence* Anim(bool bFemale, const TCHAR* Name)
-{
-	const FString Path = FString::Printf(TEXT("/Game/Riskbound/Characters/Anims/A_%s_%s.A_%s_%s"), bFemale ? TEXT("f") : TEXT("m"), Name, bFemale ? TEXT("f") : TEXT("m"), Name);
-	return LoadObject<UAnimSequence>(nullptr, *Path);
-}
-
 FLook Avatar(const TCHAR* Name, const TCHAR* IdleName)
 {
 	FLook L;
 	const FString Path = FString::Printf(TEXT("/Game/Riskbound/Characters/People/%s/SK_%s.SK_%s"), Name, Name, Name);
 	L.Mesh = LoadObject<USkeletalMesh>(nullptr, *Path);
+	L.bFemale = FString(Name).Contains(TEXT("Female"));
 	if (L.Mesh)
 	{
-		const bool bFemale = FString(Name).Contains(TEXT("Female"));
+		const bool bFemale = L.bFemale;
 		L.Idle = Anim(bFemale, IdleName);
 		if (!L.Idle) L.Idle = Anim(bFemale, TEXT("idle_neutral_01")); // not every loop exists for both bodies
 		L.MeshYaw = AvatarYaw;

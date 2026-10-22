@@ -522,6 +522,7 @@ FRbInboxMessageView URbCampaignSubsystem::ToView(const rb::InboxMessage& M) cons
 	FRbInboxMessageView V;
 	V.Id = ToFString(M.Id);
 	V.Category = ToFString(rb::ToString(M.Category));
+	V.FromId = M.Category == rb::EMessageCategory::News ? FString() : ToFString(M.From);
 	V.FromName = M.Category == rb::EMessageCategory::News ? FString(TEXT("Newswire")) : PersonName(M.From);
 	if (const rb::CharacterDef* C = World.People.Find(M.From)) V.FromRole = ToFString(C->Role);
 	V.Subject = ToFString(M.Subject);
@@ -705,6 +706,7 @@ FRbConversationView URbCampaignSubsystem::NodeView(const rb::ConversationDef& C,
 	FRbConversationView V;
 	V.bFound = true;
 	V.Id = ToFString(C.Id);
+	V.PersonId = ToFString(C.Person);
 	V.PersonName = PersonName(C.Person);
 	if (const rb::CharacterDef* P = World.People.Find(C.Person)) V.PersonRole = ToFString(P->Role);
 	V.Title = ToFString(C.Title);
@@ -738,6 +740,24 @@ FRbConversationView URbCampaignSubsystem::StartConversation(const FString& Perso
 FRbConversationView URbCampaignSubsystem::ChooseResponse(const FString& ConversationId, const FString& NodeId, const FString& ResponseId, FString& OutError)
 {
 	std::string Next;
+	// The person's reaction: how the chosen response moves their relationship with the player.
+	int32 Reaction = 0;
+	if (const rb::ConversationDef* Conv = Dialogue.Find(ToStd(ConversationId)))
+	{
+		for (const rb::DialogueNodeDef& N : Conv->Nodes)
+		{
+			if (N.Id != ToStd(NodeId)) continue;
+			for (const rb::DialogueResponseDef& R : N.Responses)
+			{
+				if (R.Id != ToStd(ResponseId)) continue;
+				for (const rb::RelationEffect& Rel : R.Relations)
+				{
+					if (Rel.CharacterId == Conv->Person) Reaction += Rel.Delta;
+				}
+			}
+		}
+	}
+	Reaction = FMath::Clamp(Reaction, -1, 1);
 	const rb::EDialogueError E = rb::ChooseResponse(Game()->EditState(), Dialogue, ToStd(ConversationId), ToStd(NodeId), ToStd(ResponseId), Next);
 	if (E != rb::EDialogueError::None)
 	{
@@ -753,9 +773,13 @@ FRbConversationView URbCampaignSubsystem::ChooseResponse(const FString& Conversa
 		Ended.bFound = true;
 		Ended.bEnded = true;
 		Ended.Id = ConversationId;
+		Ended.PersonId = C ? ToFString(C->Person) : FString();
+		Ended.Reaction = Reaction;
 		return Ended;
 	}
-	return NodeView(*C, Next);
+	FRbConversationView V = NodeView(*C, Next);
+	V.Reaction = Reaction;
+	return V;
 }
 
 // ---------------------------------------------------------------- phase 4

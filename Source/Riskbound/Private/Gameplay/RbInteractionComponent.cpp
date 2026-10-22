@@ -3,6 +3,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
+#include "RbCharacter.h"
 #include "RbHUD.h"
 #include "RbInteractable.h"
 
@@ -67,6 +68,19 @@ bool URbInteractionComponent::Interact()
 	const APlayerController* PC = Pawn ? Cast<APlayerController>(Pawn->GetController()) : nullptr;
 	ARbHUD* Hud = PC ? Cast<ARbHUD>(PC->GetHUD()) : nullptr;
 	if (!Target || !Hud) return false;
-	Target->Interact(Hud);
+	ARbCharacter* Character = Cast<ARbCharacter>(GetOwner());
+	if (!Character)
+	{
+		Target->Interact(Hud);
+		return true;
+	}
+	if (Character->IsUsing()) return false;
+	// Turn to it (and pick it up or lean in) first; the screen opens when the move ends.
+	TWeakObjectPtr<ARbInteractable> WeakTarget(Target);
+	TWeakObjectPtr<ARbHUD> WeakHud(Hud);
+	Character->BeginUse(Target, [WeakTarget, WeakHud]()
+	{
+		if (WeakTarget.IsValid() && WeakHud.IsValid() && !WeakHud->IsScreenOpen()) WeakTarget->Interact(WeakHud.Get());
+	});
 	return true;
 }

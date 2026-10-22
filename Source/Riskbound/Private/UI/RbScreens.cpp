@@ -290,7 +290,22 @@ FRbScreenParts Conversation(ARbHUD* Hud, const FRbConversationView& View, TFunct
 			Hud->PlayConversation(Next, OnEnd);
 		}), Out, true, !R.SkillName.IsEmpty()), Space2);
 	}
-	return {MakeModalFrame(Box, 820.0f), First};
+	return {MakeConversationFrame(Box, 900.0f), First};
+}
+
+FRbScreenParts Approach(const FText& Speaker, const FText& Text, TFunction<void()> OnRead, TFunction<void()> OnLater)
+{
+	TSharedPtr<SButton> Read;
+	TSharedRef<SVerticalBox> Box = Column();
+	AddRow(Box, SNew(STextBlock).Text(Speaker).Font(Font(16, true)).ColorAndOpacity(Accent), 8.0f);
+	AddRow(Box, MakeBody(Text, 16), 16.0f);
+	Box->AddSlot().AutoHeight().HAlign(HAlign_Right)
+	[
+		SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot().AutoWidth().Padding(0.0f, 0.0f, Space2, 0.0f)[MakeButton(LOCTEXT("ApproachLater", "Later"), Click(OnLater))]
+		+ SHorizontalBox::Slot().AutoWidth()[MakeButton(LOCTEXT("ApproachRead", "Read it now"), Click(OnRead), &Read, true, true)]
+	];
+	return {MakeConversationFrame(Box, 900.0f), Read};
 }
 
 TSharedRef<SWidget> CeremonyOverlay(const FString& Title, const FString& Subtitle)
@@ -838,7 +853,7 @@ FRbScreenParts Dialogue(const FText& Speaker, const FText& Text, TFunction<void(
 	AddRow(Box, SNew(STextBlock).Text(Speaker).Font(Font(16, true)).ColorAndOpacity(Accent), 8.0f);
 	AddRow(Box, MakeBody(Text, 16), 16.0f);
 	Box->AddSlot().AutoHeight().HAlign(HAlign_Right)[MakeButton(LOCTEXT("DialogueContinue", "Continue"), Click(OnContinue), &Continue, true, true)];
-	return {MakeModalFrame(Box, 820.0f), Continue};
+	return {MakeConversationFrame(Box, 900.0f), Continue};
 }
 
 FRbScreenParts Debrief(const FRbDebriefView& D, const FRbCareerView& Career, const TArray<FString>& Achievements, TFunction<void()> OnClose)

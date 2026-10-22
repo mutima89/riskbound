@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "comment": "Voices for Scripts/BuildVoices.py (Kokoro-82M, Apache 2.0). voice: a Kokoro voice id, or a blend {id: weight}. lang: en-gb or en-us pronunciation. speed: 1.0 is the voice's natural pace. Lines are collected from Data/Dialogue.json, Data/Missions/*.json (interviews) and Data/Events.json (colleagues who walk over), plus the fixed lines below that live in the game code.",
+  "cast": {
+    "priya": {
+      "voice": "bf_emma",
+      "lang": "en-gb",
+      "speed": 1.0,
+      "note": "Risk Manager: warm, direct, ex-operations"
+    },
+    "callum": {
+      "voice": "bm_fable",
+      "lang": "en-gb",
+      "speed": 1.05,
+      "note": "Risk Analyst: young, quick, ambitious"
+    },
+    "celeste": {
+      "voice": "af_bella",
+      "lang": "en-us",
+      "speed": 1.0,
+      "note": "COO: charismatic, persuasive"
+    },
+    "adrian": {
+      "voice": "bm_george",
+      "lang": "en-gb",
+      "speed": 0.95,
+      "note": "Chief Executive: measured, used to the stage"
+    },
+    "hollis": {
+      "voice": "am_michael",
+      "lang": "en-us",
+      "speed": 0.95,
+      "note": "Finance Director: precise"
+    },
+    "rafe": {
+      "voice": "am_puck",
+      "lang": "en-us",
+      "speed": 1.05,
+      "note": "Commercial Director: salesman energy"
+    },
+    "ruth": {
+      "voice": "af_sarah",
+      "lang": "en-us",
+      "speed": 1.0,
+      "note": "Compliance Lead: careful"
+    },
+    "tomasz": {
+      "voice": "am_fenrir",
+      "lang": "en-us",
+      "speed": 0.95,
+      "note": "Head of Procurement: guarded"
+    },
+    "grace": {
+      "voice": "af_kore",
+      "lang": "en-us",
+      "speed": 1.0,
+      "note": "Head of Health and Safety: plain-spoken"
+    },
+    "amara": {
+      "voice": "af_heart",
+      "lang": "en-us",
+      "speed": 1.0,
+      "note": "Fleet Manager: practical"
+    },
+    "mei": {
+      "voice": "af_aoede",
+      "lang": "en-us",
+      "speed": 1.0,
+      "note": "Head of IT: dry"
+    },
+    "helen": {
+      "voice": "bf_isabella",
+      "lang": "en-gb",
+      "speed": 0.92,
+      "note": "Board Risk Committee chair: unhurried authority"
+    },
+    "imogen": {
+      "voice": "bf_lily",
+      "lang": "en-gb",
+      "speed": 0.97,
+      "note": "Regulator: formal"
+    },
+    "jonah": {
+      "voice": "bm_lewis",
+      "lang": "en-gb",
+      "speed": 1.05,
+      "note": "Reporter: curious, pushy"
+    }
+  },
+  "approach": {
+    "comment": "Colleagues who walk over to deliver an inbox message (ARbHUD::TickApproach). Categories and excluded senders match that code.",
+    "categories": [
+      "team",
+      "politics",
+      "story"
+    ],
+    "excludeFrom": [
+      "jonah",
+      "imogen",
+      "jordan"
+    ],
+    "prefix": "Have you got a minute? ",
+    "busy": "You're busy. It's in your inbox."
+  },
+  "fixed": [
+    {
+      "person": "priya",
+      "where": "RbScreens::BriefingText(false)",
+      "text": "Welcome to Valtren Coldline Logistics. Straight to it: Bay 3 at our Northgate cold store had another temperature excursion last night. 42,000 of client stock written off, and that is the third excursion in six months.\n\nOur register still rates R-014 as Medium with Effective controls, and nobody has reviewed it in 14 months. I want your independent assessment. Start with the incident report in your inbox and the R-014 entry, both on your workstation in the analyst workspace. Then find out whether the controls actually work.\n\nWhen you are ready, complete the assessment form on your workstation and come back here for a debrief."
+    },
+    {
+      "person": "priya",
+      "where": "RbScreens::BriefingText(true)",
+      "text": "Welcome to Valtren Coldline Logistics. Straight to it: Bay 3 at our Northgate cold store had another temperature excursion last night. 42,000 of client stock written off, and that is the third excursion in six months.\n\nOur register still rates R-014 as Medium with Effective controls, and nobody has reviewed it in 14 months. I want your independent assessment. Start with the incident report in your inbox and the R-014 entry, both on your workstation in the analyst workspace. Then find out whether the controls actually work.\n\nWhen you are ready, complete the assessment form on your workstation and come back here for a debrief.\n\nHint: the alarm log is on the monitoring room terminal, the maintenance binder is in the meeting room, and the manual temperature checks are on a clipboard in the training area. My filing cabinet has the insurance schedule; the client contract is in the boardroom."
+    },
+    {
+      "person": "priya",
+      "where": "RbSelfTest people step",
+      "text": "Morning. Before anything else, open the register and look at R-014 with me."
+    },
+    {
+      "person": "callum",
+      "where": "RbSelfTest people step",
+      "text": "Have you got a minute?"
+    }
+  ],
+  "pronounce": {
+    "comment": "Spoken-form substitutions for the TTS input only (regex -> replacement); the clip key always uses the line as written.",
+    "R-0(\\d)(\\d)": "R oh \\1 \\2",
+    "\\b(\\d+(?:\\.\\d+)?)m\\b": "\\1 million"
+  }
+}

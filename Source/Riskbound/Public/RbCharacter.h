@@ -25,6 +25,12 @@ public:
 
 	URbInteractionComponent* GetInteraction() const { return Interaction; }
 
+	// Physical use before a screen opens (Docs/GameDesign.md "Physical interaction"): the view turns to the
+	// target; documents are lifted towards the camera, screens are leaned into. OnDone opens the screen.
+	// Instant under Reduced motion. The lean eases back once no screen is open.
+	void BeginUse(class ARbInteractable* Target, TFunction<void()> OnDone);
+	bool IsUsing() const { return UseT >= 0.0f; }
+
 	// Base look rate before the player's sensitivity multiplier.
 	UPROPERTY(EditAnywhere, Category = "Riskbound")
 	float LookRate = 0.5f;
@@ -41,6 +47,16 @@ private:
 	void OnPadLook(const FInputActionValue& Value);
 	void OnShot();
 	virtual void Tick(float DeltaSeconds) override;
+	void TickUse(float DeltaSeconds);
+	float UseT = -1.0f;            // 0..1 while a use move plays
+	float UseLength = 0.35f;
+	FRotator UseFrom, UseTo;
+	FVector LeanTarget = FVector::ZeroVector; // camera offset in pawn space at full lean
+	float Lean = 0.0f;             // 0..1 current lean
+	bool bLeaning = false;
+	FTransform PropFrom;
+	TFunction<void()> UseDone;
+	UPROPERTY(Transient) TObjectPtr<class UStaticMeshComponent> HeldProp;
 	float StrideDistance = 0.0f;
 	static constexpr float StrideLength = 150.0f;
 	float Sensitivity() const;

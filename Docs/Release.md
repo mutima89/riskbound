@@ -1,6 +1,6 @@
 # Releasing Riskbound (Windows)
 
-Current release: **1.0.0** (notes: `Docs/ReleaseNotes-1.0.0.md`; previous: `Docs/ReleaseNotes-0.5.1-alpha.md`, known issues: `Docs/KnownIssues.md`).
+Current release: **1.1.0** (notes: `Docs/ReleaseNotes-1.1.0.md`; previous: `Docs/ReleaseNotes-1.0.0.md`, known issues: `Docs/KnownIssues.md`).
 
 ## Outputs
 | File | What |

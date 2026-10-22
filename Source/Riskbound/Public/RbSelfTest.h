@@ -3,6 +3,7 @@
 //   -RbSelfTest=resume  loads that save the way Continue does, checks it, writes Saved/RbSelfTest.txt, quits.
 //   -RbSelfTest=tour    visits every room without player input, renders a screenshot per room
 //                       (Saved/Screenshots/<platform>/Tour_<room>.png) and writes frame timings to Saved/RbTour.txt.
+//   -RbSelfTest=people  the office's people: faces, reactions, meetings, a colleague walking up (Person_<n>_<name>.png, RbPeople.txt).
 //   -RbSelfTest=ui      opens every screen through the HUD and captures each with the UI (Ui_<n>_<screen>.png).
 // Uses its own save slot ("selftest") so the player's saves are never touched.
 #pragma once

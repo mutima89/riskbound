@@ -5,7 +5,11 @@ Source: https://github.com/microsoft/Microsoft-Rocketbox (fetched by Scripts/Fet
   UnrealEditor.exe Riskbound.uproject -ExecutePythonScript="<path>/Scripts/ImportCharacters.py"
 
 Output under /Game/Riskbound/Characters:
-  Materials/M_RbSkin, M_RbMasked                 two master materials (opaque skin/cloth, masked hair/lashes)
+  Materials/M_RbSkin, M_RbMasked                 masters: opaque body and head, masked hair/lashes
+                                                 (a pre-integrated skin or subsurface head master lost its
+                                                 base colour on UE 5.8: the heads rendered white)
+  Meshes come from the "_facial" FBX when present, with morph targets (visemes, ARKit shapes) for RbPerson;
+  an avatar imported earlier without them is re-imported.
   People/<Avatar>/SK_<Avatar> and one material instance per slot (re-parented to the masters)
   Skeletons/SK_RbMale_Skeleton, SK_RbFemale_Skeleton (every avatar of a sex shares one skeleton)
   Anims/A_<name>                                  in-place idles and listening loops
@@ -31,18 +35,22 @@ def log(m):
         f.write(m + "\n")
 
 
+MASTER_VERSION = "4"  # bump to rebuild the masters (4: morph targets; heads use M_RbSkin)
+
+
 def master(name, masked):
     path = BASE + "/Materials/" + name
     if eal.does_asset_exist(path):
         m = unreal.load_asset(path)
-        if not m.get_editor_property("used_with_skeletal_mesh"):
-            m.set_editor_property("used_with_skeletal_mesh", True)
-            mel.recompile_material(m)
-            eal.save_loaded_asset(m)
-        return m
-    m = tools.create_asset(name, BASE + "/Materials", unreal.Material, unreal.MaterialFactoryNew())
+        if eal.get_metadata_tag(m, "RbVersion") == MASTER_VERSION:
+            return m
+        # An older master: rebuild it in place so the instances keep pointing at it.
+        mel.delete_all_material_expressions(m)
+    else:
+        m = tools.create_asset(name, BASE + "/Materials", unreal.Material, unreal.MaterialFactoryNew())
     # Without this flag a packaged game cannot compile the shaders and falls back to the grey default material.
     m.set_editor_property("used_with_skeletal_mesh", True)
+    m.set_editor_property("used_with_morph_targets", True)
     if masked:
         m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_MASKED)
         m.set_editor_property("two_sided", True)
@@ -67,6 +75,7 @@ def master(name, masked):
     mel.connect_material_expressions(spec, "R", lerp, "Alpha")
     mel.connect_material_property(lerp, "", unreal.MaterialProperty.MP_ROUGHNESS)
     mel.recompile_material(m)
+    eal.set_metadata_tag(m, "RbVersion", MASTER_VERSION)
     eal.save_loaded_asset(m)
     return m
 
@@ -99,7 +108,7 @@ def fbx_task(fbx, dest, name, skeleton, anim):
     o.set_editor_property("mesh_type_to_import", unreal.FBXImportType.FBXIT_ANIMATION if anim else unreal.FBXImportType.FBXIT_SKELETAL_MESH)
     if skeleton:
         o.set_editor_property("skeleton", skeleton)
-    o.skeletal_mesh_import_data.set_editor_property("import_morph_targets", False)
+    o.skeletal_mesh_import_data.set_editor_property("import_morph_targets", not anim)
     o.skeletal_mesh_import_data.set_editor_property("convert_scene", True)
     if anim:
         o.anim_sequence_import_data.set_editor_property("animation_length", unreal.FBXAnimationLengthImportType.FBXALIT_EXPORTED_TIME)
@@ -109,6 +118,13 @@ def fbx_task(fbx, dest, name, skeleton, anim):
     t.automated, t.save, t.replace_existing, t.options = True, True, True, o
     tools.import_asset_tasks([t])
     return [unreal.load_asset(p) for p in t.imported_object_paths]
+
+
+def shape_count(mesh):
+    try:
+        return len(mesh.get_all_morph_target_names())
+    except Exception:
+        return len(mesh.get_editor_property("morph_targets"))
 
 
 def part_textures(texdir, slot):
@@ -134,16 +150,21 @@ def main():
     skeletons = {}
     for folder in sorted(glob.glob(os.path.join(SRC, "avatars", "*"))):
         avatar = os.path.basename(folder)
-        fbx = os.path.join(folder, avatar + ".fbx")
+        fbx = os.path.join(folder, avatar + "_facial.fbx")
+        facial = os.path.exists(fbx)
+        if not facial:
+            fbx = os.path.join(folder, avatar + ".fbx")
         if not os.path.exists(fbx):
             log(avatar + ": no fbx")
             continue
         sex = "Female" if "Female" in avatar else "Male"
         dest = BASE + "/People/" + avatar
         mesh_path = dest + "/SK_" + avatar
-        if eal.does_asset_exist(mesh_path):
-            mesh = unreal.load_asset(mesh_path)
-        else:
+        mesh = unreal.load_asset(mesh_path) if eal.does_asset_exist(mesh_path) else None
+        if mesh and facial and shape_count(mesh) == 0:
+            log(avatar + ": re-importing with face shapes")
+            mesh = None
+        if not mesh:
             objs = fbx_task(fbx, dest, "SK_" + avatar, skeletons.get(sex), False)
             mesh = next((o for o in objs if isinstance(o, unreal.SkeletalMesh)), None)
         if not mesh:
@@ -173,7 +194,7 @@ def main():
             if eal.does_asset_exist(stale):
                 eal.delete_asset(stale)
         eal.save_directory(dest)
-        log("%s: %d materials, bounds %s" % (avatar, len(mats), mesh.get_bounds().box_extent))
+        log("%s: %d materials, %d face shapes, bounds %s" % (avatar, len(mats), shape_count(mesh), mesh.get_bounds().box_extent))
     for fbx in sorted(glob.glob(os.path.join(SRC, "anims", "*.fbx"))):
         n = os.path.splitext(os.path.basename(fbx))[0]
         sex = "Female" if n.startswith("f_") else "Male"

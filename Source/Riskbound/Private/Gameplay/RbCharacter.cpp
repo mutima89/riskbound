@@ -13,6 +13,10 @@
 #include "RbGameSubsystem.h"
 #include "RbHUD.h"
 #include "RbInteractionComponent.h"
+#include "RbInteractable.h"
+#include "RbUIStyle.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "RbAudioSubsystem.h"
 #include "UnrealClient.h"
 
@@ -30,6 +34,94 @@ ARbCharacter::ARbCharacter()
 
 	Interaction = CreateDefaultSubobject<URbInteractionComponent>(TEXT("Interaction"));
 	PrimaryActorTick.bCanEverTick = true;
+}
+
+void ARbCharacter::BeginUse(ARbInteractable* Target, TFunction<void()> OnDone)
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!Target || !PC || RbUI::IsReducedMotion())
+	{
+		if (OnDone) OnDone();
+		return;
+	}
+	const ERbUseStyle Style = Target->GetUseStyle();
+	const FVector Eye = Camera->GetComponentLocation();
+	const FVector Focus = Target->GetFocusPoint();
+	UseFrom = PC->GetControlRotation();
+	UseTo = (Focus - Eye).Rotation();
+	UseTo.Roll = 0.0f;
+	UseT = 0.0f;
+	UseLength = Style == ERbUseStyle::Person ? 0.3f : 0.38f;
+	UseDone = MoveTemp(OnDone);
+	// Screens: lean in to reading distance (never through the desk).
+	bLeaning = false;
+	if (Style == ERbUseStyle::Screen)
+	{
+		const FVector To = Focus - Eye;
+		const float Move = FMath::Clamp(To.Size() - 70.0f, 0.0f, 80.0f);
+		LeanTarget = GetActorTransform().InverseTransformVectorNoScale(To.GetSafeNormal() * Move);
+		bLeaning = Move > 1.0f;
+	}
+	// Documents: the prop (or a folder from a cabinet) comes up to the camera.
+	if (Style == ERbUseStyle::PickUp)
+	{
+		FTransform From;
+		if (UStaticMesh* M = Target->GetPickUpMesh(From))
+		{
+			if (!HeldProp)
+			{
+				HeldProp = NewObject<UStaticMeshComponent>(this, TEXT("HeldProp"));
+				HeldProp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				HeldProp->SetCastShadow(false);
+				HeldProp->SetupAttachment(GetRootComponent());
+				HeldProp->RegisterComponent();
+			}
+			HeldProp->SetStaticMesh(M);
+			HeldProp->SetWorldTransform(From);
+			HeldProp->SetVisibility(true);
+			PropFrom = From;
+			URbAudioSubsystem::Cue(this, ERbCue::Click);
+		}
+	}
+}
+
+void ARbCharacter::TickUse(float DeltaSeconds)
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (UseT >= 0.0f && PC)
+	{
+		UseT = FMath::Min(1.0f, UseT + DeltaSeconds / UseLength);
+		const float E = FMath::InterpEaseInOut(0.0f, 1.0f, UseT, 2.0f);
+		PC->SetControlRotation(FMath::Lerp(UseFrom, UseTo, E));
+		if (bLeaning) Lean = E;
+		if (HeldProp && HeldProp->IsVisible())
+		{
+			// Held a little below the centre of view, tilted towards the reader.
+			const FVector Eye = Camera->GetComponentLocation();
+			const FRotator View = Camera->GetComponentRotation();
+			const FTransform Held(FRotator(View.Pitch + 55.0f, View.Yaw + 90.0f, 0.0f), Eye + View.Vector() * 32.0f - FVector(0.0f, 0.0f, 6.0f), PropFrom.GetScale3D());
+			FTransform T;
+			T.Blend(PropFrom, Held, E);
+			HeldProp->SetWorldTransform(T);
+		}
+		if (UseT >= 1.0f)
+		{
+			UseT = -1.0f;
+			if (HeldProp) HeldProp->SetVisibility(false);
+			if (UseDone)
+			{
+				TFunction<void()> Done = MoveTemp(UseDone);
+				Done();
+			}
+		}
+	}
+	else if (Lean > 0.0f)
+	{
+		// Ease back once the screen is closed.
+		const ARbHUD* Hud = PC ? Cast<ARbHUD>(PC->GetHUD()) : nullptr;
+		if (!Hud || !Hud->IsScreenOpen()) Lean = FMath::Max(0.0f, Lean - DeltaSeconds / 0.3f);
+	}
+	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f) + LeanTarget * FMath::InterpEaseInOut(0.0f, 1.0f, Lean, 2.0f));
 }
 
 void ARbCharacter::BuildInput()
@@ -209,6 +301,7 @@ void ARbCharacter::OnShot()
 void ARbCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	TickUse(DeltaSeconds);
 	// Footsteps: one every stride while walking on the floor.
 	const float Speed = GetVelocity().Size2D();
 	if (Speed < 40.0f || !GetCharacterMovement()->IsMovingOnGround())

@@ -1,4 +1,21 @@
-# Walkthrough report: Riskbound 0.5.x, Shipping build
+# Walkthrough report: Riskbound, Shipping build
+
+## 1.1.0 release pass (2026-10-22)
+Same driver and runner as below (`Scripts\RunWalkthrough.ps1 -Exe Release\Shipping\Windows\Riskbound.exe -Shipping`), on the 1.1.0 Shipping build: faces, voices, walking colleagues, walk-ups, the crisis clock and walk-around casework.
+
+- **Run 1 (environment, not the game):** the window was not active at launch. The click that brought it forward landed on New game, so the driver could not find the button: phase 1 blocked at "click New game", and phase 2 had no save. Re-run with the window given foreground focus once at launch (a helper outside the repo); no clicks reach the game.
+- **Run 2 (before the fixes):** phase 1 DONE, 308 s, 38 shots, no findings. Phase 2 exited after 6 s without a log when started straight after phase 1 (not reproduced). Started on its own, it was DONE in 396 s with 26 shots and one finding.
+- **Run 3 (final build, after the fixes):** phase 1 DONE (308 s, 38 shots, no findings); phase 2 DONE (415 s, 26 shots), from Continue to the CRO capstone and the journal.
+
+Finding (open, Medium): in-person document `net_price` (M017) has a text block whose desired width is 739 px in a 732 px box, at the same height (104 px), in both runs. Its words are short, so this is probably the measured width of a trailing space rather than lost text; it is the only document of 52 cases that trips the check. Making the conversation frame a fixed width did not change it (that panel is not involved; it is the document viewer).
+
+The new crisis clock and colleague walk-ups did not block any step: no stuck flows, screens that did not open, or clipping beyond the one above.
+
+Per-level timings (seconds since the phase started). Phase 1: M002 158, M003 172 (failed on purpose) and 184 (retried, passed, Risk Analyst), M004 203, C005 214, M005 224, M006 236, M007 253, M008 263, S001 274, M009 283, saved at level 5 at 308. Phase 2: M027 19, M031 29, M010 40, M011 50, M012 60, M028 78, M032 87, M013 97, M014 109, M015 118, M029 133, M030 142, S002 153, M033 162, M016 173, C001 184, M017 195, M018 206, M035 222, M019 233, M020 246, C002 257, M021 268, M022 279, S003 296, M034 304, M023 316, M024 330, C003 340, M025 353, M026 361, M036 378, CRO 390, finished 415. Mission 001 on foot, with the briefing, tools and five rooms, takes the first 158 s of phase 1.
+
+Screenshots: Docs/Screenshots/release-1.1.0 (CRO lectern and debrief, Priya speaking, corridor commuters, a walking burst).
+
+## 0.5.x walkthrough (2026-10-21)
 
 Date: 2026-10-21. Branch `claude/walkthrough-fixes`. Requested by the owner: "do complete walkthrough test".
 

@@ -35,6 +35,8 @@ FRbScreenParts AiChat(ARbHUD* Hud, const FString& PersonId, const FString& Statu
 FRbScreenParts Review(ARbHUD* Hud, bool bEnding, TFunction<void()> OnBack);
 FRbScreenParts Skills(ARbHUD* Hud, TFunction<void()> OnBack);
 FRbScreenParts Conversation(ARbHUD* Hud, const FRbConversationView& View, TFunction<void()> OnEnd);
+// A colleague who walked over with a message: read it now (opens the inbox) or later.
+FRbScreenParts Approach(const FText& Speaker, const FText& Text, TFunction<void()> OnRead, TFunction<void()> OnLater);
 TSharedRef<SWidget> CeremonyOverlay(const FString& Title, const FString& Subtitle);
 FRbScreenParts Debrief(const FRbDebriefView& Debrief, const FRbCareerView& Career, const TArray<FString>& Achievements, TFunction<void()> OnClose);
 

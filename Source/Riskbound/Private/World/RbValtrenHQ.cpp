@@ -20,7 +20,10 @@
 #include "RbAudioSubsystem.h"
 #include "RbCampaignSubsystem.h"
 #include "RbCast.h"
+#include "RbPerson.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/Pawn.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/SkyLightComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -42,6 +45,8 @@ constexpr float CeilingHeight = 300.0f;
 constexpr float DoorWidth = 220.0f;
 constexpr float DoorHeight = 230.0f;
 constexpr float DeskHeight = 74.0f;
+// Seated people stand on the chair's spot; Rocketbox sitting loops put the hips at chair height themselves.
+constexpr float SeatHeightOffset = 0.0f;
 // Poly Haven models face +Y in UE after import; this turns "facing yaw" into mesh yaw.
 constexpr float ModelYawOffset = -90.0f;
 // Priya Okafor's place beside her desk.
@@ -908,7 +913,7 @@ void ARbValtrenHQ::PlaceInteractables()
 	if (ARbNpc* Priya = SpawnInteractable<ARbNpc>(TEXT("priya_okafor"), PriyaSpot, -90.0f, Cylinder, FVector(0.5f, 0.5f, 1.8f), nullptr))
 	{
 		const RbCast::FLook L = RbCast::ForPerson(TEXT("priya"), 2);
-		Priya->SetBody(L.Mesh, L.Idle, L.bFallback ? Mat(TEXT("MI_SuitNavy")) : nullptr, L.MeshYaw);
+		Priya->SetBody(L, L.bFallback ? Mat(TEXT("MI_SuitNavy")) : nullptr, TEXT("priya"));
 		PriyaNpc = Priya;
 	}
 	// The player's workstation: the monitor screen is the interactable.
@@ -961,9 +966,11 @@ void ARbValtrenHQ::RefreshCaseMarkers()
 	if (!Campaign || !Game || !Game->HasGame()) return;
 	const FString Active = Campaign->GetActiveMissionId();
 	const int32 Viewed = static_cast<int32>(Game->GetState().Campaign.ViewedEvidence.size());
-	if (Active == MarkerMission && Viewed == MarkerViewed) return;
+	const bool bCall = !Active.IsEmpty() && Campaign->IsBoardCallStarted(Active);
+	if (Active == MarkerMission && Viewed == MarkerViewed && bCall == bMarkerCall) return;
 	MarkerMission = Active;
 	MarkerViewed = Viewed;
+	bMarkerCall = bCall;
 	for (ARbCaseMarker* M : CaseMarkers)
 	{
 		if (IsValid(M)) M->Destroy();
@@ -1025,7 +1032,7 @@ void ARbValtrenHQ::RefreshCaseMarkers()
 	for (const FRbMissionEvidenceView& E : View.Evidence)
 	{
 		const FRoomSpots* S = Spots.Find(E.At);
-		if (!S || E.bViewed) continue;
+		if (!S || E.bViewed || bCall) continue; // after the board call, unseen evidence is out of reach
 		if (!E.PersonName.IsEmpty())
 		{
 			// Priya is met where she always stands; everyone else takes the room's next free spot.
@@ -1044,7 +1051,7 @@ void ARbValtrenHQ::RefreshCaseMarkers()
 			M->Kind = ERbCaseMarkerKind::Interview;
 			M->Title = E.PersonName;
 			const RbCast::FLook L = RbCast::ForPerson(E.PersonId, 1);
-			M->SetBody(L.Mesh, L.Idle, L.bFallback ? Mat(Outfits[PersonIndex % 3]) : nullptr, L.MeshYaw);
+			M->SetBody(L, L.bFallback ? Mat(Outfits[PersonIndex % 3]) : nullptr, E.PersonId);
 			++PersonIndex;
 			M->MissionId = Active;
 			M->EvidenceId = E.Id;
@@ -1140,11 +1147,90 @@ void ARbValtrenHQ::UpdateDaylight(float DeltaSeconds)
 	if (SkyMaterial) SkyMaterial->SetScalarParameterValue(TEXT("Intensity"), 14.0f * FMath::Lerp(SkyFrom, SkyTo, T) / SkyIntensity);
 }
 
+TArray<FVector> ARbValtrenHQ::RouteBetween(const FVector& From, const FVector& To) const
+{
+	// Rooms open onto the corridor through one door each, at the room's centre line. North-bound
+	// walkers keep to the north half of the corridor, so two people rarely meet head on.
+	auto RoomOf = [](const FVector& P) -> const FRoom*
+	{
+		for (const FRoom& R : Rooms())
+		{
+			if (R.Bounds.IsInside(FVector2D(P.X, P.Y))) return &R;
+		}
+		return nullptr;
+	};
+	const FRoom* A = RoomOf(From);
+	const FRoom* B = RoomOf(To);
+	TArray<FVector> Out;
+	if (A && A == B)
+	{
+		Out.Add(To);
+		return Out;
+	}
+	const float Lane = To.Y >= 0.0f ? 55.0f : -55.0f;
+	auto Door = [&](const FRoom& R, bool bLeaving)
+	{
+		const float X = R.Bounds.GetCenter().X;
+		const float Side = R.bNorthSide ? 1.0f : -1.0f;
+		if (bLeaving)
+		{
+			Out.Add(FVector(X, Side * (CorridorHalfY + 70.0f), 0.0f));
+			Out.Add(FVector(X, Lane, 0.0f));
+		}
+		else
+		{
+			Out.Add(FVector(X, Lane, 0.0f));
+			Out.Add(FVector(X, Side * (CorridorHalfY + 70.0f), 0.0f));
+		}
+	};
+	if (A) Door(*A, true);
+	else Out.Add(FVector(From.X, Lane, 0.0f));
+	if (B) Door(*B, false);
+	else Out.Add(FVector(To.X, Lane, 0.0f));
+	Out.Add(To);
+	return Out;
+}
+
+URbPersonComponent* ARbValtrenHQ::AddPerson(const RbCast::FLook& L, const FString& PersonId, const FVector& At, float FacingYaw, int32 Seed, UMaterialInterface* Outfit)
+{
+	if (!L.Mesh) return nullptr;
+	URbPersonComponent* C = NewObject<URbPersonComponent>(this, NAME_None);
+	C->SetupAttachment(RootComponent);
+	C->SetRelativeLocation(At);
+	C->RegisterComponent();
+	C->Setup(L, PersonId, FacingYaw, Seed);
+	if (L.bFallback && Outfit)
+	{
+		for (int32 m = 0; m < C->GetNumMaterials(); ++m) C->SetMaterial(m, Outfit);
+	}
+	return C;
+}
+
+void ARbValtrenHQ::Commute(URbPersonComponent* Person, const FVector& Home, const FVector& Away, bool bOutbound)
+{
+	if (!IsValid(Person)) return;
+	// Walk to the other end, stay a while, come back: colleagues on their way to meetings.
+	TWeakObjectPtr<URbPersonComponent> Weak(Person);
+	TWeakObjectPtr<ARbValtrenHQ> WeakThis(this);
+	const FVector To = bOutbound ? Away : Home;
+	Person->WalkRoute(RouteBetween(Person->GetComponentLocation(), To), [Weak, WeakThis, Home, Away, bOutbound]()
+	{
+		if (!Weak.IsValid() || !WeakThis.IsValid()) return;
+		Weak->TurnTo(Weak->GetComponentLocation() + (bOutbound ? FVector(0.0f, Away.Y > 0.0f ? 1.0f : -1.0f, 0.0f) : FVector(0.0f, Home.Y > 0.0f ? 1.0f : -1.0f, 0.0f)) * 100.0f);
+		FTimerHandle H;
+		const float Stay = 9.0f + static_cast<float>(GetTypeHash(Weak->GetComponentLocation().X) % 7);
+		WeakThis->GetWorldTimerManager().SetTimer(H, FTimerDelegate::CreateWeakLambda(WeakThis.Get(), [Weak, WeakThis, Home, Away, bOutbound]()
+		{
+			if (Weak.IsValid() && WeakThis.IsValid()) WeakThis->Commute(Weak.Get(), Home, Away, !bOutbound);
+		}), Stay, false);
+	});
+}
+
 void ARbValtrenHQ::RefreshStaff(int32 Wanted)
 {
 	if (Wanted == StaffShown) return;
 	StaffShown = Wanted;
-	for (USkeletalMeshComponent* C : Staff)
+	for (URbPersonComponent* C : Staff)
 	{
 		if (IsValid(C)) C->DestroyComponent();
 	}
@@ -1154,29 +1240,155 @@ void ARbValtrenHQ::RefreshStaff(int32 Wanted)
 		{FVector(1200.0f, 930.0f, 0.0f), 90.0f}, {FVector(1650.0f, 430.0f, 0.0f), -20.0f}, {FVector(1450.0f, -950.0f, 0.0f), 60.0f},
 		{FVector(3300.0f, 500.0f, 0.0f), 30.0f}, {FVector(700.0f, 380.0f, 0.0f), -60.0f}, {FVector(1820.0f, 880.0f, 0.0f), 110.0f},
 		{FVector(1720.0f, -420.0f, 0.0f), 200.0f}, {FVector(430.0f, -700.0f, 0.0f), 0.0f}, {FVector(2550.0f, 60.0f, 0.0f), 180.0f}};
+	// Two of them go between rooms: workspace to the meeting room, monitoring to reception.
+	static const TPair<int32, FVector> Commuters[] = {{1, FVector(3480.0f, 380.0f, 0.0f)}, {6, FVector(600.0f, 330.0f, 0.0f)}};
 	UMaterialInterface* Outfits[] = {Mat(TEXT("MI_SuitNavy")), Mat(TEXT("MI_FabricDark")), Mat(TEXT("MI_Graphite"))};
 	for (int32 i = 0; i < FMath::Min(Wanted, static_cast<int32>(UE_ARRAY_COUNT(Spots))); ++i)
 	{
 		const RbCast::FLook L = RbCast::ForStaff(i);
-		if (!L.Mesh) continue;
-		USkeletalMeshComponent* C = NewObject<USkeletalMeshComponent>(this, NAME_None);
-		C->SetupAttachment(RootComponent);
-		C->SetRelativeLocationAndRotation(Spots[i].Key, FRotator(0.0f, Spots[i].Value + L.MeshYaw + 90.0f, 0.0f));
-		C->SetSkeletalMesh(L.Mesh);
-		C->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		if (L.bFallback && Outfits[i % 3])
-		{
-			for (int32 m = 0; m < C->GetNumMaterials(); ++m) C->SetMaterial(m, Outfits[i % 3]);
-		}
-		C->RegisterComponent();
-		if (L.Idle)
-		{
-			C->PlayAnimation(L.Idle, true);
-			C->SetPosition(FMath::Fmod(1.7f * i, FMath::Max(L.Idle->GetPlayLength(), 0.1f))); // not all in step
-			C->SetPlayRate(0.9f + 0.05f * (i % 4));
-		}
+		// The spot yaws were set for the mesh's own axis; the person's facing is 90 degrees on.
+		URbPersonComponent* C = AddPerson(L, FString(), Spots[i].Key, Spots[i].Value + 90.0f, i, Outfits[i % 3]);
+		if (!C) continue;
 		Staff.Add(C);
+		for (const TPair<int32, FVector>& Trip : Commuters)
+		{
+			if (Trip.Key != i || L.bFallback) continue;
+			// Staggered starts so they are not all on the move at once.
+			TWeakObjectPtr<URbPersonComponent> Weak(C);
+			const FVector Home = Spots[i].Key, Away = Trip.Value;
+			FTimerHandle H;
+			GetWorldTimerManager().SetTimer(H, FTimerDelegate::CreateWeakLambda(this, [this, Weak, Home, Away]()
+			{
+				if (Weak.IsValid()) Commute(Weak.Get(), Home, Away, true);
+			}), 6.0f + 5.0f * i, false);
+		}
 	}
+	// Two colleagues in a meeting at the meeting-room table.
+	if (Wanted >= 4)
+	{
+		static const TPair<FVector, float> Seats[] = {{FVector(3390.0f, 590.0f, 0.0f), 90.0f}, {FVector(3390.0f, 810.0f, 0.0f), -90.0f}};
+		for (int32 s = 0; s < 2; ++s)
+		{
+			const RbCast::FLook L = RbCast::ForStaff(20 + s * 3);
+			if (L.bFallback) break;
+			if (URbPersonComponent* C = AddPerson(L, FString(), Seats[s].Key + FVector(0.0f, 0.0f, SeatHeightOffset), Seats[s].Value, 40 + s, nullptr))
+			{
+				C->SitDown(true);
+				Staff.Add(C);
+			}
+		}
+	}
+}
+
+void ARbValtrenHQ::RefreshBoard(bool bInSession)
+{
+	if (bInSession == bBoardSeated) return;
+	bBoardSeated = bInSession;
+	for (URbPersonComponent* C : Board)
+	{
+		if (IsValid(C)) C->DestroyComponent();
+	}
+	Board.Reset();
+	if (!bInSession) return;
+	// Board papers are presented to people: the chair, the chief executive, finance and operations.
+	static const struct { const TCHAR* Person; FVector At; float Yaw; } Seats[] = {
+		{TEXT("helen"), FVector(3220.0f, -585.0f, 0.0f), -90.0f}, {TEXT("adrian"), FVector(3220.0f, -815.0f, 0.0f), 90.0f},
+		{TEXT("hollis"), FVector(2890.0f, -585.0f, 0.0f), -90.0f}, {TEXT("celeste"), FVector(2890.0f, -815.0f, 0.0f), 90.0f}};
+	int32 Seed = 60;
+	for (const auto& S : Seats)
+	{
+		const RbCast::FLook L = RbCast::ForPerson(S.Person, 0);
+		if (L.bFallback) break;
+		if (URbPersonComponent* C = AddPerson(L, S.Person, S.At + FVector(0.0f, 0.0f, SeatHeightOffset), S.Yaw, Seed++, nullptr))
+		{
+			C->SitDown(true);
+			Board.Add(C);
+		}
+	}
+}
+
+URbPersonComponent* ARbValtrenHQ::SendColleague(const FString& PersonId, TFunction<void(URbPersonComponent*)> OnArrive)
+{
+	DismissColleague(true);
+	const APawn* Player = UGameplayStatics::GetPlayerPawn(this, 0);
+	const RbCast::FLook L = RbCast::ForPerson(PersonId, 0);
+	if (!Player || L.bFallback) return nullptr;
+	// They come in from the far end of the corridor and stop at talking distance.
+	const FVector P = Player->GetActorLocation();
+	const FVector Start(P.X < 2000.0f ? 3900.0f : 120.0f, 0.0f, 0.0f);
+	URbPersonComponent* C = AddPerson(L, PersonId, Start, P.X < 2000.0f ? 180.0f : 0.0f, 90, nullptr);
+	if (!C) return nullptr;
+	Messenger = C;
+	MessengerStart = Start;
+	TArray<FVector> Route = RouteBetween(Start, FVector(P.X, P.Y, 0.0f));
+	// The last point is the player; stop short of them.
+	if (Route.Num() >= 1)
+	{
+		const FVector Prev = Route.Num() >= 2 ? Route[Route.Num() - 2] : Start;
+		const FVector Dir = (FVector(P.X, P.Y, 0.0f) - Prev).GetSafeNormal2D();
+		Route.Last() = FVector(P.X, P.Y, 0.0f) - Dir * 130.0f;
+	}
+	TWeakObjectPtr<URbPersonComponent> Weak(C);
+	C->WalkRoute(Route, [Weak, OnArrive]()
+	{
+		if (!Weak.IsValid()) return;
+		if (const APawn* Pl = UGameplayStatics::GetPlayerPawn(Weak.Get(), 0)) Weak->TurnTo(Pl->GetActorLocation());
+		if (OnArrive) OnArrive(Weak.Get());
+	});
+	return C;
+}
+
+void ARbValtrenHQ::DismissColleague(bool bImmediately)
+{
+	URbPersonComponent* C = Messenger.Get();
+	Messenger = nullptr;
+	if (!IsValid(C)) return;
+	if (bImmediately)
+	{
+		C->DestroyComponent();
+		return;
+	}
+	C->SetEngaged(false);
+	TWeakObjectPtr<URbPersonComponent> Weak(C);
+	C->WalkRoute(RouteBetween(C->GetComponentLocation(), MessengerStart), [Weak]()
+	{
+		if (Weak.IsValid()) Weak->DestroyComponent();
+	});
+}
+
+void ARbValtrenHQ::StartAlarm(float Seconds)
+{
+	// A crisis opens: red light pulses in the monitoring room and the corridor.
+	if (AlarmLights.IsEmpty())
+	{
+		for (const FVector& At : {FVector(1500.0f, -700.0f, 270.0f), FVector(1500.0f, 0.0f, 270.0f), FVector(3000.0f, 0.0f, 270.0f)})
+		{
+			UPointLightComponent* Light = NewObject<UPointLightComponent>(this, NAME_None);
+			Light->SetupAttachment(RootComponent);
+			Light->SetRelativeLocation(At);
+			Light->SetLightColor(FLinearColor(1.0f, 0.12f, 0.08f));
+			Light->SetAttenuationRadius(900.0f);
+			Light->SetCastShadows(false);
+			Light->SetIntensity(0.0f);
+			Light->RegisterComponent();
+			AlarmLights.Add(Light);
+		}
+	}
+	AlarmLeft = Seconds;
+	GetWorldTimerManager().SetTimer(AlarmTimer, this, &ARbValtrenHQ::TickAlarm, 0.05f, true);
+}
+
+void ARbValtrenHQ::TickAlarm()
+{
+	AlarmLeft -= 0.05f;
+	const bool bOn = AlarmLeft > 0.0f;
+	// Slow, soft pulse (no strobe: under one flash a second), steady under Reduced motion.
+	const float Pulse = RbUI::IsReducedMotion() ? 0.6f : 0.5f + 0.5f * FMath::Sin(AlarmLeft * PI * 1.4f);
+	for (UPointLightComponent* L : AlarmLights)
+	{
+		if (IsValid(L)) L->SetIntensity(bOn ? 9000.0f * Pulse : 0.0f);
+	}
+	if (!bOn) GetWorldTimerManager().ClearTimer(AlarmTimer);
 }
 
 void ARbValtrenHQ::RefreshOwnDesk(int32 Level, const FString& Title, int32 Trophies)
@@ -1226,6 +1438,9 @@ void ARbValtrenHQ::UpdateLivingWorld()
 			const rb::GameState& S = Game->GetState();
 			const double Morale = S.Org.Get(rb::EOrgMetric::EmployeeMorale);
 			RefreshStaff(FMath::Clamp(FMath::RoundToInt(Morale / 9.0), 3, 9));
+			const URbCampaignSubsystem* Campaign = GI->GetSubsystem<URbCampaignSubsystem>();
+			const FString Active = Campaign ? Campaign->GetActiveMissionId() : FString();
+			RefreshBoard(!Active.IsEmpty() && Campaign->GetMission(Active).PresentAt == TEXT("boardroom"));
 			const FRbCareerView Career = Game->GetCareer();
 			RefreshOwnDesk(Career.Level, Career.Title, static_cast<int32>(S.Achievements.size()) / 5);
 		}

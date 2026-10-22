@@ -78,6 +78,12 @@ public:
 	void ClearNotices();
 	void OnSettingsChanged();
 
+	// The person in a conversation speaks the line (lip-sync, gestures) and reacts to the player's last
+	// choice (+1/-1); they stay attentive until the screen closes.
+	void Speak(const FString& PersonId, const FString& Line, int32 Reaction = 0);
+	// "Board call in 4:12" while a crisis clock runs, else empty.
+	FString GetCrisisClockText() const;
+
 	URbGameSubsystem* Game() const;
 	URbSaveSubsystem* Saves() const;
 
@@ -91,6 +97,28 @@ private:
 	void SetGameInput();
 
 	TSharedPtr<SWidget> Screen;
+
+	TWeakObjectPtr<class URbPersonComponent> Speaker;
+	void ReleaseSpeaker();
+	class ARbValtrenHQ* Office() const;
+
+	// Colleagues come to find you: a new message from someone in the office is delivered in person.
+	void TickApproach();
+	void ResetApproach();
+	TSet<FString> KnownMessages;
+	bool bKnownMessages = false;
+	double NextApproachCheck = 0.0;
+	double ApproachTimeout = 0.0;
+	bool bApproaching = false;
+
+	// Crisis clock: a crisis opens with an alarm; above Analyst difficulty the board call starts after a
+	// few minutes and unseen evidence is out of reach.
+	void TickCrisisClock();
+	FString ClockMission;
+	double ClockEnds = 0.0;
+	bool bClockWarned = false;
+	bool bClockExpired = false;
+	bool bOpenCallPending = false;
 	TSharedPtr<SWidget> CeremonyRoot;
 	bool bPhotoMode = false;
 	bool bEndingPending = false;

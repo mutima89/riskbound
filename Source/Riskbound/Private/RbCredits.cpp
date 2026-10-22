@@ -32,13 +32,17 @@ TArray<FSection> Sections()
 	// MIT licence: the copyright notice must accompany the avatars (Docs/AssetCredits.md "Characters").
 	Out.Add({TEXT("Characters"),
 		{TEXT("Office cast and animations: Microsoft Rocketbox Avatar Library (github.com/microsoft/Microsoft-Rocketbox)"),
-		 TEXT("Copyright (c) 2020 Microsoft. Licensed under the MIT License.")}});
+		 TEXT("Copyright (c) 2020 Microsoft. Licensed under the MIT License."),
+		 TEXT("Facial blendshapes (visemes, ARKit and FACS shapes): Matias Volonte and Fang Ma, part of the same library")}});
 	// Music is CC BY 4.0: the attribution below is required wherever the music is used (Docs/AssetCredits.md "Audio").
 	Out.Add({TEXT("Music and sound"),
 		{TEXT("\"Clean Soul\", \"Thinking Music\", \"Lightless Dawn\" and \"Hitman\" by Kevin MacLeod (incompetech.com)"),
 		 TEXT("Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/"),
 		 TEXT("Interface sounds and footsteps: Kenney (www.kenney.nl), CC0 1.0"),
 		 TEXT("Ambience, alerts and stingers: original Riskbound sound design")}});
+	Out.Add({TEXT("Voices"),
+		{TEXT("Colleague voices: synthesised offline with Kokoro-82M by hexgrad (huggingface.co/hexgrad/Kokoro-82M), Apache License 2.0"),
+		 TEXT("Generated with kokoro-onnx by thewh1teagle (MIT). No voice belongs to a real person.")}});
 	Out.Add({TEXT("Development assistance"), {TEXT("Claude Code by Anthropic")}});
 	Out.Add({TEXT("Fictional names"), {TEXT("All companies, people and products in Riskbound are invented. Any resemblance to real organisations is coincidental.")}});
 	return Out;

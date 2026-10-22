@@ -66,6 +66,8 @@ TSharedRef<SWidget> MakeEyebrow(const FText& Text); // small uppercase teal labe
 
 // Centred modal frame with a dim backdrop, used by every full screen.
 TSharedRef<SWidget> MakeModalFrame(TSharedRef<SWidget> Content, float MaxWidth = 900.0f);
+// Conversations: a panel along the bottom with no dimming, so the person's face stays in view above it.
+TSharedRef<SWidget> MakeConversationFrame(TSharedRef<SWidget> Content, float MaxWidth = 900.0f);
 
 FText Money(double Amount);
 } // namespace RbUI
