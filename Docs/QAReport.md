@@ -192,3 +192,12 @@ Voice: all 128 clips, median -20.7 LUFS (range -26.9 to -16.9), played at volume
 | AMB_RoomTone (2D) | -29.8 | -51.9 | | -40.9 (0.28) | 20 LU |
 
 With room tone added, the bed under dialogue is 7.6-7.8 LU below the voice: inside the 6-10 LU target. Spatial ambience at full volume (inside 35% of its radius): servers -24.8 (0.5), HVAC -31.8 (0.35), office -37.5 (0.45). The server hum is about 4 LU under a voice, but only inside the server room. Lip-sync: `URbPersonComponent::Say` scales the viseme track by clip duration / text length and sets `SpeakLength` to the clip duration. The long Priya briefing runs 51.74 s (hints on) and 37.23 s (hints off), so the mouth closes as the clip ends. The text cap (9 s) applies only to unrecorded lines.
+
+### 1.1.0 installer and portable zip (`Scripts\BuildInstaller.bat 1.1.0 1.1.0.0`)
+| Run | Result |
+|---|---|
+| Build | `Riskbound-Setup-1.1.0.exe` 370.7 MB (SHA-256 f8781368456fe320b485a0fb83ce070a18dd662c890bd7d9a1d6b0c41615f4d9), `Riskbound-1.1.0-Win64-Portable.zip` 399.4 MB (SHA-256 da0fcfe04a7bc807b3f11202aee2ac1df8f6aa1bb2a0bfac4451d3988cab7a28) |
+| Silent install (`/VERYSILENT /CURRENTUSER /DIR=%LOCALAPPDATA%\RiskboundInstallTest /TASKS=desktopicon`) | exit 0; 34 files; uninstall entry "Riskbound 1.1.0"; desktop shortcut and Start-menu folder present |
+| Installed `-RbSelfTest=play` | PASS, 21 checks |
+| Silent uninstall (`unins000.exe /VERYSILENT`) | exit 0; folder, uninstall entry and desktop shortcut gone; SaveGames kept (8 files before, 8 after) |
+| Zip extracted to a new folder, `-RbSelfTest=play` | PASS, 21 checks; SHA-256 matches the .sha256 file |
