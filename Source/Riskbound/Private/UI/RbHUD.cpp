@@ -781,7 +781,9 @@ void ARbHUD::TickApproach()
 		int32 Cut = INDEX_NONE;
 		if (First.FindChar(TEXT('\n'), Cut)) First = First.Left(Cut);
 		if (First.Len() > 420) First = First.Left(417) + TEXT("...");
-		const FString Spoken = FString::Printf(TEXT("Have you got a minute? %s."), *Msg.Subject);
+		// Scripts/BuildVoices.py (approach_line) records this exact sentence for each colleague's message.
+		const bool bEndsSentence = Msg.Subject.EndsWith(TEXT(".")) || Msg.Subject.EndsWith(TEXT("?")) || Msg.Subject.EndsWith(TEXT("!"));
+		const FString Spoken = FString::Printf(TEXT("Have you got a minute? %s%s"), *Msg.Subject, bEndsSentence ? TEXT("") : TEXT("."));
 		Hud->Speak(Msg.FromId, Spoken);
 		const FText Who = FText::FromString(Msg.FromRole.IsEmpty() ? Msg.FromName : Msg.FromName + TEXT(", ") + Msg.FromRole);
 		const FText Text = FText::FromString(TEXT("\u201C") + Spoken + TEXT("\u201D\n\n") + First);

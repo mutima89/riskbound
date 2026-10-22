@@ -52,6 +52,17 @@ Sources: Data/AudioManifest.json (URL, SHA-256, licence), built by Scripts/Build
 
 CC BY 4.0 attribution, shown on the in-game Credits screen and in the README: "Clean Soul", "Thinking Music", "Lightless Dawn" and "Hitman" by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/.
 
+## Voices
+Every line a colleague says aloud is recorded offline by Scripts/BuildVoices.py into Data/Assets/generated/audio/Voice/VO_<key>.wav and imported by Scripts/ImportAudio.py to /Game/Riskbound/Audio/Voice. Casting (which voice each character uses) and the lines that live in game code are in Data/VoiceCast.json. Nothing runs at game time and no network is used: the game ships the clips (Docs/VoiceOver.md).
+
+| Asset | Use in Riskbound | Source | Author | Licence |
+|---|---|---|---|---|
+| [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) v1.0 model and voices (SHA-256 in Scripts/BuildVoices.py) | Speaks the colleague lines | [kokoro-onnx model files](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0) | hexgrad | Apache 2.0 |
+| [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) | Build-time runner (not shipped) | PyPI | thewh1teagle | MIT |
+| Voice clips (128 lines, 12 characters) | Colleague dialogue, interviews, walk-ups, briefing | Generated for Riskbound | Riskbound | Project licence |
+
+The voices are synthetic stock voices of the model, not clones of any real person. Credited on the in-game Credits screen.
+
 ## Original Riskbound textures
 Screen UIs (dashboard, spreadsheet, inbox, alarm console), the training whiteboard sketch and the three abstract wall prints are drawn by `Scripts/GenerateTextures.py` for this project (all names invented; no Mission 001 figures). Office task chairs, desks, monitors, shelving, lamps and small props are built from engine shapes in `ARbValtrenHQ`.
 

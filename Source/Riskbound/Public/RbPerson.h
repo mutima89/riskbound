@@ -16,6 +16,7 @@
 #include "RbPerson.generated.h"
 
 class UAnimSequence;
+class UAudioComponent;
 
 // What the evaluation thread needs each frame, copied from the component.
 struct FRbPersonPose
@@ -81,7 +82,8 @@ public:
 	// Sit at a table or on a chair (Rocketbox sit_* loops); the component should stand on the chair's spot.
 	void SitDown(bool bAtTable);
 
-	// Speaks a line: talking gestures and lip-sync for about as long as it takes to say it.
+	// Speaks a line: talking gestures and lip-sync. A recorded clip for the line (URbAudioSubsystem::FindVoice)
+	// plays from the head and the lip-sync is stretched to its length; without one, the length comes from the text.
 	void Say(const FString& Text);
 	void StopTalking();
 	// Attentive while the player talks to them: faces the player and listens between lines.
@@ -154,7 +156,9 @@ private:
 	bool bEngaged = false;
 	float Mood = 0.0f, MoodTarget = 0.0f, MoodHold = 0.0f;  // -1 unhappy .. +1 pleased
 	float NodT = -1.0f; int32 NodSign = 0;    // procedural nod (+1) or head shake (-1)
-	// Lip-sync: one viseme per letter group at a speaking rate.
+	// Lip-sync: one viseme per letter group at a speaking rate, or spread over the recorded clip.
+	void StopVoice();
+	UPROPERTY(Transient) TObjectPtr<UAudioComponent> VoiceAudio;
 	TArray<uint8> Visemes;
 	TArray<float> VisemeTimes;
 	float SpeakT = -1.0f, SpeakLength = 0.0f;

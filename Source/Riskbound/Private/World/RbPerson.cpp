@@ -6,10 +6,16 @@
 #include "AnimationRuntime.h"
 #include "BonePose.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Components/AudioComponent.h"
+#include "Engine/GameInstance.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "RbAudioSubsystem.h"
+#include "RbConvert.h"
 #include "RbUIStyle.h"
+#include "RbVoice.h"
+#include "Sound/SoundWave.h"
 
 namespace
 {
@@ -24,7 +30,7 @@ const FName JawBone(TEXT("Bip01 MJaw"));
 constexpr float WalkSpeed = 118.0f;     // cm/s, matches the walk loop's stride
 constexpr float LookRange = 480.0f;     // people notice the player within this distance
 constexpr float SpeakRate = 14.0f;      // characters a second
-constexpr float MaxSpeech = 9.0f;       // seconds of lip-sync for the longest lines
+constexpr float MaxSpeech = 9.0f;       // seconds of text-timed lip-sync for the longest unrecorded lines
 
 TArray<TWeakObjectPtr<URbPersonComponent>>& Registry()
 {
@@ -201,6 +207,7 @@ void URbPersonComponent::OnRegister()
 void URbPersonComponent::OnUnregister()
 {
 	Registry().RemoveAll([this](const TWeakObjectPtr<URbPersonComponent>& P) { return !P.IsValid() || P.Get() == this; });
+	StopVoice();
 	Super::OnUnregister();
 }
 
@@ -329,13 +336,19 @@ bool URbPersonComponent::PlayGesture(const TCHAR* Name, float BlendIn)
 
 void URbPersonComponent::Say(const FString& Text)
 {
+	// A recorded clip for exactly this line (Scripts/BuildVoices.py), if there is one.
+	StopVoice();
+	USoundWave* Voice = URbAudioSubsystem::FindVoice(RbConvert::ToFString(rb::VoiceLineKey(RbConvert::ToStd(PersonId), RbConvert::ToStd(Text))));
+	const float Voiced = Voice ? Voice->GetDuration() : 0.0f;
+
 	// Build the viseme track: one shape per letter group, pauses at punctuation.
 	Visemes.Reset();
 	VisemeTimes.Reset();
 	float T = 0.0f;
 	const float Step = 1.0f / SpeakRate;
+	const float Limit = Voiced > 0.0f ? TNumericLimits<float>::Max() : MaxSpeech;
 	uint8 Last = 255;
-	for (int32 i = 0; i < Text.Len() && T < MaxSpeech; ++i)
+	for (int32 i = 0; i < Text.Len() && T < Limit; ++i)
 	{
 		const TCHAR C = Text[i];
 		if (C == ',' || C == ';' || C == ':') { Visemes.Add(0); VisemeTimes.Add(T); T += 0.18f; Last = 0; continue; }
@@ -351,6 +364,18 @@ void URbPersonComponent::Say(const FString& Text)
 	}
 	Visemes.Add(0);
 	VisemeTimes.Add(T);
+	if (Voiced > 0.0f && T > 0.0f)
+	{
+		// The same shapes in the same proportions, spread over the recording so the mouth closes as the voice ends.
+		const float Scale = Voiced / T;
+		for (float& Time : VisemeTimes) Time *= Scale;
+		T = Voiced;
+		UGameInstance* GI = GetWorld() ? GetWorld()->GetGameInstance() : nullptr;
+		if (URbAudioSubsystem* Audio = GI ? GI->GetSubsystem<URbAudioSubsystem>() : nullptr)
+		{
+			VoiceAudio = Audio->PlayVoice(Voice, this, HeadBone);
+		}
+	}
 	SpeakT = 0.0f;
 	SpeakLength = T;
 	MoodTarget = FMath::Max(MoodTarget, 0.15f);
@@ -365,8 +390,15 @@ void URbPersonComponent::Say(const FString& Text)
 	}
 }
 
+void URbPersonComponent::StopVoice()
+{
+	if (IsValid(VoiceAudio)) VoiceAudio->Stop();
+	VoiceAudio = nullptr;
+}
+
 void URbPersonComponent::StopTalking()
 {
+	StopVoice();
 	SpeakT = -1.0f;
 	if (Activity == ERbPersonActivity::Standing) SetLoop(RestLoop(), 0.5f);
 }
@@ -422,6 +454,7 @@ void URbPersonComponent::WalkRoute(const TArray<FVector>& Points, TFunction<void
 		return;
 	}
 	Activity = ERbPersonActivity::Walking;
+	StopVoice();
 	SpeakT = -1.0f;
 	UAnimSequence* Walk = Loop(TEXT("walk_neutral_01"));
 	if (!Walk) Walk = Loop(TEXT("walk_neutral_02"));

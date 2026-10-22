@@ -11,6 +11,7 @@
 #include "RbUIStyle.h"
 #include "Sound/SoundAttenuation.h"
 #include "Sound/SoundBase.h"
+#include "Sound/SoundWave.h"
 
 namespace
 {
@@ -57,6 +58,14 @@ void URbAudioSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Attenuation->Attenuation.bSpatialize = true;
 	Attenuation->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
 	Attenuation->Attenuation.FalloffDistance = 900.0f;
+	VoiceAttenuation = NewObject<USoundAttenuation>(this);
+	VoiceAttenuation->Attenuation.bAttenuate = true;
+	VoiceAttenuation->Attenuation.bSpatialize = true;
+	VoiceAttenuation->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
+	VoiceAttenuation->Attenuation.AttenuationShapeExtents = FVector(350.0f, 0.0f, 0.0f); // conversation distance: full volume
+	VoiceAttenuation->Attenuation.FalloffDistance = 1400.0f;
+	VoiceAttenuation->Attenuation.NonSpatializedRadiusStart = 250.0f; // face to face: centred, not panned hard
+	VoiceAttenuation->Attenuation.NonSpatializedRadiusEnd = 120.0f;
 	UE_LOG(LogRiskbound, Display, TEXT("Audio: %d sounds loaded"), LoadedSoundCount());
 }
 
@@ -72,6 +81,20 @@ void URbAudioSubsystem::Deinitialize()
 USoundBase* URbAudioSubsystem::Load(const TCHAR* Rel)
 {
 	return LoadObject<USoundBase>(nullptr, *AudioPath(Rel), nullptr, LOAD_NoWarn | LOAD_Quiet);
+}
+
+USoundWave* URbAudioSubsystem::FindVoice(const FString& Key)
+{
+	if (Key.IsEmpty()) return nullptr;
+	const FString Name = TEXT("VO_") + Key;
+	return LoadObject<USoundWave>(nullptr, *FString::Printf(TEXT("/Game/Riskbound/Audio/Voice/%s.%s"), *Name, *Name), nullptr, LOAD_NoWarn | LOAD_Quiet);
+}
+
+UAudioComponent* URbAudioSubsystem::PlayVoice(USoundWave* Voice, USceneComponent* AttachTo, FName Socket)
+{
+	if (!Voice || !AttachTo) return nullptr;
+	return UGameplayStatics::SpawnSoundAttached(Voice, AttachTo, Socket, FVector::ZeroVector, EAttachLocation::KeepRelativeOffset,
+		true, 1.0f, 1.0f, 0.0f, VoiceAttenuation);
 }
 
 int32 URbAudioSubsystem::LoadedSoundCount() const

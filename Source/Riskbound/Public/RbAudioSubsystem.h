@@ -13,6 +13,8 @@
 class UAudioComponent;
 class USoundAttenuation;
 class USoundBase;
+class USoundWave;
+class USceneComponent;
 
 UENUM(BlueprintType)
 enum class ERbCue : uint8
@@ -67,6 +69,12 @@ public:
 	// A looping positional ambience (servers, HVAC) owned by the level; attenuated over Radius cm.
 	UAudioComponent* SpawnAmbience(UWorld* World, const FName& Name, const FVector& Location, float Radius, float Volume);
 
+	// A colleague's recorded line (Scripts/BuildVoices.py): /Game/Riskbound/Audio/Voice/VO_<Key>, Key from
+	// rb::VoiceLineKey. Null when the line has no clip (the person then speaks with text-timed lip-sync only).
+	static USoundWave* FindVoice(const FString& Key);
+	// Plays it from the speaker's head, full volume at conversation distance and fading across a room.
+	UAudioComponent* PlayVoice(USoundWave* Voice, USceneComponent* AttachTo, FName Socket);
+
 	// Number of sound assets that loaded (for the self-test report).
 	int32 LoadedSoundCount() const;
 
@@ -91,6 +99,7 @@ private:
 	UPROPERTY(Transient) TObjectPtr<UAudioComponent> MusicB;
 	UPROPERTY(Transient) TObjectPtr<UAudioComponent> RoomToneComponent;
 	UPROPERTY(Transient) TObjectPtr<USoundAttenuation> Attenuation;
+	UPROPERTY(Transient) TObjectPtr<USoundAttenuation> VoiceAttenuation;
 
 	ERbMusicMood Mood = ERbMusicMood::Silent;
 	bool bMusicOnA = true;
