@@ -1,5 +1,7 @@
 """Downloads the office cast from Microsoft Rocketbox (MIT licence, github.com/microsoft/Microsoft-Rocketbox)
-into <repo>/../RiskboundAssets/rocketbox: avatar FBX files, textures reduced to 1024 px PNG, and idle animations.
+into <repo>/../RiskboundAssets/rocketbox: avatar FBX files (the "_facial" exports, which carry 15 visemes and
+ARKit/FACS face shapes for lip-sync and expressions), textures reduced to 1024 px PNG, and the body animations
+RbPerson uses (idles, talking and listening gestures, reactions, sitting, walking).
 Usage: python Scripts/FetchCharacters.py   (then run Scripts/ImportCharacters.py in the editor). Needs Pillow.
 """
 import json, os, sys, urllib.request
@@ -11,7 +13,15 @@ RAW = "https://media.githubusercontent.com/media/microsoft/Microsoft-Rocketbox/m
 RAW2 = "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/master/"
 AV = ["Professions/Business_Female_0%d" % i for i in range(1, 5)] + ["Professions/Business_Male_0%d" % i for i in range(1, 8)] + \
      ["Adults/Female_Adult_0%d" % i for i in range(1, 6)] + ["Adults/Male_Adult_0%d" % i for i in range(1, 5)]
-AN = [p + n for p in ("m_", "f_") for n in ("idle_neutral_01", "idle_neutral_02", "idle_breathe_01", "idle_look_around_01", "documents_idle", "gestic_listen_neutral_01", "cell_phone_listen_01")]
+AN = [p + n for p in ("m_", "f_") for n in (
+    "idle_neutral_01", "idle_neutral_02", "idle_breathe_01", "idle_look_around_01", "documents_idle", "gestic_listen_neutral_01", "cell_phone_listen_01",
+    # talking, listening and reactions (RbPerson)
+    "gestic_talk_neutral_01", "gestic_talk_neutral_02", "gestic_talk_neutral_03", "gestic_talk_relaxed_01", "gestic_listen_neutral_02",
+    "gestic_listen_accept_01", "gestic_listen_accept_02", "gestic_listen_deny_01", "gestic_listen_deny_02", "gestic_shrug_01", "gestic_thoughtful_01",
+    # meetings
+    "sit_table_idle_neutral_01", "sit_table_breathe_01", "sit_table_gestic_thoughtful", "sit_table_gestic_shrug_01", "sit_chair_idle_neutral_01")]
+# Walking loops carry travel ("motextr_xy"); RbPerson pins the hips and moves the person itself.
+WALK = [p + n for p in ("m_", "f_") for n in ("walk_neutral_01", "walk_neutral_02")]
 
 def get(path, out):
     if os.path.exists(out) and os.path.getsize(out) > 1000: return
@@ -42,7 +52,10 @@ for a in AV:
     for p in TREE:
         if not p.startswith(pre): continue
         rel = p[len(pre):]
-        if rel.endswith(".fbx") and "facial" not in rel and rel.startswith("Export/"):
+        if rel.endswith("_facial.fbx") and rel.startswith("Export/"):
+            # The facial export is the same body and skeleton plus face shapes.
+            get(p, os.path.join(ROOT, "avatars", name, name + "_facial.fbx"))
+        elif rel.endswith(".fbx") and "facial" not in rel and rel.startswith("Export/"):
             get(p, os.path.join(ROOT, "avatars", name, os.path.basename(rel)))
         elif rel.startswith("Textures/") and rel.lower().endswith(".tga") and "wrinkle" not in rel:
             jobs.append((p, os.path.join(ROOT, "avatars", name, "tex", os.path.basename(rel))))
@@ -51,6 +64,10 @@ with ThreadPoolExecutor(8) as ex:
 print("textures", len(jobs), flush=True)
 for n in AN:
     p = "Assets/Animations/all_animations_max_motextr_static/%s.max.fbx" % n
+    if p in TREE: get(p, os.path.join(ROOT, "anims", n + ".fbx"))
+    else: print("missing anim", n)
+for n in WALK:
+    p = "Assets/Animations/all_animations_max_motextr_xy/%s.max.fbx" % n
     if p in TREE: get(p, os.path.join(ROOT, "anims", n + ".fbx"))
     else: print("missing anim", n)
 print("done")

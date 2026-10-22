@@ -149,6 +149,7 @@ struct FRbInboxMessageView
 	GENERATED_BODY()
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Id;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Category;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString FromId;   // People.json id ("" for news)
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString FromName;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString FromRole;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Subject;
@@ -259,10 +260,13 @@ struct FRbConversationView
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bFound = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") bool bEnded = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Id;
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PersonId;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PersonName;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString PersonRole;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Title;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString NodeId;
+	// How the person took the player's last response: +1 better relationship, -1 worse, 0 no change.
+	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") int32 Reaction = 0;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") FString Line;
 	UPROPERTY(BlueprintReadOnly, Category = "Riskbound") TArray<FRbDialogueResponseView> Responses;
 };

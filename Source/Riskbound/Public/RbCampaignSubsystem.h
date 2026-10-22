@@ -45,6 +45,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Riskbound|Campaign")
 	FString GetActiveMissionId() const;
 
+	// Crisis board call (Docs/GameDesign.md "Crisis clock"): once it starts, the crisis's unseen evidence
+	// is out of reach in the office. Session state only (not saved): a reload restarts the clock.
+	void MarkBoardCallStarted(const FString& MissionId) { BoardCalls.Add(MissionId); }
+	bool IsBoardCallStarted(const FString& MissionId) const { return BoardCalls.Contains(MissionId); }
+
 	// True when every case open at the player's level is passed but the promotion bar is not met:
 	// passed cases reopen as reviews (rb::IsCampaignStuck).
 	UFUNCTION(BlueprintPure, Category = "Riskbound|Campaign")
@@ -167,6 +172,7 @@ public:
 	void SetDraft(const FString& MissionId, const TMap<FString, TArray<FString>>& Answers) { Drafts.Add(MissionId, Answers); }
 
 private:
+	TSet<FString> BoardCalls;
 	URbGameSubsystem* Game() const;
 	FRbMissionDebriefView ToView(const rb::MissionDef& M, const rb::MissionDebrief& D, bool bFull) const;
 

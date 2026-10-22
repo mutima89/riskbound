@@ -13,6 +13,7 @@
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SBox.h"
+#include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/SOverlay.h"
 #include "Widgets/Text/STextBlock.h"
 
@@ -274,6 +275,32 @@ TSharedRef<SWidget> MakeModalFrame(TSharedRef<SWidget> Content, float MaxWidth)
 				.Padding(FMargin(Space6 + 4.0f))
 				[
 					Content
+				]
+			]
+		];
+}
+
+TSharedRef<SWidget> MakeConversationFrame(TSharedRef<SWidget> Content, float MaxWidth)
+{
+	return SNew(SOverlay)
+		+ SOverlay::Slot()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Bottom)
+		.Padding(FMargin(40.0f, ModalTopBand, 40.0f, 36.0f))
+		[
+			SNew(SBox)
+			.MaxDesiredWidth(MaxWidth)
+			.MaxDesiredHeight(500.0f)
+			[
+				SNew(SBorder)
+				.BorderImage(PanelBrush())
+				.Padding(FMargin(Space6))
+				[
+					SNew(SScrollBox)
+					+ SScrollBox::Slot()
+					[
+						Content
+					]
 				]
 			]
 		];

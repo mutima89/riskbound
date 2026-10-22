@@ -33,7 +33,9 @@ Assets under the Fab Standard License or Epic template content are not stored in
 | Asset | Use in Riskbound | Source | Author(s) | Licence |
 |---|---|---|---|---|
 | [Microsoft Rocketbox Avatar Library](https://github.com/microsoft/Microsoft-Rocketbox): Business_Female_01-04, Business_Male_01-07, Female_Adult_01-05, Male_Adult_01-04 | Valtren's people and background staff (Source/Riskbound/Private/World/RbCast.cpp) | GitHub, fetched by Scripts/FetchCharacters.py, imported by Scripts/ImportCharacters.py (textures reduced to 1024 px) | Microsoft (Rocketbox Studios) | MIT; copyright (c) 2020 Microsoft, notice kept in the credits |
-| Rocketbox animations: m_/f_ idle_neutral_01-02, idle_breathe_01, idle_look_around_01, documents_idle, gestic_listen_neutral_01, cell_phone_listen_01 | Idles and listening loops | Same repository (all_animations_max_motextr_static) | Microsoft (Rocketbox Studios) | MIT |
+| Rocketbox facial exports (`<avatar>_facial.fbx`): 15 visemes, 52 ARKit and 48 FACS blendshapes per avatar | Lip-sync, blinks and expressions (Source/Riskbound/Private/World/RbPerson.cpp) | Same repository (Assets/Avatars/.../Export) | Matias Volonte, Fang Ma (blendshapes); Microsoft (avatars) | MIT |
+| Rocketbox animations: m_/f_ idle_neutral_01-02, idle_breathe_01, idle_look_around_01, documents_idle, gestic_listen_neutral_01-02, cell_phone_listen_01, gestic_talk_neutral_01-03, gestic_talk_relaxed_01, gestic_listen_accept_01-02, gestic_listen_deny_01-02, gestic_shrug_01, gestic_thoughtful_01, sit_table_idle_neutral_01, sit_table_breathe_01, sit_table_gestic_thoughtful, sit_table_gestic_shrug_01, sit_chair_idle_neutral_01 | Idles, talking and listening, reactions, meetings | Same repository (all_animations_max_motextr_static) | Microsoft (Rocketbox Studios) | MIT |
+| Rocketbox walking loops: m_/f_ walk_neutral_01-02 | Colleagues walking between rooms | Same repository (all_animations_max_motextr_xy) | Microsoft (Rocketbox Studios) | MIT |
 
 ## Audio
 Sources: Data/AudioManifest.json (URL, SHA-256, licence), built by Scripts/BuildAudio.py and imported by Scripts/ImportAudio.py to /Game/Riskbound/Audio.

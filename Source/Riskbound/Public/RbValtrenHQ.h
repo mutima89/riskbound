@@ -6,6 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "RbCast.h"
 #include "RbValtrenHQ.generated.h"
 
 class ARbInteractable;
@@ -27,6 +28,16 @@ public:
 
 	// Camera positions for the screenshot/performance tour: the corridor plus one view per room.
 	void GetTourViewpoints(TArray<FString>& OutNames, TArray<FTransform>& OutViews) const;
+
+	// Colleagues who come to find the player (Docs/GameDesign.md "Colleagues come to you"): walks PersonId
+	// in from the corridor to talking distance, then calls OnArrive. Null when the cast is missing.
+	class URbPersonComponent* SendColleague(const FString& PersonId, TFunction<void(class URbPersonComponent*)> OnArrive);
+	// They walk back out (or vanish at once) when the talk is over.
+	void DismissColleague(bool bImmediately = false);
+	// Red alert light in the monitoring room and corridor when a crisis opens.
+	void StartAlarm(float Seconds);
+	// Walking route between two floor points through the room doors and the corridor.
+	TArray<FVector> RouteBetween(const FVector& From, const FVector& To) const;
 
 	struct FRoom
 	{
@@ -58,6 +69,7 @@ private:
 	void RefreshCaseMarkers();
 	FString MarkerMission;    // mission the markers were built for
 	int32 MarkerViewed = -1;  // evidence viewed count when built (markers for seen evidence go)
+	bool bMarkerCall = false; // built after the crisis board call started
 	UPROPERTY(Transient) TArray<TObjectPtr<class ARbCaseMarker>> CaseMarkers;
 	UPROPERTY(Transient) TArray<TObjectPtr<class UTextRenderComponent>> CaseLabels;
 	UPROPERTY(Transient) TArray<TObjectPtr<class UStaticMeshComponent>> CaseStands;
@@ -71,7 +83,19 @@ private:
 	UPROPERTY(Transient) TObjectPtr<class UDirectionalLightComponent> SunLight;
 	UPROPERTY(Transient) TObjectPtr<class USkyLightComponent> SkyLightComp;
 	UPROPERTY(Transient) TObjectPtr<class UMaterialInstanceDynamic> SkyMaterial;
-	UPROPERTY(Transient) TArray<TObjectPtr<class USkeletalMeshComponent>> Staff;
+	UPROPERTY(Transient) TArray<TObjectPtr<class URbPersonComponent>> Staff;
+	// Board members at the boardroom table while a case is to be presented there.
+	void RefreshBoard(bool bInSession);
+	UPROPERTY(Transient) TArray<TObjectPtr<class URbPersonComponent>> Board;
+	bool bBoardSeated = false;
+	class URbPersonComponent* AddPerson(const RbCast::FLook& Look, const FString& PersonId, const FVector& At, float FacingYaw, int32 Seed, UMaterialInterface* Outfit);
+	void Commute(class URbPersonComponent* Person, const FVector& Home, const FVector& Away, bool bOutbound);
+	UPROPERTY(Transient) TWeakObjectPtr<class URbPersonComponent> Messenger;
+	FVector MessengerStart = FVector::ZeroVector;
+	UPROPERTY(Transient) TArray<TObjectPtr<class UPointLightComponent>> AlarmLights;
+	FTimerHandle AlarmTimer;
+	float AlarmLeft = 0.0f;
+	void TickAlarm();
 	UPROPERTY(Transient) TArray<TObjectPtr<class USceneComponent>> DeskDressing;
 	int32 StaffShown = -1;
 	int32 DeskLevel = -1;

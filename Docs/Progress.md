@@ -3,6 +3,8 @@
 ## Status: 1.0.0 released (owner approved, 2026-10-21); all five roadmap phases done (Docs/Roadmap.md); whole game walked through the real UI by a scripted driver; playtested by the owner
 Last update: 2026-10-22
 
+- 2026-10-22 polish pass (owner: "do all" on the seven-item list): people with faces and body language (`URbPersonComponent`: Rocketbox facial avatars, blinks, gaze, text-driven lip-sync, expressions, talk/listen gestures, reactions to dialogue choices, walking colleagues, meetings and board members seated), physical use (pick up, lean in to screens, face people; bottom conversation panel), colleagues who walk over with new messages, crisis alarm and board-call clock (Docs/GameDesign.md "People and physical work"), new `-RbSelfTest=people`, code-signing plan (Docs/CodeSigning.md, SignPath chosen). Core tests 96/96 here. Not yet verified: re-fetch/import of the facial cast, editor build, Unreal tests, packaged self-tests and screenshots on the PC.
+
 - 2026-10-22 walk-around casework (4cfddd6) verified on Windows/UE 5.8.3: editor build succeeded; core tests 96 cases, 0 failed; Unreal automation 16/16 Success; Development package BUILD SUCCESSFUL; packaged `-RbSelfTest=play` and `=resume` PASS. New `-RbSelfTest=cases` (writes Saved/RbCases.txt, screenshots Case_*.png) shoots M002 in meeting/monitoring/reception/manager, M006 training and M009 workspace (two stands); waits for queued promotion ceremonies. Reviewed shots (Docs/Screenshots/walkaround): no floating folders, items in furniture, people clipping or duplicate Priya; no spot changes needed.
 
 ### Done

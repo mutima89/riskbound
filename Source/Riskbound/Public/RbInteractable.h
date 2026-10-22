@@ -3,15 +3,24 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "RbCast.h"
 #include "RbInteractable.generated.h"
 
 class ARbHUD;
-class UAnimSequence;
 class UMaterialInterface;
-class USkeletalMesh;
-class USkeletalMeshComponent;
 class UStaticMesh;
 class UStaticMeshComponent;
+class URbPersonComponent;
+
+// How using a thing looks before its screen opens (Docs/GameDesign.md "Physical interaction"):
+// documents are picked up, screens are leaned into, people are turned to face.
+enum class ERbUseStyle : uint8
+{
+	None,
+	PickUp,
+	Screen,
+	Person
+};
 
 UCLASS(Abstract)
 class RISKBOUND_API ARbInteractable : public AActor
@@ -33,6 +42,14 @@ public:
 	// Focus feedback: a fresnel overlay on every mesh of the actor.
 	void SetFocused(bool bFocused);
 
+	virtual ERbUseStyle GetUseStyle() const { return ERbUseStyle::None; }
+	// Where the camera looks when using it (a person's eyes, a screen's centre, a document).
+	virtual FVector GetFocusPoint() const;
+	// The mesh lifted towards the camera for PickUp (a file taken out of a cabinet is a folder).
+	virtual UStaticMesh* GetPickUpMesh(FTransform& OutFrom) const;
+	// The person behind it, if any (lip-sync, gestures and reactions during conversations).
+	virtual URbPersonComponent* GetPerson() const { return nullptr; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Riskbound")
 	TObjectPtr<UStaticMeshComponent> Mesh;
@@ -47,6 +64,7 @@ class RISKBOUND_API ARbEvidenceProp : public ARbInteractable
 public:
 	virtual FText GetPrompt() const override;
 	virtual void Interact(ARbHUD* Hud) override;
+	virtual ERbUseStyle GetUseStyle() const override;
 };
 
 // In-person casework for the active campaign mission (spawned and removed by ARbValtrenHQ):
@@ -74,15 +92,19 @@ public:
 	FString Where;
 	FString Title;      // document title, person's name, or mission title (lectern)
 
-	// Interviews use the NPC body; documents and the lectern use the static mesh.
-	void SetBody(USkeletalMesh* BodyMesh, UAnimSequence* Idle, UMaterialInterface* Outfit, float MeshYaw);
+	// Interviews use the person's body; documents and the lectern use the static mesh.
+	void SetBody(const RbCast::FLook& Look, UMaterialInterface* Outfit, const FString& PersonId);
 
 	virtual FText GetPrompt() const override;
 	virtual void Interact(ARbHUD* Hud) override;
+	virtual ERbUseStyle GetUseStyle() const override;
+	virtual FVector GetFocusPoint() const override;
+	virtual URbPersonComponent* GetPerson() const override;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Riskbound")
-	TObjectPtr<USkeletalMeshComponent> Body;
+	TObjectPtr<URbPersonComponent> Body;
+	bool bHasBody = false;
 };
 
 // The player's desk: inbox, risk register and the assessment form.
@@ -94,6 +116,7 @@ class RISKBOUND_API ARbWorkstation : public ARbInteractable
 public:
 	virtual FText GetPrompt() const override;
 	virtual void Interact(ARbHUD* Hud) override;
+	virtual ERbUseStyle GetUseStyle() const override { return ERbUseStyle::Screen; }
 };
 
 // Priya Okafor: briefing (MeetManager), reminders, and the debrief. The static mesh is an invisible
@@ -109,13 +132,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Riskbound")
 	FString DisplayName = TEXT("Priya Okafor");
 
-	// Body mesh, looping idle and an outfit material for every slot (any may be null).
-	void SetBody(USkeletalMesh* BodyMesh, UAnimSequence* Idle, UMaterialInterface* Outfit, float MeshYaw);
+	// Cast body and an outfit material for every slot (Outfit may be null).
+	void SetBody(const RbCast::FLook& Look, UMaterialInterface* Outfit, const FString& PersonId);
 
 	virtual FText GetPrompt() const override;
 	virtual void Interact(ARbHUD* Hud) override;
+	virtual ERbUseStyle GetUseStyle() const override { return ERbUseStyle::Person; }
+	virtual FVector GetFocusPoint() const override;
+	virtual URbPersonComponent* GetPerson() const override { return Body; }
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Riskbound")
-	TObjectPtr<USkeletalMeshComponent> Body;
+	TObjectPtr<URbPersonComponent> Body;
 };

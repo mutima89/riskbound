@@ -26,6 +26,9 @@
 #include "RbCampaignSubsystem.h"
 #include "Widgets/Layout/SBox.h"
 #include "RbToolsSubsystem.h"
+#include "RbPerson.h"
+#include "RbValtrenHQ.h"
+#include "EngineUtils.h"
 
 #define LOCTEXT_NAMESPACE "Riskbound"
 
@@ -82,7 +85,10 @@ void ARbHUD::BuildOverlay()
 	TSharedRef<SRbHudOverlay> NewOverlay = SNew(SRbHudOverlay)
 		.Objective_Lambda([WeakThis]()
 		{
-			return WeakThis.IsValid() ? FText::FromString(WeakThis->Game()->GetCurrentObjectiveText()) : FText::GetEmpty();
+			if (!WeakThis.IsValid()) return FText::GetEmpty();
+			const FString Clock = WeakThis->GetCrisisClockText();
+			const FString Objective = WeakThis->Game()->GetCurrentObjectiveText();
+			return FText::FromString(Clock.IsEmpty() ? Objective : Clock + TEXT("   |   ") + Objective);
 		})
 		.Prompt_Lambda([WeakThis]()
 		{
@@ -151,6 +157,7 @@ void ARbHUD::CloseScreen()
 		if (Screen.IsValid()) Viewport->RemoveViewportWidgetContent(Screen.ToSharedRef());
 	}
 	Screen.Reset();
+	ReleaseSpeaker();
 	if (bMainMenuOpen) StopMenuCamera();
 	bMainMenuOpen = false;
 	SetGameInput();
@@ -216,6 +223,11 @@ void ARbHUD::Tick(float DeltaSeconds)
 			}
 			else if (!Ceremony.IsEmpty()) PlayCeremony(Ceremony, TEXT("Promoted on the evidence of your work"));
 		}
+	}
+	if (!bMainMenuOpen && Game() && Game()->HasGame() && !RbSelfTest::IsRequested())
+	{
+		TickCrisisClock();
+		TickApproach();
 	}
 	Super::Tick(DeltaSeconds);
 	if (!bMainMenuOpen || !MenuCamera || RbUI::IsReducedMotion()) return;
@@ -351,6 +363,11 @@ void ARbHUD::OpenSkills(TFunction<void()> OnBack)
 
 void ARbHUD::PlayConversation(const FRbConversationView& View, TFunction<void()> OnEnd)
 {
+	if (View.bFound && !View.PersonId.IsEmpty())
+	{
+		// The person says the line and shows how they took the player's last answer.
+		Speak(View.PersonId, View.bEnded ? FString() : View.Line, View.Reaction);
+	}
 	if (!View.bFound || View.bEnded)
 	{
 		if (OnEnd) OnEnd();
@@ -407,6 +424,7 @@ void ARbHUD::StartNewGame(ERbDifficulty Difficulty, const FString& Background)
 {
 	Game()->NewGame(Difficulty, TEXT("Analyst"), Background);
 	Draft = MakeShared<FRbAssessmentDraft>();
+	ResetApproach();
 	CloseScreen();
 	Notice(TEXT("Day one at Valtren Coldline Logistics. Priya Okafor is expecting you in the manager's office."));
 }
@@ -417,6 +435,7 @@ ERbLoadOutcome ARbHUD::ContinueGame(FString& OutMessage)
 	if (Outcome == ERbLoadOutcome::Ok || Outcome == ERbLoadOutcome::RecoveredFromBackup)
 	{
 		Draft = MakeShared<FRbAssessmentDraft>();
+		ResetApproach();
 		CloseScreen();
 		BuildOverlay(); // loaded settings may change text size
 		if (Outcome == ERbLoadOutcome::Ok) Notice(TEXT("Welcome back."));
@@ -498,6 +517,7 @@ void ARbHUD::TalkToManager()
 	{
 	case ERbManagerTalk::Briefing:
 	{
+		Speak(TEXT("priya"), RbScreens::BriefingText(Game()->GetSettings().bHints).ToString());
 		const FRbScreenParts Parts = RbScreens::Dialogue(LOCTEXT("Priya", "Priya Okafor, Risk Manager"),
 			RbScreens::BriefingText(Game()->GetSettings().bHints), [this]() { CloseScreen(); });
 		ShowScreen(Parts.Widget, Parts.Focus, [this]() { CloseScreen(); }, false);
@@ -507,6 +527,7 @@ void ARbHUD::TalkToManager()
 	{
 		const FText Text = FText::Format(LOCTEXT("Reminder", "Take the time you need. Where you are: {0}.\n\nWhen the form is done, submit it from your workstation and come back to me."),
 			FText::FromString(Game()->GetCurrentObjectiveText()));
+		Speak(TEXT("priya"), Text.ToString());
 		const FRbScreenParts Parts = RbScreens::Dialogue(LOCTEXT("Priya", "Priya Okafor, Risk Manager"), Text, [this]() { CloseScreen(); });
 		ShowScreen(Parts.Widget, Parts.Focus, [this]() { CloseScreen(); }, false);
 		break;
@@ -605,8 +626,10 @@ void ARbHUD::ExamineInPerson(const FString& MissionId, const FString& EvidenceId
 	{
 		const FText Speaker = FText::FromString(E->PersonName);
 		const FText Text = FText::FromString(E->Title + TEXT("\n\n") + E->Body);
-		auto ShowNotes = [this, Speaker, Text, Back]()
+		const FString PersonId = E->PersonId, Said = E->Body;
+		auto ShowNotes = [this, Speaker, Text, Back, PersonId, Said]()
 		{
+			Speak(PersonId, Said);
 			const FRbScreenParts Parts = RbScreens::Dialogue(Speaker, Text, Back);
 			ShowScreen(Parts.Widget, Parts.Focus, Back, false);
 		};
@@ -660,6 +683,182 @@ void ARbHUD::OpenDebrief()
 {
 	const FRbScreenParts Parts = RbScreens::Debrief(Game()->GetDebrief(), Game()->GetCareer(), Game()->GetAchievementTitles(), [this]() { CloseScreen(); });
 	ShowScreen(Parts.Widget, Parts.Focus, [this]() { CloseScreen(); }, false);
+}
+
+// ---------------- People, colleagues who come to you, crisis clock ----------------
+
+ARbValtrenHQ* ARbHUD::Office() const
+{
+	for (TActorIterator<ARbValtrenHQ> It(GetWorld()); It; ++It) return *It;
+	return nullptr;
+}
+
+void ARbHUD::Speak(const FString& PersonId, const FString& Line, int32 Reaction)
+{
+	URbPersonComponent* P = PersonId.IsEmpty() ? nullptr : URbPersonComponent::Find(GetWorld(), PersonId);
+	if (Speaker.IsValid() && Speaker.Get() != P) ReleaseSpeaker();
+	if (!P) return;
+	Speaker = P;
+	P->SetEngaged(true);
+	if (!Line.IsEmpty()) P->Say(Line);
+	if (Reaction != 0) P->React(Reaction);
+}
+
+void ARbHUD::ReleaseSpeaker()
+{
+	if (URbPersonComponent* P = Speaker.Get())
+	{
+		P->StopTalking();
+		P->SetEngaged(false);
+	}
+	Speaker.Reset();
+}
+
+void ARbHUD::ResetApproach()
+{
+	KnownMessages.Reset();
+	bKnownMessages = false;
+	bApproaching = false;
+	ClockMission.Reset();
+	ClockEnds = 0.0;
+	bClockExpired = bClockWarned = bOpenCallPending = false;
+	if (ARbValtrenHQ* HQ = Office()) HQ->DismissColleague(true);
+}
+
+void ARbHUD::TickApproach()
+{
+	const double Now = FPlatformTime::Seconds();
+	if (bApproaching)
+	{
+		// Someone who cannot reach the player (blocked, or the player keeps walking off) gives up.
+		if (Now > ApproachTimeout)
+		{
+			bApproaching = false;
+			if (ARbValtrenHQ* HQ = Office()) HQ->DismissColleague(false);
+		}
+		return;
+	}
+	if (Now < NextApproachCheck || IsScreenOpen() || CeremonyRoot.IsValid()) return;
+	NextApproachCheck = Now + 1.0;
+	URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	if (!Campaign) return;
+	const TArray<FRbInboxMessageView> Inbox = Campaign->GetInbox();
+	if (!bKnownMessages)
+	{
+		// Only messages that arrive from now on are delivered in person.
+		for (const FRbInboxMessageView& M : Inbox) KnownMessages.Add(M.Id);
+		bKnownMessages = true;
+		return;
+	}
+	const FRbInboxMessageView* Pick = nullptr;
+	for (const FRbInboxMessageView& M : Inbox)
+	{
+		if (KnownMessages.Contains(M.Id)) continue;
+		KnownMessages.Add(M.Id);
+		// Office colleagues walk over; the regulator, the press and home write.
+		const bool bOffice = (M.Category == TEXT("Team") || M.Category == TEXT("Politics") || M.Category == TEXT("Story"))
+			&& M.FromId != TEXT("jonah") && M.FromId != TEXT("imogen") && M.FromId != TEXT("jordan") && !M.FromId.IsEmpty();
+		if (!Pick && bOffice && !M.bRead) Pick = &M;
+	}
+	ARbValtrenHQ* HQ = Pick ? Office() : nullptr;
+	if (!HQ) return;
+	const FRbInboxMessageView Msg = *Pick;
+	TWeakObjectPtr<ARbHUD> WeakThis(this);
+	auto Arrive = [WeakThis, Msg](URbPersonComponent* Person)
+	{
+		ARbHUD* Hud = WeakThis.Get();
+		if (!Hud) return;
+		Hud->bApproaching = false;
+		if (Hud->IsScreenOpen() || Hud->CeremonyRoot.IsValid())
+		{
+			// The player is busy: a word and they leave it in the inbox.
+			Person->Say(TEXT("You're busy. It's in your inbox."));
+			FTimerHandle H;
+			Hud->GetWorldTimerManager().SetTimer(H, FTimerDelegate::CreateWeakLambda(Hud, [Hud]() { if (ARbValtrenHQ* O = Hud->Office()) O->DismissColleague(false); }), 2.5f, false);
+			return;
+		}
+		FString First = Msg.Body;
+		int32 Cut = INDEX_NONE;
+		if (First.FindChar(TEXT('\n'), Cut)) First = First.Left(Cut);
+		if (First.Len() > 420) First = First.Left(417) + TEXT("...");
+		const FString Spoken = FString::Printf(TEXT("Have you got a minute? %s."), *Msg.Subject);
+		Hud->Speak(Msg.FromId, Spoken);
+		const FText Who = FText::FromString(Msg.FromRole.IsEmpty() ? Msg.FromName : Msg.FromName + TEXT(", ") + Msg.FromRole);
+		const FText Text = FText::FromString(TEXT("\u201C") + Spoken + TEXT("\u201D\n\n") + First);
+		const FString Id = Msg.Id;
+		auto Later = [WeakThis]()
+		{
+			if (!WeakThis.IsValid()) return;
+			WeakThis->CloseScreen();
+			if (ARbValtrenHQ* O = WeakThis->Office()) O->DismissColleague(false);
+		};
+		auto Read = [WeakThis, Id]()
+		{
+			if (!WeakThis.IsValid()) return;
+			WeakThis->CloseScreen();
+			if (ARbValtrenHQ* O = WeakThis->Office()) O->DismissColleague(false);
+			WeakThis->OpenInbox(Id);
+		};
+		const FRbScreenParts Parts = RbScreens::Approach(Who, Text, Read, Later);
+		Hud->ShowScreen(Parts.Widget, Parts.Focus, Later, false);
+	};
+	if (HQ->SendColleague(Msg.FromId, Arrive))
+	{
+		bApproaching = true;
+		ApproachTimeout = Now + 40.0;
+	}
+}
+
+FString ARbHUD::GetCrisisClockText() const
+{
+	if (ClockEnds <= 0.0 || bClockExpired || !GetWorld()) return FString();
+	const int32 Left = FMath::Max(0, FMath::CeilToInt(ClockEnds - GetWorld()->GetTimeSeconds()));
+	return FString::Printf(TEXT("Board call in %d:%02d"), Left / 60, Left % 60);
+}
+
+void ARbHUD::TickCrisisClock()
+{
+	URbCampaignSubsystem* Campaign = GetGameInstance()->GetSubsystem<URbCampaignSubsystem>();
+	if (!Campaign) return;
+	const FString Active = Campaign->GetActiveMissionId();
+	const double Now = GetWorld()->GetTimeSeconds();
+	if (Active != ClockMission)
+	{
+		ClockMission = Active;
+		ClockEnds = 0.0;
+		bClockWarned = bClockExpired = bOpenCallPending = false;
+		if (Active.IsEmpty() || Campaign->GetMission(Active).Kind != TEXT("Crisis")) return;
+		if (ARbValtrenHQ* HQ = Office()) HQ->StartAlarm(12.0f);
+		URbAudioSubsystem::Cue(this, ERbCue::Incident);
+		// Analyst difficulty keeps the alarm but not the clock.
+		const ERbDifficulty D = Game()->GetDifficulty();
+		const double Minutes = D == ERbDifficulty::Executive ? 6.0 : (D == ERbDifficulty::Professional ? 10.0 : 0.0);
+		if (Minutes <= 0.0 || Campaign->IsBoardCallStarted(Active)) return;
+		ClockEnds = Now + Minutes * 60.0;
+		Notice(FString::Printf(TEXT("Crisis. The board call is in %d minutes; evidence you have not seen by then is out of reach."), FMath::RoundToInt(Minutes)));
+		return;
+	}
+	if (bOpenCallPending && !IsScreenOpen() && !CeremonyRoot.IsValid())
+	{
+		bOpenCallPending = false;
+		OpenCaseFiles(ClockMission);
+	}
+	if (ClockEnds <= 0.0 || bClockExpired) return;
+	const double Left = ClockEnds - Now;
+	if (Left < 60.0 && !bClockWarned)
+	{
+		bClockWarned = true;
+		Notice(TEXT("One minute to the board call."));
+		URbAudioSubsystem::Cue(this, ERbCue::Notice);
+	}
+	if (Left <= 0.0)
+	{
+		bClockExpired = true;
+		Campaign->MarkBoardCallStarted(ClockMission);
+		Notice(TEXT("The board call has started. Decide with what you have."));
+		URbAudioSubsystem::Cue(this, ERbCue::Incident);
+		bOpenCallPending = true;
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -28,6 +28,7 @@ RiskboundSim module (C++17, deterministic, unit tested outside UE)
 Every class is thin; anything rule-like calls RiskboundSim. UI is Slate built in C++ (no binary widget assets).
 | Class / file | Responsibility |
 |---|---|
+| `URbPersonComponent`, `URbPersonAnimInstance` (World/RbPerson) | Every person in the office: native anim instance (crossfades, one-shot gestures, pinned walking loops, head/eye bones), face shapes (blinks, lip-sync, expressions), walking routes; presentation only |
 | `URbGameSubsystem` | Owns `rb::GameState`. Mission actions (`TalkToManager`, `ViewEvidence`, `SubmitAssessment`, `MarkDebriefReceived`) and Blueprint-callable views (objectives, evidence, options, debrief, career, register entry, settings). Checkpoints `M001:start/met_manager/submitted/debriefed`. |
 | `URbSaveSubsystem` | `rb::SaveGameToFile`/`LoadGameFromFile` at `Saved/SaveGames/<slot>.rbsave` (default `slot1`). Autosave after meeting the manager, after submit, after the debrief. Reports backup recovery to the player. |
 | `ARbCharacter` | First-person pawn. Enhanced Input actions + mapping context created in code: Move (WASD/arrows), Look (mouse, sensitivity from settings), Interact (E/Enter), Pause (Esc/P), Journal (J/Tab). |

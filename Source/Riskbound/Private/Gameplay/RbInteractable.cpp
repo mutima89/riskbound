@@ -1,14 +1,13 @@
 #include "RbInteractable.h"
 
 #include "Animation/AnimSequence.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/GameInstance.h"
-#include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
 #include "RbGameSubsystem.h"
 #include "RbHUD.h"
+#include "RbPerson.h"
 
 #define LOCTEXT_NAMESPACE "Riskbound"
 
@@ -52,6 +51,36 @@ void ARbInteractable::SetFocused(bool bFocused)
 	}
 }
 
+FVector ARbInteractable::GetFocusPoint() const
+{
+	return Mesh ? Mesh->Bounds.Origin : GetActorLocation();
+}
+
+UStaticMesh* ARbInteractable::GetPickUpMesh(FTransform& OutFrom) const
+{
+	UStaticMesh* M = Mesh ? Mesh->GetStaticMesh() : nullptr;
+	if (!M) return nullptr;
+	OutFrom = Mesh->GetComponentTransform();
+	// Anything bigger than a binder (a filing cabinet) hands over a folder from its top drawer.
+	if (Mesh->Bounds.BoxExtent.GetMax() > 40.0f)
+	{
+		static TWeakObjectPtr<UStaticMesh> Folder;
+		if (!Folder.IsValid()) Folder = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Riskbound/Models/office_notepads/SM_office_notepads.SM_office_notepads"));
+		if (!Folder.IsValid()) return nullptr;
+		const FBoxSphereBounds& B = Mesh->Bounds;
+		OutFrom = FTransform(GetActorRotation(), FVector(B.Origin.X, B.Origin.Y, B.Origin.Z + B.BoxExtent.Z - 6.0f), FVector(0.3f));
+		return Folder.Get();
+	}
+	return M;
+}
+
+ERbUseStyle ARbEvidenceProp::GetUseStyle() const
+{
+	// Terminals (a thin screen slab) are leaned into; everything else is picked up.
+	const FVector S = Mesh ? Mesh->GetComponentScale() : FVector::OneVector;
+	return S.X < 0.02f && S.Y > 0.3f ? ERbUseStyle::Screen : ERbUseStyle::PickUp;
+}
+
 FText ARbEvidenceProp::GetPrompt() const
 {
 	FString Title = InteractableId;
@@ -77,29 +106,35 @@ void ARbWorkstation::Interact(ARbHUD* Hud)
 	Hud->OpenWorkstation();
 }
 
-ARbNpc::ARbNpc()
+// Shared by Priya and interviewees: a person standing in the invisible capsule.
+static void DressBody(AActor* Actor, UStaticMeshComponent* Capsule, URbPersonComponent* Body, const RbCast::FLook& Look, UMaterialInterface* Outfit, const FString& PersonId)
 {
-	Body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
-	Body->SetupAttachment(Mesh);
-	Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Body->SetAbsolute(false, false, true);
-}
-
-void ARbNpc::SetBody(USkeletalMesh* BodyMesh, UAnimSequence* Idle, UMaterialInterface* Outfit, float MeshYaw)
-{
-	if (!BodyMesh) return;
-	Mesh->SetVisibility(false); // the capsule stays for collision and the interaction trace
-	Body->SetSkeletalMesh(BodyMesh);
-	// The capsule is centred on the actor; the mannequin's origin is at its feet.
-	Body->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f / FMath::Max(GetActorScale3D().Z, 0.01f)), FRotator(0.0f, MeshYaw, 0.0f));
+	Capsule->SetVisibility(false); // the capsule stays for collision and the interaction trace
+	// The capsule is centred on the actor; the body's origin is at its feet.
+	Body->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f / FMath::Max(Actor->GetActorScale3D().Z, 0.01f)));
+	Body->Setup(Look, PersonId, Actor->GetActorRotation().Yaw, GetTypeHash(PersonId) ^ GetTypeHash(Actor->GetActorLocation()));
 	if (Outfit)
 	{
 		for (int32 i = 0; i < Body->GetNumMaterials(); ++i) Body->SetMaterial(i, Outfit);
 	}
-	if (Idle)
-	{
-		Body->PlayAnimation(Idle, true);
-	}
+}
+
+ARbNpc::ARbNpc()
+{
+	Body = CreateDefaultSubobject<URbPersonComponent>(TEXT("Body"));
+	Body->SetupAttachment(Mesh);
+	Body->SetAbsolute(false, false, true);
+}
+
+void ARbNpc::SetBody(const RbCast::FLook& Look, UMaterialInterface* Outfit, const FString& PersonId)
+{
+	if (!Look.Mesh) return;
+	DressBody(this, Mesh, Body, Look, Outfit, PersonId);
+}
+
+FVector ARbNpc::GetFocusPoint() const
+{
+	return Body && Body->GetSkinnedAsset() ? Body->GetEyeLocation() : GetActorLocation() + FVector(0.0f, 0.0f, 70.0f);
 }
 
 FText ARbNpc::GetPrompt() const
@@ -114,23 +149,38 @@ void ARbNpc::Interact(ARbHUD* Hud)
 
 ARbCaseMarker::ARbCaseMarker()
 {
-	Body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
+	Body = CreateDefaultSubobject<URbPersonComponent>(TEXT("Body"));
 	Body->SetupAttachment(Mesh);
-	Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Body->SetAbsolute(false, false, true);
 }
 
-void ARbCaseMarker::SetBody(USkeletalMesh* BodyMesh, UAnimSequence* Idle, UMaterialInterface* Outfit, float MeshYaw)
+void ARbCaseMarker::SetBody(const RbCast::FLook& Look, UMaterialInterface* Outfit, const FString& PersonId)
 {
-	if (!BodyMesh) return;
-	Mesh->SetVisibility(false);
-	Body->SetSkeletalMesh(BodyMesh);
-	Body->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f / FMath::Max(GetActorScale3D().Z, 0.01f)), FRotator(0.0f, MeshYaw, 0.0f));
-	if (Outfit)
+	if (!Look.Mesh) return;
+	bHasBody = true;
+	DressBody(this, Mesh, Body, Look, Outfit, PersonId);
+}
+
+ERbUseStyle ARbCaseMarker::GetUseStyle() const
+{
+	switch (Kind)
 	{
-		for (int32 i = 0; i < Body->GetNumMaterials(); ++i) Body->SetMaterial(i, Outfit);
+	case ERbCaseMarkerKind::Interview: return ERbUseStyle::Person;
+	case ERbCaseMarkerKind::Lectern: return ERbUseStyle::Screen;
+	default: return ERbUseStyle::PickUp;
 	}
-	if (Idle) Body->PlayAnimation(Idle, true);
+}
+
+FVector ARbCaseMarker::GetFocusPoint() const
+{
+	if (Kind == ERbCaseMarkerKind::Interview && bHasBody) return Body->GetEyeLocation();
+	if (Kind == ERbCaseMarkerKind::Lectern) return GetActorLocation() + FVector(0.0f, 0.0f, 50.0f); // the papers on the slope
+	return ARbInteractable::GetFocusPoint();
+}
+
+URbPersonComponent* ARbCaseMarker::GetPerson() const
+{
+	return bHasBody ? Body.Get() : nullptr;
 }
 
 FText ARbCaseMarker::GetPrompt() const
