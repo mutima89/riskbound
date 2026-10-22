@@ -264,7 +264,10 @@ def build_highlight():
     m = new_material("M_RbHighlight")
     m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
     m.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
-    fres = expr(m, unreal.MaterialExpressionFresnel, -600, 100, exponent=2.5)
+    # The overlay also goes on people (skinned, with face shapes); without these the game draws the default material.
+    m.set_editor_property("used_with_skeletal_mesh", True)
+    m.set_editor_property("used_with_morph_targets", True)
+    fres =expr(m, unreal.MaterialExpressionFresnel, -600, 100, exponent=2.5)
     color = expr(m, unreal.MaterialExpressionVectorParameter, -600, -150, parameter_name="Color", default_value=unreal.LinearColor(0.17, 0.64, 0.66, 1))
     em = expr(m, unreal.MaterialExpressionMultiply, -300, -100)
     link(color, "", em, "A")

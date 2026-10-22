@@ -5,8 +5,9 @@ Source: https://github.com/microsoft/Microsoft-Rocketbox (fetched by Scripts/Fet
   UnrealEditor.exe Riskbound.uproject -ExecutePythonScript="<path>/Scripts/ImportCharacters.py"
 
 Output under /Game/Riskbound/Characters:
-  Materials/M_RbSkin, M_RbFace, M_RbMasked       masters: opaque cloth/body, pre-integrated skin for heads,
-                                                 masked hair/lashes with dithered (TSR-smoothed) edges
+  Materials/M_RbSkin, M_RbMasked                 masters: opaque body and head, masked hair/lashes
+                                                 (a pre-integrated skin or subsurface head master lost its
+                                                 base colour on UE 5.8: the heads rendered white)
   Meshes come from the "_facial" FBX when present, with morph targets (visemes, ARKit shapes) for RbPerson;
   an avatar imported earlier without them is re-imported.
   People/<Avatar>/SK_<Avatar> and one material instance per slot (re-parented to the masters)
@@ -34,10 +35,10 @@ def log(m):
         f.write(m + "\n")
 
 
-MASTER_VERSION = "2"  # bump to rebuild the masters (2: face skin, dithered hair, morph targets)
+MASTER_VERSION = "4"  # bump to rebuild the masters (4: morph targets; heads use M_RbSkin)
 
 
-def master(name, masked, face=False):
+def master(name, masked):
     path = BASE + "/Materials/" + name
     if eal.does_asset_exist(path):
         m = unreal.load_asset(path)
@@ -53,34 +54,12 @@ def master(name, masked, face=False):
     if masked:
         m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_MASKED)
         m.set_editor_property("two_sided", True)
-    if face:
-        # Pre-integrated skin: soft light falloff and warm scatter at a fraction of subsurface profile cost
-        # (fits the 4 GB GTX 1650 target).
-        m.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_PREINTEGRATED_SKIN)
-        sss = mel.create_material_expression(m, unreal.MaterialExpressionConstant3Vector, -500, 600)
-        sss.set_editor_property("constant", unreal.LinearColor(0.85, 0.32, 0.22, 1.0))
-        mel.connect_material_property(sss, "", unreal.MaterialProperty.MP_SUBSURFACE_COLOR)
-        amount = mel.create_material_expression(m, unreal.MaterialExpressionConstant, -500, 750)
-        amount.set_editor_property("r", 0.55)
-        mel.connect_material_property(amount, "", unreal.MaterialProperty.MP_OPACITY)
-        skin_spec = mel.create_material_expression(m, unreal.MaterialExpressionConstant, -500, 850)
-        skin_spec.set_editor_property("r", 0.35)
-        mel.connect_material_property(skin_spec, "", unreal.MaterialProperty.MP_SPECULAR)
     col = mel.create_material_expression(m, unreal.MaterialExpressionTextureSampleParameter2D, -500, -200)
     col.set_editor_property("parameter_name", "BaseColor")
     col.set_editor_property("texture", unreal.load_asset("/Engine/EngineResources/DefaultTexture"))
     mel.connect_material_property(col, "RGB", unreal.MaterialProperty.MP_BASE_COLOR)
     if masked:
-        # Dithered alpha: TSR resolves it into soft hair and lash edges instead of hard cut-outs.
-        # DitherTemporalAA is an engine material function, not an expression class.
-        fn = unreal.load_asset("/Engine/Functions/Engine_MaterialFunctions02/Utility/DitherTemporalAA")
-        if fn:
-            dither = mel.create_material_expression(m, unreal.MaterialExpressionMaterialFunctionCall, -250, -60)
-            dither.set_editor_property("material_function", fn)
-            mel.connect_material_expressions(col, "A", dither, "Alpha Threshold")
-            mel.connect_material_property(dither, "Result", unreal.MaterialProperty.MP_OPACITY_MASK)
-        else:
-            mel.connect_material_property(col, "A", unreal.MaterialProperty.MP_OPACITY_MASK)
+        mel.connect_material_property(col, "A", unreal.MaterialProperty.MP_OPACITY_MASK)
     nrm = mel.create_material_expression(m, unreal.MaterialExpressionTextureSampleParameter2D, -500, 100)
     nrm.set_editor_property("parameter_name", "Normal")
     nrm.set_editor_property("texture", unreal.load_asset("/Engine/EngineMaterials/DefaultNormal"))
@@ -89,10 +68,10 @@ def master(name, masked, face=False):
     spec = mel.create_material_expression(m, unreal.MaterialExpressionTextureSampleParameter2D, -800, 350)
     spec.set_editor_property("parameter_name", "Specular")
     spec.set_editor_property("texture", unreal.load_asset("/Engine/EngineResources/DefaultTexture"))
-    # Rocketbox specular maps: bright = glossy. Roughness = lerp(0.85, 0.35, spec); skin a little softer.
+    # Rocketbox specular maps: bright = glossy. Roughness = lerp(0.85, 0.35, spec).
     lerp = mel.create_material_expression(m, unreal.MaterialExpressionLinearInterpolate, -300, 350)
-    lerp.set_editor_property("const_a", 0.8 if face else 0.85)
-    lerp.set_editor_property("const_b", 0.45 if face else 0.35)
+    lerp.set_editor_property("const_a", 0.85)
+    lerp.set_editor_property("const_b", 0.35)
     mel.connect_material_expressions(spec, "R", lerp, "Alpha")
     mel.connect_material_property(lerp, "", unreal.MaterialProperty.MP_ROUGHNESS)
     mel.recompile_material(m)
@@ -167,7 +146,7 @@ def part_textures(texdir, slot):
 
 
 def main():
-    skin, masked, face = master("M_RbSkin", False), master("M_RbMasked", True), master("M_RbFace", False, True)
+    skin, masked = master("M_RbSkin", False), master("M_RbMasked", True)
     skeletons = {}
     for folder in sorted(glob.glob(os.path.join(SRC, "avatars", "*"))):
         avatar = os.path.basename(folder)
@@ -204,8 +183,7 @@ def main():
             if not isinstance(mi, unreal.MaterialInstanceConstant):
                 log("%s: slot %s has no material instance" % (avatar, slot))
                 continue
-            is_face = "head" in slot.lower() and not is_masked
-            mel.set_material_instance_parent(mi, masked if is_masked else (face if is_face else skin))
+            mel.set_material_instance_parent(mi, masked if is_masked else skin)
             for param, png in tex.items():
                 t = import_texture(png, dest + "/Textures", param == "Normal")
                 if t:
