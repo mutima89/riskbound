@@ -22,17 +22,21 @@
       "body": [
         "Fuel tank: 400 litres, full. Consumption at the current load: 25 litres an hour.",
         "The diesel is summer grade."
-      ]
+      ],
+      "at": "monitoring",
+      "person": "amara"
     },
     {
       "id": "outages",
       "title": "Grid operator notice",
-      "body": "Rolling outages of up to 20 hours at a time, possibly repeated over five days. Road fuel deliveries are delayed by ice."
+      "body": "Rolling outages of up to 20 hours at a time, possibly repeated over five days. Road fuel deliveries are delayed by ice.",
+      "at": "reception"
     },
     {
       "id": "product",
       "title": "Stored product",
-      "body": "1.2 million of temperature-sensitive vaccines in the Harrowgate chilled store. Freezing below 0C destroys them."
+      "body": "1.2 million of temperature-sensitive vaccines in the Harrowgate chilled store. Freezing below 0C destroys them.",
+      "at": "monitoring"
     }
   ],
   "questions": [

@@ -33,12 +33,14 @@
       "body": [
         "Eight quarters: 41, 38, 44, 40 | bonus scheme starts | 14, 11, 12, 9.",
         "Yard movements per quarter were stable at about 52,000 throughout."
-      ]
+      ],
+      "at": "monitoring"
     },
     {
       "id": "bonus_scheme",
       "title": "Supervisor bonus scheme (extract)",
-      "body": "Supervisors receive 1,500 for each 'incident-free month' at their depot. Near misses logged on the system count as incidents for this purpose."
+      "body": "Supervisors receive 1,500 for each 'incident-free month' at their depot. Near misses logged on the system count as incidents for this purpose.",
+      "at": "manager"
     },
     {
       "id": "cctv_review",
@@ -50,7 +52,8 @@
     {
       "id": "injury_stats",
       "title": "Injury statistics",
-      "body": "One reportable injury in 24 months (a forklift strike, month 22). Industry benchmark for comparable yards: about one per 400,000 movements."
+      "body": "One reportable injury in 24 months (a forklift strike, month 22). Industry benchmark for comparable yards: about one per 400,000 movements.",
+      "at": "training"
     }
   ],
   "questions": [

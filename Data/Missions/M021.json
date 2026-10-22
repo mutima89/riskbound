@@ -25,18 +25,21 @@
     {
       "id": "scan",
       "title": "External scan",
-      "body": "Refrigerant phase-down (2027); electric refrigerated trucks viable by about 2029; pharma clients halving supplier panels; heatwaves twice as frequent as a decade ago; data-sharing requirements in pharma contracts."
+      "body": "Refrigerant phase-down (2027); electric refrigerated trucks viable by about 2029; pharma clients halving supplier panels; heatwaves twice as frequent as a decade ago; data-sharing requirements in pharma contracts.",
+      "at": "reception"
     },
     {
       "id": "interviews",
       "title": "Client interviews",
       "body": "Three of the top five clients plan to require live temperature data feeds by 2027. Two will score suppliers on emissions.",
-      "at": "meeting"
+      "at": "meeting",
+      "person": "rafe"
     },
     {
       "id": "assumptions",
       "title": "Strategy assumptions",
-      "body": "Diesel fleet to 2032. Heatwave days: flat. Client panels: stable."
+      "body": "Diesel fleet to 2032. Heatwave days: flat. Client panels: stable.",
+      "at": "boardroom"
     }
   ],
   "questions": [

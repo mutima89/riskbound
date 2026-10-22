@@ -29,7 +29,8 @@
     {
       "id": "financials",
       "title": "Pellmoor financials",
-      "body": "Revenue 14m, margin 9% (Valtren: 7%). 41% of revenue from one pharma client whose contract renews in 7 months."
+      "body": "Revenue 14m, margin 9% (Valtren: 7%). 41% of revenue from one pharma client whose contract renews in 7 months.",
+      "at": "meeting"
     },
     {
       "id": "dd_findings",
@@ -45,7 +46,9 @@
     {
       "id": "deal_terms",
       "title": "Proposed terms",
-      "body": "9.5m at completion, funded mostly by a new bank loan with 1.5m from Valtren's cash. No earn-out. Standard warranties capped at 10% of price."
+      "body": "9.5m at completion, funded mostly by a new bank loan with 1.5m from Valtren's cash. No earn-out. Standard warranties capped at 10% of price.",
+      "at": "boardroom",
+      "person": "adrian"
     }
   ],
   "questions": [

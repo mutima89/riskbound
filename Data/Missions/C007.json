@@ -19,12 +19,15 @@
     {
       "id": "finding",
       "title": "The finding",
-      "body": "Logger downloads late or missed at four depots; excursions detected after delivery. Severity: major. Repeat findings may lead to licence conditions."
+      "body": "Logger downloads late or missed at four depots; excursions detected after delivery. Severity: major. Repeat findings may lead to licence conditions.",
+      "at": "reception"
     },
     {
       "id": "status",
       "title": "Current status",
-      "body": "Your control test identified the causes (no cover, no alert). Some depots have improved; two have not."
+      "body": "Your control test identified the causes (no cover, no alert). Some depots have improved; two have not.",
+      "at": "meeting",
+      "person": "ruth"
     }
   ],
   "questions": [

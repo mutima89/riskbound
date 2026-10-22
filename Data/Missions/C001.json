@@ -39,12 +39,16 @@
     {
       "id": "loads",
       "title": "Tonight's pharma loads",
-      "body": "Three loads, value 1.1m, from Corby Road. Client contract: product above 8C for more than 30 minutes must be quarantined and reported."
+      "body": "Three loads, value 1.1m, from Corby Road. Client contract: product above 8C for more than 30 minutes must be quarantined and reported.",
+      "at": "monitoring",
+      "person": "amara"
     },
     {
       "id": "resources",
       "title": "Resources",
-      "body": "Two hired mobile cold units available within 4 hours (8,000 a day each). Spare capacity at Northgate for about 40% of Corby Road's stock. Kelvarin's emergency line answers."
+      "body": "Two hired mobile cold units available within 4 hours (8,000 a day each). Spare capacity at Northgate for about 40% of Corby Road's stock. Kelvarin's emergency line answers.",
+      "at": "meeting",
+      "person": "tomasz"
     }
   ],
   "questions": [

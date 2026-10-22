@@ -488,3 +488,33 @@ TEST(World_FullStoryCanBeSolvedWithTheShippedContent)
 	CHECK(DeserializeGame(SerializeGame(G), L, Info));
 	CHECK(SerializeGame(L) == SerializeGame(G));
 }
+
+TEST(World_EveryCaseIsWorkedOnFoot)
+{
+	// Like Mission 001: no case can be finished from the desk. Every piece of evidence is somewhere in the
+	// office, each case needs at least two rooms, and at least one colleague is met in person.
+	const MissionCatalogue C = ShippedMissions();
+	std::vector<std::string> Errors;
+	const WorldContent W = ShippedWorld(Errors);
+	CHECK(Errors.empty());
+	CHECK(C.Missions.size() >= size_t(50));
+	for (const MissionDef& M : C.Missions)
+	{
+		std::vector<std::string> Rooms;
+		int32_t Interviews = 0;
+		for (const MissionEvidenceDef& E : M.Evidence)
+		{
+			if (E.At.empty()) std::printf("    %s/%s: read at the desk\n", M.Id.c_str(), E.Id.c_str());
+			CHECK(!E.At.empty());
+			if (std::find(Rooms.begin(), Rooms.end(), E.At) == Rooms.end()) Rooms.push_back(E.At);
+			if (E.Person.empty()) continue;
+			++Interviews;
+			const CharacterDef* P = W.People.Find(E.Person);
+			CHECK(P != nullptr);
+			if (P) CHECK(!P->bPersonal); // the player's partner is never met at work
+		}
+		if (Rooms.size() < 2 || Interviews == 0) std::printf("    %s: %zu rooms, %d interviews\n", M.Id.c_str(), Rooms.size(), Interviews);
+		CHECK(Rooms.size() >= size_t(2));
+		CHECK(Interviews >= 1);
+	}
+}

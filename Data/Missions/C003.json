@@ -29,22 +29,28 @@
     {
       "id": "logger",
       "title": "Data logger trace",
-      "body": "Shipment peaked at 9.4C for 50 minutes during a 70-minute unplanned stop. The in-cab alert sounded; the driver acknowledged it; no escalation followed."
+      "body": "Shipment peaked at 9.4C for 50 minutes during a 70-minute unplanned stop. The in-cab alert sounded; the driver acknowledged it; no escalation followed.",
+      "at": "monitoring",
+      "person": "amara"
     },
     {
       "id": "process",
       "title": "Excursion procedure",
-      "body": "Any excursion must be reported to the client within 2 hours and the load quarantined pending the client's decision. The driver was not trained on the pharma procedure; he was an agency driver covering a shortage."
+      "body": "Any excursion must be reported to the client within 2 hours and the load quarantined pending the client's decision. The driver was not trained on the pharma procedure; he was an agency driver covering a shortage.",
+      "at": "training"
     },
     {
       "id": "contract",
       "title": "Clause 14",
-      "body": "Halvern may terminate for 'a material breach of temperature control or reporting obligations' with 30 days' notice. Annual contract value 5.6m."
+      "body": "Halvern may terminate for 'a material breach of temperature control or reporting obligations' with 30 days' notice. Annual contract value 5.6m.",
+      "at": "boardroom"
     },
     {
       "id": "regulation",
       "title": "Regulatory duty",
-      "body": "Distributors must notify the Authority of excursions affecting medicinal products that reached a patient-facing site."
+      "body": "Distributors must notify the Authority of excursions affecting medicinal products that reached a patient-facing site.",
+      "at": "meeting",
+      "person": "ruth"
     }
   ],
   "questions": [

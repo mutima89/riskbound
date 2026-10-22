@@ -29,17 +29,22 @@
     {
       "id": "status",
       "title": "Systems status",
-      "body": "Down: route planning, central temperature alerting, email. Up: telephones, site alarms, the backup laptop kit at Northgate (dispatch fallback, if funded)."
+      "body": "Down: route planning, central temperature alerting, email. Up: telephones, site alarms, the backup laptop kit at Northgate (dispatch fallback, if funded).",
+      "at": "monitoring",
+      "person": "mei"
     },
     {
       "id": "priorities",
       "title": "Today's deliveries",
-      "body": "900 deliveries: 120 pharma (strict windows), 600 food retail, 180 other. Manual dispatch capacity: about 40% of normal."
+      "body": "900 deliveries: 120 pharma (strict windows), 600 food retail, 180 other. Manual dispatch capacity: about 40% of normal.",
+      "at": "monitoring"
     },
     {
       "id": "contracts",
       "title": "Contract notes",
-      "body": "Pharma: missed window costs 2,000 per delivery and counts toward termination rights. Retail: 300 per missed slot. Force majeure covers the provider's failure but not Valtren's lack of a fallback."
+      "body": "Pharma: missed window costs 2,000 per delivery and counts toward termination rights. Retail: 300 per missed slot. Force majeure covers the provider's failure but not Valtren's lack of a fallback.",
+      "at": "meeting",
+      "person": "rafe"
     }
   ],
   "questions": [

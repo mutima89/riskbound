@@ -49,6 +49,7 @@ Option: `{"id", "label", "feedback", "score" (single), "correct" (multi), "cost"
 
 ## Authoring rules
 - All names are fictional (Docs/GameDesign.md "Fictional names").
+- Every evidence item has an `"at"` room, a case uses at least two rooms, and at least one item is an interview (`"person"`, a work colleague). Put a document where it would live (contracts in the meeting room, live data in the monitoring room, finance and board papers in the boardroom, policies in the manager's office, letters and notices at reception, safety and people material in the training area), and turn an email or note from a colleague into an interview with them. Each room has two standing spots and two document spots; more items in one room line up beside them. Checked by `World_EveryCaseIsWorkedOnFoot`.
 - Every figure stated in an option must be what `RbQuant` computes; add a test like `Data_M004FiguresMatchTheQuantEngine`.
 - Never state expected loss as the worst case; offer the confusion as a wrong answer with feedback instead.
 - Feedback explains why, for wrong and right answers. The rubric is only shown after submission.

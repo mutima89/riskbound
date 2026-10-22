@@ -29,17 +29,22 @@
     {
       "id": "forecast",
       "title": "Strategy team forecast",
-      "body": "Revenue doubles in five years: pharma 35%, electric fleet by 2030, two acquisitions."
+      "body": "Revenue doubles in five years: pharma 35%, electric fleet by 2030, two acquisitions.",
+      "at": "boardroom",
+      "person": "adrian"
     },
     {
       "id": "drivers",
       "title": "Key uncertainties",
-      "body": "Speed of pharma supplier consolidation; electric truck cost and range; regulation of refrigerants; availability of drivers and engineers; climate impacts on cold-chain demand."
+      "body": "Speed of pharma supplier consolidation; electric truck cost and range; regulation of refrigerants; availability of drivers and engineers; climate impacts on cold-chain demand.",
+      "at": "training"
     },
     {
       "id": "board_style",
       "title": "Board dynamics",
-      "body": "Two directors are strongly committed to the forecast; one is openly sceptical. The CEO wants approval in one meeting."
+      "body": "Two directors are strongly committed to the forecast; one is openly sceptical. The CEO wants approval in one meeting.",
+      "at": "manager",
+      "person": "priya"
     }
   ],
   "questions": [

@@ -30,12 +30,14 @@
     {
       "id": "agendas",
       "title": "Last four agendas",
-      "body": "On average: 11 items, 9 'for noting', 2 'for decision'. 70% of time spent on updates. Two decisions deferred twice."
+      "body": "On average: 11 items, 9 'for noting', 2 'for decision'. 70% of time spent on updates. Two decisions deferred twice.",
+      "at": "boardroom"
     },
     {
       "id": "terms",
       "title": "Committee terms of reference",
-      "body": "Oversee the risk framework and appetite; review the enterprise risk profile; approve the risk appetite statement; review major incidents; satisfy itself on the independence of the risk function."
+      "body": "Oversee the risk framework and appetite; review the enterprise risk profile; approve the risk appetite statement; review major incidents; satisfy itself on the independence of the risk function.",
+      "at": "manager"
     },
     {
       "id": "independence",

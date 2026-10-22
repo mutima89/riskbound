@@ -19,17 +19,21 @@
     {
       "id": "debt",
       "title": "Balance sheet extract",
-      "body": "Net debt: 9,600,000. Last twelve months' EBITDA: 3,500,000."
+      "body": "Net debt: 9,600,000. Last twelve months' EBITDA: 3,500,000.",
+      "at": "boardroom"
     },
     {
       "id": "covenant",
       "title": "Term loan covenant",
-      "body": "Net debt / EBITDA must not exceed 3.0, tested quarterly. A breach makes the loan repayable on demand."
+      "body": "Net debt / EBITDA must not exceed 3.0, tested quarterly. A breach makes the loan repayable on demand.",
+      "at": "meeting"
     },
     {
       "id": "outlook",
       "title": "Forecast",
-      "body": "EBITDA could fall 10% next year if two contracts are lost."
+      "body": "EBITDA could fall 10% next year if two contracts are lost.",
+      "at": "boardroom",
+      "person": "hollis"
     }
   ],
   "questions": [

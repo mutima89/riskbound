@@ -44,6 +44,8 @@ constexpr float DoorHeight = 230.0f;
 constexpr float DeskHeight = 74.0f;
 // Poly Haven models face +Y in UE after import; this turns "facing yaw" into mesh yaw.
 constexpr float ModelYawOffset = -90.0f;
+// Priya Okafor's place beside her desk.
+const FVector PriyaSpot(2330.0f, 880.0f, 90.0f);
 
 // Exposure is locked to a narrow band so rooms do not pump when looking at the windows.
 constexpr float ExposureMinEV100 = 6.0f;
@@ -903,10 +905,11 @@ void ARbValtrenHQ::PlaceInteractables()
 	auto ModelOr = [this](const TCHAR* Id) { UStaticMesh* M = Model(Id); return M ? M : Cube.Get(); };
 
 	// Priya Okafor beside her desk, facing the door. Invisible capsule for the trace, cast body (RbCast).
-	if (ARbNpc* Priya = SpawnInteractable<ARbNpc>(TEXT("priya_okafor"), FVector(2330.0f, 880.0f, 90.0f), -90.0f, Cylinder, FVector(0.5f, 0.5f, 1.8f), nullptr))
+	if (ARbNpc* Priya = SpawnInteractable<ARbNpc>(TEXT("priya_okafor"), PriyaSpot, -90.0f, Cylinder, FVector(0.5f, 0.5f, 1.8f), nullptr))
 	{
 		const RbCast::FLook L = RbCast::ForPerson(TEXT("priya"), 2);
 		Priya->SetBody(L.Mesh, L.Idle, L.bFallback ? Mat(TEXT("MI_SuitNavy")) : nullptr, L.MeshYaw);
+		PriyaNpc = Priya;
 	}
 	// The player's workstation: the monitor screen is the interactable.
 	Monitor(FVector(1500.0f, 1100.0f, DeskHeight), -90.0f, nullptr);
@@ -971,22 +974,44 @@ void ARbValtrenHQ::RefreshCaseMarkers()
 		if (IsValid(L)) L->DestroyComponent();
 	}
 	CaseLabels.Reset();
+	for (UStaticMeshComponent* C : CaseStands)
+	{
+		if (IsValid(C)) C->DestroyComponent();
+	}
+	CaseStands.Reset();
+	if (PriyaNpc)
+	{
+		PriyaNpc->SetActorHiddenInGame(false);
+		PriyaNpc->SetActorEnableCollision(true);
+	}
 	if (Active.IsEmpty()) return;
 	const FRbMissionView View = Campaign->GetMission(Active);
 
-	// Where things go in each room: a standing spot for people and a surface for documents.
-	struct FSpot { FVector Person; float PersonYaw; FVector Doc; float DocYaw; };
-	static const TMap<FString, FSpot> Spots = {
-		{TEXT("monitoring"), {FVector(1260.0f, -420.0f, 90.0f), 0.0f, FVector(1700.0f, -570.0f, DeskHeight + 1.0f), 10.0f}},
-		{TEXT("meeting"), {FVector(3820.0f, 420.0f, 90.0f), 180.0f, FVector(3560.0f, 720.0f, DeskHeight + 0.5f), -10.0f}},
-		{TEXT("training"), {FVector(300.0f, -420.0f, 90.0f), -45.0f, FVector(600.0f, -880.0f, DeskHeight + 0.5f), 15.0f}},
-		{TEXT("boardroom"), {FVector(2350.0f, -380.0f, 90.0f), -30.0f, FVector(3200.0f, -700.0f, DeskHeight + 0.5f), 0.0f}},
-		{TEXT("manager"), {FVector(2700.0f, 450.0f, 90.0f), 180.0f, FVector(2600.0f, 1000.0f, DeskHeight + 0.5f), 0.0f}},
-		{TEXT("workspace"), {FVector(1250.0f, 450.0f, 90.0f), 0.0f, FVector(1750.0f, 760.0f, DeskHeight + 0.5f), 0.0f}},
-		{TEXT("reception"), {FVector(300.0f, 500.0f, 90.0f), 0.0f, FVector(500.0f, 700.0f, 45.0f), 0.0f}},
+	// Where things go in each room, spread out so a case with several items in one room still means walking
+	// around it. People stand on the floor and face the room's centre; documents lie on a table, a desk or a
+	// reading stand of their own (bStand).
+	struct FDocSpot { FVector At; float Yaw; bool bStand; };
+	struct FRoomSpots { FVector2D Centre; TArray<FVector2D> People; TArray<FDocSpot> Docs; };
+	static const TMap<FString, FRoomSpots> Spots = {
+		{TEXT("reception"), {FVector2D(500.0f, 700.0f), {FVector2D(850.0f, 600.0f), FVector2D(650.0f, 780.0f)},
+			{{FVector(590.0f, 995.0f, 108.5f), 10.0f, false}, {FVector(880.0f, 820.0f, 0.0f), -15.0f, true}}}},
+		{TEXT("workspace"), {FVector2D(1500.0f, 700.0f), {FVector2D(1250.0f, 450.0f), FVector2D(1620.0f, 880.0f)},
+			{{FVector(1080.0f, 800.0f, 0.0f), 0.0f, true}, {FVector(1400.0f, 330.0f, 0.0f), 20.0f, true}}}},
+		{TEXT("manager"), {FVector2D(2500.0f, 700.0f), {FVector2D(2700.0f, 450.0f), FVector2D(2850.0f, 760.0f)},
+			{{FVector(2620.0f, 990.0f, DeskHeight + 0.5f), 0.0f, false}, {FVector(2200.0f, 350.0f, 0.0f), -10.0f, true}}}},
+		{TEXT("meeting"), {FVector2D(3500.0f, 700.0f), {FVector2D(3820.0f, 420.0f), FVector2D(3200.0f, 950.0f)},
+			{{FVector(3600.0f, 735.0f, DeskHeight + 0.5f), -10.0f, false}, {FVector(3850.0f, 860.0f, 0.0f), 15.0f, true}}}},
+		{TEXT("training"), {FVector2D(500.0f, -700.0f), {FVector2D(300.0f, -420.0f), FVector2D(760.0f, -1000.0f)},
+			{{FVector(505.0f, -470.0f, DeskHeight + 0.5f), 15.0f, false}, {FVector(505.0f, -945.0f, DeskHeight + 0.5f), -10.0f, false}}}},
+		{TEXT("monitoring"), {FVector2D(1500.0f, -700.0f), {FVector2D(1260.0f, -420.0f), FVector2D(1350.0f, -790.0f)},
+			{{FVector(1150.0f, -620.0f, 0.0f), 10.0f, true}, {FVector(1850.0f, -960.0f, 0.0f), -20.0f, true}}}},
+		{TEXT("boardroom"), {FVector2D(3000.0f, -700.0f), {FVector2D(2350.0f, -380.0f), FVector2D(2450.0f, -1000.0f)},
+			{{FVector(3200.0f, -700.0f, DeskHeight + 0.5f), 0.0f, false}, {FVector(3640.0f, -262.0f, 80.5f), 5.0f, false}}}},
 	};
+	constexpr float StandHeight = 100.0f;
 	static const TCHAR* const Outfits[] = {TEXT("MI_FabricDark"), TEXT("MI_SuitNavy"), TEXT("MI_Graphite")};
-	TMap<FString, int32> Used;
+	TMap<FString, int32> PeopleUsed;
+	TMap<FString, int32> DocsUsed;
 	int32 PersonIndex = 0;
 	auto Label = [this](const FString& Text, const FVector& At)
 	{
@@ -999,13 +1024,22 @@ void ARbValtrenHQ::RefreshCaseMarkers()
 	};
 	for (const FRbMissionEvidenceView& E : View.Evidence)
 	{
-		const FSpot* S = Spots.Find(E.At);
+		const FRoomSpots* S = Spots.Find(E.At);
 		if (!S || E.bViewed) continue;
-		const int32 N = Used.FindOrAdd(E.At)++;
-		const FVector Offset(0.0f, 70.0f * N, 0.0f);
 		if (!E.PersonName.IsEmpty())
 		{
-			ARbCaseMarker* M = SpawnInteractable<ARbCaseMarker>(TEXT("case_person"), S->Person + Offset, S->PersonYaw, Cylinder, FVector(0.5f, 0.5f, 1.8f), nullptr);
+			// Priya is met where she always stands; everyone else takes the room's next free spot.
+			const bool bPriya = E.PersonId == TEXT("priya") && E.At == TEXT("manager") && PriyaNpc;
+			FVector At = PriyaSpot;
+			float Yaw = -90.0f;
+			if (!bPriya)
+			{
+				const int32 N = PeopleUsed.FindOrAdd(E.At)++;
+				const FVector2D P = S->People[N % S->People.Num()] + FVector2D(0.0f, 70.0f * (N / S->People.Num()));
+				At = FVector(P.X, P.Y, 90.0f);
+				Yaw = FMath::RadiansToDegrees(FMath::Atan2(S->Centre.Y - P.Y, S->Centre.X - P.X));
+			}
+			ARbCaseMarker* M = SpawnInteractable<ARbCaseMarker>(TEXT("case_person"), At, Yaw, Cylinder, FVector(0.5f, 0.5f, 1.8f), nullptr);
 			if (!M) continue;
 			M->Kind = ERbCaseMarkerKind::Interview;
 			M->Title = E.PersonName;
@@ -1016,12 +1050,29 @@ void ARbValtrenHQ::RefreshCaseMarkers()
 			M->EvidenceId = E.Id;
 			M->Where = E.At;
 			CaseMarkers.Add(M);
-			Label(E.PersonName, S->Person + Offset + FVector(0.0f, 0.0f, 110.0f));
+			Label(E.PersonName, At + FVector(0.0f, 0.0f, 110.0f));
+			if (bPriya)
+			{
+				PriyaNpc->SetActorHiddenInGame(true);
+				PriyaNpc->SetActorEnableCollision(false);
+			}
 		}
 		else
 		{
+			const int32 N = DocsUsed.FindOrAdd(E.At)++;
+			const FDocSpot& D = S->Docs[N % S->Docs.Num()];
+			FVector At = D.At + FVector(0.0f, 40.0f * (N / S->Docs.Num()), 0.0f);
+			if (D.bStand)
+			{
+				// A slim reading stand, removed with the marker.
+				if (UStaticMeshComponent* Stand = AddMesh(Cube, At + FVector(0.0f, 0.0f, StandHeight * 0.5f), D.Yaw, FVector(0.4f, 0.4f, StandHeight / 100.0f), Mat(TEXT("MI_Graphite"))))
+				{
+					CaseStands.Add(Stand);
+				}
+				At.Z = StandHeight + 0.5f;
+			}
 			UStaticMesh* Folder = Model(TEXT("office_notepads"));
-			ARbCaseMarker* M = SpawnInteractable<ARbCaseMarker>(TEXT("case_document"), S->Doc + Offset, S->DocYaw, Folder ? Folder : Cube.Get(),
+			ARbCaseMarker* M = SpawnInteractable<ARbCaseMarker>(TEXT("case_document"), At, D.Yaw, Folder ? Folder : Cube.Get(),
 				Folder ? FVector(0.3f) : FVector(0.3f, 0.22f, 0.02f), Folder ? nullptr : Mat(TEXT("MI_Paper")));
 			if (!M) continue;
 			M->Kind = ERbCaseMarkerKind::Document;
@@ -1030,7 +1081,7 @@ void ARbValtrenHQ::RefreshCaseMarkers()
 			M->EvidenceId = E.Id;
 			M->Where = E.At;
 			CaseMarkers.Add(M);
-			Label(TEXT("Case ") + Active, S->Doc + Offset + FVector(0.0f, 0.0f, 22.0f));
+			Label(TEXT("Case ") + Active, At + FVector(0.0f, 0.0f, 22.0f));
 		}
 	}
 	if (!View.PresentAt.IsEmpty() && View.PresentAt == TEXT("boardroom"))

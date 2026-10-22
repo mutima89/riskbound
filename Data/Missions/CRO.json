@@ -59,17 +59,21 @@
     {
       "id": "strategy",
       "title": "Approved strategy",
-      "body": "Staged growth into pharma (25% then 35% of revenue), electric fleet pilots with signposts, one acquisition only if signposts confirm."
+      "body": "Staged growth into pharma (25% then 35% of revenue), electric fleet pilots with signposts, one acquisition only if signposts confirm.",
+      "at": "boardroom",
+      "person": "adrian"
     },
     {
       "id": "profile",
       "title": "Enterprise risk profile",
-      "body": "Ten enterprise risks. Two outside appetite: people availability; cold-chain integrity on pharma growth lanes. Liquidity buffer above policy."
+      "body": "Ten enterprise risks. Two outside appetite: people availability; cold-chain integrity on pharma growth lanes. Liquidity buffer above policy.",
+      "at": "monitoring"
     },
     {
       "id": "function",
       "title": "Risk function",
-      "body": "Twelve people across three teams. A culture survey shows the function is respected but seen as 'the department of no'."
+      "body": "Twelve people across three teams. A culture survey shows the function is respected but seen as 'the department of no'.",
+      "at": "training"
     }
   ],
   "questions": [

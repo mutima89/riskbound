@@ -29,17 +29,21 @@
     {
       "id": "last_report",
       "title": "Last quarter's report",
-      "body": "46 pages. Section order: methodology, unit registers, KRIs (82 charts), actions (114 rows). The two appetite breaches were on pages 31 and 38."
+      "body": "46 pages. Section order: methodology, unit registers, KRIs (82 charts), actions (114 rows). The two appetite breaches were on pages 31 and 38.",
+      "at": "manager"
     },
     {
       "id": "this_quarter",
       "title": "This quarter's position",
-      "body": "Two enterprise risks deteriorated (people; cold-chain integrity). One appetite breach (driver hours). Coldline 2 back on track. One near-miss involving a pharma load."
+      "body": "Two enterprise risks deteriorated (people; cold-chain integrity). One appetite breach (driver hours). Coldline 2 back on track. One near-miss involving a pharma load.",
+      "at": "monitoring"
     },
     {
       "id": "chair_note",
       "title": "Chair's note",
-      "body": "\"Tell me what has changed, what is outside appetite, what you need us to decide, and what you are worried about that isn't in the numbers.\""
+      "body": "\"Tell me what has changed, what is outside appetite, what you need us to decide, and what you are worried about that isn't in the numbers.\"",
+      "at": "boardroom",
+      "person": "helen"
     }
   ],
   "questions": [

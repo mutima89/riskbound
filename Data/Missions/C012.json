@@ -19,17 +19,21 @@
     {
       "id": "claim",
       "title": "The allegation",
-      "body": "Drivers at Corby Road routinely work beyond Valtren's own fatigue rules; supervisors falsify rosters."
+      "body": "Drivers at Corby Road routinely work beyond Valtren's own fatigue rules; supervisors falsify rosters.",
+      "at": "reception"
     },
     {
       "id": "data",
       "title": "What your data shows",
-      "body": "Corby Road's fatigue KRI has been amber for 9 weeks; roster edits after shifts are 6x other depots."
+      "body": "Corby Road's fatigue KRI has been amber for 9 weeks; roster edits after shifts are 6x other depots.",
+      "at": "monitoring"
     },
     {
       "id": "law",
       "title": "Legal note",
-      "body": "Whistleblowers are protected by law; retaliation or attempts to identify them create legal liability."
+      "body": "Whistleblowers are protected by law; retaliation or attempts to identify them create legal liability.",
+      "at": "meeting",
+      "person": "ruth"
     }
   ],
   "questions": [

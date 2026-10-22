@@ -29,17 +29,21 @@
     {
       "id": "credit",
       "title": "Supplier credit monitoring",
-      "body": "Corvane: payment days to its own suppliers up from 30 to 74 in nine months. Credit score fallen two bands. A major customer of Corvane left last quarter."
+      "body": "Corvane: payment days to its own suppliers up from 30 to 74 in nine months. Credit score fallen two bands. A major customer of Corvane left last quarter.",
+      "at": "meeting"
     },
     {
       "id": "dependency",
       "title": "Dependency analysis",
-      "body": "Liners: 100% from Corvane, about 3 weeks' stock. A second supplier exists (Fennick Packaging), 9% more expensive, needs 8 weeks to qualify for pharma use."
+      "body": "Liners: 100% from Corvane, about 3 weeks' stock. A second supplier exists (Fennick Packaging), 9% more expensive, needs 8 weeks to qualify for pharma use.",
+      "at": "monitoring"
     },
     {
       "id": "offer",
       "title": "Corvane's offer",
-      "body": "Three-year exclusivity, 12% discount (saves about 310,000 a year), payment 50% in advance each quarter."
+      "body": "Three-year exclusivity, 12% discount (saves about 310,000 a year), payment 50% in advance each quarter.",
+      "at": "meeting",
+      "person": "tomasz"
     },
     {
       "id": "net_price",
@@ -48,7 +52,8 @@
         "Corvane's new list prices rise 18% on the day the exclusive deal starts. With the 12% discount, the net price is about 3.8% above today's (1.18 x 0.88 = 1.038)."
       ],
       "required": false,
-      "clue": "net_cost"
+      "clue": "net_cost",
+      "at": "reception"
     }
   ],
   "questions": [

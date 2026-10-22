@@ -19,7 +19,8 @@
     {
       "id": "share",
       "title": "Revenue by client",
-      "body": "Valtren revenue: 48,000,000. Marrowby Pharma: 31% of it."
+      "body": "Valtren revenue: 48,000,000. Marrowby Pharma: 31% of it.",
+      "at": "boardroom"
     },
     {
       "id": "credit",
@@ -27,12 +28,16 @@
       "body": [
         "Marrowby's receivables: 3,600,000, and paying in 75 days against 30 in the contract.",
         "Rumours in the trade press about Marrowby's debts."
-      ]
+      ],
+      "at": "boardroom",
+      "person": "hollis"
     },
     {
       "id": "commit",
       "title": "Dedicated assets",
-      "body": "Twelve trailers leased solely for Marrowby, with 1,200,000 of lease payments left, which Valtren owes whatever happens."
+      "body": "Twelve trailers leased solely for Marrowby, with 1,200,000 of lease payments left, which Valtren owes whatever happens.",
+      "at": "meeting",
+      "person": "rafe"
     }
   ],
   "questions": [

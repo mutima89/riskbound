@@ -37,7 +37,9 @@
       "body": [
         "22,000 a month, every month: 528,000 in total, coded to 'standby refrigerated capacity'.",
         "Contract: rolling, no cap, approved under the operational emergency route. No competitive tender on file."
-      ]
+      ],
+      "at": "boardroom",
+      "person": "hollis"
     },
     {
       "id": "usage",
@@ -53,7 +55,8 @@
       "body": [
         "Schedule 4 to the Corvane supply agreement, signed by the COO's office: Corvane will pay a 'logistics coordination rebate' of 15% of invoiced value to Tessaline Haulage Services.",
         "Procurement's copy of the contract does not include Schedule 4."
-      ]
+      ],
+      "at": "meeting"
     }
   ],
   "questions": [

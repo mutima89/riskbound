@@ -38,7 +38,8 @@
         "Kelvarin will service every compressor quarterly and respond to breakdowns within 4 hours, 24/7.",
         "Service visits are recorded by Kelvarin's engineer in the site service log. Kelvarin certifies completion in its monthly invoice.",
         "Term: 24 months, renewing automatically for 12 months unless either party gives 60 days' notice. No service credits."
-      ]
+      ],
+      "at": "meeting"
     },
     {
       "id": "service_log",
@@ -47,7 +48,8 @@
         "Northgate: Q1 done, Q2 not recorded, Q3 done, Q4 not recorded.",
         "Eastfield: Q1 done, Q2 done, Q3 not recorded, Q4 done.",
         "Every entry is signed by a Kelvarin engineer. No Valtren signature or check appears on any visit. All four quarters were invoiced as complete."
-      ]
+      ],
+      "at": "monitoring"
     },
     {
       "id": "supplier_questionnaire",
@@ -55,7 +57,8 @@
       "body": [
         "Kelvarin rates itself 'fully compliant' on safety, quality and continuity.",
         "Attached F-gas handling certificate expired eight months ago. No business continuity plan was provided ('available on request')."
-      ]
+      ],
+      "at": "reception"
     },
     {
       "id": "procurement_note",
@@ -63,13 +66,17 @@
       "body": [
         "Kelvarin is the only approved refrigeration contractor for all six sites. Spend last year: 410,000.",
         "Switching would take about four months including site surveys. Procurement has had no complaint logged against Kelvarin."
-      ]
+      ],
+      "at": "meeting",
+      "person": "tomasz"
     },
     {
       "id": "priya_email",
-      "title": "Email from Priya Okafor",
+      "title": "Priya Okafor: keep it practical",
       "required": false,
-      "body": "Keep it practical. Tomasz needs a recommendation he can act on before the notice date, not a lecture on third-party risk."
+      "body": "Keep it practical. Tomasz needs a recommendation he can act on before the notice date, not a lecture on third-party risk.",
+      "at": "manager",
+      "person": "priya"
     }
   ],
   "questions": [

@@ -19,17 +19,21 @@
     {
       "id": "log",
       "title": "Project risk log",
-      "body": "9 risks, all medium, none quantified. No owner for 'GDP certification of the new depot'."
+      "body": "9 risks, all medium, none quantified. No owner for 'GDP certification of the new depot'.",
+      "at": "meeting"
     },
     {
       "id": "schedule",
       "title": "Schedule",
-      "body": "Pharma clients expect to move volume in month 19. GDP certification takes about 3 months after construction finishes in month 16."
+      "body": "Pharma clients expect to move volume in month 19. GDP certification takes about 3 months after construction finishes in month 16.",
+      "at": "boardroom",
+      "person": "celeste"
     },
     {
       "id": "benchmarks",
       "title": "Benchmarks",
-      "body": "Comparable cold-store builds overran cost by 12% on average and time by 4 months."
+      "body": "Comparable cold-store builds overran cost by 12% on average and time by 4 months.",
+      "at": "reception"
     }
   ],
   "questions": [

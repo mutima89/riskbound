@@ -19,17 +19,22 @@
     {
       "id": "plan",
       "title": "Current BCP",
-      "body": "62 pages. Contact list 40% out of date. Recovery time objectives set for IT systems but not for business services."
+      "body": "62 pages. Contact list 40% out of date. Recovery time objectives set for IT systems but not for business services.",
+      "at": "training"
     },
     {
       "id": "services",
       "title": "Critical services",
-      "body": "Pharma deliveries, temperature monitoring, food retail deliveries, invoicing."
+      "body": "Pharma deliveries, temperature monitoring, food retail deliveries, invoicing.",
+      "at": "monitoring",
+      "person": "amara"
     },
     {
       "id": "scenario_ideas",
       "title": "Scenario ideas",
-      "body": "Loss of Northgate site for a week; regional power cut; key supplier failure."
+      "body": "Loss of Northgate site for a week; regional power cut; key supplier failure.",
+      "at": "manager",
+      "person": "priya"
     }
   ],
   "questions": [

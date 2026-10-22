@@ -22,17 +22,21 @@
       "body": [
         "4,000,000 nominal in 10-year fixed-rate government bonds, bought at par.",
         "Modified duration: 8."
-      ]
+      ],
+      "at": "boardroom",
+      "person": "hollis"
     },
     {
       "id": "rates",
       "title": "Market update",
-      "body": "Comparable yields are up 2.0 percentage points since purchase."
+      "body": "Comparable yields are up 2.0 percentage points since purchase.",
+      "at": "reception"
     },
     {
       "id": "needs",
       "title": "Cash plan",
-      "body": "Depot expansion: 2,500,000 payable in six months. A 3,000,000 revolving credit line is available at base rate plus 2%."
+      "body": "Depot expansion: 2,500,000 payable in six months. A 3,000,000 revolving credit line is available at base rate plus 2%.",
+      "at": "boardroom"
     }
   ],
   "questions": [
