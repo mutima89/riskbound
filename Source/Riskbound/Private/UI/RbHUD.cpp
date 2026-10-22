@@ -624,13 +624,13 @@ void ARbHUD::ExamineInPerson(const FString& MissionId, const FString& EvidenceId
 	auto Back = [this]() { CloseScreen(); };
 	if (!E->PersonName.IsEmpty())
 	{
-		const FText Speaker = FText::FromString(E->PersonName);
+		const FText SpeakerName = FText::FromString(E->PersonName);
 		const FText Text = FText::FromString(E->Title + TEXT("\n\n") + E->Body);
 		const FString PersonId = E->PersonId, Said = E->Body;
-		auto ShowNotes = [this, Speaker, Text, Back, PersonId, Said]()
+		auto ShowNotes = [this, SpeakerName, Text, Back, PersonId, Said]()
 		{
 			Speak(PersonId, Said);
-			const FRbScreenParts Parts = RbScreens::Dialogue(Speaker, Text, Back);
+			const FRbScreenParts Parts = RbScreens::Dialogue(SpeakerName, Text, Back);
 			ShowScreen(Parts.Widget, Parts.Focus, Back, false);
 		};
 		// An interview starts as a conversation when there is one written for it, then the notes.

@@ -72,9 +72,15 @@ def master(name, masked, face=False):
     mel.connect_material_property(col, "RGB", unreal.MaterialProperty.MP_BASE_COLOR)
     if masked:
         # Dithered alpha: TSR resolves it into soft hair and lash edges instead of hard cut-outs.
-        dither = mel.create_material_expression(m, unreal.MaterialExpressionDitherTemporalAA, -250, -60)
-        mel.connect_material_expressions(col, "A", dither, "")
-        mel.connect_material_property(dither, "", unreal.MaterialProperty.MP_OPACITY_MASK)
+        # DitherTemporalAA is an engine material function, not an expression class.
+        fn = unreal.load_asset("/Engine/Functions/Engine_MaterialFunctions02/Utility/DitherTemporalAA")
+        if fn:
+            dither = mel.create_material_expression(m, unreal.MaterialExpressionMaterialFunctionCall, -250, -60)
+            dither.set_editor_property("material_function", fn)
+            mel.connect_material_expressions(col, "A", dither, "Alpha Threshold")
+            mel.connect_material_property(dither, "Result", unreal.MaterialProperty.MP_OPACITY_MASK)
+        else:
+            mel.connect_material_property(col, "A", unreal.MaterialProperty.MP_OPACITY_MASK)
     nrm = mel.create_material_expression(m, unreal.MaterialExpressionTextureSampleParameter2D, -500, 100)
     nrm.set_editor_property("parameter_name", "Normal")
     nrm.set_editor_property("texture", unreal.load_asset("/Engine/EngineMaterials/DefaultNormal"))
