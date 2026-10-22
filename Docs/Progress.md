@@ -1,7 +1,19 @@
 # Progress
 
-## Status: 1.0.0 released (owner approved, 2026-10-21); all five roadmap phases done (Docs/Roadmap.md); whole game walked through the real UI by a scripted driver; playtested by the owner
+## Status: 1.1.0 release (owner approved "do all", 2026-10-22): faces, voices, walking colleagues; all five roadmap phases done (Docs/Roadmap.md); whole game walked through the real UI by a scripted driver; 1.0.0 playtested by the owner
 Last update: 2026-10-22
+
+- 2026-10-22 1.1.0 release pass on Windows/UE 5.8.3, on `claude/project-thread-w7m3jk` merged with the locomotion fix 4ea2a93 (no rebase).
+  - Tests: editor build succeeded; 97 core tests pass; 17/17 Unreal tests pass.
+  - Shipping package BUILD SUCCESSFUL. Shipping self-tests: play PASS (21 checks), resume PASS (16), people (11 of 11 with face shapes, walk-up sent, walking burst at a 121.2 cm/s measured stride, 58-60 fps with a walker on screen).
+  - Walkthrough: new game to CRO on Shipping; phase 1 308 s, phase 2 415 s; one open Medium text-width finding (Docs/WalkthroughReport.md).
+  - Fixed:
+    - Bones were looked up as "Bip01 Pelvis" but are imported as "Bip01-Pelvis". The pelvis was never pinned, so walkers surged and snapped back each step, and head/eye look, the jaw fallback and the voice socket did nothing.
+    - Music and room tone played at volume squared (component volume times fade level); music now has a per-track gain, every mood about 8 LU under the voices (Docs/QAReport.md).
+    - The conversation frame is now a fixed width.
+  - Walk clips measured in the editor: 101-135 cm/s per loop (QAReport).
+  - Lip-sync is stretched to the clip: the Priya briefing runs 51.74 s or 37.23 s.
+  - Version 1.1.0 (DefaultGame.ini, README); release notes in Docs/ReleaseNotes-1.1.0.md.
 
 - 2026-10-22 polish pass (owner: "do all" on the seven-item list): people with faces and body language (`URbPersonComponent`: Rocketbox facial avatars, blinks, gaze, text-driven lip-sync, expressions, talk/listen gestures, reactions to dialogue choices, walking colleagues, meetings and board members seated), physical use (pick up, lean in to screens, face people; bottom conversation panel), colleagues who walk over with new messages, crisis alarm and board-call clock (Docs/GameDesign.md "People and physical work"), new `-RbSelfTest=people`, code-signing plan (Docs/CodeSigning.md, SignPath chosen). Core tests 96/96 here. Not yet verified: re-fetch/import of the facial cast, editor build, Unreal tests, packaged self-tests and screenshots on the PC.
 - 2026-10-22 polish pass verified on Windows/UE 5.8.3: `FetchCharacters.py` done (one anim missing upstream: f_cell_phone_listen_01); `ImportCharacters.py` imported all 20 avatars with 173 face shapes each and 36 new animations (fix: DitherTemporalAA is a material function, not an expression class). Editor build succeeded after one fix (local `Speaker` shadowed `ARbHUD::Speaker`, C4458). Core tests 96 cases, 0 failed; Unreal automation 16/16 Success. Development package BUILD SUCCESSFUL; packaged `-RbSelfTest=play` PASS (21 checks), `=resume` PASS (16), `=people` 11 people, 11 with face shapes, colleague approach sent; `=cases` and `=tour` ran on the first package (exit 0, tour 52 fps average at 1080p). First people shots: every face white and featureless. The pre-integrated skin head master (and a subsurface variant) lost its base colour on 5.8, so heads are back on M_RbSkin and the hair mask is plain alpha. `M_RbHighlight` also lacked the skeletal-mesh/morph usage flags, so a focused person got the default material. After one fix round (repackaged, play/resume/people re-run): faces textured, eyes open and on the camera, mouth moving in speech, smile and frown read; seated people on the chairs; walkers upright, no drift seen (Docs/Screenshots/people). Not run (owner's call): Shipping package and UI walkthrough; these run with the release after the voice-over.

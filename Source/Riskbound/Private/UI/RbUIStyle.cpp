@@ -289,6 +289,7 @@ TSharedRef<SWidget> MakeConversationFrame(TSharedRef<SWidget> Content, float Max
 		.Padding(FMargin(40.0f, ModalTopBand, 40.0f, 36.0f))
 		[
 			SNew(SBox)
+			.MinDesiredWidth(MaxWidth) // a fixed width, so wrapped text never settles a few pixels short of its lines
 			.MaxDesiredWidth(MaxWidth)
 			.MaxDesiredHeight(500.0f)
 			[

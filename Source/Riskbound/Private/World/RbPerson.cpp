@@ -20,12 +20,26 @@
 namespace
 {
 // Rocketbox (3ds Max biped) bone names.
-const FName PelvisBone(TEXT("Bip01 Pelvis"));
-const FName NeckBone(TEXT("Bip01 Neck"));
-const FName HeadBone(TEXT("Bip01 Head"));
-const FName LeftEyeBone(TEXT("Bip01 LEye"));
-const FName RightEyeBone(TEXT("Bip01 REye"));
-const FName JawBone(TEXT("Bip01 MJaw"));
+// The import names the Rocketbox bones "Bip01-Pelvis" (the FBX files say "Bip01 Pelvis"); lookups accept either.
+const FName PelvisBone(TEXT("Bip01-Pelvis"));
+const FName NeckBone(TEXT("Bip01-Neck"));
+const FName HeadBone(TEXT("Bip01-Head"));
+const FName LeftEyeBone(TEXT("Bip01-LEye"));
+const FName RightEyeBone(TEXT("Bip01-REye"));
+const FName JawBone(TEXT("Bip01-MJaw"));
+
+FName SpacedName(const FName& Name)
+{
+	FString S = Name.ToString();
+	S.ReplaceCharInline(TEXT('-'), TEXT(' '));
+	return FName(*S);
+}
+
+// The bone or socket name as this mesh spells it.
+FName MeshBone(const USkinnedMeshComponent* Mesh, const FName& Name)
+{
+	return Mesh->GetBoneIndex(Name) != INDEX_NONE ? Name : SpacedName(Name);
+}
 
 constexpr float LookRange = 480.0f;     // people notice the player within this distance
 constexpr float SpeakRate = 14.0f;      // characters a second
@@ -51,7 +65,8 @@ TArray<TWeakObjectPtr<URbPersonComponent>>& Registry()
 FCompactPoseBoneIndex BoneIndex(const FCompactPose& Pose, const FName& Name)
 {
 	const FBoneContainer& Bones = Pose.GetBoneContainer();
-	const int32 MeshIndex = Bones.GetPoseBoneIndexForBoneName(Name);
+	int32 MeshIndex = Bones.GetPoseBoneIndexForBoneName(Name);
+	if (MeshIndex == INDEX_NONE) MeshIndex = Bones.GetPoseBoneIndexForBoneName(SpacedName(Name));
 	if (MeshIndex == INDEX_NONE) return FCompactPoseBoneIndex(INDEX_NONE);
 	return Bones.MakeCompactPoseIndex(FMeshPoseBoneIndex(MeshIndex));
 }
@@ -258,7 +273,8 @@ URbPersonComponent* URbPersonComponent::Find(const UWorld* World, const FString&
 
 FVector URbPersonComponent::GetEyeLocation() const
 {
-	if (GetBoneIndex(HeadBone) != INDEX_NONE) return GetSocketLocation(HeadBone) + FVector(0.0f, 0.0f, 6.0f);
+	const FName Head = MeshBone(this, HeadBone);
+	if (GetBoneIndex(Head) != INDEX_NONE) return GetSocketLocation(Head) + FVector(0.0f, 0.0f, 6.0f);
 	return GetComponentLocation() + FVector(0.0f, 0.0f, 160.0f);
 }
 
@@ -411,7 +427,7 @@ void URbPersonComponent::Say(const FString& Text)
 		UGameInstance* GI = GetWorld() ? GetWorld()->GetGameInstance() : nullptr;
 		if (URbAudioSubsystem* Audio = GI ? GI->GetSubsystem<URbAudioSubsystem>() : nullptr)
 		{
-			VoiceAudio = Audio->PlayVoice(Voice, this, HeadBone);
+			VoiceAudio = Audio->PlayVoice(Voice, this, MeshBone(this, HeadBone));
 		}
 	}
 	SpeakT = 0.0f;

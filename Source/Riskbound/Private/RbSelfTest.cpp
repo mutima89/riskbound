@@ -503,6 +503,7 @@ static void RunPeopleTour(UWorld* World, ARbHUD* Hud)
 		FTransform View;
 		float Wait;  // seconds between the setup and the shot
 		TFunction<void(ARbHUD*, TArray<FString>&)> Setup;
+		int32 WalkShots = 0; // > 0: a burst of shots 0.15 s apart of a walking colleague from a fixed camera
 	};
 	auto View = [](const FVector& From, const FVector& To) { return FTransform((To - From).Rotation(), From); };
 	TSharedRef<TArray<FStep>> Steps = MakeShared<TArray<FStep>>();
@@ -520,6 +521,7 @@ static void RunPeopleTour(UWorld* World, ARbHUD* Hud)
 		}
 	}});
 	Steps->Add({TEXT("Corridor"), View(FVector(150.0f, 0.0f, 165.0f), FVector(4000.0f, 0.0f, 120.0f)), 8.0f, nullptr});
+	Steps->Add({TEXT("Walk"), FTransform::Identity, 0.0f, nullptr, 12});
 
 	Hud->StartNewGame(ERbDifficulty::Professional);
 	PlayMission001(Hud->Game());
@@ -555,6 +557,77 @@ static void RunPeopleTour(UWorld* World, ARbHUD* Hud)
 		}
 		if (WeakHud->IsCeremonyPlaying()) return true;
 		const FStep& S = (*Steps)[*Index];
+		if (S.WalkShots > 0)
+		{
+			// Wait (up to 40 s) for someone setting off, find their heading, then shoot them from a fixed camera.
+			static TWeakObjectPtr<URbPersonComponent> Walker;
+			static FVector Start;
+			static float StartSpeed = 0.0f;
+			static bool bPlaced = false;
+			static int32 Shot = 0;
+			static double Deadline = 0.0, BurstStart = 0.0;
+			static uint64 BurstFrame = 0;
+			if (Deadline == 0.0) Deadline = Now + 40.0;
+			if (!Walker.IsValid())
+			{
+				for (TObjectIterator<URbPersonComponent> It; It; ++It)
+				{
+					if (It->GetWorld() == WeakWorld.Get() && It->IsWalking() && It->GetWalkSpeed() < 80.0f) { Walker = *It; break; }
+				}
+				if (!Walker.IsValid())
+				{
+					if (Now < Deadline) return true;
+					Lines->Add(TEXT("walk: no one set off within 40 s"));
+					++*Index;
+					return true;
+				}
+				Start = Walker->GetComponentLocation();
+				StartSpeed = Walker->GetWalkSpeed();
+				*ShootAt = Now + 0.4;
+				return true;
+			}
+			if (Now < *ShootAt) return true;
+			if (!bPlaced && (!Walker->IsWalking() || Walker->GetWalkSpeed() <= StartSpeed))
+			{
+				Walker.Reset(); // slowing down to arrive, not setting off: look again
+				return true;
+			}
+			if (!bPlaced)
+			{
+				const FVector L = Walker->GetComponentLocation();
+				const FVector Dir = (L - Start).GetSafeNormal2D();
+				const FVector Side(-Dir.Y, Dir.X, 0.0f);
+				const FVector Camera = L + Dir * 300.0f + Side * 260.0f + FVector(0.0f, 0.0f, 150.0f);
+				PC->SetIgnoreLookInput(true);
+				PC->SetIgnoreMoveInput(true);
+				PC->GetPawn()->SetActorLocation(Camera - FVector(0.0f, 0.0f, 70.0f), false, nullptr, ETeleportType::TeleportPhysics);
+				// One fixed aim along the path, so the floor is a still reference (no blur from turning).
+				PC->SetControlRotation((L + Dir * 120.0f + FVector(0.0f, 0.0f, 70.0f) - Camera).Rotation());
+				if (PC->PlayerCameraManager) PC->PlayerCameraManager->SetGameCameraCutThisFrame();
+				Lines->Add(FString::Printf(TEXT("walk: '%s' cruise=%.1f cm/s, heading (%.2f, %.2f)"), *Walker->GetPersonId(), Walker->GetCruiseSpeed(), Dir.X, Dir.Y));
+				bPlaced = true;
+				BurstStart = Now;
+				BurstFrame = GFrameCounter;
+				*ShootAt = Now + 1.5; // frames before the first shot measure the frame rate with the walker on screen
+				return true;
+			}
+			const FVector L = Walker->GetComponentLocation();
+			if (Shot == 0)
+			{
+				Lines->Add(FString::Printf(TEXT("walk: %.1f fps over %.2f s with the walker on screen (before screenshots)"),
+					(GFrameCounter - BurstFrame) / FMath::Max(Now - BurstStart, 0.01), Now - BurstStart));
+			}
+			FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("Person_%02d_Walk_%02d"), *Index, Shot), false, false);
+			Lines->Add(FString::Printf(TEXT("walk shot %d: t=%.2f at (%.0f, %.0f) yaw=%.0f speed=%.1f walking=%d"), Shot, Now - BurstStart, L.X, L.Y,
+				Walker->GetComponentRotation().Yaw, Walker->GetWalkSpeed(), Walker->IsWalking() ? 1 : 0));
+			*ShootAt = Now + 0.15;
+			if (++Shot >= S.WalkShots)
+			{
+				*ShootAt = 0.0;
+				++*Index;
+			}
+			return true;
+		}
 		if (*ShootAt <= 0.0)
 		{
 			PC->SetIgnoreLookInput(true);

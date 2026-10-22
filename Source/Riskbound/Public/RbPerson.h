@@ -96,6 +96,8 @@ public:
 	// Walks through world-space points (Z ignored, kept on this component's floor height), then calls OnArrive.
 	void WalkRoute(const TArray<FVector>& Points, TFunction<void()> OnArrive = nullptr);
 	bool IsWalking() const { return Activity == ERbPersonActivity::Walking; }
+	float GetWalkSpeed() const { return Speed; }
+	float GetCruiseSpeed() const { return CruiseSpeed(); }
 	void TurnTo(const FVector& WorldPoint);
 
 	const FString& GetPersonId() const { return PersonId; }

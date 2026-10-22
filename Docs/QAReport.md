@@ -155,3 +155,40 @@ Defect (reported in review): the best answer was the first option in 196 of 198 
 | Silent uninstall | `unins000.exe /VERYSILENT /SUPPRESSMSGBOXES` | install folder, Start-menu folder, desktop shortcut and uninstall entry removed; saves in `%LOCALAPPDATA%\Riskbound\Saved\SaveGames` kept |
 
 Not verified: the interactive wizard pages (licence and unsigned-build notice pages, the post-uninstall message) were not clicked through by a person; an all-users (administrator) install was not tested.
+
+## 2026-10-22 - 1.1.0 release pass (Windows, UE 5.8.3, GTX 1650)
+Commit: the release-pass commit on `claude/project-thread-w7m3jk`, merged with the locomotion fix 4ea2a93.
+
+| Run | Command | Result |
+|---|---|---|
+| Editor compile (before and after the merge and fixes) | `Build.bat RiskboundEditor Win64 Development` | `Result: Succeeded` each time |
+| Core tests | `Scripts\RunCoreTests.bat` | `97 test cases, 0 failed, 0 failed checks` (before and after the fixes) |
+| Automation tests | `Scripts\RunUnrealTests.bat` | 17/17 `Result={Success}` (before and after the fixes) |
+| Package Shipping Win64 | `Scripts\BuildWindows.bat <UE> Shipping` | `BUILD SUCCESSFUL`, ExitCode=0 (final package 3-4 min, incremental) |
+| Shipping self-test | `-RbSelfTest=play` | `PASS`, 21 checks |
+| Shipping self-test | `-RbSelfTest=resume` | `PASS`, 16 checks |
+| Shipping self-test | `-RbSelfTest=people` | 11 people, 11 with face shapes; approach sent; walk burst: cruise 121.2 cm/s, 58.0 fps with a walker on screen (60.1 fps in an earlier run), start, bend (yaw 51 -> 6, speed 109), door turn (yaw 64 -> 90, speed 53) all eased; stop eases 121 -> 67 -> 0 |
+| UI walkthrough, Shipping | `Scripts\RunWalkthrough.ps1 -Exe Release\Shipping\Windows\Riskbound.exe -Shipping` | phase 1 DONE (308 s, 38 shots), phase 2 DONE (415 s, 26 shots), new game to CRO; one Medium finding (Docs/WalkthroughReport.md) |
+
+### Walk clips (editor, `AnimPoseExtensions`, component space, first vs last frame)
+| Clip | Length | Frames (30 fps) | Travel per loop (root `Bip01`, +Y) | Speed |
+|---|---|---|---|---|
+| A_m_walk_neutral_01 | 1.200 s | 36 | 121.4 cm | 101.2 cm/s |
+| A_f_walk_neutral_01 | 1.200 s | 36 | 145.7 cm | 121.4 cm/s |
+| A_m_walk_neutral_02 | 1.067 s | 32 | 143.8 cm | 134.8 cm/s |
+| A_f_walk_neutral_02 | 1.233 s | 37 | 163.0 cm | 132.2 cm/s |
+
+Root motion off, no root lock, linear interpolation, rate scale 1. The imported skeleton names the bones `Bip01-Pelvis`, `Bip01-Head` and so on, while RbPerson.cpp looked them up with spaces. Every bone lookup missed: the pelvis pin, the stride measurement, head/neck/eye look, the jaw fallback and the voice socket. Fixed: hyphenated names, with the spaced spelling as a fallback. Update-rate optimisation is off in code; the clips have no asset-side tick setting.
+
+### Audio loudness (integrated LUFS, ffmpeg `ebur128`, source files times in-game gain)
+Voice: all 128 clips, median -20.7 LUFS (range -26.9 to -16.9), played at volume 1.0 (full volume within 350 uu). The engine multiplies the component volume by the fade level (`FActiveSound::GetVolume`). `SetMood` created the music at 0.32 and then faded to 0.32, so the music played at 0.1024; room tone likewise at 0.28 x 0.28.
+
+| Track | Source | Before (0.32 x 0.32) | Under voice | After (own gain) | Under voice |
+|---|---|---|---|---|---|
+| MUS_Menu | -25.6 | -45.4 | 24.7 LU | -28.7 (0.70) | 8.0 LU |
+| MUS_Focus | -20.5 | -40.3 | 19.6 LU | -28.7 (0.39) | 8.0 LU |
+| MUS_Tension | -24.3 | -44.1 | 23.4 LU | -28.7 (0.60) | 8.0 LU |
+| MUS_Crisis | -12.6 | -32.4 | 11.7 LU | -28.5 (0.16) | 7.8 LU |
+| AMB_RoomTone (2D) | -29.8 | -51.9 | | -40.9 (0.28) | 20 LU |
+
+With room tone added, the bed under dialogue is 7.6-7.8 LU below the voice: inside the 6-10 LU target. Spatial ambience at full volume (inside 35% of its radius): servers -24.8 (0.5), HVAC -31.8 (0.35), office -37.5 (0.45). The server hum is about 4 LU under a voice, but only inside the server room. Lip-sync: `URbPersonComponent::Say` scales the viseme track by clip duration / text length and sets `SpeakLength` to the clip duration. The long Priya briefing runs 51.74 s (hints on) and 37.23 s (hints off), so the mouth closes as the clip ends. The text cap (9 s) applies only to unrecorded lines.
