@@ -22,7 +22,9 @@ const TCHAR* const CuePaths[] = {
 	TEXT("Stingers/STG_Burnout"), nullptr};
 const float CueVolume[] = {0.35f, 0.5f, 0.35f, 0.4f, 0.55f, 0.7f, 0.75f, 0.6f, 0.55f, 0.6f, 0.22f};
 const TCHAR* const MoodPaths[] = {nullptr, TEXT("Music/MUS_Menu"), TEXT("Music/MUS_Focus"), TEXT("Music/MUS_Tension"), TEXT("Music/MUS_Crisis")};
-constexpr float MusicVolume = 0.32f;  // music sits under the work, never over it
+// Per track, so every mood plays at about -28.7 LUFS: 8 LU under the voice lines (median -20.7 LUFS at volume 1).
+// Source loudness (ebur128): Menu -25.6, Focus -20.5, Tension -24.3, Crisis -12.6 LUFS (Docs/QAReport.md, audio check).
+const float MoodVolume[] = {0.0f, 0.70f, 0.39f, 0.60f, 0.16f};
 constexpr float RoomToneVolume = 0.28f;
 constexpr float CrossfadeSeconds = 3.0f;
 constexpr float MinMoodSeconds = 20.0f;
@@ -41,6 +43,7 @@ void URbAudioSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	static_assert(UE_ARRAY_COUNT(CuePaths) == static_cast<int32>(ERbCue::Count), "one path per cue");
 	static_assert(UE_ARRAY_COUNT(CueVolume) == static_cast<int32>(ERbCue::Count), "one volume per cue");
 	static_assert(UE_ARRAY_COUNT(MoodPaths) == static_cast<int32>(ERbMusicMood::Count), "one track per mood");
+	static_assert(UE_ARRAY_COUNT(MoodVolume) == static_cast<int32>(ERbMusicMood::Count), "one volume per mood");
 	for (const TCHAR* P : CuePaths) CueSounds.Add(P ? Load(P) : nullptr);
 	for (int32 i = 1; i <= FootstepCount; ++i)
 	{
@@ -189,10 +192,10 @@ void URbAudioSubsystem::SetMood(ERbMusicMood NewMood)
 	if (IsValid(Old)) Old->FadeOut(CrossfadeSeconds, 0.0f);
 	USoundBase* Track = MoodSounds.IsValidIndex(static_cast<int32>(NewMood)) ? MoodSounds[static_cast<int32>(NewMood)].Get() : nullptr;
 	if (!Track) return;
-	UAudioComponent* New = UGameplayStatics::CreateSound2D(World, Track, MusicVolume, 1.0f, 0.0f, nullptr, true, false);
+	UAudioComponent* New = UGameplayStatics::CreateSound2D(World, Track, MoodVolume[static_cast<int32>(NewMood)], 1.0f, 0.0f, nullptr, true, false);
 	if (!New) return;
 	New->bIsUISound = true; // keeps playing while the game is paused behind a menu
-	New->FadeIn(CrossfadeSeconds, MusicVolume);
+	New->FadeIn(CrossfadeSeconds, 1.0f); // the fader multiplies the component volume, so fade to 1, not to the volume again
 	bMusicOnA = !bMusicOnA;
 	(bMusicOnA ? MusicA : MusicB) = New;
 }
@@ -202,7 +205,7 @@ void URbAudioSubsystem::EnsureRoomTone()
 	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
 	if (!World || !RoomTone || (IsValid(RoomToneComponent) && RoomToneComponent->IsPlaying())) return;
 	RoomToneComponent = UGameplayStatics::CreateSound2D(World, RoomTone, RoomToneVolume, 1.0f, 0.0f, nullptr, true, false);
-	if (RoomToneComponent) RoomToneComponent->FadeIn(4.0f, RoomToneVolume);
+	if (RoomToneComponent) RoomToneComponent->FadeIn(4.0f, 1.0f);
 }
 
 void URbAudioSubsystem::Tick(float DeltaTime)

@@ -8,7 +8,7 @@ A first-person career simulator about risk management. Single-player and fully o
 
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-0b6e79)
 ![Engine](https://img.shields.io/badge/Unreal%20Engine-5.8-1f2933)
-![Version](https://img.shields.io/badge/version-1.0.0-2f855a)
+![Version](https://img.shields.io/badge/version-1.1.0-2f855a)
 ![Tests](https://img.shields.io/badge/tests-95%20core%20%2B%2016%20Unreal-2f855a)
 ![License](https://img.shields.io/badge/license-MIT-4a5568)
 
@@ -74,7 +74,7 @@ Passing missions isn't enough on its own. Each promotion also needs minimum comp
 
 ## Install and play
 
-1. From [Releases](https://github.com/mutima89/riskbound/releases), get `Riskbound-Setup-1.0.0.exe` (installer, no admin rights needed) or `Riskbound-1.0.0-Win64-Portable.zip` (unzip and run `Riskbound.exe`). Check it against the `.sha256` file next to each download.
+1. From [Releases](https://github.com/mutima89/riskbound/releases), get `Riskbound-Setup-1.1.0.exe` (installer, no admin rights needed) or `Riskbound-1.1.0-Win64-Portable.zip` (unzip and run `Riskbound.exe`). Check it against the `.sha256` file next to each download.
 2. **Windows SmartScreen will warn "Unknown publisher"**, because the build isn't code-signed. Choose **More info, then Run anyway**. See `UNSIGNED-BUILD.txt` for details.
 3. Uninstalling keeps your saves in `%LOCALAPPDATA%\Riskbound`.
 
@@ -111,7 +111,7 @@ set UE="C:\Program Files\Epic Games\UE_5.8"
 %UE%\Engine\Build\BatchFiles\Build.bat RiskboundEditor Win64 Development -project="%CD%\Riskbound.uproject"
 Scripts\RunUnrealTests.bat %UE%                     :: automation tests
 Scripts\BuildWindows.bat %UE% Shipping              :: -> Release\Shipping\Windows\Riskbound.exe
-Scripts\BuildInstaller.bat 1.0.0 1.0.0.0            :: installer + zip (needs Inno Setup 6)
+Scripts\BuildInstaller.bat 1.1.0 1.1.0.0            :: installer + zip (needs Inno Setup 6)
 ```
 
 The office cast (Microsoft Rocketbox avatars, MIT) isn't stored in the repository; without it the game falls back to the Unreal mannequin. To add it, run `python Scripts/FetchCharacters.py`, then `UnrealEditor.exe Riskbound.uproject -ExecutePythonScript=Scripts/ImportCharacters.py`.
@@ -129,7 +129,7 @@ Details: [Docs/TestingStrategy.md](Docs/TestingStrategy.md) and [Docs/QAReport.m
 
 ## Honest status
 
-Version 1.0.0 is complete, passes every automated test and the full scripted walkthrough, and has been playtested by its creator. Still worth knowing:
+Version 1.1.0 is complete, passes every automated test and the full scripted walkthrough, and has been playtested by its creator. Still worth knowing:
 
 - The build isn't code-signed, so Windows SmartScreen warns on first run.
 - English only.
