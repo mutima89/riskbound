@@ -28,18 +28,22 @@
       "body": [
         "Title: Cyber attack. Cause: hackers. Event: cyber attack. Consequence: bad things happen.",
         "Inherent L5 x I5. Controls: firewall (effective), antivirus (effective). Residual L1 x I2 (Low). Owner: IT."
-      ]
+      ],
+      "at": "workspace"
     },
     {
       "id": "it_facts",
       "title": "IT facts Sam had access to",
-      "body": "Route planning runs on a vendor cloud service. No offline fallback: without it, dispatch takes about 4x longer by hand. Multi-factor login is enabled for admins only. The last restore test was 18 months ago."
+      "body": "Route planning runs on a vendor cloud service. No offline fallback: without it, dispatch takes about 4x longer by hand. Multi-factor login is enabled for admins only. The last restore test was 18 months ago.",
+      "at": "monitoring",
+      "person": "mei"
     },
     {
       "id": "sam_note",
       "title": "Note from Sam",
       "required": false,
-      "body": "I wasn't sure how to rate it so I used what felt right. Happy for any feedback!"
+      "body": "I wasn't sure how to rate it so I used what felt right. Happy for any feedback!",
+      "at": "workspace"
     }
   ],
   "questions": [

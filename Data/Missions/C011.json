@@ -19,12 +19,15 @@
     {
       "id": "method",
       "title": "How it worked",
-      "body": "Expense claims were approved by the depot manager's own deputy. No duplicate check across depots. Receipts were scanned images."
+      "body": "Expense claims were approved by the depot manager's own deputy. No duplicate check across depots. Receipts were scanned images.",
+      "at": "boardroom",
+      "person": "hollis"
     },
     {
       "id": "silence",
       "title": "The colleagues",
-      "body": "Both say they 'didn't want to cause trouble' and didn't know the speak-up line existed."
+      "body": "Both say they 'didn't want to cause trouble' and didn't know the speak-up line existed.",
+      "at": "training"
     }
   ],
   "questions": [

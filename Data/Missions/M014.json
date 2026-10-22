@@ -30,7 +30,9 @@
     {
       "id": "plan",
       "title": "Plan, year 1",
-      "body": "Revenue 51.0m. Costs 47.2m. Operating margin 3.8m. Opening cash 3.0m. Other cash outflows in the year: fleet replacement 1.2m, loan repayment 1.0m. Planned year-end cash: 4.6m. Loan covenant: cash must stay above 1.0m."
+      "body": "Revenue 51.0m. Costs 47.2m. Operating margin 3.8m. Opening cash 3.0m. Other cash outflows in the year: fleet replacement 1.2m, loan repayment 1.0m. Planned year-end cash: 4.6m. Loan covenant: cash must stay above 1.0m.",
+      "at": "boardroom",
+      "person": "hollis"
     },
     {
       "id": "scenarios",
@@ -39,12 +41,15 @@
         "S1 Fuel shock: diesel +35% (fuel is 12% of costs).",
         "S2 Client loss: the second-largest client (9% of revenue, 4.59m) leaves at the start of the year. Serving it costs 4.25m, of which 60% can be cut within the year.",
         "S3 Combined: S1 and S2 together."
-      ]
+      ],
+      "at": "meeting"
     },
     {
       "id": "levers",
       "title": "Management actions available",
-      "body": "Fuel surcharge clause (recovers about half of a fuel rise after one quarter). Hiring freeze (saves 0.8m). Defer fleet replacement (frees 1.2m cash)."
+      "body": "Fuel surcharge clause (recovers about half of a fuel rise after one quarter). Hiring freeze (saves 0.8m). Defer fleet replacement (frees 1.2m cash).",
+      "at": "meeting",
+      "person": "celeste"
     }
   ],
   "questions": [

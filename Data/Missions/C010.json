@@ -19,17 +19,22 @@
     {
       "id": "data",
       "title": "What was taken",
-      "body": "8,400 customer contacts. No payment data. The account had no multi-factor login."
+      "body": "8,400 customer contacts. No payment data. The account had no multi-factor login.",
+      "at": "monitoring",
+      "person": "mei"
     },
     {
       "id": "law",
       "title": "Legal duty",
-      "body": "Notify the data protection regulator within 72 hours of becoming aware if there is risk to individuals; notify individuals if the risk is high."
+      "body": "Notify the data protection regulator within 72 hours of becoming aware if there is risk to individuals; notify individuals if the risk is high.",
+      "at": "meeting",
+      "person": "ruth"
     },
     {
       "id": "timeline",
       "title": "Timeline",
-      "body": "Discovered 9 hours ago."
+      "body": "Discovered 9 hours ago.",
+      "at": "monitoring"
     }
   ],
   "questions": [

@@ -19,12 +19,15 @@
     {
       "id": "tacho",
       "title": "Tachograph summary",
-      "body": "Within daily limits. Six consecutive night shifts. Rest periods at the legal minimum each day."
+      "body": "Within daily limits. Six consecutive night shifts. Rest periods at the legal minimum each day.",
+      "at": "monitoring",
+      "person": "amara"
     },
     {
       "id": "routes",
       "title": "Route data",
-      "body": "Long-route share has stayed amber for four weeks. Night routes over 9 hours: 31% of night shifts."
+      "body": "Long-route share has stayed amber for four weeks. Night routes over 9 hours: 31% of night shifts.",
+      "at": "monitoring"
     },
     {
       "id": "driver",

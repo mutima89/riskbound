@@ -34,17 +34,20 @@
   "evidence": [
     {
       "id": "message",
-      "title": "Message from Celeste Marlow",
+      "title": "Celeste Marlow's offer",
       "clue": "celeste_message",
       "body": [
         "\"I know about the supplier review. You're wasting a remarkable talent on an old commercial arrangement that the board approved in spirit years ago.",
         "Director comes up this cycle. I sit on the panel. Drop the review and I will sponsor you, this cycle, not next. Keep going and you'll find this company has a long memory. Your choice. C.\""
-      ]
+      ],
+      "at": "boardroom",
+      "person": "celeste"
     },
     {
       "id": "promotion",
       "title": "Promotion policy (extract)",
-      "body": "Promotion decisions are made on competence evidence and work delivered. Any attempt to influence a promotion in exchange for a business decision is gross misconduct and must be reported to the Audit Committee Chair."
+      "body": "Promotion decisions are made on competence evidence and work delivered. Any attempt to influence a promotion in exchange for a business decision is gross misconduct and must be reported to the Audit Committee Chair.",
+      "at": "manager"
     },
     {
       "id": "net_cost",
@@ -54,7 +57,8 @@
       "body": [
         "Corvane's three-year exclusive offer: list prices up 18%, then a 12% discount, so the net price is about 3.8% above today's.",
         "And 15% of every invoice continues to flow to Tessaline under Schedule 4."
-      ]
+      ],
+      "at": "meeting"
     }
   ],
   "questions": [

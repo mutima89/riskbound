@@ -29,7 +29,8 @@
     {
       "id": "status",
       "title": "Programme status",
-      "body": "Planned 58% complete by month 7; actual 40%. Northgate and Harrowgate on track; Eastfield, Corby Road and two others behind. Budget spent 52%."
+      "body": "Planned 58% complete by month 7; actual 40%. Northgate and Harrowgate on track; Eastfield, Corby Road and two others behind. Budget spent 52%.",
+      "at": "meeting"
     },
     {
       "id": "site_feedback",
@@ -41,7 +42,9 @@
     {
       "id": "sponsor",
       "title": "Sponsor",
-      "body": "The COO sponsors the programme but has missed the last two steering groups."
+      "body": "The COO sponsors the programme but has missed the last two steering groups.",
+      "at": "boardroom",
+      "person": "celeste"
     }
   ],
   "questions": [

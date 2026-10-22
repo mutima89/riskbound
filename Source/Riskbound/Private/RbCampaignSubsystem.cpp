@@ -288,12 +288,20 @@ FString URbCampaignSubsystem::InPersonObjective() const
 	const rb::GameState& S = Game()->GetState();
 	const rb::MissionDef* M = Catalogue.Find(S.Campaign.ActiveMissionId);
 	if (!M) return FString();
+	const rb::MissionEvidenceDef* Next = nullptr;
+	int32 Left = 0;
 	for (const rb::MissionEvidenceDef& E : M->Evidence)
 	{
 		if (E.At.empty() || std::find(S.Campaign.ViewedEvidence.begin(), S.Campaign.ViewedEvidence.end(), E.Id) != S.Campaign.ViewedEvidence.end()) continue;
-		const FString Room = ToFString(rb::LocationName(E.At));
-		return E.Person.empty() ? FString::Printf(TEXT("Go to the %s: %s"), *Room.ToLower(), *ToFString(E.Title))
-			: FString::Printf(TEXT("Go to the %s and talk to %s"), *Room.ToLower(), *PersonName(E.Person));
+		if (!Next) Next = &E;
+		++Left;
+	}
+	if (Next)
+	{
+		const FString Room = ToFString(rb::LocationName(Next->At)).ToLower();
+		const FString Step = Next->Person.empty() ? FString::Printf(TEXT("Go to the %s: %s"), *Room, *ToFString(Next->Title))
+			: FString::Printf(TEXT("Go to the %s and talk to %s"), *Room, *PersonName(Next->Person));
+		return Left > 1 ? FString::Printf(TEXT("%s (%d stops left)"), *Step, Left) : Step;
 	}
 	if (!M->PresentAt.empty())
 	{

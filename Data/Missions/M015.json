@@ -32,12 +32,15 @@
       "body": [
         "F1: Five business units use five register formats and scales. F2: 58% of risks have not been reviewed in over 12 months. F3: The Risk Committee receives all 140 risks with no ranking. F4: Three risks have no named owner.",
         "Management response due in 30 days."
-      ]
+      ],
+      "at": "manager",
+      "person": "priya"
     },
     {
       "id": "capacity",
       "title": "Framework team capacity",
-      "body": "You plus half of Lina's time. A register system licence costs 55,000 a year; a spreadsheet standard costs nothing but time."
+      "body": "You plus half of Lina's time. A register system licence costs 55,000 a year; a spreadsheet standard costs nothing but time.",
+      "at": "workspace"
     }
   ],
   "questions": [

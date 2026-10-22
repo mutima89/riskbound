@@ -60,6 +60,9 @@ private:
 	int32 MarkerViewed = -1;  // evidence viewed count when built (markers for seen evidence go)
 	UPROPERTY(Transient) TArray<TObjectPtr<class ARbCaseMarker>> CaseMarkers;
 	UPROPERTY(Transient) TArray<TObjectPtr<class UTextRenderComponent>> CaseLabels;
+	UPROPERTY(Transient) TArray<TObjectPtr<class UStaticMeshComponent>> CaseStands;
+	// Priya stands aside while her own interview marker takes her place, so she is never shown twice.
+	UPROPERTY(Transient) TObjectPtr<class ARbNpc> PriyaNpc;
 	// Living office: light follows the working week and the weather, staff numbers follow morale,
 	// and the player's desk shows their title and trophies.
 	void UpdateDaylight(float DeltaSeconds);

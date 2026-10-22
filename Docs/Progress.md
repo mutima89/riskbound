@@ -1,7 +1,9 @@
 # Progress
 
 ## Status: 1.0.0 released (owner approved, 2026-10-21); all five roadmap phases done (Docs/Roadmap.md); whole game walked through the real UI by a scripted driver; playtested by the owner
-Last update: 2026-10-21
+Last update: 2026-10-22
+
+- 2026-10-22 walk-around casework (4cfddd6) verified on Windows/UE 5.8.3: editor build succeeded; core tests 96 cases, 0 failed; Unreal automation 16/16 Success; Development package BUILD SUCCESSFUL; packaged `-RbSelfTest=play` and `=resume` PASS. New `-RbSelfTest=cases` (writes Saved/RbCases.txt, screenshots Case_*.png) shoots M002 in meeting/monitoring/reception/manager, M006 training and M009 workspace (two stands); waits for queued promotion ceremonies. Reviewed shots (Docs/Screenshots/walkaround): no floating folders, items in furniture, people clipping or duplicate Priya; no spot changes needed.
 
 ### Done
 - Gate 0 audit (Docs/EnvironmentAudit.md).
@@ -29,6 +31,7 @@ Last update: 2026-10-21
 - Phase 4 (2026-10-21): eight endings, performance review and certificate, what-if replays, Survival, Daily and Classroom challenges with a local leaderboard, glossary (40 terms), photo mode, mission mods (Docs/Modding.md), save v8. Shipping walkthrough passed to CRO; text-wrap findings in the journal and debriefs fixed after.
 - Phase 5 (2026-10-21): controller support, TSR upscaling, frame cap, vsync, invert look, colour-safe palette (save v9); optional AI colleagues (off by default, player's own key, Docs/AiColleagues.md); website page (Artifact). Verified this session: 95 core tests; editor build; 16/16 Unreal tests; Shipping package to Release\Phase5; Shipping self-test play (21 checks) and resume (16 checks) PASS.
 - Playtest fixes and 1.0.0 (2026-10-21): realistic office cast (Microsoft Rocketbox, MIT) replacing the mannequins; promotion ceremonies cut to the boardroom with reduced motion (they showed only a title before); queued ceremonies; walkthrough checks and screenshots every ceremony. Verified this session: 95 core tests; 16/16 Unreal tests; Shipping package (Release\Shipping); Shipping self-test play, resume and tour PASS (57 fps average at 1080p with the cast); walkthrough new game to CRO with every ceremony from level 3 to 10 on the boardroom camera, no findings; 1.0.0 installer: silent install, self-test play PASS, uninstall keeps saves; portable zip: self-test play PASS.
+- Walk-around casework (2026-10-22, owner playtest feedback: later missions were answered from one desk): every evidence item in the 52 data cases is now placed in an office room, each case uses at least two rooms and meets at least one colleague in person; spread-out spots per room with reading stands; Priya's interviews take her own place; objective shows stops left. Verified here: 96 core tests incl. new `World_EveryCaseIsWorkedOnFoot` (fails on the old data). Not yet verified: editor build, Unreal tests, packaged self-test and marker screenshots on the PC.
 - MetaHuman faces: not used. The optional content is installed, but the face rig needs Epic's cloud service and MetaHuman Creator crashed the editor on this PC's 4 GB GTX 1650. Earlier note: The engine's MetaHumanCharacter plugin is missing its optional content (texture synthesis, grooms, clothing) and the editor asserts on BodyTexture; needs the MetaHuman optional add-on installed from the Epic launcher.
 
 ### Not yet verified

@@ -30,17 +30,21 @@
     {
       "id": "objectives",
       "title": "Strategic objectives",
-      "body": "1. Pharma to 25% of revenue in three years. 2. Margin from 7% to 9%. 3. Net-zero fleet by 2035. 4. Keep top-3 client retention."
+      "body": "1. Pharma to 25% of revenue in three years. 2. Margin from 7% to 9%. 3. Net-zero fleet by 2035. 4. Keep top-3 client retention.",
+      "at": "boardroom",
+      "person": "adrian"
     },
     {
       "id": "unit_risks",
       "title": "Aggregated unit risks (examples)",
-      "body": "Six sites each list 'compressor failure'. Four list 'driver shortage'. Three list cyber outage of route planning. Two list refrigerant regulation."
+      "body": "Six sites each list 'compressor failure'. Four list 'driver shortage'. Three list cyber outage of route planning. Two list refrigerant regulation.",
+      "at": "monitoring"
     },
     {
       "id": "external",
       "title": "External scan",
-      "body": "Refrigerant phase-down regulation tightening in 2027; electric refrigerated trucks two years from viable range; pharma clients consolidating suppliers."
+      "body": "Refrigerant phase-down regulation tightening in 2027; electric refrigerated trucks two years from viable range; pharma clients consolidating suppliers.",
+      "at": "reception"
     }
   ],
   "questions": [

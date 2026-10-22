@@ -25,12 +25,14 @@
     {
       "id": "phishing",
       "title": "Phishing simulation results",
-      "body": "1,240 staff tested. Clicked: 236 (19%). Entered credentials: 61 (5%). Reported the email: 84 (7%). Finance and dispatch had the highest click rates."
+      "body": "1,240 staff tested. Clicked: 236 (19%). Entered credentials: 61 (5%). Reported the email: 84 (7%). Finance and dispatch had the highest click rates.",
+      "at": "training"
     },
     {
       "id": "patching",
       "title": "Patch status",
-      "body": "Critical patches older than 60 days: 14% of servers, including the depot scanning gateway. Policy target: 0% after 30 days."
+      "body": "Critical patches older than 60 days: 14% of servers, including the depot scanning gateway. Policy target: 0% after 30 days.",
+      "at": "monitoring"
     },
     {
       "id": "mfa",
@@ -42,7 +44,9 @@
     {
       "id": "it_request",
       "title": "IT budget request (unapproved)",
-      "body": "120,000: MFA for all staff (35,000), patch automation (40,000), restore testing and an offline dispatch fallback (45,000)."
+      "body": "120,000: MFA for all staff (35,000), patch automation (40,000), restore testing and an offline dispatch fallback (45,000).",
+      "at": "boardroom",
+      "person": "hollis"
     }
   ],
   "questions": [

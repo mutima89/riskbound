@@ -19,17 +19,21 @@
     {
       "id": "processes",
       "title": "Key processes",
-      "body": "Supplier payments (2,400 a month), expenses, fuel cards, payroll, customer credit notes."
+      "body": "Supplier payments (2,400 a month), expenses, fuel cards, payroll, customer credit notes.",
+      "at": "workspace"
     },
     {
       "id": "controls",
       "title": "Existing controls",
-      "body": "Payment approval by budget holder; no check of supplier bank-detail changes; fuel cards without vehicle matching; credit notes approved by the sales team that raised them."
+      "body": "Payment approval by budget holder; no check of supplier bank-detail changes; fuel cards without vehicle matching; credit notes approved by the sales team that raised them.",
+      "at": "boardroom",
+      "person": "hollis"
     },
     {
       "id": "cases",
       "title": "Industry cases",
-      "body": "Most losses in similar firms come from supplier bank-detail fraud (fake emails changing payee details) and credit-note abuse."
+      "body": "Most losses in similar firms come from supplier bank-detail fraud (fake emails changing payee details) and credit-note abuse.",
+      "at": "reception"
     },
     {
       "id": "side_letter",
@@ -38,7 +42,8 @@
         "Finance's copy of the Corvane agreement has a Schedule 4 that Procurement's copy lacks: a 15% \"logistics coordination rebate\" paid by Corvane to Tessaline Haulage Services."
       ],
       "required": false,
-      "clue": "rebate_schedule"
+      "clue": "rebate_schedule",
+      "at": "boardroom"
     }
   ],
   "questions": [

@@ -34,7 +34,8 @@
         "Minor flood (water in the loading bays, some stock lost): annual probability 4%, loss 120,000.",
         "Major flood (warehouse inundated, four weeks closed): annual probability 1%, loss 1,600,000.",
         "The two scenarios are mutually exclusive in any one year."
-      ]
+      ],
+      "at": "meeting"
     },
     {
       "id": "insurance",
@@ -42,7 +43,8 @@
       "body": [
         "Insurer: Brantwell Mutual. Flood excess: 250,000 per event. Flood cover limit: 1,000,000 per event.",
         "Valtren pays the first 250,000 of any flood loss, and anything above 1,250,000."
-      ]
+      ],
+      "at": "manager"
     },
     {
       "id": "barrier_quote",
@@ -50,12 +52,16 @@
       "body": [
         "Demountable barriers and a sump pump: 45,000 installed, then 3,000 a year for storage, testing and maintenance.",
         "With barriers in place the insurer's engineer estimates: minor flood loss falls to 20,000; major flood loss falls to 600,000. Probabilities are unchanged."
-      ]
+      ],
+      "at": "meeting",
+      "person": "tomasz"
     },
     {
       "id": "finance_policy",
       "title": "Finance policy (extract)",
-      "body": "Projects are appraised over 5 years at an 8% discount rate. Spend above an analyst's approval authority goes to the Finance Director."
+      "body": "Projects are appraised over 5 years at an 8% discount rate. Spend above an analyst's approval authority goes to the Finance Director.",
+      "at": "boardroom",
+      "person": "hollis"
     }
   ],
   "questions": [

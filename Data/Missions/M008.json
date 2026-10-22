@@ -29,12 +29,14 @@
     {
       "id": "rcsa",
       "title": "Warehouse RCSA summary",
-      "body": "14 risks, all rated low. 22 controls, all 'effective'. No control testing evidence attached. Completed in one 40-minute workshop."
+      "body": "14 risks, all rated low. 22 controls, all 'effective'. No control testing evidence attached. Completed in one 40-minute workshop.",
+      "at": "meeting"
     },
     {
       "id": "audit_points",
       "title": "Open internal audit points (warehouses)",
-      "body": "Three open points: stock counts not reconciled at two sites (raised 9 months ago); forklift licence checks missing for agency staff; fire door alarms disabled in a chilled store."
+      "body": "Three open points: stock counts not reconciled at two sites (raised 9 months ago); forklift licence checks missing for agency staff; fire door alarms disabled in a chilled store.",
+      "at": "manager"
     },
     {
       "id": "loss_events",
@@ -50,7 +52,9 @@
         "Six were Corvane Materials. All six were authorised from the COO's executive assistant login."
       ],
       "required": false,
-      "clue": "override_log"
+      "clue": "override_log",
+      "at": "meeting",
+      "person": "tomasz"
     }
   ],
   "questions": [

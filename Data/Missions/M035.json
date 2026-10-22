@@ -19,17 +19,21 @@
     {
       "id": "tanks",
       "title": "Depot fuel",
-      "body": "Diesel in depot tanks across the network: 120,000 litres."
+      "body": "Diesel in depot tanks across the network: 120,000 litres.",
+      "at": "monitoring"
     },
     {
       "id": "burn",
       "title": "Fleet consumption",
-      "body": "The fleet uses 30,000 litres a day. Pharma routes account for 40% of it."
+      "body": "The fleet uses 30,000 litres a day. Pharma routes account for 40% of it.",
+      "at": "monitoring",
+      "person": "amara"
     },
     {
       "id": "supplier",
       "title": "Quarrow notice",
-      "body": "Deliveries suspended for an estimated six days. No secondary supplier is contracted."
+      "body": "Deliveries suspended for an estimated six days. No secondary supplier is contracted.",
+      "at": "reception"
     }
   ],
   "questions": [

@@ -32,12 +32,15 @@
       "body": [
         "A. Annual risk report refresh (Board, required). B. Cyber assessment of route planning (residual unknown, no fallback). C. Depot expense claim review (Finance request; two duplicate payments found last year). D. KRI dashboard redesign (nice to have). E. Insurance renewal input (renewal in 6 weeks). F. Training slides refresh. G. New depot project risk review (go/no-go in 8 weeks). H. Policy wording tidy-up. I. Supplier risk tiering. J. Second fatigue review. K. Committee minutes archive.",
         "Capacity: about 7 pieces of average size."
-      ]
+      ],
+      "at": "manager",
+      "person": "priya"
     },
     {
       "id": "team",
       "title": "Team",
-      "body": "Sam (graduate, improving fast), Lina (strong quant), Kofi (experienced, overloaded, two sick days last month), Ines (part-time, compliance background)."
+      "body": "Sam (graduate, improving fast), Lina (strong quant), Kofi (experienced, overloaded, two sick days last month), Ines (part-time, compliance background).",
+      "at": "workspace"
     },
     {
       "id": "tessaline",
@@ -47,7 +50,8 @@
         "The fleet system shows two Tessaline call-outs in two years."
       ],
       "required": false,
-      "clue": "standby_payments"
+      "clue": "standby_payments",
+      "at": "boardroom"
     }
   ],
   "questions": [

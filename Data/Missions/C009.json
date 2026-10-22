@@ -19,17 +19,21 @@
     {
       "id": "stock",
       "title": "Stock",
-      "body": "11 days of liners at current use. Pharma uses 40% of them."
+      "body": "11 days of liners at current use. Pharma uses 40% of them.",
+      "at": "monitoring"
     },
     {
       "id": "alternatives",
       "title": "Alternatives",
-      "body": "Fennick Packaging: 8 weeks to qualify for pharma, can supply food-grade in 5 days at +9%. Two overseas suppliers: 4-6 weeks' shipping."
+      "body": "Fennick Packaging: 8 weeks to qualify for pharma, can supply food-grade in 5 days at +9%. Two overseas suppliers: 4-6 weeks' shipping.",
+      "at": "meeting",
+      "person": "tomasz"
     },
     {
       "id": "administrator",
       "title": "Administrator",
-      "body": "Corvane's administrator may sell remaining stock to the highest bidder."
+      "body": "Corvane's administrator may sell remaining stock to the highest bidder.",
+      "at": "reception"
     }
   ],
   "questions": [

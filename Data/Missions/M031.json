@@ -22,7 +22,8 @@
       "body": [
         "Insulated pallet liners in stock across all sites: 18,000.",
         "Average daily use: 600 liners. Pharma loads use 60% of them."
-      ]
+      ],
+      "at": "monitoring"
     },
     {
       "id": "shipping",
@@ -30,7 +31,8 @@
       "body": [
         "The next consignment of 25,000 liners was due to arrive in 10 days.",
         "Rerouting around the cape adds 21 days to the voyage."
-      ]
+      ],
+      "at": "reception"
     },
     {
       "id": "options",
@@ -38,7 +40,9 @@
       "body": [
         "Air freight: up to 4,000 liners within 5 days at about four times the sea cost.",
         "A domestic manufacturer can supply reusable liners from week 4, at 20% above the current price, once qualified."
-      ]
+      ],
+      "at": "meeting",
+      "person": "tomasz"
     }
   ],
   "questions": [

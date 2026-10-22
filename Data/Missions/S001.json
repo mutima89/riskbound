@@ -35,12 +35,14 @@
         "Invoice CV-20418: 1,200 insulated pallet liners, delivery note DN-7731, 26,400. Paid on the 3rd.",
         "Invoice CV-20466: 1,200 insulated pallet liners, delivery note DN-7731, 26,400. Paid on the 19th.",
         "Same delivery note. Different invoice numbers. Both approved under the 'operational emergency' route by the COO's office."
-      ]
+      ],
+      "at": "boardroom"
     },
     {
       "id": "goods_in",
       "title": "Goods-in records, Harrowgate",
-      "body": "One delivery of 1,200 liners was received on the 2nd against DN-7731. No second delivery appears in the month."
+      "body": "One delivery of 1,200 liners was received on the 2nd against DN-7731. No second delivery appears in the month.",
+      "at": "monitoring"
     },
     {
       "id": "policy",
@@ -48,7 +50,9 @@
       "body": [
         "Suspected fraud must be reported to Internal Audit or the Audit Committee Chair. Staff must not investigate the people involved, confront suspects or alert them.",
         "Evidence must be preserved as found. Reports made in good faith are protected."
-      ]
+      ],
+      "at": "meeting",
+      "person": "ruth"
     }
   ],
   "questions": [

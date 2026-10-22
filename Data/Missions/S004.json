@@ -45,7 +45,9 @@
       "id": "speakup",
       "title": "Speak-up log: Corvane pricing reports",
       "clue": "speakup_closed",
-      "body": "Three reports in two years about Corvane pricing. Each closed within a week as 'commercial matter, no action' by the COO's office. Policy requires them to go to Internal Audit."
+      "body": "Three reports in two years about Corvane pricing. Each closed within a week as 'commercial matter, no action' by the COO's office. Policy requires them to go to Internal Audit.",
+      "at": "meeting",
+      "person": "ruth"
     },
     {
       "id": "flows",
@@ -54,7 +56,8 @@
         "Corvane invoices under Schedule 4: 6.1 million over three years. Rebate at 15% to Tessaline: about 915,000.",
         "Standby fees paid to Tessaline: 528,000. Duplicate payments identified so far: 3, totalling 71,000.",
         "Tessaline's sole director, D. Marlow, is the COO's brother."
-      ]
+      ],
+      "at": "meeting"
     },
     {
       "id": "counsel",

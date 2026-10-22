@@ -31,7 +31,9 @@
     {
       "id": "options",
       "title": "What's available",
-      "body": "A refrigerated trailer on site (holds about 40 pallets). Northgate has space for 60 pallets, 90 minutes away. Kelvarin: 4 hours."
+      "body": "A refrigerated trailer on site (holds about 40 pallets). Northgate has space for 60 pallets, 90 minutes away. Kelvarin: 4 hours.",
+      "at": "meeting",
+      "person": "amara"
     }
   ],
   "questions": [

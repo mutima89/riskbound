@@ -36,7 +36,8 @@
       "body": [
         "Deliveries completed: 41,200 (up 3%). Fuel spend: 1.21m (up 6%). On-time delivery: 96.2%.",
         "No indicator has a threshold or an owner. The pack is read at the monthly operations meeting."
-      ]
+      ],
+      "at": "meeting"
     },
     {
       "id": "excursions",
@@ -54,12 +55,14 @@
       "body": [
         "Breaches of daily driving limits: 0, 0, 1, 2 in the last four months. 38 per cent of routes are now planned above 9 hours, up from 22 per cent a year ago.",
         "Shifts per month: about 2,000."
-      ]
+      ],
+      "at": "monitoring"
     },
     {
       "id": "appetite",
       "title": "Board risk appetite (extract)",
-      "body": "Valtren has no appetite for food safety breaches and a low appetite for regulatory breaches. Operational disruption is tolerated within budget."
+      "body": "Valtren has no appetite for food safety breaches and a low appetite for regulatory breaches. Operational disruption is tolerated within budget.",
+      "at": "manager"
     }
   ],
   "questions": [

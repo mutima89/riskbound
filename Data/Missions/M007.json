@@ -32,7 +32,8 @@
       "body": [
         "About 6 events a year (Poisson-like). Single-event losses: median 18,000; 90th percentile 95,000; largest 410,000.",
         "Annual totals: 96,000; 141,000; 88,000; 402,000; 119,000."
-      ]
+      ],
+      "at": "monitoring"
     },
     {
       "id": "mc_output",
@@ -40,12 +41,16 @@
       "body": [
         "Annual loss: mean 152,000; median 121,000; P90 268,000; P95 341,000; P99 560,000.",
         "Probability that annual losses exceed 300,000: 7%."
-      ]
+      ],
+      "at": "workspace",
+      "person": "callum"
     },
     {
       "id": "budget_policy",
       "title": "Finance budgeting note",
-      "body": "Provisions are set so the business is not surprised more than one year in ten. Any overspend above budget must be found from cuts elsewhere in the same year."
+      "body": "Provisions are set so the business is not surprised more than one year in ten. Any overspend above budget must be found from cuts elsewhere in the same year.",
+      "at": "boardroom",
+      "person": "hollis"
     }
   ],
   "questions": [

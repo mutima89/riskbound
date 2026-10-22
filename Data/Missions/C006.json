@@ -19,17 +19,22 @@
     {
       "id": "damage",
       "title": "Damage summary",
-      "body": "Floor-level stock lost: about 120,000. Two forklifts water-damaged (about 30,000). Loading bays closed for 3 days."
+      "body": "Floor-level stock lost: about 120,000. Two forklifts water-damaged (about 30,000). Loading bays closed for 3 days.",
+      "at": "training"
     },
     {
       "id": "policy",
       "title": "Insurance",
-      "body": "Flood excess 250,000 per event; cover limit 1,000,000."
+      "body": "Flood excess 250,000 per event; cover limit 1,000,000.",
+      "at": "boardroom",
+      "person": "hollis"
     },
     {
       "id": "history",
       "title": "Earlier decision",
-      "body": "Your flood appraisal recommended a response plan; it was not adopted."
+      "body": "Your flood appraisal recommended a response plan; it was not adopted.",
+      "at": "manager",
+      "person": "priya"
     }
   ],
   "questions": [

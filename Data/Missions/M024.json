@@ -30,17 +30,22 @@
     {
       "id": "position",
       "title": "Liquidity position",
-      "body": "Cash 4.0m. Undrawn revolving credit facility 5.0m (can be withdrawn if the leverage covenant is breached). Monthly operating outflow 4.4m; inflow 4.6m on normal terms."
+      "body": "Cash 4.0m. Undrawn revolving credit facility 5.0m (can be withdrawn if the leverage covenant is breached). Monthly operating outflow 4.4m; inflow 4.6m on normal terms.",
+      "at": "boardroom",
+      "person": "hollis"
     },
     {
       "id": "scenario",
       "title": "Severe but plausible scenario",
-      "body": "Top client (14% of revenue) pays 60 days late; a second client fails owing 1.2m; fuel +30% for six months (adds 0.15m a month); the facility is withdrawn in month 3 after a covenant breach."
+      "body": "Top client (14% of revenue) pays 60 days late; a second client fails owing 1.2m; fuel +30% for six months (adds 0.15m a month); the facility is withdrawn in month 3 after a covenant breach.",
+      "at": "workspace",
+      "person": "callum"
     },
     {
       "id": "levers",
       "title": "Actions available",
-      "body": "Invoice financing for other receivables (raises about 2.0m within 4 weeks). Defer capital expenditure (0.4m a month). Supplier term extension (about 1.0m one-off)."
+      "body": "Invoice financing for other receivables (raises about 2.0m within 4 weeks). Defer capital expenditure (0.4m a month). Supplier term extension (about 1.0m one-off).",
+      "at": "meeting"
     }
   ],
   "questions": [

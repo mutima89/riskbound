@@ -29,7 +29,8 @@
     {
       "id": "survey",
       "title": "Survey results",
-      "body": "'I can raise concerns without fear': managers 81% agree, front line 38%. 'Bad news travels up quickly': managers 74%, front line 29%. Response rate 64%."
+      "body": "'I can raise concerns without fear': managers 81% agree, front line 38%. 'Bad news travels up quickly': managers 74%, front line 29%. Response rate 64%.",
+      "at": "training"
     },
     {
       "id": "comments",
@@ -41,7 +42,9 @@
     {
       "id": "speak_up",
       "title": "Speak-up line data",
-      "body": "4 reports in 12 months across 1,240 staff. Benchmark for similar firms: 15-25."
+      "body": "4 reports in 12 months across 1,240 staff. Benchmark for similar firms: 15-25.",
+      "at": "meeting",
+      "person": "ruth"
     },
     {
       "id": "speakup_closed",
@@ -50,7 +53,8 @@
         "Three reports about Corvane pricing in two years, each closed within a week as \"commercial matter, no action\" by the COO's office instead of going to Internal Audit."
       ],
       "required": false,
-      "clue": "speakup_closed"
+      "clue": "speakup_closed",
+      "at": "meeting"
     }
   ],
   "questions": [

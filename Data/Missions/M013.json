@@ -29,17 +29,21 @@
     {
       "id": "current_statement",
       "title": "Current appetite statement",
-      "body": "'Valtren has zero tolerance for food safety breaches, a low appetite for regulatory breaches, a moderate appetite for operational disruption, and is open to strategic risk in pursuit of growth.'"
+      "body": "'Valtren has zero tolerance for food safety breaches, a low appetite for regulatory breaches, a moderate appetite for operational disruption, and is open to strategic risk in pursuit of growth.'",
+      "at": "boardroom"
     },
     {
       "id": "data",
       "title": "Available measures",
-      "body": "Temperature excursions per 10,000 deliveries (last year 3.1). Regulatory findings per year (2). On-time delivery (93-96%). Unplanned downtime of critical systems (hours per quarter). Revenue from new services (8% of total)."
+      "body": "Temperature excursions per 10,000 deliveries (last year 3.1). Regulatory findings per year (2). On-time delivery (93-96%). Unplanned downtime of critical systems (hours per quarter). Revenue from new services (8% of total).",
+      "at": "monitoring"
     },
     {
       "id": "strategy",
       "title": "Strategy summary",
-      "body": "Grow pharmaceutical cold chain from 8% to 25% of revenue in three years. Pharma clients audit suppliers and expect documented temperature control."
+      "body": "Grow pharmaceutical cold chain from 8% to 25% of revenue in three years. Pharma clients audit suppliers and expect documented temperature control.",
+      "at": "boardroom",
+      "person": "adrian"
     }
   ],
   "questions": [

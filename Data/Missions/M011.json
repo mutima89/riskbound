@@ -35,17 +35,22 @@
     {
       "id": "policy",
       "title": "Risk appetite policy (extract)",
-      "body": "Any metric outside appetite for more than two consecutive reporting periods must be reported to the Risk Committee with the owner's remediation plan and expected return date."
+      "body": "Any metric outside appetite for more than two consecutive reporting periods must be reported to the Risk Committee with the owner's remediation plan and expected return date.",
+      "at": "manager"
     },
     {
       "id": "coo_email",
-      "title": "Email from the COO",
-      "body": "This is a blip. Recruitment is under way. Reporting it will just alarm people. Leave it out this month please and I'll sort it."
+      "title": "Celeste Marlow on the breach",
+      "body": "This is a blip. Recruitment is under way. Reporting it will just alarm people. Leave it out this month please and I'll sort it.",
+      "at": "boardroom",
+      "person": "celeste"
     },
     {
       "id": "client_terms",
       "title": "Key client terms",
-      "body": "Two of the largest clients have service credits below 93% on-time, and termination rights below 90% for three months."
+      "body": "Two of the largest clients have service credits below 93% on-time, and termination rights below 90% for three months.",
+      "at": "meeting",
+      "person": "rafe"
     }
   ],
   "questions": [

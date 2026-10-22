@@ -32,7 +32,8 @@
       "body": [
         "Owner: depot supervisor. Frequency: every refrigerated delivery. Activity: download the data logger within 24 hours of delivery, review the trace, log any excursion and notify Quality the same day.",
         "Evidence of operation: download timestamp in the logger system; excursion log."
-      ]
+      ],
+      "at": "training"
     },
     {
       "id": "test_results",
@@ -41,7 +42,8 @@
         "Downloaded within 24 hours: 19. Downloaded after 48-72 hours: 3. Never downloaded: 3.",
         "Two excursions were in the sample; both were found late (day 3), after the stock had been sold on.",
         "Valtren makes about 2,000 refrigerated deliveries a month."
-      ]
+      ],
+      "at": "monitoring"
     },
     {
       "id": "rota",
@@ -52,7 +54,9 @@
     {
       "id": "logger_report",
       "title": "Logger health report",
-      "body": "All sampled loggers recorded complete traces. No device faults were reported in the period."
+      "body": "All sampled loggers recorded complete traces. No device faults were reported in the period.",
+      "at": "monitoring",
+      "person": "amara"
     },
     {
       "id": "ap_sample",
@@ -62,7 +66,8 @@
         "Both were approved under the operational emergency route by the COO's office. It is outside the scope of this test."
       ],
       "required": false,
-      "clue": "duplicate_invoices"
+      "clue": "duplicate_invoices",
+      "at": "boardroom"
     }
   ],
   "questions": [

@@ -19,17 +19,22 @@
     {
       "id": "leaks",
       "title": "Leak records",
-      "body": "310 kg topped up across six sites. Leak checks recorded at four sites; two sites have no records for 14 months."
+      "body": "310 kg topped up across six sites. Leak checks recorded at four sites; two sites have no records for 14 months.",
+      "at": "monitoring"
     },
     {
       "id": "rules",
       "title": "Regulation (summary)",
-      "body": "Systems above a size threshold need periodic leak checks with records; operators must repair leaks promptly; the phase-down restricts supply of this refrigerant from 2027."
+      "body": "Systems above a size threshold need periodic leak checks with records; operators must repair leaks promptly; the phase-down restricts supply of this refrigerant from 2027.",
+      "at": "meeting",
+      "person": "ruth"
     },
     {
       "id": "cost",
       "title": "Costs",
-      "body": "Refrigerant price up 140% in two years. Leak detection sensors: 9,000 per site."
+      "body": "Refrigerant price up 140% in two years. Leak detection sensors: 9,000 per site.",
+      "at": "meeting",
+      "person": "tomasz"
     }
   ],
   "questions": [

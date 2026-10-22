@@ -392,6 +392,102 @@ static void RunUiTour(UWorld* World, ARbHUD* Hud)
 	}), 0.8f);
 }
 
+// Shoots the walk-around case markers: M002 in its four rooms, M006 in the training area (a desk document and
+// Grace) and M009 in the workspace (two reading stands). Earlier cases are played with the best answers to open
+// the later ones. Screenshots go to Saved/Screenshots/<platform>/Case_<n>_<name>.png; RbCases.txt lists the markers.
+static void RunCaseTour(UWorld* World, ARbHUD* Hud)
+{
+	struct FStep
+	{
+		FString Name;
+		TFunction<void(ARbHUD*, TArray<FString>&)> Setup;
+		FTransform View;
+	};
+	auto View = [](const FVector& From, const FVector& To) { return FTransform((To - From).Rotation(), From); };
+	auto Open = [](const FString& Id, TArray<FString> Before)
+	{
+		return [Id, Before](ARbHUD* H, TArray<FString>& Lines)
+		{
+			for (const FString& B : Before) Lines.Add(FString::Printf(TEXT("%s played: %s"), *B, *URbCampaignSubsystem::ResultText(PlayCaseBest(H, B))));
+			H->CloseScreen();
+			const ERbMissionResult R = H->GetGameInstance()->GetSubsystem<URbCampaignSubsystem>()->StartMission(Id);
+			Lines.Add(FString::Printf(TEXT("%s started: %s"), *Id, *URbCampaignSubsystem::ResultText(R)));
+		};
+	};
+	TSharedRef<TArray<FStep>> Steps = MakeShared<TArray<FStep>>();
+	Steps->Add({TEXT("M002_Meeting"), Open(TEXT("M002"), {}), View(FVector(3150.0f, 1100.0f, 185.0f), FVector(3700.0f, 580.0f, 80.0f))});
+	Steps->Add({TEXT("M002_Monitoring"), nullptr, View(FVector(1600.0f, -300.0f, 180.0f), FVector(1150.0f, -620.0f, 90.0f))});
+	Steps->Add({TEXT("M002_Reception"), nullptr, View(FVector(300.0f, 400.0f, 180.0f), FVector(590.0f, 995.0f, 100.0f))});
+	Steps->Add({TEXT("M002_Manager"), nullptr, View(FVector(2750.0f, 350.0f, 180.0f), FVector(2400.0f, 850.0f, 100.0f))});
+	Steps->Add({TEXT("M006_Training"), Open(TEXT("M006"), {TEXT("M002"), TEXT("M003"), TEXT("M004"), TEXT("M005")}),
+		View(FVector(850.0f, -1050.0f, 190.0f), FVector(420.0f, -470.0f, 90.0f))});
+	Steps->Add({TEXT("M009_Workspace"), Open(TEXT("M009"), {TEXT("M006"), TEXT("M007"), TEXT("M008")}),
+		View(FVector(1850.0f, 1050.0f, 190.0f), FVector(1250.0f, 560.0f, 80.0f))});
+
+	Hud->StartNewGame(ERbDifficulty::Professional);
+	PlayMission001(Hud->Game());
+	TSharedRef<TArray<FString>> Lines = MakeShared<TArray<FString>>();
+	TSharedRef<int32> Index = MakeShared<int32>(0);
+	TSharedRef<bool> bPlaced = MakeShared<bool>(false);
+	TSharedRef<bool> bSetUp = MakeShared<bool>(false);
+	TSharedRef<int32> Settle = MakeShared<int32>(0);
+	TWeakObjectPtr<ARbHUD> WeakHud(Hud);
+	TWeakObjectPtr<UWorld> WeakWorld(World);
+	// Core ticker: the case files screen pauses the world while it is open.
+	FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([Steps, Lines, Index, bPlaced, bSetUp, Settle, WeakHud, WeakWorld](float)
+	{
+		if (!WeakHud.IsValid() || !WeakWorld.IsValid()) return false;
+		APlayerController* PC = WeakWorld->GetFirstPlayerController();
+		if (*Index >= Steps->Num() || !PC || !PC->GetPawn())
+		{
+			FString Text = TEXT("mode=cases\n");
+			for (const FString& L : *Lines) Text += L + TEXT("\n");
+			FFileHelper::SaveStringToFile(Text, *(FPaths::ProjectSavedDir() / TEXT("RbCases.txt")), FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+			FPlatformMisc::RequestExit(false, TEXT("RbSelfTest"));
+			return false;
+		}
+		const FStep& S = (*Steps)[*Index];
+		if (S.Setup && !*bSetUp)
+		{
+			S.Setup(WeakHud.Get(), *Lines);
+			*bSetUp = true;
+			*Settle = 2;
+			return true;
+		}
+		// Promotions from the cases just played queue boardroom ceremonies that hold the camera; let them finish.
+		if (WeakHud->IsCeremonyPlaying())
+		{
+			*Settle = 2;
+			return true;
+		}
+		if (*Settle > 0)
+		{
+			--*Settle;
+			return true;
+		}
+		if (!*bPlaced)
+		{
+			PC->SetIgnoreLookInput(true);
+			PC->SetIgnoreMoveInput(true);
+			PC->GetPawn()->SetActorLocation(S.View.GetLocation() - FVector(0.0f, 0.0f, 70.0f), false, nullptr, ETeleportType::TeleportPhysics);
+			PC->SetControlRotation(S.View.Rotator());
+			if (PC->PlayerCameraManager) PC->PlayerCameraManager->SetGameCameraCutThisFrame();
+			*bPlaced = true;
+			return true;
+		}
+		for (TActorIterator<ARbCaseMarker> It(WeakWorld.Get()); It; ++It)
+		{
+			const FVector L = It->GetActorLocation();
+			Lines->Add(FString::Printf(TEXT("%s: %s '%s' at %s (%.0f, %.0f, %.0f)"), *S.Name, *It->MissionId, *It->Title, *It->Where, L.X, L.Y, L.Z));
+		}
+		FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("Case_%02d_%s"), *Index, *S.Name), false, false);
+		*bPlaced = false;
+		*bSetUp = false;
+		++*Index;
+		return true;
+	}), 2.0f);
+}
+
 void Run(UWorld* World)
 {
 	const FString Mode = RequestedMode();
@@ -414,6 +510,12 @@ void Run(UWorld* World)
 	if (Hud && Mode == TEXT("tour"))
 	{
 		RunTour(World, Hud);
+		return;
+	}
+	if (Hud && Mode == TEXT("cases"))
+	{
+		Hud->Saves()->SetSlotName(TEXT("selftest_cases"));
+		RunCaseTour(World, Hud);
 		return;
 	}
 	if (Hud)

@@ -19,17 +19,22 @@
     {
       "id": "scope",
       "title": "Scope",
-      "body": "Encrypted: depot scanning gateway, route-planning database. Unaffected so far: email (cloud), finance system."
+      "body": "Encrypted: depot scanning gateway, route-planning database. Unaffected so far: email (cloud), finance system.",
+      "at": "monitoring",
+      "person": "mei"
     },
     {
       "id": "backup",
       "title": "Backups",
-      "body": "Nightly backups, last restore test 18 months ago. Restore estimate: 2-4 days if they work."
+      "body": "Nightly backups, last restore test 18 months ago. Restore estimate: 2-4 days if they work.",
+      "at": "monitoring"
     },
     {
       "id": "legal",
       "title": "Legal note",
-      "body": "Paying may breach sanctions rules if the group is sanctioned; data exfiltration not yet ruled out."
+      "body": "Paying may breach sanctions rules if the group is sanctioned; data exfiltration not yet ruled out.",
+      "at": "meeting",
+      "person": "ruth"
     }
   ],
   "questions": [
