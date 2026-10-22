@@ -91,7 +91,7 @@ public:
 	// Reaction to the player's choice: +1 pleased (nod, smile), -1 unhappy (shake, frown), 0 thoughtful.
 	void React(int32 Sign);
 	// A one-shot gesture by animation name (e.g. "gestic_shrug_01"); false if that loop is missing.
-	bool PlayGesture(const TCHAR* Name, float BlendIn = 0.25f);
+	bool PlayGesture(const TCHAR* Name, float BlendIn = 0.25f, float MaxSeconds = 3.2f);
 
 	// Walks through world-space points (Z ignored, kept on this component's floor height), then calls OnArrive.
 	void WalkRoute(const TArray<FVector>& Points, TFunction<void()> OnArrive = nullptr);
@@ -123,6 +123,9 @@ private:
 	bool bGestureOneShot = false;   // Blend is a one-shot gesture that fades back to Base
 	float GestureLeft = 0.0f;
 	TObjectPtr<UAnimSequence> IdleLoop;
+	TObjectPtr<UAnimSequence> WalkLoop; // plays at a rate matched to the walking speed (no foot sliding)
+	float WalkRate = 1.0f;
+	float NextFidget = 12.0f;       // standing staff shift their weight and look around now and then
 	UPROPERTY(Transient) TArray<TObjectPtr<UAnimSequence>> Loaded; // keeps every loop in use alive
 	TMap<FString, TObjectPtr<UAnimSequence>> LoopCache;
 	ERbPersonActivity Activity = ERbPersonActivity::Standing;
@@ -169,6 +172,9 @@ private:
 	int32 RouteIndex = 0;
 	TFunction<void()> OnArrived;
 	float WaitedForPlayer = 0.0f;
+	float Speed = 0.0f;             // cm/s, eased up and down: no instant starts or stops
+	float CruiseSpeed() const;      // the walk loop's own stride speed, so feet do not slide
+	void FinishRoute();
 	void TickWalk(float DeltaTime);
 	bool PlayerPosition(FVector& OutLocation, FVector& OutForward) const;
 };
