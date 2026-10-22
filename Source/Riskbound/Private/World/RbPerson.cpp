@@ -27,10 +27,20 @@ const FName LeftEyeBone(TEXT("Bip01 LEye"));
 const FName RightEyeBone(TEXT("Bip01 REye"));
 const FName JawBone(TEXT("Bip01 MJaw"));
 
-constexpr float WalkSpeed = 118.0f;     // cm/s, matches the walk loop's stride
 constexpr float LookRange = 480.0f;     // people notice the player within this distance
 constexpr float SpeakRate = 14.0f;      // characters a second
 constexpr float MaxSpeech = 9.0f;       // seconds of text-timed lip-sync for the longest unrecorded lines
+
+// Stride speed of each walking loop (cm/s of travel in the clip), measured once on the animation thread.
+FCriticalSection StrideLock;
+TMap<const UAnimSequence*, float> StrideSpeeds;
+
+float KnownStride(const UAnimSequence* Seq)
+{
+	FScopeLock Lock(&StrideLock);
+	const float* S = StrideSpeeds.Find(Seq);
+	return S ? *S : -1.0f;
+}
 
 TArray<TWeakObjectPtr<URbPersonComponent>>& Registry()
 {
@@ -132,6 +142,25 @@ bool FRbPersonAnimProxy::Evaluate(FPoseContext& Output)
 		Seq->GetAnimationPose(Data, FAnimExtractContext(static_cast<double>(Time), false));
 		if (bInPlace) PinPelvis(Into);
 	};
+	// Measure how far each walking loop travels per cycle (hips in component space, first to last frame),
+	// so the person can move at exactly the pace the feet step.
+	for (UAnimSequence* Walk : {Pose.bBaseInPlace ? Pose.Base.Get() : nullptr, Pose.bBlendInPlace ? Pose.Blend.Get() : nullptr})
+	{
+		if (!Walk || KnownStride(Walk) >= 0.0f) continue;
+		const float Len = Walk->GetPlayLength();
+		FPoseContext A(this);
+		FPoseContext B(this);
+		Sample(Walk, 0.0f, false, A);
+		Sample(Walk, Len * 0.999f, false, B);
+		const FCompactPoseBoneIndex Pelvis = BoneIndex(A.Pose, PelvisBone);
+		float Stride = 0.0f;
+		if (Pelvis.IsValid() && Len > 0.1f)
+		{
+			Stride = static_cast<float>(FVector::Dist2D(ComponentSpace(A.Pose, Pelvis).GetLocation(), ComponentSpace(B.Pose, Pelvis).GetLocation()) / Len);
+		}
+		FScopeLock Lock(&StrideLock);
+		StrideSpeeds.Add(Walk, Stride);
+	}
 	if (Pose.Blend && Pose.BlendAlpha > 0.001f)
 	{
 		FPoseContext From(this);
@@ -195,6 +224,8 @@ URbPersonComponent::URbPersonComponent()
 	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AnimClass = URbPersonAnimInstance::StaticClass();
 	VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	// Full-rate animation at any distance: throttled updates read as lag on people walking past.
+	bEnableUpdateRateOptimizations = false;
 	bCastDynamicShadow = true;
 }
 
@@ -290,6 +321,13 @@ void URbPersonComponent::SetLoop(UAnimSequence* NewLoop, float BlendSeconds, boo
 	if (!NewLoop) return;
 	if (Pose.Blend && !bGestureOneShot && Pose.Blend == NewLoop) return;   // already heading there
 	if (!Pose.Blend && Pose.Base == NewLoop) return;
+	if (Pose.Base == NewLoop && Pose.Blend && !bGestureOneShot && Pose.BlendAlpha < 0.5f)
+	{
+		// Changed its mind early in a crossfade (stop, then go on walking): keep the loop that is showing.
+		Pose.Blend = nullptr;
+		Pose.BlendAlpha = 0.0f;
+		return;
+	}
 	if (Pose.Blend && Pose.BlendAlpha >= 0.5f)
 	{
 		// Commit the half-finished crossfade so the new one starts from what is on screen.
@@ -314,7 +352,7 @@ void URbPersonComponent::SetLoop(UAnimSequence* NewLoop, float BlendSeconds, boo
 	BlendSpeed = 1.0f / BlendSeconds;
 }
 
-bool URbPersonComponent::PlayGesture(const TCHAR* Name, float BlendIn)
+bool URbPersonComponent::PlayGesture(const TCHAR* Name, float BlendIn, float MaxSeconds)
 {
 	UAnimSequence* G = Loop(Name);
 	if (!G || Activity == ERbPersonActivity::Walking) return false;
@@ -330,7 +368,7 @@ bool URbPersonComponent::PlayGesture(const TCHAR* Name, float BlendIn)
 	Pose.bBlendInPlace = false;
 	BlendSpeed = 1.0f / FMath::Max(BlendIn, 0.05f);
 	bGestureOneShot = true;
-	GestureLeft = FMath::Min(G->GetPlayLength(), 3.2f);
+	GestureLeft = FMath::Min(G->GetPlayLength(), MaxSeconds);
 	return true;
 }
 
@@ -453,12 +491,33 @@ void URbPersonComponent::WalkRoute(const TArray<FVector>& Points, TFunction<void
 		if (OnArrived) { TFunction<void()> Done = MoveTemp(OnArrived); Done(); }
 		return;
 	}
+	const bool bWasWalking = Activity == ERbPersonActivity::Walking;
 	Activity = ERbPersonActivity::Walking;
 	StopVoice();
 	SpeakT = -1.0f;
-	UAnimSequence* Walk = Loop(TEXT("walk_neutral_01"));
-	if (!Walk) Walk = Loop(TEXT("walk_neutral_02"));
-	SetLoop(Walk ? Walk : IdleLoop.Get(), 0.3f, Walk != nullptr);
+	WalkLoop = Loop(TEXT("walk_neutral_01"));
+	if (!WalkLoop) WalkLoop = Loop(TEXT("walk_neutral_02"));
+	if (!bWasWalking) Speed = 0.0f; // set off from standing; TickWalk eases up to pace and starts the loop
+}
+
+float URbPersonComponent::CruiseSpeed() const
+{
+	// A relaxed office pace; the walk loop's own stride when it is measured and plausible.
+	const float Stride = WalkLoop ? KnownStride(WalkLoop) : -1.0f;
+	return Stride >= 70.0f && Stride <= 170.0f ? Stride : 120.0f;
+}
+
+void URbPersonComponent::FinishRoute()
+{
+	Route.Reset();
+	Speed = 0.0f;
+	Activity = ERbPersonActivity::Standing;
+	SetLoop(IdleLoop, 0.45f);
+	if (OnArrived)
+	{
+		TFunction<void()> Done = MoveTemp(OnArrived);
+		Done();
+	}
 }
 
 bool URbPersonComponent::PlayerPosition(FVector& OutLocation, FVector& OutForward) const
@@ -483,7 +542,7 @@ void URbPersonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		const float Diff = FMath::FindDeltaAngleDegrees(FacingYaw, TargetFacing);
 		if (FMath::Abs(Diff) > 0.5f)
 		{
-			const float Rate = (Activity == ERbPersonActivity::Walking ? 260.0f : 110.0f) * DeltaTime;
+			const float Rate = (Activity == ERbPersonActivity::Walking ? 160.0f : 110.0f) * DeltaTime;
 			FacingYaw += FMath::Clamp(Diff, -Rate, Rate);
 			SetWorldRotation(FRotator(0.0f, FacingYaw + MeshYaw, 0.0f));
 		}
@@ -501,9 +560,22 @@ void URbPersonComponent::TickBody(float DeltaTime)
 		Time += Dt;
 		Time = bWrap ? FMath::Fmod(Time, Len) : FMath::Min(Time, Len);
 	};
-	Advance(Pose.Base, Pose.BaseTime, DeltaTime, true);
+	// The walking loop runs at the rate the person actually moves, so steps match the ground.
+	auto Rate = [this](const UAnimSequence* Seq) { return Seq && Seq == WalkLoop ? WalkRate : 1.0f; };
+	Advance(Pose.Base, Pose.BaseTime, DeltaTime * Rate(Pose.Base), true);
+	// Standing staff shift their weight or look around now and then instead of holding one loop for ever.
+	if (Activity == ERbPersonActivity::Standing && !bEngaged && SpeakT < 0.0f && !Pose.Blend && bCanAnimate)
+	{
+		NextFidget -= DeltaTime;
+		if (NextFidget <= 0.0f)
+		{
+			NextFidget = Rand.FRandRange(10.0f, 24.0f);
+			static const TCHAR* const Fidgets[] = {TEXT("idle_look_around_01"), TEXT("idle_neutral_02"), TEXT("idle_breathe_01")};
+			PlayGesture(Fidgets[Rand.RandRange(0, static_cast<int32>(UE_ARRAY_COUNT(Fidgets)) - 1)], 0.7f, Rand.FRandRange(4.0f, 7.0f));
+		}
+	}
 	if (!Pose.Blend) return;
-	Advance(Pose.Blend, Pose.BlendTime, DeltaTime, !bGestureOneShot);
+	Advance(Pose.Blend, Pose.BlendTime, DeltaTime * Rate(Pose.Blend), !bGestureOneShot);
 	if (bGestureOneShot)
 	{
 		GestureLeft -= DeltaTime;
@@ -532,65 +604,67 @@ void URbPersonComponent::TickBody(float DeltaTime)
 void URbPersonComponent::TickWalk(float DeltaTime)
 {
 	if (Activity != ERbPersonActivity::Walking || Route.IsEmpty()) return;
-	FVector Here = GetComponentLocation();
+	constexpr float Accel = 190.0f;     // cm/s^2: about two thirds of a second to reach pace
+	constexpr float CornerCut = 70.0f;  // turn towards the next point this far before reaching a corner
+	const FVector Here = GetComponentLocation();
+	bool bLast = RouteIndex == Route.Num() - 1;
 	FVector Target = Route[RouteIndex];
 	Target.Z = Here.Z;
-	FVector PlayerAt, PlayerFwd;
+	float Dist = static_cast<float>((Target - Here).Size2D());
+	// Round corners instead of stopping on them.
+	while (!bLast && Dist < CornerCut)
+	{
+		++RouteIndex;
+		bLast = RouteIndex == Route.Num() - 1;
+		Target = Route[RouteIndex];
+		Target.Z = Here.Z;
+		Dist = static_cast<float>((Target - Here).Size2D());
+	}
+	const float Cruise = CruiseSpeed();
+	float Desired = Cruise;
 	// Stop for the player rather than walk through them; look at them while waiting.
+	FVector PlayerAt, PlayerFwd;
+	bool bBlocked = false;
 	if (PlayerPosition(PlayerAt, PlayerFwd))
 	{
 		const FVector ToPlayer = FVector(PlayerAt.X, PlayerAt.Y, Here.Z) - Here;
-		const FVector Heading = (Target - Here).GetSafeNormal2D();
-		if (ToPlayer.Size2D() < 125.0f && FVector::DotProduct(ToPlayer.GetSafeNormal2D(), Heading) > 0.2f)
+		const FVector Heading = FRotator(0.0f, FacingYaw, 0.0f).Vector();
+		if (ToPlayer.Size2D() < 135.0f && FVector::DotProduct(ToPlayer.GetSafeNormal2D(), Heading) > 0.25f)
 		{
 			// Someone walking up to the player has arrived once the player is in the way of the last step.
-			if (RouteIndex == Route.Num() - 1 && (Target - Here).Size2D() < 220.0f)
+			if (bLast && Dist < 220.0f)
 			{
-				Route.Reset();
-				Activity = ERbPersonActivity::Standing;
-				SetLoop(IdleLoop, 0.3f);
-				if (OnArrived)
-				{
-					TFunction<void()> Done = MoveTemp(OnArrived);
-					Done();
-				}
+				FinishRoute();
 				return;
 			}
-			if (WaitedForPlayer <= 0.0f) SetLoop(IdleLoop, 0.25f);
-			WaitedForPlayer += DeltaTime;
-			return;
-		}
-		if (WaitedForPlayer > 0.0f)
-		{
-			WaitedForPlayer = 0.0f;
-			UAnimSequence* Walk = Loop(TEXT("walk_neutral_01"));
-			SetLoop(Walk ? Walk : IdleLoop.Get(), 0.25f, Walk != nullptr);
+			bBlocked = true;
+			Desired = 0.0f;
 		}
 	}
-	const FVector ToTarget = Target - Here;
-	const float Dist = static_cast<float>(ToTarget.Size2D());
-	const float Stepped = WalkSpeed * DeltaTime;
-	TargetFacing = static_cast<float>(FMath::RadiansToDegrees(FMath::Atan2(ToTarget.Y, ToTarget.X)));
-	// Slow down while turning so corners are not taken sideways.
+	WaitedForPlayer = bBlocked ? WaitedForPlayer + DeltaTime : 0.0f;
+	// Slow into the last point, and through sharp turns.
+	if (bLast) Desired = FMath::Min(Desired, FMath::Sqrt(2.0f * Accel * FMath::Max(Dist - 4.0f, 0.0f)) + 10.0f);
+	TargetFacing = static_cast<float>(FMath::RadiansToDegrees(FMath::Atan2(Target.Y - Here.Y, Target.X - Here.X)));
 	const float Turn = FMath::Abs(FMath::FindDeltaAngleDegrees(FacingYaw, TargetFacing));
-	const float Pace = Turn > 60.0f ? 0.35f : 1.0f;
-	if (Dist <= Stepped * Pace + 2.0f)
+	// Facing well away from the way to go: turn (almost) on the spot first.
+	Desired = Turn > 100.0f ? 0.0f : Desired * FMath::GetMappedRangeValueClamped(FVector2f(35.0f, 100.0f), FVector2f(1.0f, 0.3f), Turn);
+	Speed = FMath::FInterpConstantTo(Speed, Desired, DeltaTime, Accel);
+
+	if (bLast && Dist < 5.0f && !bBlocked)
 	{
 		SetWorldLocation(Target);
-		if (++RouteIndex >= Route.Num())
-		{
-			Route.Reset();
-			Activity = ERbPersonActivity::Standing;
-			SetLoop(IdleLoop, 0.35f);
-			if (OnArrived)
-			{
-				TFunction<void()> Done = MoveTemp(OnArrived);
-				Done();
-			}
-		}
+		FinishRoute();
 		return;
 	}
-	SetWorldLocation(Here + ToTarget / Dist * Stepped * Pace);
+	// Walk where the body faces (so paths curve), straight at the point when close to it.
+	const FVector Facing = FRotator(0.0f, FacingYaw, 0.0f).Vector();
+	const FVector Dir = Dist < 30.0f ? (Target - Here).GetSafeNormal2D() : Facing;
+	SetWorldLocation(Here + Dir * FMath::Min(Speed * DeltaTime, Dist));
+
+	// Body: walking loop at a rate matched to the speed, easing to the idle when (nearly) still.
+	WalkRate = FMath::Clamp(Speed / Cruise, 0.45f, 1.25f);
+	if (WalkLoop && Speed > 22.0f) SetLoop(WalkLoop, 0.35f, true);
+	else if (Speed < 12.0f) SetLoop(IdleLoop, 0.4f);
 }
 
 void URbPersonComponent::FindShapes()
